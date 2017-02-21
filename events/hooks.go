@@ -21,11 +21,7 @@ func handleHookEvent(result chan Result) {
 			continue
 		}
 
-		fmt.Println(transition)
-
 		go func() {
-			fmt.Println("looping hooks")
-
 			for _, hook := range transition.Hooks {
 				res := Result{Reporter: "Hook Handler", Success: true}
 
@@ -75,7 +71,6 @@ func handleHookEvent(result chan Result) {
 				result <- res
 			}
 
-			fmt.Println("done")
 			result <- Result{
 				Reporter: "Hook Handler",
 				Success:  true,
