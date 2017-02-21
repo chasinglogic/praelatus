@@ -89,7 +89,7 @@ func init() {
 
 	err = json.Unmarshal(jsn, &c)
 	if err != nil {
-		fmt.Println("Error unmarshaling config file defaulting to environment variable configuration")
+		fmt.Println("Error unmarshaling config file:", err)
 		os.Exit(1)
 	}
 
