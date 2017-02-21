@@ -1,30 +1,111 @@
 // Package events handles sending notifications to users and websockets
-// when certain events happen. It also handles firing webhooks on workflow
+// when system events happen. Such as firing webhooks on workflow
 // transitions.
 package events
 
 import (
-	"github.com/gorilla/websocket"
+	"log"
+	"net/http"
 
+	"github.com/gorilla/websocket"
+	"github.com/praelatus/praelatus/config"
 	"github.com/praelatus/praelatus/models"
 )
 
-var Evm = New()
+// evm is the global event manager which is interfaced with using the functions
+// whose names match the methods of an EventManager
+var evm = &EventManager{
+	Result: make(chan Result, 10),
+	Listeners: []chan models.Event{
+		hookEventChan,
+	},
+	ActiveWS: make([]WSManager, 0),
+}
 
+var eventLog = log.New(config.LogWriter(), "EVENT", log.LstdFlags)
+
+// Stop is a global channel used to stop all running event managers
+var Stop = make(chan int)
+
+// EventManager is the fan-in point for all available event listeners
 type EventManager struct {
-	Event    chan models.Event
-	ActiveWS []WSManager
+	Result    chan Result
+	Listeners []chan models.Event
+	ActiveWS  []WSManager
 }
 
-type WSManager struct {
-	Socket *websocket.Conn
-	InBuf  [256]byte
-	OutBuf [256]byte
+// FireEvent sends the given event to all registered listeners of the given
+// event manager
+func (e *EventManager) FireEvent(ev models.Event) {
+	go func() {
+		for _, listener := range e.Listeners {
+			listener <- ev
+		}
+
+		return
+	}()
 }
 
+// RegisterListener adds a listener to the EventManager
+func (e *EventManager) RegisterListener(ev chan models.Event) {
+	e.Listeners = append(e.Listeners, ev)
+}
+
+// ResultChan returns the result channel used on the global EventManager
+func ResultChan() chan Result {
+	return evm.Result
+}
+
+// Run starts the event manager, you can use an event manager without calling
+// this but it's not recommended as it can and will cause memory leaks, should
+// be called in a go routine normally
+func (e *EventManager) Run() {
+	for {
+		select {
+		case res := <-e.Result:
+			if !res.Success {
+				eventLog.Printf("handler %s failed with error %s\n", res.Reporter, res.Error.Error())
+				continue
+			}
+
+			eventLog.Printf("handler %s ran successfully", res.Reporter)
+		case <-Stop:
+			return
+		}
+	}
+}
+
+// AddWs will upgrade the given http connection to a websocket and register it
+// with the EventManager
+func (e *EventManager) AddWs(w http.ResponseWriter, r *http.Request, h http.Header) error {
+	conn, err := websocket.Upgrade(w, r, h, 1024, 1024)
+	if err != nil {
+		return err
+	}
+
+	ws := WSManager{
+		In:     make(chan []byte),
+		Out:    make(chan []byte),
+		Socket: conn,
+	}
+
+	e.ActiveWS = append(e.ActiveWS, ws)
+	return nil
+}
+
+// New will return a blank event manager handling allocations for you as
+// appropriate
 func New() *EventManager {
 	return &EventManager{
-		Event:    make(chan models.Event),
-		ActiveWS: make([]WSManager, 0),
+		Result:    make(chan Result),
+		Listeners: []chan models.Event{},
+		ActiveWS:  make([]WSManager, 0),
 	}
+}
+
+// Result contains metadata sent back by an event handler
+type Result struct {
+	Reporter string
+	Error    error
+	Success  bool
 }
