@@ -21,7 +21,11 @@ func handleHookEvent(result chan Result) {
 			continue
 		}
 
+		fmt.Println(transition)
+
 		go func() {
+			fmt.Println("looping hooks")
+
 			for _, hook := range transition.Hooks {
 				res := Result{Reporter: "Hook Handler", Success: true}
 
@@ -31,6 +35,7 @@ func handleHookEvent(result chan Result) {
 						event.Ticket.Key, transition.Name, err.Error())
 					res.Success = false
 					res.Error = errors.New(e)
+					result <- res
 					continue
 				}
 
@@ -42,6 +47,7 @@ func handleHookEvent(result chan Result) {
 						event.Ticket.Key, transition.Name, err.Error())
 					res.Success = false
 					res.Error = errors.New(e)
+					result <- res
 					continue
 				}
 
@@ -51,6 +57,7 @@ func handleHookEvent(result chan Result) {
 						event.Ticket.Key, transition.Name, err.Error())
 					res.Success = false
 					res.Error = errors.New(e)
+					result <- res
 					continue
 				}
 
@@ -61,12 +68,14 @@ func handleHookEvent(result chan Result) {
 						event.Ticket.Key, transition.Name, err.Error())
 					res.Success = false
 					res.Error = errors.New(e)
+					result <- res
 					continue
 				}
 
 				result <- res
 			}
 
+			fmt.Println("done")
 			result <- Result{
 				Reporter: "Hook Handler",
 				Success:  true,
