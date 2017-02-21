@@ -56,13 +56,13 @@ func ResultChan() chan Result {
 	return evm.Result
 }
 
-// Run starts the event manager, you can use an event manager without calling
-// this but it's not recommended as it can and will cause memory leaks, should
-// be called in a go routine normally
-func (e *EventManager) Run() {
+// Run starts the event manager, should be called in a go routine normally
+func Run() {
+	go handleHookEvent(evm.Result)
+
 	for {
 		select {
-		case res := <-e.Result:
+		case res := <-evm.Result:
 			if !res.Success {
 				eventLog.Printf("handler %s failed with error %s\n", res.Reporter, res.Error.Error())
 				continue
