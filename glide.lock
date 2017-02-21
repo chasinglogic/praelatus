@@ -1,10 +1,12 @@
-hash: ea863fbb72cd126a806b1fc333d6d786bf6b24a5005b0522f4889cf973ceda61
-updated: 2017-02-17T22:42:41.551489696-05:00
+hash: 28d19aa474ef472af0ebd387a4f460d13a61387caf865f5068d2136a1a814a1c
+updated: 2017-02-20T15:05:49.291667274-05:00
 imports:
 - name: github.com/boltdb/bolt
   version: 583e8937c61f1af6513608ccc75c97b6abdf4ff9
 - name: github.com/gorilla/securecookie
   version: 667fe4e3466a040b780561fe9b51a83a3753eefc
+- name: github.com/gorilla/websocket
+  version: 3ab3a8b8831546bd18fd182c20687ca853b2bb13
 - name: github.com/lib/pq
   version: d8eeeb8bae8896dd8e1b7e514ab0d396c4f12a1b
   subpackages:
@@ -22,8 +24,12 @@ imports:
   subpackages:
   - bcrypt
   - blowfish
+- name: golang.org/x/net
+  version: 6b27048ae5e6ad1ef927e72e437531493de612fe
+  subpackages:
+  - websocket
 - name: golang.org/x/sys
-  version: c200b10b5d5e122be351b67af224adc6128af5bf
+  version: 075e574b89e4c2d22f2286a7e2b919519c6f3547
   subpackages:
   - unix
 testImports: []
