@@ -107,3 +107,13 @@ type Result struct {
 	Error    error
 	Success  bool
 }
+
+// AddWs calls the method of the same name on the global EventManager
+func AddWs(w http.ResponseWriter, r *http.Request, h http.Header) {
+	evm.AddWs(w, r, h)
+}
+
+// FireEvent calls the method of the same name on the global EventManager
+func FireEvent(e models.Event) {
+	evm.FireEvent(e)
+}
