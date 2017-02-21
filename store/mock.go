@@ -680,6 +680,12 @@ func (ms mockTicketStore) GetAll() ([]models.Ticket, error) {
 		},
 	}, nil
 }
+
+func (ms mockTicketStore) ExecuteTransition(t *models.Ticket, tr models.Transition) error {
+	t.Status = tr.ToStatus
+	return nil
+}
+
 func (ms mockTicketStore) GetAllByProject(p models.Project) ([]models.Ticket, error) {
 	return []models.Ticket{
 		{
@@ -1010,6 +1016,41 @@ func (ms mockStatusStore) Remove(p models.Status) error {
 
 // A mock Workflow Store
 type mockWorkflowStore struct{}
+
+func (ms mockWorkflowStore) GetForTicket(t models.Ticket) (models.Workflow, error) {
+	return models.Workflow{
+		ID:   1,
+		Name: "Simple Workflow",
+		Transitions: map[string][]models.Transition{
+			"Backlog": {
+				{
+					Name:     "In Progress",
+					ToStatus: models.Status{ID: 2},
+					Hooks:    []models.Hook{},
+				},
+			},
+			"In Progress": {
+				{
+					Name:     "Done",
+					ToStatus: models.Status{ID: 3},
+					Hooks:    []models.Hook{},
+				},
+				{
+					Name:     "Backlog",
+					ToStatus: models.Status{ID: 1},
+					Hooks:    []models.Hook{},
+				},
+			},
+			"Done": {
+				{
+					Name:     "ReOpen",
+					ToStatus: models.Status{ID: 1},
+					Hooks:    []models.Hook{},
+				},
+			},
+		},
+	}, nil
+}
 
 func (ms mockWorkflowStore) Get(w *models.Workflow) error {
 	w.Name = "Simple Workflow"
