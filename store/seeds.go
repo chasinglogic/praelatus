@@ -128,6 +128,7 @@ func SeedTickets(s Store) error {
 			Key:         s.Tickets().NextTicketKey(models.Project{ID: 1, Key: "TEST"}),
 			Summary:     "This is a test ticket. #" + strconv.Itoa(i),
 			Description: "No really, this is just a test",
+			WorkflowID:  1,
 			Reporter:    models.User{ID: 1},
 			Assignee:    models.User{ID: 1},
 			Status:      models.Status{ID: 1},
