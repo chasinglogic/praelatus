@@ -129,6 +129,8 @@ type TicketStore interface {
 
 	NextTicketKey(models.Project) string
 
+	ExecuteTransition(*models.Ticket, models.Transition) error
+
 	New(models.Project, *models.Ticket) error
 	Save(models.Ticket) error
 	Remove(models.Ticket) error
@@ -161,7 +163,9 @@ type StatusStore interface {
 type WorkflowStore interface {
 	Get(*models.Workflow) error
 	GetAll() ([]models.Workflow, error)
+
 	GetByProject(models.Project) ([]models.Workflow, error)
+	GetForTicket(models.Ticket) (models.Workflow, error)
 
 	New(models.Project, *models.Workflow) error
 	Save(models.Workflow) error
