@@ -12,6 +12,11 @@ import (
 	"github.com/praelatus/praelatus/models"
 )
 
+// TODO it's possible that one go routine taking a long time (such as the hook
+// event manager thread) can lock up the whole event system, need to investigate
+// the cost of spinning up new threads and channels to determine what the best
+// way to go is.
+
 // evm is the global event manager which is interfaced with using the functions
 // whose names match the methods of an EventManager
 var evm = &EventManager{
