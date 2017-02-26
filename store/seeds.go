@@ -14,13 +14,6 @@ import (
 var DefaultWorkflow = models.Workflow{
 	Name: "Simple Workflow",
 	Transitions: map[string][]models.Transition{
-		"Create": {
-			{
-				Name:     "Create",
-				ToStatus: models.Status{ID: 1},
-				Hooks:    []models.Hook{},
-			},
-		},
 		"Backlog": {
 			{
 				Name:     "In Progress",
@@ -54,6 +47,7 @@ var defaults = []func(s Store) error{
 	SeedTicketTypes,
 	SeedFields,
 	SeedStatuses,
+	SeedWorkflows,
 }
 
 var seedFuncs = []func(s Store) error{
@@ -64,9 +58,9 @@ var seedFuncs = []func(s Store) error{
 	SeedFields,
 	SeedStatuses,
 	SeedLabels,
+	SeedWorkflows,
 	SeedTickets,
 	SeedComments,
-	SeedWorkflows,
 }
 
 // SeedDefaults will seed the database with the basics needed to use Praelatus
