@@ -85,3 +85,23 @@ func TestTicketRemove(t *testing.T) {
 	e := s.Tickets().Remove(tk)
 	failIfErr("Ticket save", t, e)
 }
+
+func TestExecuteTransition(t *testing.T) {
+	tk := models.Ticket{ID: 4}
+	err := s.Tickets().ExecuteTransition(&tk, models.Transition{
+		Name:     "In Progress",
+		ToStatus: models.Status{ID: 2},
+		Hooks:    []models.Hook{},
+	})
+
+	failIfErr("execute transition", t, err)
+
+	err = s.Tickets().Get(&tk)
+
+	failIfErr("execute transition", t, err)
+
+	if tk.Status.ID != 2 {
+		t.Errorf("Expected status to be In Progress got %s",
+			tk.Status.String())
+	}
+}
