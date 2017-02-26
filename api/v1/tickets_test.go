@@ -141,12 +141,12 @@ func TestGetComments(t *testing.T) {
 
 	e := json.Unmarshal(w.Body.Bytes(), &cm)
 	if e != nil {
-		t.Errorf("Failed with error %s", e.Error())
+		t.Errorf("Failed with error %s\n", e.Error())
 		t.Log(w.Body)
 	}
 
 	if len(cm) != 1 {
-		t.Errorf("Expected 1 comment got %d", len(cm))
+		t.Errorf("Expected 1 comment got %d\n", len(cm))
 	}
 
 	t.Log(w.Body)
@@ -174,4 +174,29 @@ func TestCreateComment(t *testing.T) {
 	}
 
 	t.Log(w.Body)
+}
+
+func TestTransitionTicket(t *testing.T) {
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("POST", "/api/v1/tickets/TEST-1/transition?name=In%20Progress", nil)
+
+	testLogin(r)
+
+	router.ServeHTTP(w, r)
+
+	var tk models.Ticket
+
+	e := json.Unmarshal(w.Body.Bytes(), &tk)
+	if e != nil {
+		t.Errorf("Failed with error %s", e.Error())
+		return
+	}
+
+	if tk.Status.ID != 2 {
+		t.Errorf("Expected ID of Status to be 2 got %d\n", tk.Status.ID)
+	}
+
+	if tk.Status.Name != "In Progress" {
+		t.Errorf("Expected Name of Status to be In Progress got %s\n", tk.Status.Name)
+	}
 }
