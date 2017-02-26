@@ -193,7 +193,7 @@ func intoTicket(row rowScanner, db *sql.DB, t *models.Ticket) error {
 func (ts *TicketStore) Get(t *models.Ticket) error {
 	row := ts.db.QueryRow(`
 	SELECT t.id, t.key, t.created_date, 
-           t.updated_date, t.summary, t.description, t.workflow_id
+           t.updated_date, t.summary, t.description, t.workflow_id,
            json_build_object('id', a.id, 'username', a.username, 'email', a.email, 'full_name', a.full_name, 'profile_picture', a.profile_picture) AS assignee,
            json_build_object('id', r.id, 'username', r.username, 'email', r.email, 'full_name', r.full_name, 'profile_picture', r.profile_picture) AS reporter, 
            row_to_json(s.*) AS status, 
@@ -217,7 +217,7 @@ func (ts *TicketStore) GetAll() ([]models.Ticket, error) {
 
 	rows, err := ts.db.Query(`
 	SELECT t.id, t.key, t.created_date, 
-           t.updated_date, t.summary, t.description, t.workflow_id
+           t.updated_date, t.summary, t.description, t.workflow_id,
            json_build_object('id', a.id, 'username', a.username, 'email', a.email, 'full_name', a.full_name, 'profile_picture', a.profile_picture) AS assignee, 
            json_build_object('id', r.id, 'username', r.username, 'email', r.email, 'full_name', r.full_name, 'profile_picture', r.profile_picture) AS reporter, 
            row_to_json(s.*) AS status, 
@@ -253,7 +253,7 @@ func (ts *TicketStore) GetAllByProject(p models.Project) ([]models.Ticket, error
 
 	rows, err := ts.db.Query(`
 	SELECT t.id, t.key, t.created_date, 
-           t.updated_date, t.summary, t.description, t.workflow_id
+           t.updated_date, t.summary, t.description, t.workflow_id,
            row_to_json(a.*) AS assignee, 
            row_to_json(r.*) AS reporter, 
            row_to_json(s.*) AS status, 
@@ -357,12 +357,12 @@ func (ts *TicketStore) New(project models.Project, ticket *models.Ticket) error 
 	err := ts.db.QueryRow(`
     INSERT INTO tickets 
         (summary, description, project_id, assignee_id, 
-         reporter_id, ticket_type_id, status_id, key) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         reporter_id, ticket_type_id, status_id, key, workflow_id) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING id;`,
 		ticket.Summary, ticket.Description, project.ID,
 		ticket.Assignee.ID, ticket.Reporter.ID, ticket.Type.ID,
-		ticket.Status.ID, ticket.Key).
+		ticket.Status.ID, ticket.Key, ticket.WorkflowID).
 		Scan(&ticket.ID)
 
 	for _, fv := range ticket.Fields {
@@ -447,7 +447,7 @@ func (ts *TicketStore) GetComments(t models.Ticket) ([]models.Comment, error) {
 func (ts *TicketStore) NewComment(t models.Ticket, c *models.Comment) error {
 	_, err := ts.db.Exec(`
     UPDATE tickets 
-    SET (updated_date) = ($1) 
+    SET updated_date = $1 
     WHERE id = $2;`,
 		time.Now(), t.ID)
 	if err != nil {
@@ -504,8 +504,8 @@ func (ts *TicketStore) ExecuteTransition(t *models.Ticket, tr models.Transition)
 	t.Status = tr.ToStatus
 
 	_, err := ts.db.Exec(`
-	UPDATE tickets 
-	SET (status_id) = $1`, t.Status.ID)
+	UPDATE tickets
+        SET status_id = $1;`, t.Status.ID)
 
 	if err != nil {
 		return err
