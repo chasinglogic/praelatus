@@ -493,6 +493,25 @@ func (mockTicketStore) Get(t *models.Ticket) error {
 	t.Summary = "A mock issue"
 	t.Description = "This issue is a fake."
 
+	t.Transitions = []models.Transition{
+		{
+			ID:   2,
+			Name: "In Progress",
+			ToStatus: models.Status{
+				ID:   2,
+				Name: "In Progress",
+			},
+		},
+		{
+			ID:   3,
+			Name: "Done",
+			ToStatus: models.Status{
+				ID:   3,
+				Name: "Done",
+			},
+		},
+	}
+
 	t.Fields = []models.FieldValue{
 		{
 			ID:       1,
@@ -543,7 +562,7 @@ func (mockTicketStore) Get(t *models.Ticket) error {
 
 	t.Status = models.Status{
 		ID:   1,
-		Name: "In Progress",
+		Name: "Backlog",
 	}
 
 	return nil
