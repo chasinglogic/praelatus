@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"text/template"
 
-	"github.com/alecthomas/template"
 	"github.com/praelatus/praelatus/config"
 	"github.com/praelatus/praelatus/models"
 )
