@@ -67,7 +67,8 @@ func Run() {
 		select {
 		case res := <-evm.Result:
 			if !res.Success {
-				eventLog.Printf("handler %s failed with error %s\n", res.Reporter, res.Error.Error())
+				eventLog.Printf("handler %s failed with error %s\n",
+					res.Reporter, res.Error.Error())
 				continue
 			}
 
