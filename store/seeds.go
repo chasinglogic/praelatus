@@ -14,6 +14,13 @@ import (
 var DefaultWorkflow = models.Workflow{
 	Name: "Simple Workflow",
 	Transitions: map[string][]models.Transition{
+		"Create": {
+			{
+				Name:     "Create",
+				ToStatus: models.Status{ID: 1},
+				Hooks:    []models.Hook{},
+			},
+		},
 		"Backlog": {
 			{
 				Name:     "In Progress",
