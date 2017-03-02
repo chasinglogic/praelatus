@@ -15,7 +15,6 @@ var seeded bool
 func init() {
 	if !seeded {
 		fmt.Println("Prepping tests")
-		// TODO update this to not be reliant on config
 		p := pg.New(config.DBURL())
 
 		e := p.Migrate()

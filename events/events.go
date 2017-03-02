@@ -37,13 +37,11 @@ type EventManager struct {
 // FireEvent sends the given event to all registered listeners of the given
 // event manager
 func (e *EventManager) FireEvent(ev models.Event) {
-	go func() {
-		for _, listener := range e.Listeners {
-			listener <- ev
-		}
+	for _, listener := range e.Listeners {
+		listener <- ev
+	}
 
-		return
-	}()
+	return
 }
 
 // RegisterListener adds a listener to the EventManager

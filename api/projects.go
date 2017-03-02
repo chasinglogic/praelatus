@@ -44,7 +44,6 @@ func GetProject(w http.ResponseWriter, r *http.Request) {
 
 // GetAllProjects will get all the projects on this instance that the user has
 // permissions to
-// TODO handle permissions
 func GetAllProjects(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {

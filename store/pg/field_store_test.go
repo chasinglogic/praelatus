@@ -26,7 +26,6 @@ func TestFieldGetAll(t *testing.T) {
 	}
 }
 
-// TODO field schemas aren't ready yet
 // func TestFieldGetByProject(t *testing.T) {
 // 	p := models.Project{ID: 1}
 

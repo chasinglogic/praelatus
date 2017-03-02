@@ -71,7 +71,6 @@ func Run(args []string) {
 			Action: migrateDB,
 		},
 		{
-			// TODO expand upon this as necessary
 			Name:  "admin",
 			Usage: "various admin functions for the instance",
 			Subcommands: []cli.Command{

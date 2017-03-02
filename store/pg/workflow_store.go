@@ -237,7 +237,6 @@ func (ws *WorkflowStore) New(p models.Project, workflow *models.Workflow) error 
 }
 
 // Save updates a workflow in the database
-// TODO make this much smarter, it doesn't deal with deleted statuses
 // and by proxy doesn't support with statuses being changed to
 // different statuses
 func (ws *WorkflowStore) Save(w models.Workflow) error {
