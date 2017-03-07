@@ -38,13 +38,14 @@ func routes(router *mux.Router) http.HandleFunc {
 func New(store store.Store, ss store.SessionStore) *mux.Router {
 	context := config.ContextPath()
 
+	middleware.Cache = ss
+
 	router := mux.NewRouter()
 	api := router.PathPrefix(context + "/api").Subrouter()
 	v1r := router.PathPrefix(context + "/v1/api").Subrouter()
 
 	// setup v1 of api
 	v1.Store = store
-	v1.Cache = ss
 	v1.V1Routes(api)
 	v1.V1Routes(v1r)
 

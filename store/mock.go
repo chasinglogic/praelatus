@@ -1194,44 +1194,6 @@ func (ms mockWorkflowStore) Remove(p models.Workflow) error {
 	return nil
 }
 
-func testLogin(r *http.Request) {
-	u := models.User{
-		1,
-		"foouser",
-		"foopass",
-		"foo@foo.com",
-		"Foo McFooserson",
-		"",
-		false,
-		true,
-		&settings,
-	}
-
-	err := SetUserSession(u, r)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func testAdminLogin(r *http.Request) {
-	u := models.User{
-		1,
-		"foouser",
-		"foopass",
-		"foo@foo.com",
-		"Foo McFooserson",
-		"",
-		true,
-		true,
-		&settings,
-	}
-
-	err := SetUserSession(u, r)
-	if err != nil {
-		panic(err)
-	}
-}
-
 type mockSessionStore struct {
 	store map[string]*models.User
 }

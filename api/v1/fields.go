@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/praelatus/praelatus/api/utils"
 	"github.com/praelatus/praelatus/models"
 )
 

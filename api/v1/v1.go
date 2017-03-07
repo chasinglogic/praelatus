@@ -8,9 +8,6 @@ import (
 // Store is the global store used in our HTTP handlers.
 var Store store.Store
 
-// Cache is the global session store used in our HTTP handlers.
-var Cache store.SessionStore
-
 func V1Routes(router *mux.Router) {
 	labelRouter(router)
 	fieldRouter(router)

@@ -1,4 +1,4 @@
-package api
+package middleware
 
 import (
 	"crypto/rand"
@@ -9,7 +9,11 @@ import (
 
 	"github.com/gorilla/securecookie"
 	"github.com/praelatus/praelatus/models"
+	"github.com/praelatus/praelatus/store"
 )
+
+// Cache is the global session store used in our middleware.
+var Cache store.SessionStore
 
 var hashKey = genSecKey(64)
 var blockKey = genSecKey(32)
