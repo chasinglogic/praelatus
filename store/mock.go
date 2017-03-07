@@ -1,57 +1,56 @@
-package api
+package store
 
 import (
 	"net/http"
 	"time"
 
 	"github.com/praelatus/praelatus/models"
-	"github.com/praelatus/praelatus/store"
 )
+
+// Mock will return a mock store and session store to use for testing
+func Mock() (Store, SessionStore) {
+	return mockStore{}, mockSessionStore{}
+}
 
 var loc, _ = time.LoadLocation("")
 
 var router http.Handler
 
-func init() {
-	m := make(map[string]*models.User, 0)
-	router = New(mockStore{}, mockSessionStore{m})
-}
-
 type mockStore struct{}
 
-func (ms mockStore) Users() store.UserStore {
+func (ms mockStore) Users() UserStore {
 	return mockUsersStore{}
 }
 
-func (ms mockStore) Teams() store.TeamStore {
+func (ms mockStore) Teams() TeamStore {
 	return mockTeamStore{}
 }
 
-func (ms mockStore) Labels() store.LabelStore {
+func (ms mockStore) Labels() LabelStore {
 	return mockLabelStore{}
 }
 
-func (ms mockStore) Fields() store.FieldStore {
+func (ms mockStore) Fields() FieldStore {
 	return mockFieldStore{}
 }
 
-func (ms mockStore) Tickets() store.TicketStore {
+func (ms mockStore) Tickets() TicketStore {
 	return mockTicketStore{}
 }
 
-func (ms mockStore) Projects() store.ProjectStore {
+func (ms mockStore) Projects() ProjectStore {
 	return mockProjectStore{}
 }
 
-func (ms mockStore) Types() store.TypeStore {
+func (ms mockStore) Types() TypeStore {
 	return mockTypeStore{}
 }
 
-func (ms mockStore) Statuses() store.StatusStore {
+func (ms mockStore) Statuses() StatusStore {
 	return mockStatusStore{}
 }
 
-func (ms mockStore) Workflows() store.WorkflowStore {
+func (ms mockStore) Workflows() WorkflowStore {
 	return mockWorkflowStore{}
 }
 

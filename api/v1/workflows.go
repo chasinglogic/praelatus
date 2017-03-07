@@ -30,19 +30,19 @@ func GetAllWorkflows(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to view all workflows"))
+		w.Write(utils.APIError("you must be logged in to view all workflows"))
 		return
 	}
 
 	workflows, err := Store.Workflows().GetAll()
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, workflows)
+	utils.SendJSON(w, workflows)
 }
 
 // CreateWorkflow will create a workflow in the database based on the JSON sent by the
@@ -53,7 +53,7 @@ func CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
@@ -61,7 +61,7 @@ func CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("malformed json"))
+		w.Write(utils.APIError("malformed json"))
 		log.Println(err)
 		return
 	}
@@ -72,7 +72,7 @@ func CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 	err = Store.Projects().Get(&p)
 	if err != nil {
 		w.WriteHeader(404)
-		w.Write(apiError("project with that key does not exist"))
+		w.Write(utils.APIError("project with that key does not exist"))
 		log.Println(err)
 		return
 	}
@@ -80,12 +80,12 @@ func CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 	err = Store.Workflows().New(p, &t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // GetWorkflow will return the json representation of a workflow in the database
@@ -93,7 +93,7 @@ func GetWorkflow(w http.ResponseWriter, r *http.Request) {
 	i, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid id"))
+		w.Write(utils.APIError("invalid id"))
 		log.Println(err)
 		return
 	}
@@ -103,12 +103,12 @@ func GetWorkflow(w http.ResponseWriter, r *http.Request) {
 	err = Store.Workflows().Get(&t)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // UpdateWorkflow will update a project based on the JSON representation sent to
@@ -119,7 +119,7 @@ func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
@@ -127,7 +127,7 @@ func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid body"))
+		w.Write(utils.APIError("invalid body"))
 		log.Println(err)
 		return
 	}
@@ -137,7 +137,7 @@ func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 		i, err := strconv.Atoi(id)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write(apiError(http.StatusText(http.StatusBadRequest)))
+			w.Write(utils.APIError(http.StatusText(http.StatusBadRequest)))
 			return
 		}
 
@@ -149,7 +149,7 @@ func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 	err = Store.Projects().Get(&p)
 	if err != nil {
 		w.WriteHeader(404)
-		w.Write(apiError("project with that key does not exist"))
+		w.Write(utils.APIError("project with that key does not exist"))
 		log.Println(err)
 		return
 	}
@@ -157,12 +157,12 @@ func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 	err = Store.Workflows().New(p, &t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // RemoveWorkflow will remove the project indicated by the id passed in as a
@@ -171,14 +171,14 @@ func RemoveWorkflow(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
 	i, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid id"))
+		w.Write(utils.APIError("invalid id"))
 		log.Println(err)
 		return
 	}
@@ -186,7 +186,7 @@ func RemoveWorkflow(w http.ResponseWriter, r *http.Request) {
 	err = Store.Workflows().Remove(models.Workflow{ID: int64(i)})
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}

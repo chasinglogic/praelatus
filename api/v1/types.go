@@ -28,19 +28,19 @@ func GetAllTicketTypes(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to view all types"))
+		w.Write(utils.APIError("you must be logged in to view all types"))
 		return
 	}
 
 	types, err := Store.Types().GetAll()
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, types)
+	utils.SendJSON(w, types)
 }
 
 // CreateTicketType will create a type in the database based on the JSON sent by the
@@ -51,7 +51,7 @@ func CreateTicketType(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
@@ -59,7 +59,7 @@ func CreateTicketType(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("malformed json"))
+		w.Write(utils.APIError("malformed json"))
 		log.Println(err)
 		return
 	}
@@ -67,12 +67,12 @@ func CreateTicketType(w http.ResponseWriter, r *http.Request) {
 	err = Store.Types().New(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // GetTicketType will return the json representation of a type in the database
@@ -82,7 +82,7 @@ func GetTicketType(w http.ResponseWriter, r *http.Request) {
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid id"))
+		w.Write(utils.APIError("invalid id"))
 		log.Println(err)
 		return
 	}
@@ -92,12 +92,12 @@ func GetTicketType(w http.ResponseWriter, r *http.Request) {
 	err = Store.Types().Get(&t)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // UpdateTicketType will update a project based on the JSON representation sent to
@@ -108,7 +108,7 @@ func UpdateTicketType(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
@@ -116,7 +116,7 @@ func UpdateTicketType(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid body"))
+		w.Write(utils.APIError("invalid body"))
 		log.Println(err)
 		return
 	}
@@ -126,7 +126,7 @@ func UpdateTicketType(w http.ResponseWriter, r *http.Request) {
 		i, err := strconv.Atoi(id)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write(apiError(http.StatusText(http.StatusBadRequest)))
+			w.Write(utils.APIError(http.StatusText(http.StatusBadRequest)))
 			return
 		}
 
@@ -136,12 +136,12 @@ func UpdateTicketType(w http.ResponseWriter, r *http.Request) {
 	err = Store.Types().Save(t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // RemoveTicketType will remove the project indicated by the id passed in as a
@@ -150,14 +150,14 @@ func RemoveTicketType(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
 	i, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid id"))
+		w.Write(utils.APIError("invalid id"))
 		log.Println(err)
 		return
 	}
@@ -165,7 +165,7 @@ func RemoveTicketType(w http.ResponseWriter, r *http.Request) {
 	err = Store.Types().Remove(models.TicketType{ID: int64(i)})
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}

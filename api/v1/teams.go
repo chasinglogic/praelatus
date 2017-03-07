@@ -28,19 +28,19 @@ func GetAllTeams(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to view all teams"))
+		w.Write(utils.APIError("you must be logged in to view all teams"))
 		return
 	}
 
 	teams, err := Store.Teams().GetAll()
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, teams)
+	utils.SendJSON(w, teams)
 }
 
 // CreateTeam will create a team in the database based on the JSON sent by the
@@ -51,7 +51,7 @@ func CreateTeam(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
@@ -59,7 +59,7 @@ func CreateTeam(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("malformed json"))
+		w.Write(utils.APIError("malformed json"))
 		log.Println(err)
 		return
 	}
@@ -67,12 +67,12 @@ func CreateTeam(w http.ResponseWriter, r *http.Request) {
 	err = Store.Teams().New(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // GetTeam will return the json representation of a team in the database
@@ -82,7 +82,7 @@ func GetTeam(w http.ResponseWriter, r *http.Request) {
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid id"))
+		w.Write(utils.APIError("invalid id"))
 		log.Println(err)
 		return
 	}
@@ -92,12 +92,12 @@ func GetTeam(w http.ResponseWriter, r *http.Request) {
 	err = Store.Teams().Get(&t)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // UpdateTeam will update a project based on the JSON representation sent to
@@ -108,7 +108,7 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
@@ -116,7 +116,7 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid body"))
+		w.Write(utils.APIError("invalid body"))
 		log.Println(err)
 		return
 	}
@@ -124,12 +124,12 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request) {
 	err = Store.Teams().New(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // RemoveTeam will remove the project indicated by the id passed in as a
@@ -140,14 +140,14 @@ func RemoveTeam(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid id"))
+		w.Write(utils.APIError("invalid id"))
 		log.Println(err)
 		return
 	}
@@ -155,7 +155,7 @@ func RemoveTeam(w http.ResponseWriter, r *http.Request) {
 	err = Store.Teams().Remove(models.Team{ID: int64(i)})
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}

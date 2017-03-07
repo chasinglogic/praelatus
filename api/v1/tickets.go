@@ -45,12 +45,12 @@ func GetTicket(w http.ResponseWriter, r *http.Request) {
 
 		if err == store.ErrNotFound {
 			w.WriteHeader(404)
-			w.Write(apiError("ticket not found"))
+			w.Write(utils.APIError("ticket not found"))
 			return
 		}
 
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		return
 	}
 
@@ -58,7 +58,7 @@ func GetTicket(w http.ResponseWriter, r *http.Request) {
 		cm, err := Store.Tickets().GetComments(*tk)
 		if err != nil && err != store.ErrNotFound {
 			w.WriteHeader(500)
-			w.Write(apiError("failed to retrieve comments"))
+			w.Write(utils.APIError("failed to retrieve comments"))
 			log.Println(err)
 			return
 		}
@@ -66,7 +66,7 @@ func GetTicket(w http.ResponseWriter, r *http.Request) {
 		tk.Comments = cm
 	}
 
-	sendJSON(w, tk)
+	utils.SendJSON(w, tk)
 }
 
 // GetAllTickets will get all the tickets for this instance
@@ -74,12 +74,12 @@ func GetAllTickets(w http.ResponseWriter, r *http.Request) {
 	tks, err := Store.Tickets().GetAll()
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError("failed to retrieve tickets from the database"))
+		w.Write(utils.APIError("failed to retrieve tickets from the database"))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, tks)
+	utils.SendJSON(w, tks)
 }
 
 // GetAllTicketsByProject will get all the tickets for a given project
@@ -89,12 +89,12 @@ func GetAllTicketsByProject(w http.ResponseWriter, r *http.Request) {
 	tks, err := Store.Tickets().GetAllByProject(models.Project{Key: pkey})
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError("failed to retrieve tickets from the database"))
+		w.Write(utils.APIError("failed to retrieve tickets from the database"))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, tks)
+	utils.SendJSON(w, tks)
 }
 
 // CreateTicket will create a ticket in the database and send the json
@@ -105,7 +105,7 @@ func CreateTicket(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to create a ticket"))
+		w.Write(utils.APIError("you must be logged in to create a ticket"))
 		return
 	}
 
@@ -115,7 +115,7 @@ func CreateTicket(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&tk)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid body"))
+		w.Write(utils.APIError("invalid body"))
 		log.Println(err)
 		return
 	}
@@ -123,12 +123,12 @@ func CreateTicket(w http.ResponseWriter, r *http.Request) {
 	err = Store.Tickets().New(models.Project{Key: pkey}, &tk)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, tk)
+	utils.SendJSON(w, tk)
 }
 
 // RemoveTicket will remove the ticket with the given key from the database
@@ -138,14 +138,14 @@ func RemoveTicket(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to remove a ticket"))
+		w.Write(utils.APIError("you must be logged in to remove a ticket"))
 		return
 	}
 
 	err := Store.Tickets().Remove(models.Ticket{Key: key})
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -161,7 +161,7 @@ func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to update a ticket"))
+		w.Write(utils.APIError("you must be logged in to update a ticket"))
 		return
 	}
 
@@ -171,7 +171,7 @@ func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&tk)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -183,7 +183,7 @@ func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 	err = Store.Tickets().Save(tk)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -199,12 +199,12 @@ func GetComments(w http.ResponseWriter, r *http.Request) {
 	comments, err := Store.Tickets().GetComments(models.Ticket{Key: key})
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, comments)
+	utils.SendJSON(w, comments)
 }
 
 // UpdateComment will update the comment with the given ID
@@ -212,7 +212,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to update a ticket"))
+		w.Write(utils.APIError("you must be logged in to update a ticket"))
 		return
 	}
 
@@ -222,7 +222,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&cm)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -235,7 +235,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	err = Store.Tickets().SaveComment(cm)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -248,7 +248,7 @@ func RemoveComment(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to update a ticket"))
+		w.Write(utils.APIError("you must be logged in to update a ticket"))
 		return
 	}
 
@@ -257,7 +257,7 @@ func RemoveComment(w http.ResponseWriter, r *http.Request) {
 	err := Store.Tickets().RemoveComment(models.Comment{ID: int64(id)})
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -270,7 +270,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to update a ticket"))
+		w.Write(utils.APIError("you must be logged in to update a ticket"))
 		return
 	}
 
@@ -280,7 +280,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&cm)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -289,10 +289,10 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	err = Store.Tickets().NewComment(models.Ticket{Key: key}, &cm)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, cm)
+	utils.SendJSON(w, cm)
 }

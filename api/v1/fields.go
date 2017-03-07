@@ -28,19 +28,19 @@ func GetAllFields(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to view all fields"))
+		w.Write(utils.APIError("you must be logged in to view all fields"))
 		return
 	}
 
 	fields, err := Store.Fields().GetAll()
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, fields)
+	utils.SendJSON(w, fields)
 }
 
 // CreateField will create a field in the database based on the JSON sent by the
@@ -51,7 +51,7 @@ func CreateField(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
@@ -59,7 +59,7 @@ func CreateField(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("malformed json"))
+		w.Write(utils.APIError("malformed json"))
 		log.Println(err)
 		return
 	}
@@ -67,12 +67,12 @@ func CreateField(w http.ResponseWriter, r *http.Request) {
 	err = Store.Fields().New(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // GetField will return the json representation of a field in the database
@@ -83,7 +83,7 @@ func GetField(w http.ResponseWriter, r *http.Request) {
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid id"))
+		w.Write(utils.APIError("invalid id"))
 		log.Println(err)
 		return
 	}
@@ -93,12 +93,12 @@ func GetField(w http.ResponseWriter, r *http.Request) {
 	err = Store.Fields().Get(&t)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // UpdateField will update a project based on the JSON representation sent to
@@ -109,7 +109,7 @@ func UpdateField(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
@@ -117,7 +117,7 @@ func UpdateField(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid body"))
+		w.Write(utils.APIError("invalid body"))
 		log.Println(err)
 		return
 	}
@@ -125,12 +125,12 @@ func UpdateField(w http.ResponseWriter, r *http.Request) {
 	err = Store.Fields().Save(t)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, t)
+	utils.SendJSON(w, t)
 }
 
 // DeleteField will remove the project indicated by the id passed in as a
@@ -142,14 +142,14 @@ func DeleteField(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid id"))
+		w.Write(utils.APIError("invalid id"))
 		log.Println(err)
 		return
 	}
@@ -157,7 +157,7 @@ func DeleteField(w http.ResponseWriter, r *http.Request) {
 	err = Store.Fields().Remove(models.Field{ID: int64(i)})
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}

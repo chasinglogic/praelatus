@@ -31,7 +31,7 @@ func GetAllLabels(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendJSON(w, labels)
+	utils.SendJSON(w, labels)
 }
 
 // GetLabel will return a JSON representation of a label
@@ -44,7 +44,7 @@ func GetLabel(w http.ResponseWriter, r *http.Request) {
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid id"))
+		w.Write(utils.APIError("invalid id"))
 		log.Println(err)
 		return
 	}
@@ -54,11 +54,11 @@ func GetLabel(w http.ResponseWriter, r *http.Request) {
 	err = Store.Labels().Get(lbl)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		return
 	}
 
-	sendJSON(w, lbl)
+	utils.SendJSON(w, lbl)
 }
 
 // CreateLabel creates a label in the db and return a JSON object of
@@ -68,7 +68,7 @@ func CreateLabel(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to create a label"))
+		w.Write(utils.APIError("you must be logged in to create a label"))
 		return
 	}
 
@@ -76,7 +76,7 @@ func CreateLabel(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&lbl)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("malformed json"))
+		w.Write(utils.APIError("malformed json"))
 		log.Println(err)
 		return
 	}
@@ -84,12 +84,12 @@ func CreateLabel(w http.ResponseWriter, r *http.Request) {
 	err = Store.Labels().New(&lbl)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, lbl)
+	utils.SendJSON(w, lbl)
 }
 
 // UpdateLabel updates the label in the db and returns a message indicating
@@ -100,7 +100,7 @@ func UpdateLabel(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to create a label"))
+		w.Write(utils.APIError("you must be logged in to create a label"))
 		return
 	}
 
@@ -108,7 +108,7 @@ func UpdateLabel(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&lbl)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("malformed json"))
+		w.Write(utils.APIError("malformed json"))
 		log.Println(err)
 		return
 	}
@@ -119,7 +119,7 @@ func UpdateLabel(w http.ResponseWriter, r *http.Request) {
 		i, err := strconv.Atoi(id)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write(apiError(http.StatusText(http.StatusBadRequest)))
+			w.Write(utils.APIError(http.StatusText(http.StatusBadRequest)))
 			return
 		}
 
@@ -129,12 +129,12 @@ func UpdateLabel(w http.ResponseWriter, r *http.Request) {
 	err = Store.Labels().Save(lbl)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, lbl)
+	utils.SendJSON(w, lbl)
 }
 
 // DeleteLabel deletes labels from the db and returns a response indicating
@@ -146,7 +146,7 @@ func DeleteLabel(w http.ResponseWriter, r *http.Request) {
 	i, err := strconv.Atoi(id)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid id"))
+		w.Write(utils.APIError("invalid id"))
 		log.Println(err)
 		return
 	}
@@ -170,14 +170,14 @@ func SearchLabels(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == store.ErrNotFound {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write(apiError("No labels match that query"))
+			w.Write(utils.APIError("No labels match that query"))
 			return
 		}
 
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		return
 	}
 
-	sendJSON(w, labels)
+	utils.SendJSON(w, labels)
 }

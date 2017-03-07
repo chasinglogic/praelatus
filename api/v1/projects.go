@@ -34,12 +34,12 @@ func GetProject(w http.ResponseWriter, r *http.Request) {
 	err := Store.Projects().Get(&p)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, p)
+	utils.SendJSON(w, p)
 }
 
 // GetAllProjects will get all the projects on this instance that the user has
@@ -48,19 +48,19 @@ func GetAllProjects(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to view all projects"))
+		w.Write(utils.APIError("you must be logged in to view all projects"))
 		return
 	}
 
 	projects, err := Store.Projects().GetAll()
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, projects)
+	utils.SendJSON(w, projects)
 }
 
 // CreateProject will create a project based on the JSON representation sent to
@@ -71,7 +71,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
@@ -79,7 +79,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&p)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid body"))
+		w.Write(utils.APIError("invalid body"))
 		log.Println(err)
 		return
 	}
@@ -87,12 +87,12 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 	err = Store.Projects().New(&p)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, p)
+	utils.SendJSON(w, p)
 }
 
 // RemoveProject will remove the project indicated by the key passed in as a
@@ -103,14 +103,14 @@ func RemoveProject(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
 	err := Store.Projects().Remove(models.Project{Key: key})
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -127,7 +127,7 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
 		return
 	}
 
@@ -135,7 +135,7 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&p)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError("invalid body"))
+		w.Write(utils.APIError("invalid body"))
 		log.Println(err)
 		return
 	}
@@ -143,10 +143,10 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 	err = Store.Projects().New(&p)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, p)
+	utils.SendJSON(w, p)
 }

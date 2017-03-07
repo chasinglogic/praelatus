@@ -3,24 +3,15 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/config"
 	"github.com/praelatus/praelatus/store"
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/docgen"
+
+	"github.com/praelatus/praelatus/api/v1"
 )
-
-// Store is the global store used in our HTTP handlers.
-var Store store.Store
-
-// Cache is the global session store used in our HTTP handlers.
-var Cache store.SessionStore
 
 func index() http.Handler {
 	mux := http.NewServeMux()
@@ -35,35 +26,27 @@ func index() http.Handler {
 	return mux
 }
 
-func routes(rtr chi.Router) http.Handler {
+func routes(router *mux.Router) http.HandleFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		jsnStr := docgen.JSONRoutesDoc(rtr)
-		w.Write([]byte(jsnStr))
+		rs := []string{}
+
+		SendJSON(w, rs)
 	})
 }
 
 // New will start running the api on the given port
-func New(store store.Store, ss store.SessionStore) http.Handler {
-	Store = store
-
-	Cache = ss
-
+func New(store store.Store, ss store.SessionStore) *mux.Router {
 	context := config.ContextPath()
 
 	router := mux.NewRouter()
 	api := router.PathPrefix(context + "/api").Subrouter()
 	v1r := router.PathPrefix(context + "/v1/api").Subrouter()
 
+	// setup v1 of api
+	v1.Store = store
+	v1.Cache = ss
 	v1.V1Routes(api)
 	v1.V1Routes(v1r)
-
-	api.Handle("/fields", fieldRouter())
-	api.Handle("/projects", projectRouter())
-	api.Handle("/teams", teamRouter())
-	api.Handle("/tickets", ticketRouter())
-	api.Handle("/types", typeRouter())
-	api.Handle("/users", userRouter())
-	api.Handle("/workflows", workflowRouter())
 
 	router.Handle(context+"/", index())
 
@@ -86,35 +69,4 @@ func New(store store.Store, ss store.SessionStore) http.Handler {
 	})
 
 	return loadMw(router, DefaultMiddleware...)
-}
-
-// Message is a general purpose json struct used primarily for error responses.
-type Message struct {
-	Field   string `json:"field,omitempty"`
-	Message string `json:"message"`
-}
-
-func apiError(msg string, fields ...string) []byte {
-	e := Message{
-		Message: msg,
-	}
-
-	if fields != nil {
-		e.Field = strings.Join(fields, ",")
-	}
-
-	byt, _ := json.Marshal(e)
-	return byt
-}
-
-func sendJSON(w http.ResponseWriter, v interface{}) {
-	resp, err := json.Marshal(v)
-	if err != nil {
-		w.WriteHeader(500)
-		w.Write(apiError("Failed to marshal database response to JSON."))
-		log.Println(err)
-		return
-	}
-
-	w.Write(resp)
 }

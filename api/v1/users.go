@@ -51,19 +51,19 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == store.ErrNotFound {
 			w.WriteHeader(404)
-			w.Write(apiError("No user exists with that username."))
+			w.Write(utils.APIError("No user exists with that username."))
 			return
 		}
 
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
 	u.Password = ""
 
-	sendJSON(w, u)
+	utils.SendJSON(w, u)
 }
 
 // GetAllUsers will return the json encoded array of all users in the given
@@ -72,14 +72,14 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to view other users"))
+		w.Write(utils.APIError("you must be logged in to view other users"))
 		return
 	}
 
 	users, err := Store.Users().GetAll()
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -89,7 +89,7 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 		users[i].Settings = nil
 	}
 
-	sendJSON(w, users)
+	utils.SendJSON(w, users)
 }
 
 // SearchUsers will return the json encoded array of all users in the given
@@ -98,7 +98,7 @@ func SearchUsers(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to view other users"))
+		w.Write(utils.APIError("you must be logged in to view other users"))
 		return
 	}
 
@@ -107,7 +107,7 @@ func SearchUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := Store.Users().Search(query)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -117,7 +117,7 @@ func SearchUsers(w http.ResponseWriter, r *http.Request) {
 		users[i].Settings = nil
 	}
 
-	sendJSON(w, users)
+	utils.SendJSON(w, users)
 }
 
 // CreateUser will take the JSON given and attempt to
@@ -128,7 +128,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&u)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -136,7 +136,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	usr, err := models.NewUser(u.Username, u.Password, u.FullName, u.Email, false)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -145,12 +145,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == store.ErrDuplicateEntry {
 			w.WriteHeader(400)
-			w.Write(apiError(err.Error()))
+			w.Write(utils.APIError(err.Error()))
 			return
 		}
 
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -158,13 +158,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	err = SetUserSession(*usr, r)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
 	usr.Password = ""
-	sendJSON(w, usr)
+	utils.SendJSON(w, usr)
 }
 
 // UpdateUser will update a user in the database, it will reject the call if
@@ -177,7 +177,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&u)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -190,12 +190,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	err = Store.Users().Save(u)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
 
-	sendJSON(w, u)
+	utils.SendJSON(w, u)
 }
 
 // DeleteUser will remove a user from the database by setting is_inactive = 1
@@ -207,7 +207,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&u)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -220,7 +220,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	err = Store.Users().Remove(u)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -242,7 +242,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	err := decode.Decode(&l)
 	if err != nil {
 		w.WriteHeader(400)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -253,12 +253,12 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == store.ErrNotFound {
 			w.WriteHeader(404)
-			w.Write(apiError("No user exists with that username."))
+			w.Write(utils.APIError("No user exists with that username."))
 			return
 		}
 
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -267,20 +267,20 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 		err := SetUserSession(u, r)
 		if err != nil {
 			w.WriteHeader(500)
-			w.Write(apiError(err.Error()))
+			w.Write(utils.APIError(err.Error()))
 			log.Println(err)
 			return
 
 		}
 
 		u.Password = ""
-		sendJSON(w, u)
+		utils.SendJSON(w, u)
 
 		return
 	}
 
 	w.WriteHeader(401)
-	w.Write(apiError("invalid password", "password"))
+	w.Write(utils.APIError("invalid password", "password"))
 }
 
 // RefreshSession will reset the expiration on the current session
@@ -288,7 +288,7 @@ func RefreshSession(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("PRAESESSION")
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(apiError(err.Error()))
+		w.Write(utils.APIError(err.Error()))
 		log.Println(err)
 		return
 	}
@@ -305,9 +305,9 @@ func CurrentUser(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u != nil {
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write(apiError("you are not logged in"))
+		w.Write(utils.APIError("you are not logged in"))
 		return
 	}
 
-	sendJSON(w, u)
+	utils.SendJSON(w, u)
 }
