@@ -1,4 +1,4 @@
-package v1
+package v1_test
 
 import (
 	"bytes"
@@ -21,6 +21,8 @@ func TestGetField(t *testing.T) {
 	if e != nil {
 		t.Errorf("Failed with error %s\n", e.Error())
 	}
+
+	t.Log(w.Body)
 
 	if p.ID != 1 {
 		t.Errorf("Expected 1 Got %d\n", p.ID)
