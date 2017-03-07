@@ -26,7 +26,7 @@ func typeRouter() chi.Router {
 
 // GetAllTicketTypes will retrieve all types from the DB and send a JSON response
 func GetAllTicketTypes(w http.ResponseWriter, r *http.Request) {
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in to view all types"))
@@ -49,7 +49,7 @@ func GetAllTicketTypes(w http.ResponseWriter, r *http.Request) {
 func CreateTicketType(w http.ResponseWriter, r *http.Request) {
 	var t models.TicketType
 
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
@@ -106,7 +106,7 @@ func GetTicketType(w http.ResponseWriter, r *http.Request) {
 func UpdateTicketType(w http.ResponseWriter, r *http.Request) {
 	var t models.TicketType
 
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
@@ -148,7 +148,7 @@ func UpdateTicketType(w http.ResponseWriter, r *http.Request) {
 // RemoveTicketType will remove the project indicated by the id passed in as a
 // url parameter
 func RemoveTicketType(w http.ResponseWriter, r *http.Request) {
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))

@@ -70,7 +70,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 // GetAllUsers will return the json encoded array of all users in the given
 // store
 func GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in to view other users"))
@@ -96,7 +96,7 @@ func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 // SearchUsers will return the json encoded array of all users in the given
 // store which match the provided query
 func SearchUsers(w http.ResponseWriter, r *http.Request) {
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in to view other users"))
@@ -156,7 +156,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = SetUserSession(*usr, r)
+	err = middleware.SetUserSession(*usr, r)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
@@ -265,7 +265,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if u.CheckPw([]byte(l.Password)) {
-		err := SetUserSession(u, r)
+		err := middleware.SetUserSession(u, r)
 		if err != nil {
 			w.WriteHeader(500)
 			w.Write(utils.APIError(err.Error()))
@@ -303,7 +303,7 @@ func RefreshSession(w http.ResponseWriter, r *http.Request) {
 
 // CurrentUser will return the user object for the currently logged in user
 func CurrentUser(w http.ResponseWriter, r *http.Request) {
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write(utils.APIError("you are not logged in"))

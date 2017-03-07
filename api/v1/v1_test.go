@@ -25,7 +25,7 @@ func testLogin(r *http.Request) {
 		&settings,
 	}
 
-	err := middleware.SetUserSession(u, r)
+	err := middleware.middleware.SetUserSession(u, r)
 	if err != nil {
 		panic(err)
 	}
@@ -44,7 +44,7 @@ func testAdminLogin(r *http.Request) {
 		&settings,
 	}
 
-	err := middleware.SetUserSession(u, r)
+	err := middleware.middleware.SetUserSession(u, r)
 	if err != nil {
 		panic(err)
 	}

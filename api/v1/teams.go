@@ -26,7 +26,7 @@ func teamRouter() chi.Router {
 
 // GetAllTeams will retrieve all teams from the DB and send a JSON response
 func GetAllTeams(w http.ResponseWriter, r *http.Request) {
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in to view all teams"))
@@ -49,7 +49,7 @@ func GetAllTeams(w http.ResponseWriter, r *http.Request) {
 func CreateTeam(w http.ResponseWriter, r *http.Request) {
 	var t models.Team
 
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
@@ -106,7 +106,7 @@ func GetTeam(w http.ResponseWriter, r *http.Request) {
 func UpdateTeam(w http.ResponseWriter, r *http.Request) {
 	var t models.Team
 
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
@@ -138,7 +138,7 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request) {
 func RemoveTeam(w http.ResponseWriter, r *http.Request) {
 	id := r.Context().Value("id").(string)
 
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))

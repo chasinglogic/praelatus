@@ -26,7 +26,7 @@ func fieldRouter() *mux.Router {
 
 // GetAllFields will retrieve all fields from the DB and send a JSON response
 func GetAllFields(w http.ResponseWriter, r *http.Request) {
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in to view all fields"))
@@ -49,7 +49,7 @@ func GetAllFields(w http.ResponseWriter, r *http.Request) {
 func CreateField(w http.ResponseWriter, r *http.Request) {
 	var t models.Field
 
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
@@ -107,7 +107,7 @@ func GetField(w http.ResponseWriter, r *http.Request) {
 func UpdateField(w http.ResponseWriter, r *http.Request) {
 	var t models.Field
 
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
@@ -140,7 +140,7 @@ func DeleteField(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))

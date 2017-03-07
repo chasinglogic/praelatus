@@ -28,7 +28,7 @@ func workflowRouter() chi.Router {
 
 // GetAllWorkflows will retrieve all workflows from the DB and send a JSON response
 func GetAllWorkflows(w http.ResponseWriter, r *http.Request) {
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in to view all workflows"))
@@ -51,7 +51,7 @@ func GetAllWorkflows(w http.ResponseWriter, r *http.Request) {
 func CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 	var t models.Workflow
 
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
@@ -117,7 +117,7 @@ func GetWorkflow(w http.ResponseWriter, r *http.Request) {
 func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 	var t models.Workflow
 
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
@@ -169,7 +169,7 @@ func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 // RemoveWorkflow will remove the project indicated by the id passed in as a
 // url parameter
 func RemoveWorkflow(w http.ResponseWriter, r *http.Request) {
-	u := GetUserSession(r)
+	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
 		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
