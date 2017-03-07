@@ -14,24 +14,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func userRouter() http.Handler {
-	router := mux.NewRouter()
+func userRouter(router *mux.Router) {
+	router.HandleFunc("/users", GetAllUsers).Methods("GET")
+	router.HandleFunc("/users", CreateUser).Methods("POST")
 
-	router.HandleFunc("/", GetAllUsers).Methods("GET")
-	router.HandleFunc("/", CreateUser).Methods("POST")
+	router.HandleFunc("/users/current_user", CurrentUser).Methods("GET")
 
-	router.HandleFunc("/current_user", CurrentUser).Methods("GET")
+	router.HandleFunc("/users/sessions", CreateSession).Methods("POST")
+	router.HandleFunc("/users/sessions", RefreshSession).Methods("GET")
 
-	router.HandleFunc("/sessions", CreateSession).Methods("POST")
-	router.HandleFunc("/sessions", RefreshSession).Methods("GET")
+	router.HandleFunc("/users/search", SearchUsers).Methods("GET")
 
-	router.HandleFunc("/search", SearchUsers).Methods("GET")
-
-	router.HandleFunc("/{username}", UpdateUser).Methods("PUT")
-	router.HandleFunc("/{username}", DeleteUser).Methods("DELETE")
-	router.HandleFunc("/{username}", GetUser).Methods("GET")
-
-	return router
+	router.HandleFunc("/users/{username}", UpdateUser).Methods("PUT")
+	router.HandleFunc("/users/{username}", DeleteUser).Methods("DELETE")
+	router.HandleFunc("/users/{username}", GetUser).Methods("GET")
 }
 
 // TokenResponse is used when logging in or signing up, it will return a

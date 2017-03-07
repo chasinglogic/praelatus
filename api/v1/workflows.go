@@ -6,25 +6,20 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/api/middleware"
 	"github.com/praelatus/praelatus/api/utils"
 	"github.com/praelatus/praelatus/models"
-	"github.com/pressly/chi"
 )
 
-func workflowRouter() chi.Router {
-	router := chi.NewRouter()
+func workflowRouter(router *mux.Router) {
+	router.HandleFunc("/workflows", GetAllWorkflows).Methods("GET")
 
-	router.Get("/", GetAllWorkflows)
+	router.HandleFunc("/workflows/{id:[0-9]+}", GetWorkflow).Methods("GET")
+	router.HandleFunc("/workflows/{id:[0-9]+}", UpdateWorkflow).Methods("PUT")
+	router.HandleFunc("/workflows/{id:[0-9]+}", RemoveWorkflow).Methods("DELETE")
 
-	// Because of how chi does routing the id is actually the project key
-	router.Post("/:id", CreateWorkflow)
-
-	router.Get("/:id", GetWorkflow)
-	router.Put("/:id", UpdateWorkflow)
-	router.Delete("/:id", RemoveWorkflow)
-
-	return router
+	router.HandleFunc("/workflows/{project_key}", CreateWorkflow).Methods("POST")
 }
 
 // GetAllWorkflows will retrieve all workflows from the DB and send a JSON response
@@ -68,8 +63,8 @@ func CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Because of how chi does routing the id is actually the project key
-	p := models.Project{Key: chi.URLParam(r, "id")}
+	vars := mux.Vars(r)
+	p := models.Project{Key: vars["project_key"]}
 
 	err = Store.Projects().Get(&p)
 	if err != nil {
@@ -92,7 +87,8 @@ func CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 
 // GetWorkflow will return the json representation of a workflow in the database
 func GetWorkflow(w http.ResponseWriter, r *http.Request) {
-	i, err := strconv.Atoi(chi.URLParam(r, "id"))
+	vars := mux.Vars(r)
+	i, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(utils.APIError("invalid id"))
@@ -135,7 +131,8 @@ func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if t.ID == 0 {
-		id := chi.URLParam(r, "id")
+		vars := mux.Vars(r)
+		id := vars["id"]
 		i, err := strconv.Atoi(id)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -177,7 +174,8 @@ func RemoveWorkflow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	i, err := strconv.Atoi(chi.URLParam(r, "id"))
+	vars := mux.Vars(r)
+	i, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(utils.APIError("invalid id"))

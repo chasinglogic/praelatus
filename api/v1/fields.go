@@ -12,17 +12,13 @@ import (
 	"github.com/praelatus/praelatus/models"
 )
 
-func fieldRouter() *mux.Router {
-	router := mux.NewRouter()
+func fieldRouter(router *mux.Router) {
+	router.HandleFunc("/fields", GetAllFields).Methods("GET")
+	router.HandleFunc("/fields", CreateField).Methods("POST")
 
-	router.HandleFunc("/", GetAllFields).Methods("GET")
-	router.HandleFunc("/", CreateField).Methods("POST")
-
-	router.HandleFunc("/{id}", GetField).Methods("GET")
-	router.HandleFunc("/{id}", UpdateField).Methods("PUT")
-	router.HandleFunc("/{id}", DeleteField).Methods("DELETE")
-
-	return router
+	router.HandleFunc("/fields/{id}", GetField).Methods("GET")
+	router.HandleFunc("/fields/{id}", UpdateField).Methods("PUT")
+	router.HandleFunc("/fields/{id}", DeleteField).Methods("DELETE")
 }
 
 // GetAllFields will retrieve all fields from the DB and send a JSON response

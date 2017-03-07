@@ -5,29 +5,26 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/api/middleware"
 	"github.com/praelatus/praelatus/api/utils"
 	"github.com/praelatus/praelatus/models"
-	"github.com/pressly/chi"
 )
 
-func projectRouter() chi.Router {
-	router := chi.NewRouter()
+func projectRouter(router *mux.Router) {
+	router.HandleFunc("/projects", GetAllProjects).Methods("GET")
+	router.HandleFunc("/projects", CreateProject).Methods("POST")
 
-	router.Get("/", GetAllProjects)
-	router.Post("/", CreateProject)
-
-	router.Get("/:key", GetProject)
-	router.Get("/:key/tickets", GetAllTicketsByProject)
-	router.Delete("/:key", RemoveProject)
-	router.Put("/:key", UpdateProject)
-
-	return router
+	router.HandleFunc("/projects/{key}", GetProject).Methods("GET")
+	router.HandleFunc("/projects/{key}/tickets", GetAllTicketsByProject).Methods("GET")
+	router.HandleFunc("/projects/{key}", RemoveProject).Methods("DELETE")
+	router.HandleFunc("/projects/{key}", UpdateProject).Methods("PUT")
 }
 
 // GetProject will get a project by it's project key
 func GetProject(w http.ResponseWriter, r *http.Request) {
-	key := chi.URLParam(r, "key")
+	vars := mux.Vars(r)
+	key := vars["key"]
 
 	p := models.Project{
 		Key: key,
@@ -65,6 +62,22 @@ func GetAllProjects(w http.ResponseWriter, r *http.Request) {
 	utils.SendJSON(w, projects)
 }
 
+// GetAllTicketsByProject will get all the tickets for a given project
+func GetAllTicketsByProject(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	pkey := vars["key"]
+
+	tks, err := Store.Tickets().GetAllByProject(models.Project{Key: pkey})
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write(utils.APIError("failed to retrieve tickets from the database"))
+		log.Println(err)
+		return
+	}
+
+	utils.SendJSON(w, tks)
+}
+
 // CreateProject will create a project based on the JSON representation sent to
 // the API
 func CreateProject(w http.ResponseWriter, r *http.Request) {
@@ -100,7 +113,8 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 // RemoveProject will remove the project indicated by the key passed in as a
 // url parameter
 func RemoveProject(w http.ResponseWriter, r *http.Request) {
-	key := chi.URLParam(r, "key")
+	vars := mux.Vars(r)
+	key := vars["key"]
 
 	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {

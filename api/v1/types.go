@@ -6,23 +6,19 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/api/middleware"
 	"github.com/praelatus/praelatus/api/utils"
 	"github.com/praelatus/praelatus/models"
-	"github.com/pressly/chi"
 )
 
-func typeRouter() chi.Router {
-	router := chi.NewRouter()
+func typeRouter(router *mux.Router) {
+	router.HandleFunc("/types", GetAllTicketTypes).Methods("GET")
+	router.HandleFunc("/types", CreateTicketType).Methods("POST")
 
-	router.Get("/", GetAllTicketTypes)
-	router.Post("/", CreateTicketType)
-
-	router.Get("/:id", GetTicketType)
-	router.Put("/:id", UpdateTicketType)
-	router.Delete("/:id", RemoveTicketType)
-
-	return router
+	router.HandleFunc("/types/{id}", GetTicketType).Methods("GET")
+	router.HandleFunc("/types/{id}", UpdateTicketType).Methods("PUT")
+	router.HandleFunc("/types/{id}", RemoveTicketType).Methods("DELETE")
 }
 
 // GetAllTicketTypes will retrieve all types from the DB and send a JSON response
@@ -79,9 +75,8 @@ func CreateTicketType(w http.ResponseWriter, r *http.Request) {
 
 // GetTicketType will return the json representation of a type in the database
 func GetTicketType(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-
-	i, err := strconv.Atoi(id)
+	vars := mux.Vars(r)
+	i, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(utils.APIError("invalid id"))
@@ -124,8 +119,8 @@ func UpdateTicketType(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if t.ID == 0 {
-		id := chi.URLParam(r, "id")
-		i, err := strconv.Atoi(id)
+		vars := mux.Vars(r)
+		i, err := strconv.Atoi(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(utils.APIError(http.StatusText(http.StatusBadRequest)))
@@ -156,7 +151,8 @@ func RemoveTicketType(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	i, err := strconv.Atoi(chi.URLParam(r, "id"))
+	vars := mux.Vars(r)
+	i, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(utils.APIError("invalid id"))

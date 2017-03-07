@@ -14,13 +14,13 @@ import (
 )
 
 func labelRouter(router *mux.Router) {
-	router.HandleFunc("", GetAllLabels).Methods("GET")
-	router.HandleFunc("", CreateLabel).Methods("POST")
+	router.HandleFunc("/labels", GetAllLabels).Methods("GET")
+	router.HandleFunc("/labels", CreateLabel).Methods("POST")
 
-	router.HandleFunc("/search", SearchLabels).Methods("GET")
-	router.HandleFunc("/{id}", GetLabel).Methods("GET")
-	router.HandleFunc("/{id}", DeleteLabel).Methods("DELETE")
-	router.HandleFunc("/{id}", UpdateLabel).Methods("PUT")
+	router.HandleFunc("/labels/search", SearchLabels).Methods("GET")
+	router.HandleFunc("/labels/{id}", GetLabel).Methods("GET")
+	router.HandleFunc("/labels/{id}", DeleteLabel).Methods("DELETE")
+	router.HandleFunc("/labels/{id}", UpdateLabel).Methods("PUT")
 }
 
 // GetAllLabels will return a JSON array of all labels from the store.

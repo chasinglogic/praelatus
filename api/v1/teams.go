@@ -6,23 +6,19 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/api/middleware"
 	"github.com/praelatus/praelatus/api/utils"
 	"github.com/praelatus/praelatus/models"
-	"github.com/pressly/chi"
 )
 
-func teamRouter() chi.Router {
-	router := chi.NewRouter()
+func teamRouter(router *mux.Router) {
+	router.HandleFunc("/teams", GetAllTeams).Methods("GET")
+	router.HandleFunc("/teams", CreateTeam).Methods("POST")
 
-	router.Get("/", GetAllTeams)
-	router.Post("/", CreateTeam)
-
-	router.Get("/:id", GetTeam)
-	router.Put("/:id", UpdateTeam)
-	router.Delete("/:id", RemoveTeam)
-
-	return router
+	router.HandleFunc("/teams/{id}", GetTeam).Methods("GET")
+	router.HandleFunc("/teams/{id}", UpdateTeam).Methods("PUT")
+	router.HandleFunc("/teams/{id}", RemoveTeam).Methods("DELETE")
 }
 
 // GetAllTeams will retrieve all teams from the DB and send a JSON response
@@ -79,9 +75,9 @@ func CreateTeam(w http.ResponseWriter, r *http.Request) {
 
 // GetTeam will return the json representation of a team in the database
 func GetTeam(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	vars := mux.Vars(r)
 
-	i, err := strconv.Atoi(id)
+	i, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(utils.APIError("invalid id"))

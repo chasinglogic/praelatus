@@ -6,35 +6,33 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/api/middleware"
 	"github.com/praelatus/praelatus/api/utils"
 	"github.com/praelatus/praelatus/models"
 	"github.com/praelatus/praelatus/store"
-	"github.com/pressly/chi"
 )
 
-func ticketRouter() chi.Router {
-	router := chi.NewRouter()
+func ticketRouter(router *mux.Router) {
+	router.HandleFunc("/tickets", GetAllTickets).Methods("GET")
 
-	router.Get("/", GetAllTickets)
-	router.Get("/:key", GetTicket)
-	router.Delete("/:key", RemoveTicket)
-	router.Put("/:key", UpdateTicket)
+	router.HandleFunc("/tickets/{key}", GetTicket).Methods("GET")
+	router.HandleFunc("/tickets/{key}", RemoveTicket).Methods("DELETE")
+	router.HandleFunc("/tickets/{key}", UpdateTicket).Methods("PUT")
 
-	router.Post("/:key", CreateTicket)
+	router.HandleFunc("/tickets/{project_key}", CreateTicket).Methods("POST")
 
-	router.Get("/:key/comments", GetComments)
-	router.Post("/:key/comments", CreateComment)
+	router.HandleFunc("/tickets/{key}/comments", GetComments).Methods("GET")
+	router.HandleFunc("/tickets/{key}/comments", CreateComment).Methods("POST")
 
-	router.Put("/comments/:id", UpdateComment)
-	router.Delete("/comments/:id", RemoveComment)
-
-	return router
+	router.HandleFunc("/tickets/comments/{id}", UpdateComment).Methods("PUT")
+	router.HandleFunc("/tickets/comments/{id}", RemoveComment).Methods("DELETE")
 }
 
 // GetTicket will get a ticket by the ticket key
 func GetTicket(w http.ResponseWriter, r *http.Request) {
-	key := chi.URLParam(r, "key")
+	vars := mux.Vars(r)
+	key := vars["key"]
 	preload := r.FormValue("preload")
 
 	tk := &models.Ticket{
@@ -84,25 +82,11 @@ func GetAllTickets(w http.ResponseWriter, r *http.Request) {
 	utils.SendJSON(w, tks)
 }
 
-// GetAllTicketsByProject will get all the tickets for a given project
-func GetAllTicketsByProject(w http.ResponseWriter, r *http.Request) {
-	pkey := chi.URLParam(r, "key")
-
-	tks, err := Store.Tickets().GetAllByProject(models.Project{Key: pkey})
-	if err != nil {
-		w.WriteHeader(500)
-		w.Write(utils.APIError("failed to retrieve tickets from the database"))
-		log.Println(err)
-		return
-	}
-
-	utils.SendJSON(w, tks)
-}
-
 // CreateTicket will create a ticket in the database and send the json
 // representation of the ticket back
 func CreateTicket(w http.ResponseWriter, r *http.Request) {
-	pkey := chi.URLParam(r, "key")
+	vars := mux.Vars(r)
+	pkey := vars["project_key"]
 
 	u := middleware.GetUserSession(r)
 	if u == nil {
@@ -196,7 +180,8 @@ func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 // GetComments will get the comments for the ticket indicated by the ticket key
 // in the url
 func GetComments(w http.ResponseWriter, r *http.Request) {
-	key := chi.URLParam(r, "key")
+	vars := mux.Vars(r)
+	key := vars["key"]
 
 	comments, err := Store.Tickets().GetComments(models.Ticket{Key: key})
 	if err != nil {
@@ -230,7 +215,8 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if cm.ID == 0 {
-		id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+		vars := mux.Vars(r)
+		id, _ := strconv.Atoi(vars["id"])
 		cm.ID = int64(id)
 	}
 
@@ -254,7 +240,8 @@ func RemoveComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
 
 	err := Store.Tickets().RemoveComment(models.Comment{ID: int64(id)})
 	if err != nil {
@@ -287,7 +274,8 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key := chi.URLParam(r, "key")
+	vars := mux.Vars(r)
+	key := vars["key"]
 	err = Store.Tickets().NewComment(models.Ticket{Key: key}, &cm)
 	if err != nil {
 		w.WriteHeader(500)
