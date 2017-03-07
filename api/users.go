@@ -14,6 +14,8 @@ import (
 func userRouter() chi.Router {
 	router := chi.NewRouter()
 
+	router.Get("/current_user", CurrentUser)
+
 	router.Put("/:username", UpdateUser)
 	router.Delete("/:username", DeleteUser)
 	router.Get("/search", SearchUsers)
@@ -289,4 +291,16 @@ func RefreshSession(w http.ResponseWriter, r *http.Request) {
 	r.AddCookie(cookie)
 
 	w.Write([]byte{})
+}
+
+// CurrentUser will return the user object for the currently logged in user
+func CurrentUser(w http.ResponseWriter, r *http.Request) {
+	u := GetUserSession(r)
+	if u != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write(apiError("you are not logged in"))
+		return
+	}
+
+	sendJSON(w, u)
 }
