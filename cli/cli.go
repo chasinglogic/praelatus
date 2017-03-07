@@ -11,6 +11,13 @@ func Run(args []string) {
 	app.Usage = "Praelatus, an Open Source bug tracker / ticketing system"
 	app.Version = "0.0.1"
 	app.Action = runServer
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "devmode",
+			Usage: "runs server in devmode which changes some security behavior to ease development",
+		},
+	}
+
 	app.Authors = []cli.Author{
 		{
 			Name:  "Mathew Robinson",
@@ -32,12 +39,6 @@ func Run(args []string) {
 			Name:   "serve",
 			Usage:  "start running the REST api",
 			Action: runServer,
-			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name:  "devmode",
-					Usage: "runs server in devmode which changes some security behavior to ease development",
-				},
-			},
 		},
 		{
 			Name:  "config",
