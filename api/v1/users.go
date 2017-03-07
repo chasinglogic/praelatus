@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"encoding/json"
@@ -8,23 +8,26 @@ import (
 
 	"github.com/praelatus/praelatus/models"
 	"github.com/praelatus/praelatus/store"
-	"github.com/pressly/chi"
+
+	"github.com/gorilla/mux"
 )
 
-func userRouter() chi.Router {
-	router := chi.NewRouter()
+func userRouter() http.Handler {
+	router := mux.NewRouter()
 
-	router.Get("/current_user", CurrentUser)
+	router.HandleFunc("/", GetAllUsers).Methods("GET")
+	router.HandleFunc("/", CreateUser).Methods("POST")
 
-	router.Put("/:username", UpdateUser)
-	router.Delete("/:username", DeleteUser)
-	router.Get("/search", SearchUsers)
-	router.Get("/:username", GetUser)
-	router.Get("/", GetAllUsers)
-	router.Post("/", CreateUser)
+	router.HandleFunc("/current_user", CurrentUser).Methods("GET")
 
-	router.Post("/sessions", CreateSession)
-	router.Get("/sessions", RefreshSession)
+	router.HandleFunc("/sessions", CreateSession).Methods("POST")
+	router.HandleFunc("/sessions", RefreshSession).Methods("GET")
+
+	router.HandleFunc("/search", SearchUsers).Methods("GET")
+
+	router.HandleFunc("/{username}", UpdateUser).Methods("PUT")
+	router.HandleFunc("/{username}", DeleteUser).Methods("DELETE")
+	router.HandleFunc("/{username}", GetUser).Methods("GET")
 
 	return router
 }
@@ -38,8 +41,10 @@ type TokenResponse struct {
 
 // GetUser will get a user from the database by the given username
 func GetUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
 	u := models.User{
-		Username: chi.URLParam(r, "username"),
+		Username: vars["username"],
 	}
 
 	err := Store.Users().Get(&u)
@@ -178,7 +183,8 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if u.Username == "" {
-		u.Username = chi.URLParam(r, "username")
+		vars := mux.Vars(r)
+		u.Username = vars["username"]
 	}
 
 	err = Store.Users().Save(u)
@@ -207,7 +213,8 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if u.Username == "" {
-		u.Username = chi.URLParam(r, "username")
+		vars := mux.Vars(r)
+		u.Username = vars["username"]
 	}
 
 	err = Store.Users().Remove(u)
@@ -257,7 +264,6 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if u.CheckPw([]byte(l.Password)) {
-		u.Password = ""
 		err := SetUserSession(u, r)
 		if err != nil {
 			w.WriteHeader(500)
@@ -267,6 +273,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 
 		}
 
+		u.Password = ""
 		sendJSON(w, u)
 
 		return

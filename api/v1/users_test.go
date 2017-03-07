@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"bytes"
@@ -29,8 +29,6 @@ func TestGetUser(t *testing.T) {
 	if u.Password != "" {
 		t.Error("Expected no password to be returned but instead got a password.")
 	}
-
-	t.Log(w.Body)
 }
 
 func TestGetAllUsers(t *testing.T) {
@@ -45,11 +43,13 @@ func TestGetAllUsers(t *testing.T) {
 	e := json.Unmarshal(w.Body.Bytes(), &u)
 	if e != nil {
 		t.Errorf("Failed with error %s", e.Error())
-		t.Log(w.Body)
 	}
+
+	t.Log(w.Body)
 
 	if len(u) != 2 {
 		t.Errorf("Expected 2 users got %d", len(u))
+		return
 	}
 
 	if u[0].Username != "foouser" {
@@ -58,10 +58,6 @@ func TestGetAllUsers(t *testing.T) {
 
 	if u[0].Password != "" {
 		t.Errorf("Expected no passsword but got %s\n", u[0].Password)
-	}
-
-	for _, usr := range u {
-		t.Log(usr.String())
 	}
 }
 
@@ -89,8 +85,6 @@ func TestCreateUser(t *testing.T) {
 	if l.ProfilePic == "" {
 		t.Error("Expected a profile pic but got nothing.")
 	}
-
-	t.Log(w.Body)
 }
 
 func TestRefreshSession(t *testing.T) {
@@ -103,8 +97,6 @@ func TestRefreshSession(t *testing.T) {
 	if w.Code != 200 {
 		t.Errorf("Expected 200 Got %d\n", w.Code)
 	}
-
-	t.Log(w.Body)
 }
 
 func TestSearchUsers(t *testing.T) {
@@ -119,11 +111,13 @@ func TestSearchUsers(t *testing.T) {
 	e := json.Unmarshal(w.Body.Bytes(), &u)
 	if e != nil {
 		t.Errorf("Failed with error %s", e.Error())
-		t.Log(w.Body)
 	}
+
+	t.Log(w.Body)
 
 	if len(u) != 2 {
 		t.Errorf("Expected 2 users got %d", len(u))
+		return
 	}
 
 	if u[0].Username != "foouser" {
@@ -133,4 +127,39 @@ func TestSearchUsers(t *testing.T) {
 	if u[0].Password != "" {
 		t.Errorf("Expected no passsword but got %s\n", u[0].Password)
 	}
+}
+
+func TestCreateSession(t *testing.T) {
+	login := struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}{
+		"foouser",
+		"foopass",
+	}
+
+	byt, _ := json.Marshal(login)
+	rd := bytes.NewReader(byt)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest("POST", "/api/v1/users/sessions", rd)
+
+	router.ServeHTTP(w, r)
+
+	var user models.User
+
+	e := json.Unmarshal(w.Body.Bytes(), &user)
+	if e != nil {
+		t.Errorf("Failed with error %s\n", e.Error())
+	}
+
+	if user.Username == "" {
+		t.Errorf("Expected a username but none was found. %v\n", user)
+	}
+
+	if user.Password != "" {
+		t.Error("Expected no password instead got one")
+	}
+
+	t.Log(w.Body)
 }

@@ -4,13 +4,14 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/config"
 	"github.com/praelatus/praelatus/store"
-
 	"github.com/pressly/chi"
 	"github.com/pressly/chi/docgen"
 )
@@ -42,37 +43,49 @@ func routes(rtr chi.Router) http.Handler {
 }
 
 // New will start running the api on the given port
-func New(store store.Store, ss store.SessionStore) chi.Router {
+func New(store store.Store, ss store.SessionStore) http.Handler {
 	Store = store
 
 	Cache = ss
 
-	router := chi.NewRouter()
-
-	router.Use(DefaultMiddleware...)
-	// router.Use(middleware.Recoverer)
-
-	api := chi.NewRouter()
-
-	api.Mount("/routes", routes(api))
-	api.Mount("/fields", fieldRouter())
-	api.Mount("/labels", labelRouter())
-	api.Mount("/projects", projectRouter())
-	api.Mount("/teams", teamRouter())
-	api.Mount("/tickets", ticketRouter())
-	api.Mount("/types", typeRouter())
-	api.Mount("/users", userRouter())
-	api.Mount("/workflows", workflowRouter())
-
 	context := config.ContextPath()
-	router.Mount(context+"/api", api)
-	router.Mount(context+"/api/v1", api)
-	router.Mount(context+"/", index())
 
-	// Left here for debugging purposes
-	// docgen.PrintRoutes(router)
+	router := mux.NewRouter()
+	api := router.PathPrefix(context + "/api").Subrouter()
+	v1r := router.PathPrefix(context + "/v1/api").Subrouter()
 
-	return router
+	v1.V1Routes(api)
+	v1.V1Routes(v1r)
+
+	api.Handle("/fields", fieldRouter())
+	api.Handle("/projects", projectRouter())
+	api.Handle("/teams", teamRouter())
+	api.Handle("/tickets", ticketRouter())
+	api.Handle("/types", typeRouter())
+	api.Handle("/users", userRouter())
+	api.Handle("/workflows", workflowRouter())
+
+	router.Handle(context+"/", index())
+
+	api.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+		t, err := route.GetPathTemplate()
+		if err != nil {
+			return err
+		}
+		fmt.Println(t)
+		return nil
+	})
+
+	router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+		t, err := route.GetPathTemplate()
+		if err != nil {
+			return err
+		}
+		fmt.Println(t)
+		return nil
+	})
+
+	return loadMw(router, DefaultMiddleware...)
 }
 
 // Message is a general purpose json struct used primarily for error responses.

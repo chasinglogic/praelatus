@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"bytes"
@@ -43,15 +43,16 @@ func TestGetAllProjects(t *testing.T) {
 		t.Errorf("Failed with error %s\n", e.Error())
 	}
 
-	if p[0].Key != "TEST" {
-		t.Errorf("Expected TEST-1 Got %s\n", p[0].Key)
-	}
+	t.Log(w.Body)
 
 	if len(p) != 2 {
 		t.Errorf("Expected 2 Got %d\n", len(p))
+		return
 	}
 
-	t.Log(w.Body)
+	if p[0].Key != "TEST" {
+		t.Errorf("Expected TEST-1 Got %s\n", p[0].Key)
+	}
 }
 
 func TestCreateProject(t *testing.T) {

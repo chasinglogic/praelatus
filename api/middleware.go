@@ -27,6 +27,16 @@ func genSecKey(leng int) []byte {
 	return b
 }
 
+func loadMw(handler http.Handler, mw ...func(http.Handler) http.Handler) http.Handler {
+	h := handler
+
+	for _, m := range mw {
+		h = m(h)
+	}
+
+	return h
+}
+
 // DefaultMiddleware is the default middleware stack for Praelatus
 var DefaultMiddleware = []func(http.Handler) http.Handler{
 	Logger,
@@ -116,9 +126,6 @@ func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		lrw := &LoggedResponseWriter{0, w}
-
-		lrw.Header().Add("Access-Control-Allow-Origin", "*")
-
 		next.ServeHTTP(lrw, r)
 
 		log.Printf("|%s| [%d] %s %s",

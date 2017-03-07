@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"encoding/json"
@@ -10,31 +10,29 @@ import (
 	"github.com/pressly/chi"
 )
 
-func workflowRouter() chi.Router {
+func typeRouter() chi.Router {
 	router := chi.NewRouter()
 
-	router.Get("/", GetAllWorkflows)
+	router.Get("/", GetAllTicketTypes)
+	router.Post("/", CreateTicketType)
 
-	// Because of how chi does routing the id is actually the project key
-	router.Post("/:id", CreateWorkflow)
-
-	router.Get("/:id", GetWorkflow)
-	router.Put("/:id", UpdateWorkflow)
-	router.Delete("/:id", RemoveWorkflow)
+	router.Get("/:id", GetTicketType)
+	router.Put("/:id", UpdateTicketType)
+	router.Delete("/:id", RemoveTicketType)
 
 	return router
 }
 
-// GetAllWorkflows will retrieve all workflows from the DB and send a JSON response
-func GetAllWorkflows(w http.ResponseWriter, r *http.Request) {
+// GetAllTicketTypes will retrieve all types from the DB and send a JSON response
+func GetAllTicketTypes(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to view all workflows"))
+		w.Write(apiError("you must be logged in to view all types"))
 		return
 	}
 
-	workflows, err := Store.Workflows().GetAll()
+	types, err := Store.Types().GetAll()
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(apiError(err.Error()))
@@ -42,13 +40,13 @@ func GetAllWorkflows(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendJSON(w, workflows)
+	sendJSON(w, types)
 }
 
-// CreateWorkflow will create a workflow in the database based on the JSON sent by the
+// CreateTicketType will create a type in the database based on the JSON sent by the
 // client
-func CreateWorkflow(w http.ResponseWriter, r *http.Request) {
-	var t models.Workflow
+func CreateTicketType(w http.ResponseWriter, r *http.Request) {
+	var t models.TicketType
 
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
@@ -66,18 +64,7 @@ func CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Because of how chi does routing the id is actually the project key
-	p := models.Project{Key: chi.URLParam(r, "id")}
-
-	err = Store.Projects().Get(&p)
-	if err != nil {
-		w.WriteHeader(404)
-		w.Write(apiError("project with that key does not exist"))
-		log.Println(err)
-		return
-	}
-
-	err = Store.Workflows().New(p, &t)
+	err = Store.Types().New(&t)
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(apiError(err.Error()))
@@ -88,9 +75,11 @@ func CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, t)
 }
 
-// GetWorkflow will return the json representation of a workflow in the database
-func GetWorkflow(w http.ResponseWriter, r *http.Request) {
-	i, err := strconv.Atoi(chi.URLParam(r, "id"))
+// GetTicketType will return the json representation of a type in the database
+func GetTicketType(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	i, err := strconv.Atoi(id)
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(apiError("invalid id"))
@@ -98,9 +87,9 @@ func GetWorkflow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := models.Workflow{ID: int64(i)}
+	t := models.TicketType{ID: int64(i)}
 
-	err = Store.Workflows().Get(&t)
+	err = Store.Types().Get(&t)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(apiError(err.Error()))
@@ -111,10 +100,10 @@ func GetWorkflow(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, t)
 }
 
-// UpdateWorkflow will update a project based on the JSON representation sent to
+// UpdateTicketType will update a project based on the JSON representation sent to
 // the API
-func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
-	var t models.Workflow
+func UpdateTicketType(w http.ResponseWriter, r *http.Request) {
+	var t models.TicketType
 
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
@@ -144,17 +133,7 @@ func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 		t.ID = int64(i)
 	}
 
-	p := models.Project{Key: r.Context().Value("pkey").(string)}
-
-	err = Store.Projects().Get(&p)
-	if err != nil {
-		w.WriteHeader(404)
-		w.Write(apiError("project with that key does not exist"))
-		log.Println(err)
-		return
-	}
-
-	err = Store.Workflows().New(p, &t)
+	err = Store.Types().Save(t)
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(apiError(err.Error()))
@@ -165,9 +144,9 @@ func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, t)
 }
 
-// RemoveWorkflow will remove the project indicated by the id passed in as a
+// RemoveTicketType will remove the project indicated by the id passed in as a
 // url parameter
-func RemoveWorkflow(w http.ResponseWriter, r *http.Request) {
+func RemoveTicketType(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
@@ -183,7 +162,7 @@ func RemoveWorkflow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Workflows().Remove(models.Workflow{ID: int64(i)})
+	err = Store.Types().Remove(models.TicketType{ID: int64(i)})
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(apiError(err.Error()))

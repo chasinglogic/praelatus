@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"bytes"
@@ -9,13 +9,13 @@ import (
 	"github.com/praelatus/praelatus/models"
 )
 
-func TestGetWorkflow(t *testing.T) {
+func TestGetTeam(t *testing.T) {
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("GET", "/api/v1/workflows/1", nil)
+	r := httptest.NewRequest("GET", "/api/v1/teams/1", nil)
 
 	router.ServeHTTP(w, r)
 
-	var p models.Workflow
+	var p models.Team
 
 	e := json.Unmarshal(w.Body.Bytes(), &p)
 	if e != nil {
@@ -29,38 +29,39 @@ func TestGetWorkflow(t *testing.T) {
 	t.Log(w.Body)
 }
 
-func TestGetAllWorkflows(t *testing.T) {
+func TestGetAllTeams(t *testing.T) {
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("GET", "/api/v1/workflows", nil)
+	r := httptest.NewRequest("GET", "/api/v1/teams", nil)
 	testLogin(r)
 
 	router.ServeHTTP(w, r)
 
-	var p []models.Workflow
+	var p []models.Team
 
 	e := json.Unmarshal(w.Body.Bytes(), &p)
 	if e != nil {
 		t.Errorf("Failed with error %s\n", e.Error())
 	}
 
-	if p[0].Name != "Simple Workflow" {
-		t.Errorf("Expected Simple Workflow Got %s\n", p[0].Name)
-	}
+	t.Log(w.Body)
 
 	if len(p) != 2 {
 		t.Errorf("Expected 2 Got %d\n", len(p))
+		return
 	}
 
-	t.Log(w.Body)
+	if p[0].Name != "A" {
+		t.Errorf("Expected A Got %s\n", p[0].Name)
+	}
 }
 
-func TestCreateWorkflow(t *testing.T) {
-	p := models.Workflow{Name: "Snug"}
+func TestCreateTeam(t *testing.T) {
+	p := models.Team{Name: "Snug"}
 	byt, _ := json.Marshal(p)
 	rd := bytes.NewReader(byt)
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("POST", "/api/v1/workflows/TEST", rd)
+	r := httptest.NewRequest("POST", "/api/v1/teams", rd)
 	testAdminLogin(r)
 
 	router.ServeHTTP(w, r)

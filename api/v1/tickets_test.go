@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"bytes"
@@ -42,15 +42,16 @@ func TestGetTicketPreloadComments(t *testing.T) {
 		t.Errorf("Failed with error %s", e.Error())
 	}
 
-	if tk.Key != "TEST-1" {
-		t.Errorf("Expected TEST-1 Got %s", tk.Key)
-	}
+	t.Log(w.Body)
 
 	if len(tk.Comments) == 0 {
 		t.Errorf("Expected comments got 0 instead.")
+		return
 	}
 
-	t.Log(w.Body)
+	if tk.Key != "TEST-1" {
+		t.Errorf("Expected TEST-1 Got %s", tk.Key)
+	}
 }
 
 func TestGetAllTickets(t *testing.T) {
@@ -67,15 +68,16 @@ func TestGetAllTickets(t *testing.T) {
 		t.Log(w.Body)
 	}
 
+	t.Log(w.Body)
+
 	if len(tk) != 2 {
 		t.Errorf("Expected 2 tickets got %d", len(tk))
+		return
 	}
 
 	if tk[0].Key != "TEST-1" {
 		t.Errorf("Expected TEST-1 Got %s", tk[0].Key)
 	}
-
-	t.Log(w.Body)
 }
 
 func TestGetAllTicketsByProject(t *testing.T) {
@@ -91,15 +93,17 @@ func TestGetAllTicketsByProject(t *testing.T) {
 		t.Errorf("Failed with error %s", e.Error())
 	}
 
+	t.Log(w.Body)
+
 	if len(tk) != 2 {
 		t.Errorf("Expected 2 tickets got %d", len(tk))
+		return
 	}
 
 	if tk[0].Key != "TEST-1" {
 		t.Errorf("Expected TEST-1 Got %s", tk[0].Key)
 	}
 
-	t.Log(w.Body)
 }
 
 func TestCreateTicket(t *testing.T) {

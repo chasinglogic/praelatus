@@ -57,13 +57,15 @@ func (ms mockStore) Workflows() store.WorkflowStore {
 
 type mockUsersStore struct{}
 
+var us, _ = models.NewUser("foouser", "foopass", "Foo McFooserson", "foo@foo.com", false)
+
 func (ms mockUsersStore) Get(u *models.User) error {
 	u.ID = 1
-	u.Username = "foouser"
-	u.Password = "foopass"
-	u.Email = "foo@foo.com"
-	u.FullName = "Foo McFooserson"
 	u.IsActive = true
+	u.Username = us.Username
+	u.Password = us.Password
+	u.FullName = us.FullName
+	u.Email = us.Email
 	return nil
 }
 

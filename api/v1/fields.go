@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"encoding/json"
@@ -6,33 +6,33 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/models"
-	"github.com/pressly/chi"
 )
 
-func teamRouter() chi.Router {
-	router := chi.NewRouter()
+func fieldRouter() *mux.Router {
+	router := mux.NewRouter()
 
-	router.Get("/", GetAllTeams)
-	router.Post("/", CreateTeam)
+	router.HandleFunc("/", GetAllFields).Methods("GET")
+	router.HandleFunc("/", CreateField).Methods("POST")
 
-	router.Get("/:id", GetTeam)
-	router.Put("/:id", UpdateTeam)
-	router.Delete("/:id", RemoveTeam)
+	router.HandleFunc("/{id}", GetField).Methods("GET")
+	router.HandleFunc("/{id}", UpdateField).Methods("PUT")
+	router.HandleFunc("/{id}", DeleteField).Methods("DELETE")
 
 	return router
 }
 
-// GetAllTeams will retrieve all teams from the DB and send a JSON response
-func GetAllTeams(w http.ResponseWriter, r *http.Request) {
+// GetAllFields will retrieve all fields from the DB and send a JSON response
+func GetAllFields(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to view all teams"))
+		w.Write(apiError("you must be logged in to view all fields"))
 		return
 	}
 
-	teams, err := Store.Teams().GetAll()
+	fields, err := Store.Fields().GetAll()
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(apiError(err.Error()))
@@ -40,13 +40,13 @@ func GetAllTeams(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendJSON(w, teams)
+	sendJSON(w, fields)
 }
 
-// CreateTeam will create a team in the database based on the JSON sent by the
+// CreateField will create a field in the database based on the JSON sent by the
 // client
-func CreateTeam(w http.ResponseWriter, r *http.Request) {
-	var t models.Team
+func CreateField(w http.ResponseWriter, r *http.Request) {
+	var t models.Field
 
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
@@ -64,7 +64,7 @@ func CreateTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Teams().New(&t)
+	err = Store.Fields().New(&t)
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(apiError(err.Error()))
@@ -75,9 +75,10 @@ func CreateTeam(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, t)
 }
 
-// GetTeam will return the json representation of a team in the database
-func GetTeam(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+// GetField will return the json representation of a field in the database
+func GetField(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
 
 	i, err := strconv.Atoi(id)
 	if err != nil {
@@ -87,9 +88,9 @@ func GetTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := models.Team{ID: int64(i)}
+	t := models.Field{ID: int64(i)}
 
-	err = Store.Teams().Get(&t)
+	err = Store.Fields().Get(&t)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(apiError(err.Error()))
@@ -100,10 +101,10 @@ func GetTeam(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, t)
 }
 
-// UpdateTeam will update a project based on the JSON representation sent to
+// UpdateField will update a project based on the JSON representation sent to
 // the API
-func UpdateTeam(w http.ResponseWriter, r *http.Request) {
-	var t models.Team
+func UpdateField(w http.ResponseWriter, r *http.Request) {
+	var t models.Field
 
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
@@ -121,7 +122,7 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Teams().New(&t)
+	err = Store.Fields().Save(t)
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(apiError(err.Error()))
@@ -132,10 +133,11 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, t)
 }
 
-// RemoveTeam will remove the project indicated by the id passed in as a
+// DeleteField will remove the project indicated by the id passed in as a
 // url parameter
-func RemoveTeam(w http.ResponseWriter, r *http.Request) {
-	id := r.Context().Value("id").(string)
+func DeleteField(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
 
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
@@ -152,7 +154,7 @@ func RemoveTeam(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Teams().Remove(models.Team{ID: int64(i)})
+	err = Store.Fields().Remove(models.Field{ID: int64(i)})
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(apiError(err.Error()))

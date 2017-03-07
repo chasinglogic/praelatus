@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"bytes"
@@ -9,13 +9,13 @@ import (
 	"github.com/praelatus/praelatus/models"
 )
 
-func TestGetField(t *testing.T) {
+func TestGetType(t *testing.T) {
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("GET", "/api/v1/fields/1", nil)
+	r := httptest.NewRequest("GET", "/api/v1/types/1", nil)
 
 	router.ServeHTTP(w, r)
 
-	var p models.Field
+	var p models.TicketType
 
 	e := json.Unmarshal(w.Body.Bytes(), &p)
 	if e != nil {
@@ -29,38 +29,39 @@ func TestGetField(t *testing.T) {
 	t.Log(w.Body)
 }
 
-func TestGetAllFields(t *testing.T) {
+func TestGetAllTypes(t *testing.T) {
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("GET", "/api/v1/fields", nil)
+	r := httptest.NewRequest("GET", "/api/v1/types", nil)
 	testLogin(r)
 
 	router.ServeHTTP(w, r)
 
-	var p []models.Field
+	var p []models.TicketType
 
 	e := json.Unmarshal(w.Body.Bytes(), &p)
 	if e != nil {
 		t.Errorf("Failed with error %s\n", e.Error())
 	}
 
-	if p[0].Name != "String Field" {
-		t.Errorf("Expected String Field Got %s\n", p[0].Name)
-	}
+	t.Log(w.Body)
 
 	if len(p) != 2 {
 		t.Errorf("Expected 2 Got %d\n", len(p))
+		return
 	}
 
-	t.Log(w.Body)
+	if p[0].Name != "mock type" {
+		t.Errorf("Expected mock type Got %s\n", p[0].Name)
+	}
 }
 
-func TestCreateField(t *testing.T) {
-	p := models.Field{Name: "Snug"}
+func TestCreateType(t *testing.T) {
+	p := models.TicketType{Name: "Snug"}
 	byt, _ := json.Marshal(p)
 	rd := bytes.NewReader(byt)
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest("POST", "/api/v1/fields", rd)
+	r := httptest.NewRequest("POST", "/api/v1/types", rd)
 	testAdminLogin(r)
 
 	router.ServeHTTP(w, r)

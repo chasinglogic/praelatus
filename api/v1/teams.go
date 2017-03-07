@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"encoding/json"
@@ -10,29 +10,29 @@ import (
 	"github.com/pressly/chi"
 )
 
-func typeRouter() chi.Router {
+func teamRouter() chi.Router {
 	router := chi.NewRouter()
 
-	router.Get("/", GetAllTicketTypes)
-	router.Post("/", CreateTicketType)
+	router.Get("/", GetAllTeams)
+	router.Post("/", CreateTeam)
 
-	router.Get("/:id", GetTicketType)
-	router.Put("/:id", UpdateTicketType)
-	router.Delete("/:id", RemoveTicketType)
+	router.Get("/:id", GetTeam)
+	router.Put("/:id", UpdateTeam)
+	router.Delete("/:id", RemoveTeam)
 
 	return router
 }
 
-// GetAllTicketTypes will retrieve all types from the DB and send a JSON response
-func GetAllTicketTypes(w http.ResponseWriter, r *http.Request) {
+// GetAllTeams will retrieve all teams from the DB and send a JSON response
+func GetAllTeams(w http.ResponseWriter, r *http.Request) {
 	u := GetUserSession(r)
 	if u == nil {
 		w.WriteHeader(403)
-		w.Write(apiError("you must be logged in to view all types"))
+		w.Write(apiError("you must be logged in to view all teams"))
 		return
 	}
 
-	types, err := Store.Types().GetAll()
+	teams, err := Store.Teams().GetAll()
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(apiError(err.Error()))
@@ -40,13 +40,13 @@ func GetAllTicketTypes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sendJSON(w, types)
+	sendJSON(w, teams)
 }
 
-// CreateTicketType will create a type in the database based on the JSON sent by the
+// CreateTeam will create a team in the database based on the JSON sent by the
 // client
-func CreateTicketType(w http.ResponseWriter, r *http.Request) {
-	var t models.TicketType
+func CreateTeam(w http.ResponseWriter, r *http.Request) {
+	var t models.Team
 
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
@@ -64,7 +64,7 @@ func CreateTicketType(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Types().New(&t)
+	err = Store.Teams().New(&t)
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(apiError(err.Error()))
@@ -75,8 +75,8 @@ func CreateTicketType(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, t)
 }
 
-// GetTicketType will return the json representation of a type in the database
-func GetTicketType(w http.ResponseWriter, r *http.Request) {
+// GetTeam will return the json representation of a team in the database
+func GetTeam(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	i, err := strconv.Atoi(id)
@@ -87,9 +87,9 @@ func GetTicketType(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := models.TicketType{ID: int64(i)}
+	t := models.Team{ID: int64(i)}
 
-	err = Store.Types().Get(&t)
+	err = Store.Teams().Get(&t)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(apiError(err.Error()))
@@ -100,10 +100,10 @@ func GetTicketType(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, t)
 }
 
-// UpdateTicketType will update a project based on the JSON representation sent to
+// UpdateTeam will update a project based on the JSON representation sent to
 // the API
-func UpdateTicketType(w http.ResponseWriter, r *http.Request) {
-	var t models.TicketType
+func UpdateTeam(w http.ResponseWriter, r *http.Request) {
+	var t models.Team
 
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
@@ -121,19 +121,7 @@ func UpdateTicketType(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if t.ID == 0 {
-		id := chi.URLParam(r, "id")
-		i, err := strconv.Atoi(id)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write(apiError(http.StatusText(http.StatusBadRequest)))
-			return
-		}
-
-		t.ID = int64(i)
-	}
-
-	err = Store.Types().Save(t)
+	err = Store.Teams().New(&t)
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(apiError(err.Error()))
@@ -144,9 +132,11 @@ func UpdateTicketType(w http.ResponseWriter, r *http.Request) {
 	sendJSON(w, t)
 }
 
-// RemoveTicketType will remove the project indicated by the id passed in as a
+// RemoveTeam will remove the project indicated by the id passed in as a
 // url parameter
-func RemoveTicketType(w http.ResponseWriter, r *http.Request) {
+func RemoveTeam(w http.ResponseWriter, r *http.Request) {
+	id := r.Context().Value("id").(string)
+
 	u := GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
@@ -154,7 +144,7 @@ func RemoveTicketType(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	i, err := strconv.Atoi(chi.URLParam(r, "id"))
+	i, err := strconv.Atoi(id)
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(apiError("invalid id"))
@@ -162,7 +152,7 @@ func RemoveTicketType(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Types().Remove(models.TicketType{ID: int64(i)})
+	err = Store.Teams().Remove(models.Team{ID: int64(i)})
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(apiError(err.Error()))

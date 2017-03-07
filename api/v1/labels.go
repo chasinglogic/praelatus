@@ -1,4 +1,4 @@
-package api
+package v1
 
 import (
 	"encoding/json"
@@ -6,23 +6,19 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/models"
 	"github.com/praelatus/praelatus/store"
-	"github.com/pressly/chi"
 )
 
-func labelRouter() chi.Router {
-	router := chi.NewRouter()
+func labelRouter(router *mux.Router) {
+	router.HandleFunc("", GetAllLabels).Methods("GET")
+	router.HandleFunc("", CreateLabel).Methods("POST")
 
-	router.Get("/", GetAllLabels)
-	router.Post("/", CreateLabel)
-
-	router.Get("/search", SearchLabels)
-	router.Get("/:id", GetLabel)
-	router.Delete("/:id", DeleteLabel)
-	router.Put("/:id", UpdateLabel)
-
-	return router
+	router.HandleFunc("/search", SearchLabels).Methods("GET")
+	router.HandleFunc("/{id}", GetLabel).Methods("GET")
+	router.HandleFunc("/{id}", DeleteLabel).Methods("DELETE")
+	router.HandleFunc("/{id}", UpdateLabel).Methods("PUT")
 }
 
 // GetAllLabels will return a JSON array of all labels from the store.
@@ -40,7 +36,8 @@ func GetAllLabels(w http.ResponseWriter, r *http.Request) {
 
 // GetLabel will return a JSON representation of a label
 func GetLabel(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	vars := mux.Vars(r)
+	id := vars["id"]
 
 	lbl := &models.Label{}
 
@@ -117,7 +114,8 @@ func UpdateLabel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if lbl.ID == 0 {
-		id := chi.URLParam(r, "id")
+		vars := mux.Vars(r)
+		id := vars["id"]
 		i, err := strconv.Atoi(id)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -142,7 +140,8 @@ func UpdateLabel(w http.ResponseWriter, r *http.Request) {
 // DeleteLabel deletes labels from the db and returns a response indicating
 // success of failure.
 func DeleteLabel(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	vars := mux.Vars(r)
+	id := vars["id"]
 
 	i, err := strconv.Atoi(id)
 	if err != nil {

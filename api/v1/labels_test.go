@@ -1,9 +1,8 @@
-package api
+package v1
 
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http/httptest"
 	"testing"
 
@@ -26,8 +25,6 @@ func TestGetLabel(t *testing.T) {
 	if p.ID != 1 {
 		t.Errorf("Expected 1 Got %d\n", p.ID)
 	}
-
-	t.Log(w.Body)
 }
 
 func TestGetAllLabels(t *testing.T) {
@@ -44,15 +41,17 @@ func TestGetAllLabels(t *testing.T) {
 		t.Errorf("Failed with error %s\n", e.Error())
 	}
 
+	t.Log(w.Body)
+
+	if len(p) != 2 {
+		t.Errorf("Expected 2 Got %d\n", len(p))
+		return
+	}
+
 	if p[0].Name != "mock" {
 		t.Errorf("Expected mock Got %s\n", p[0].Name)
 	}
 
-	if len(p) != 2 {
-		t.Errorf("Expected 2 Got %d\n", len(p))
-	}
-
-	t.Log(w.Body)
 }
 
 func TestCreateLabel(t *testing.T) {
@@ -87,20 +86,19 @@ func TestSearchLabels(t *testing.T) {
 
 	var p []models.Label
 
-	fmt.Println(w.Body.String())
-
 	e := json.Unmarshal(w.Body.Bytes(), &p)
 	if e != nil {
 		t.Errorf("Failed with error %s\n", e.Error())
 	}
 
-	if p[0].Name != "fake" {
-		t.Errorf("Expected fake Got %s\n", p[0].Name)
-	}
+	t.Log(w.Body)
 
 	if len(p) != 1 {
 		t.Errorf("Expected 1 Got %d\n", len(p))
+		return
 	}
 
-	t.Log(w.Body)
+	if p[0].Name != "fake" {
+		t.Errorf("Expected fake Got %s\n", p[0].Name)
+	}
 }
