@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/praelatus/praelatus/api/middleware"
 	"github.com/praelatus/praelatus/api/utils"
 	"github.com/praelatus/praelatus/models"
 	"github.com/pressly/chi"
