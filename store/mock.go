@@ -9,7 +9,10 @@ import (
 
 // Mock will return a mock store and session store to use for testing
 func Mock() (Store, SessionStore) {
-	return mockStore{}, mockSessionStore{}
+	return mockStore{},
+		mockSessionStore{
+			store: make(map[string]*models.User),
+		}
 }
 
 var loc, _ = time.LoadLocation("")
