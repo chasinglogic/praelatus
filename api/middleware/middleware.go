@@ -31,10 +31,11 @@ func genSecKey(leng int) []byte {
 	return b
 }
 
-func loadMw(handler http.Handler, mw ...func(http.Handler) http.Handler) http.Handler {
+// LoadMw will wrap the given http.Handler in the DefaultMiddleware
+func LoadMw(handler http.Handler) http.Handler {
 	h := handler
 
-	for _, m := range mw {
+	for _, m := range DefaultMiddleware {
 		h = m(h)
 	}
 
