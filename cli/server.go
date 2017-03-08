@@ -17,8 +17,13 @@ import (
 func disableCors(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			if w.Header().Get("Access-Control-Allow-Origin") == "" {
-				w.Header().Add("Access-Control-Allow-Origin", "*")
+			w.Header().Add("Access-Control-Allow-Origin", "*")
+			w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+			w.Header().Add("Access-Control-Expose-Headers", "*")
+
+			if r.Method == "OPTIONS" {
+				w.Write([]byte{})
+				return
 			}
 
 			next.ServeHTTP(w, r)
