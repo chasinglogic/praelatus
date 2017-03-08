@@ -127,7 +127,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(utils.APIError(err.Error()))
-		log.Println(err)
 		return
 	}
 
@@ -149,7 +148,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
-		log.Println(err)
 		return
 	}
 
@@ -157,7 +155,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
-		log.Println(err)
 		return
 	}
 
