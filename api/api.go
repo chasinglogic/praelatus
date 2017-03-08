@@ -67,7 +67,6 @@ func Routes() *mux.Router {
 	router.HandleFunc("/routes", routes(router)).Methods("GET")
 
 	return router
-
 }
 
 // New will start running the api on the given port
