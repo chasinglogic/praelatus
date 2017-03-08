@@ -143,7 +143,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == store.ErrDuplicateEntry {
 			w.WriteHeader(400)
-			w.Write(utils.APIError(err.Error()))
+			w.Write(utils.APIError("That username is already taken"))
 			return
 		}
 
