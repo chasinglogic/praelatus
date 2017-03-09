@@ -151,7 +151,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = middleware.SetUserSession(*usr, r)
+	err = middleware.SetUserSession(*usr, w)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
@@ -159,6 +159,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	usr.Password = ""
+
 	utils.SendJSON(w, usr)
 }
 
@@ -259,7 +260,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if u.CheckPw([]byte(l.Password)) {
-		err := middleware.SetUserSession(u, r)
+		err := middleware.SetUserSession(u, w)
 		if err != nil {
 			w.WriteHeader(500)
 			w.Write(utils.APIError(err.Error()))
