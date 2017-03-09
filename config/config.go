@@ -56,6 +56,10 @@ func init() {
 
 	Cfg.Port = os.Getenv("PRAELATUS_PORT")
 	if Cfg.Port == "" {
+		Cfg.Port = ":" + os.Getenv("PORT")
+	}
+
+	if Cfg.Port == "" {
 		Cfg.Port = ":8080"
 	}
 
