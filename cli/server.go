@@ -20,6 +20,7 @@ func disableCors(next http.Handler) http.Handler {
 			w.Header().Add("Access-Control-Allow-Origin", "*")
 			w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
 			w.Header().Add("Access-Control-Expose-Headers", "*")
+			w.Header().Add("Access-Control-Allow-Credentials", "true")
 
 			if r.Method == "OPTIONS" {
 				w.Write([]byte{})
@@ -50,7 +51,7 @@ func runServer(c *cli.Context) error {
 
 	log.Println("Prepping API")
 	var r http.Handler = api.New(s, ss)
-	if c.Bool("devmode") {
+	if c.Bool("devmode") || os.Getenv("PRAELATUS_DEV_MODE") == "1" {
 		log.Println("Running in dev mode, disabling cors...")
 		r = disableCors(r)
 	}
