@@ -14,19 +14,6 @@ import (
 	"github.com/praelatus/praelatus/api/v1"
 )
 
-func index() http.Handler {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/",
-		func(w http.ResponseWriter, r *http.Request) {
-			http.ServeFile(w, r, "client/index.html")
-		})
-
-	mux.Handle("/static/",
-		http.StripPrefix("/client/", http.FileServer(http.Dir("client/static"))))
-
-	return mux
-}
-
 func routes(router *mux.Router) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rs := []string{}
@@ -62,9 +49,16 @@ func Routes() *mux.Router {
 	// setup routes endpoints
 	v1r.HandleFunc("/routes", routes(v1r)).Methods("GET")
 	api.HandleFunc("/routes", routes(api)).Methods("GET")
-
-	router.Handle(context+"/", index())
 	router.HandleFunc("/routes", routes(router)).Methods("GET")
+
+	router.HandleFunc(context+"/",
+		func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "client/index.html")
+		})
+
+	router.PathPrefix(context + "/static/").Handler(
+		http.StripPrefix(context+"/static/",
+			http.FileServer(http.Dir("client/static/"))))
 
 	return router
 }
