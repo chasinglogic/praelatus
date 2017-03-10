@@ -32,7 +32,7 @@ func TestGetType(t *testing.T) {
 func TestGetAllTypes(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/types", nil)
-	testLogin(r)
+	testLogin(w, r)
 
 	router.ServeHTTP(w, r)
 
@@ -62,7 +62,7 @@ func TestCreateType(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/v1/types", rd)
-	testAdminLogin(r)
+	testAdminLogin(w, r)
 
 	router.ServeHTTP(w, r)
 

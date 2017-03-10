@@ -32,7 +32,7 @@ func TestGetField(t *testing.T) {
 func TestGetAllFields(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/fields", nil)
-	testLogin(r)
+	testLogin(w, r)
 
 	router.ServeHTTP(w, r)
 
@@ -60,7 +60,7 @@ func TestCreateField(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/v1/fields", rd)
-	testAdminLogin(r)
+	testAdminLogin(w, r)
 
 	router.ServeHTTP(w, r)
 

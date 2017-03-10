@@ -18,7 +18,7 @@ func init() {
 	router = api.Routes()
 }
 
-func testLogin(r *http.Request) {
+func testLogin(w http.ResponseWriter, r *http.Request) {
 	u := models.User{
 		1,
 		"foouser",
@@ -31,13 +31,15 @@ func testLogin(r *http.Request) {
 		&models.Settings{},
 	}
 
-	err := middleware.SetUserSession(u, r)
+	err := middleware.SetUserSession(u, w)
 	if err != nil {
 		panic(err)
 	}
+
+	r.Headers.Add("Authorization", w.Header().Get("Token"))
 }
 
-func testAdminLogin(r *http.Request) {
+func testAdminLogin(w http.ResponseWriter, r *http.Request) {
 	u := models.User{
 		1,
 		"foouser",
@@ -50,8 +52,10 @@ func testAdminLogin(r *http.Request) {
 		&models.Settings{},
 	}
 
-	err := middleware.SetUserSession(u, r)
+	err := middleware.SetUserSession(u, w)
 	if err != nil {
 		panic(err)
 	}
+
+	r.Headers.Add("Authorization", w.Header().Get("Token"))
 }

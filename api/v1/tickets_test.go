@@ -113,7 +113,7 @@ func TestCreateTicket(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/v1/tickets/TEST", rd)
-	testLogin(r)
+	testLogin(w, r)
 
 	router.ServeHTTP(w, r)
 
@@ -159,7 +159,7 @@ func TestCreateComment(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/v1/tickets/TEST-1/comments", rd)
-	testLogin(r)
+	testLogin(w, r)
 
 	router.ServeHTTP(w, r)
 

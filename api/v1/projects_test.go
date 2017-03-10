@@ -32,7 +32,7 @@ func TestGetProject(t *testing.T) {
 func TestGetAllProjects(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/projects", nil)
-	testLogin(r)
+	testLogin(w, r)
 
 	router.ServeHTTP(w, r)
 
@@ -62,7 +62,7 @@ func TestCreateProject(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/v1/projects", rd)
-	testAdminLogin(r)
+	testAdminLogin(w, r)
 
 	router.ServeHTTP(w, r)
 

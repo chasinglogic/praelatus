@@ -30,7 +30,7 @@ func TestGetLabel(t *testing.T) {
 func TestGetAllLabels(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/labels", nil)
-	testLogin(r)
+	testLogin(w, r)
 
 	router.ServeHTTP(w, r)
 
@@ -61,7 +61,7 @@ func TestCreateLabel(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/v1/labels", rd)
-	testAdminLogin(r)
+	testAdminLogin(w, r)
 
 	router.ServeHTTP(w, r)
 
@@ -80,7 +80,7 @@ func TestCreateLabel(t *testing.T) {
 func TestSearchLabels(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/labels/search?query=fake", nil)
-	testLogin(r)
+	testLogin(w, r)
 
 	router.ServeHTTP(w, r)
 

@@ -32,7 +32,7 @@ func TestGetWorkflow(t *testing.T) {
 func TestGetAllWorkflows(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/workflows", nil)
-	testLogin(r)
+	testLogin(w, r)
 
 	router.ServeHTTP(w, r)
 
@@ -62,7 +62,7 @@ func TestCreateWorkflow(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/v1/workflows/TEST", rd)
-	testAdminLogin(r)
+	testAdminLogin(w, r)
 
 	router.ServeHTTP(w, r)
 

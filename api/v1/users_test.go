@@ -34,7 +34,7 @@ func TestGetUser(t *testing.T) {
 func TestGetAllUsers(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/users", nil)
-	testAdminLogin(r)
+	testAdminLogin(w, r)
 
 	router.ServeHTTP(w, r)
 
@@ -90,7 +90,7 @@ func TestCreateUser(t *testing.T) {
 func TestRefreshSession(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/users/sessions", nil)
-	testLogin(r)
+	testLogin(w, r)
 
 	router.ServeHTTP(w, r)
 
@@ -102,7 +102,7 @@ func TestRefreshSession(t *testing.T) {
 func TestSearchUsers(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "/api/v1/users/search?query=foo", nil)
-	testAdminLogin(r)
+	testAdminLogin(w, r)
 
 	router.ServeHTTP(w, r)
 
