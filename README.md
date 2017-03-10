@@ -42,8 +42,8 @@ Need help getting started hacking on Praelatus? No problem we have docs for that
 ## Installation
 
 View our deployment guides for your platform: 
-    - [Linux](https://doc.praelatus.io/deployments/linux/)
-    - [Windows](https://doc.praelatus.io/deployments/windows/)
+- [Linux](https://doc.praelatus.io/deployments/linux/)
+- [Windows](https://doc.praelatus.io/deployments/windows/)
 
 ## License
 
