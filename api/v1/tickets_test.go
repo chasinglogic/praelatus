@@ -180,7 +180,7 @@ func TestTransitionTicket(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest("POST", "/api/v1/tickets/TEST-1/transition?name=In%20Progress", nil)
 
-	testLogin(r)
+	testLogin(w, r)
 
 	router.ServeHTTP(w, r)
 
