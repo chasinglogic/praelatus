@@ -1212,17 +1212,7 @@ func (m mockSessionStore) Get(id string) (models.Session, error) {
 
 	return models.Session{
 		Expires: time.Now().Add(time.Hour),
-		User: models.User{
-			ID:         1,
-			Username:   "foouser",
-			Password:   "foopass",
-			Email:      "foo@foo.com",
-			FullName:   "Foo McFooserson",
-			ProfilePic: "",
-			IsAdmin:    false,
-			IsActive:   true,
-			Settings:   &settings,
-		},
+		User:    *u,
 	}, nil
 }
 
