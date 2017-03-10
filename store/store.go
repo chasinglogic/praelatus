@@ -65,8 +65,9 @@ type Migrater interface {
 // SessionStore is implemented by any struct supporting a simple key value
 // store, preferably a fast one as this is used for storing user sessions
 type SessionStore interface {
-	Get(string) (models.User, error)
-	Set(string, models.User) error
+	Get(string) (models.Session, error)
+	Set(string, models.Session) error
+	Remove(string) error
 }
 
 // FieldStore contains methods for storing and retrieving Fields and FieldValues

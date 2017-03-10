@@ -1,21 +1,24 @@
 language: go
 
 go:
-    - 1.7
-    - 1.8
+  - 1.7
+  - 1.8
 
 services:
-    - postgres
-    # - redis-server
+  - postgres
+  # - redis-server
 
 env:
-    - PRAELATUS_DB="postgres://postgres@localhost:5432/prae_ci_test?sslmode=disable"
+  - PRAELATUS_DB="postgres://postgres@localhost:5432/prae_ci_test?sslmode=disable"
 
 before_script:
-    - psql -c 'create database prae_ci_test;' -U postgres
+  - psql -c 'create database prae_ci_test;' -U postgres
+
+install:
+  - echo "Nope"
 
 script:
-    - go test ./api/... ./store/... ./config/... ./models/... ./cli/...
+  - go test ./api/... ./store/... ./config/... ./models/... ./cli/...
 
 addons:
-    postgresql: "9.4"
+  postgresql: "9.4"

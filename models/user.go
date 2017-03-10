@@ -31,7 +31,7 @@ func (u *User) CheckPw(pw []byte) bool {
 		return true
 	}
 
-	log.Println(err)
+	log.Println("Error checking password:", err)
 	return false
 }
 

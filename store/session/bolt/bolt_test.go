@@ -2,6 +2,7 @@ package bolt
 
 import (
 	"testing"
+	"time"
 
 	"github.com/praelatus/praelatus/models"
 	"github.com/praelatus/praelatus/store"
@@ -15,18 +16,22 @@ func init() {
 
 func TestGetAndSet(t *testing.T) {
 	user, _ := models.NewUser("testuser", "test", "Test Testerson", "test@example.com", false)
+	sess := models.Session{
+		Expires: time.Now().Add(time.Hour),
+		User:    *user,
+	}
 
-	err := s.Set("test", *user)
+	err := s.Set("test", sess)
 	if err != nil {
 		t.Error(err)
 	}
 
-	u, err := s.Get("test")
+	s, err := s.Get("test")
 	if err != nil {
 		t.Error(err)
 	}
 
-	if u != *user {
-		t.Errorf("Expected %v, got %v", user, u)
+	if s.User != *user {
+		t.Errorf("Expected %v, got %v", user, s.User)
 	}
 }
