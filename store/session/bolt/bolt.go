@@ -14,9 +14,17 @@ type SessionStore struct {
 	db *bolt.DB
 }
 
+// Remove will remove the given key from the bolt session store
+func (c *SessionStore) Remove(key string) error {
+	return c.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("sessions"))
+		return b.Delete([]byte(key))
+	})
+}
+
 // Get will get the sesion information for the given session key
-func (c *SessionStore) Get(key string) (models.User, error) {
-	var u models.User
+func (c *SessionStore) Get(key string) (models.Session, error) {
+	var u models.Session
 	var jsn []byte
 
 	c.db.View(func(tx *bolt.Tx) error {
@@ -34,7 +42,7 @@ func (c *SessionStore) Get(key string) (models.User, error) {
 }
 
 // Set will set the session information for the given session key
-func (c *SessionStore) Set(key string, model models.User) error {
+func (c *SessionStore) Set(key string, model models.Session) error {
 	jsn, err := json.Marshal(model)
 	if err != nil {
 		return err

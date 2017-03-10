@@ -11,14 +11,8 @@ import (
 	"github.com/praelatus/praelatus/models"
 )
 
-// Session stores a user with the expiration time of the session
-type Session struct {
-	Expires time.Time
-	User    *models.User
-}
-
-var hashKey = genSecKey(64)
-var blockKey = genSecKey(32)
+var hashKey = securecookie.GenerateRandomKey(64)
+var blockKey = securecookie.GenerateRandomKey(32)
 var sec = securecookie.New(hashKey, blockKey)
 
 func genSecKey(leng int) []byte {
@@ -38,12 +32,14 @@ func genSecKey(leng int) []byte {
 func GetUserSession(r *http.Request) *models.User {
 	var encoded string
 
-	cookie, err := r.Cookie("PRAESESSION")
-	encoded = cookie.Value
-	if err != nil {
+	cookie, _ := r.Cookie("PRAESESSION")
+	if cookie != nil {
+		encoded = cookie.Value
+	}
+
+	if cookie == nil {
 		// if the cookie is not set check the header
 		encoded = r.Header.Get("Authorization")
-		return nil
 	}
 
 	if encoded == "" {
@@ -57,14 +53,22 @@ func GetUserSession(r *http.Request) *models.User {
 		return nil
 	}
 
-	user, err := Cache.Get(id)
-
+	sess, err := Cache.Get(id)
 	if err != nil {
 		log.Println("Error fetching session from store: ", err)
 		return nil
 	}
 
-	return &user
+	if sess.Expires.Before(time.Now()) {
+		// session has expired
+		if err := Cache.Remove(id); err != nil {
+			log.Println("Error removing from store:", err)
+		}
+
+		return nil
+	}
+
+	return &sess.User
 }
 
 // SetUserSession will generate a secure cookie for user u, will set the cookie
@@ -87,7 +91,13 @@ func SetUserSession(u models.User, w http.ResponseWriter) error {
 
 	http.SetCookie(w, &c)
 	w.Header().Add("Token", encoded)
-	return Cache.Set(id, u)
+
+	sess := models.Session{
+		Expires: exp,
+		User:    u,
+	}
+
+	return Cache.Set(id, sess)
 }
 
 func generateSessionID() string {
