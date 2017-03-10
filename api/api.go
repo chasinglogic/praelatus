@@ -56,6 +56,11 @@ func Routes() *mux.Router {
 			http.ServeFile(w, r, "client/index.html")
 		})
 
+	router.NotFoundHandler = http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "client/index.html")
+		})
+
 	router.PathPrefix(context + "/static/").Handler(
 		http.StripPrefix(context+"/static/",
 			http.FileServer(http.Dir("client/static/"))))
