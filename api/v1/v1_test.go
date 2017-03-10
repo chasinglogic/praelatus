@@ -36,7 +36,7 @@ func testLogin(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	r.Headers.Add("Authorization", w.Header().Get("Token"))
+	r.Header.Add("Authorization", w.Header().Get("Token"))
 }
 
 func testAdminLogin(w http.ResponseWriter, r *http.Request) {
@@ -57,5 +57,5 @@ func testAdminLogin(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	r.Headers.Add("Authorization", w.Header().Get("Token"))
+	r.Header.Add("Authorization", w.Header().Get("Token"))
 }
