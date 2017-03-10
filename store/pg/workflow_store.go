@@ -30,8 +30,8 @@ func (ws *WorkflowStore) Get(w *models.Workflow) error {
 	return handlePqErr(err)
 }
 
-func (ws *WorkflowStore) getHooks(t *models.Transition) error {
-	rows, err := ws.db.Query(`SELECT h.id, endpoint, method, body
+func getHooks(db *sql.DB, t *models.Transition) error {
+	rows, err := db.Query(`SELECT h.id, endpoint, method, body
 				      FROM hooks AS h
 				      JOIN transitions AS t ON t.id = h.transition_id`)
 	if err != nil {
@@ -52,12 +52,45 @@ func (ws *WorkflowStore) getHooks(t *models.Transition) error {
 	return nil
 }
 
-func (ws *WorkflowStore) getTransitions(w *models.Workflow) error {
-	var statuses []int64
+func transitionsFromRows(db *sql.DB, rows *sql.Rows) ([]models.Transition, error) {
+	var transitions []models.Transition
 
-	rows, err := ws.db.Query(`SELECT status_id 
-                                  FROM workflow_statuses 
-                                  WHERE workflow_id = $1`, w.ID)
+	for rows.Next() {
+		var t models.Transition
+		var status json.RawMessage
+
+		err := rows.Scan(&t.ID, &t.Name, &status)
+		if err != nil {
+			return nil, handlePqErr(err)
+		}
+
+		err = json.Unmarshal(status, &t.ToStatus)
+		if err != nil {
+			return nil, handlePqErr(err)
+		}
+
+		err = getHooks(db, &t)
+		if err != nil {
+			return nil, handlePqErr(err)
+		}
+
+		transitions = append(transitions, t)
+	}
+
+	return transitions, nil
+}
+
+func (ws *WorkflowStore) getTransitions(w *models.Workflow) error {
+	var statuses []struct {
+		ID   int64
+		Name string
+	}
+
+	rows, err := ws.db.Query(`
+	SELECT status.id, status.name
+    FROM workflow_statuses 
+	JOIN statuses AS status ON status.id = status_id
+    WHERE workflow_id = $1`, w.ID)
 	if err != nil {
 		return handlePqErr(err)
 	}
@@ -65,27 +98,29 @@ func (ws *WorkflowStore) getTransitions(w *models.Workflow) error {
 	defer rows.Close()
 
 	for rows.Next() {
-		var i int64
+		var s struct {
+			ID   int64
+			Name string
+		}
 
-		err := rows.Scan(&i)
+		err := rows.Scan(&s.ID, &s.Name)
 		if err != nil {
 			return handlePqErr(err)
 		}
 
-		statuses = append(statuses, i)
+		statuses = append(statuses, s)
 	}
 
 	rows.Close()
 
 	for _, fromS := range statuses {
 
-		rows, err = ws.db.Query(`SELECT t.id, t.name,
-					     from_s.name as from_status, row_to_json(to_s.*)
-				      FROM transitions AS t
-				      JOIN statuses AS from_s ON from_s.id = t.from_status
-				      JOIN statuses AS to_s ON to_s.id = t.to_status
-                                      WHERE t.from_status = $1
-                                      AND t.workflow_id = $2`, fromS, w.ID)
+		rows, err = ws.db.Query(`
+		SELECT t.id, t.name, row_to_json(to_s.*)
+        FROM transitions AS t
+        JOIN statuses AS to_s ON to_s.id = t.to_status
+        WHERE t.from_status = $1
+        AND t.workflow_id = $2`, fromS.ID, w.ID)
 		if err != nil {
 			return handlePqErr(err)
 		}
@@ -94,29 +129,12 @@ func (ws *WorkflowStore) getTransitions(w *models.Workflow) error {
 			w.Transitions = make(map[string][]models.Transition, 0)
 		}
 
-		for rows.Next() {
-			var t models.Transition
-			var fromStatus string
-			var status json.RawMessage
-
-			err = rows.Scan(&t.ID, &t.Name, &fromStatus, &status)
-			if err != nil {
-				return handlePqErr(err)
-			}
-
-			err = json.Unmarshal(status, &t.ToStatus)
-			if err != nil {
-				return handlePqErr(err)
-			}
-
-			err = ws.getHooks(&t)
-			if err != nil {
-				return handlePqErr(err)
-			}
-
-			w.Transitions[fromStatus] = append(w.Transitions[fromStatus], t)
+		transitions, err := transitionsFromRows(ws.db, rows)
+		if err != nil {
+			return err
 		}
 
+		w.Transitions[fromS.Name] = transitions
 	}
 
 	return nil
@@ -166,6 +184,23 @@ func (ws *WorkflowStore) GetByProject(p models.Project) ([]models.Workflow, erro
 	}
 
 	return workflowsFromRows(rows, ws)
+}
+
+// GetForTicket will get the workflow associated with the given ticket
+func (ws *WorkflowStore) GetForTicket(t models.Ticket) (models.Workflow, error) {
+	var w models.Workflow
+
+	row := ws.db.QueryRow(`
+	SELECT id, name FROM workflows
+	WHERE id = $1`, t.WorkflowID)
+
+	err := row.Scan(&w.ID, &w.Name)
+	if err != nil {
+		return w, err
+	}
+
+	err = ws.getTransitions(&w)
+	return w, err
 }
 
 // New creates a new workflow in the database

@@ -12,6 +12,11 @@ import (
 	"github.com/praelatus/praelatus/models"
 )
 
+// TODO it's possible that one go routine taking a long time (such as the hook
+// event manager thread) can lock up the whole event system, need to investigate
+// the cost of spinning up new threads and channels to determine what the best
+// way to go is.
+
 // evm is the global event manager which is interfaced with using the functions
 // whose names match the methods of an EventManager
 var evm = &EventManager{
@@ -62,7 +67,8 @@ func Run() {
 		select {
 		case res := <-evm.Result:
 			if !res.Success {
-				eventLog.Printf("handler %s failed with error %s\n", res.Reporter, res.Error.Error())
+				eventLog.Printf("handler %s failed with error %s\n",
+					res.Reporter, res.Error.Error())
 				continue
 			}
 
@@ -106,4 +112,14 @@ type Result struct {
 	Reporter string
 	Error    error
 	Success  bool
+}
+
+// AddWs calls the method of the same name on the global EventManager
+func AddWs(w http.ResponseWriter, r *http.Request, h http.Header) {
+	evm.AddWs(w, r, h)
+}
+
+// FireEvent calls the method of the same name on the global EventManager
+func FireEvent(e models.Event) {
+	evm.FireEvent(e)
 }

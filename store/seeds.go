@@ -47,6 +47,7 @@ var defaults = []func(s Store) error{
 	SeedTicketTypes,
 	SeedFields,
 	SeedStatuses,
+	SeedWorkflows,
 }
 
 var seedFuncs = []func(s Store) error{
@@ -57,9 +58,9 @@ var seedFuncs = []func(s Store) error{
 	SeedFields,
 	SeedStatuses,
 	SeedLabels,
+	SeedWorkflows,
 	SeedTickets,
 	SeedComments,
-	SeedWorkflows,
 }
 
 // SeedDefaults will seed the database with the basics needed to use Praelatus
@@ -128,6 +129,7 @@ func SeedTickets(s Store) error {
 			Key:         s.Tickets().NextTicketKey(models.Project{ID: 1, Key: "TEST"}),
 			Summary:     "This is a test ticket. #" + strconv.Itoa(i),
 			Description: "No really, this is just a test",
+			WorkflowID:  1,
 			Reporter:    models.User{ID: 1},
 			Assignee:    models.User{ID: 1},
 			Status:      models.Status{ID: 1},

@@ -20,6 +20,8 @@ func ticketRouter(router *mux.Router) {
 	router.HandleFunc("/tickets/{key}", RemoveTicket).Methods("DELETE")
 	router.HandleFunc("/tickets/{key}", UpdateTicket).Methods("PUT")
 
+	router.HandleFunc("/tickets/{key}/transition", TransitionTicket).Methods("POST")
+
 	router.HandleFunc("/tickets/{project_key}", CreateTicket).Methods("POST")
 
 	router.HandleFunc("/tickets/{key}/comments", GetComments).Methods("GET")
@@ -285,4 +287,47 @@ func CreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.SendJSON(w, cm)
+}
+
+// TransitionTicket will perform the given transition on the ticket indicated by {key}
+func TransitionTicket(w http.ResponseWriter, r *http.Request) {
+	u := middleware.GetUserSession(r)
+	if u == nil {
+		w.WriteHeader(403)
+		w.Write(utils.APIError("you must be logged in to transition a ticket"))
+		return
+	}
+
+	tk := &models.Ticket{
+		Key: mux.Vars(r)["key"],
+	}
+
+	err := Store.Tickets().Get(tk)
+	if err != nil {
+		if err == store.ErrNotFound {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write(utils.APIError("no ticket with that key"))
+			return
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(utils.APIError(err.Error()))
+		return
+	}
+
+	transition, valid := tk.Transition(r.FormValue("name"))
+	if !valid {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(utils.APIError("not a valid transition for ticket"))
+		return
+	}
+
+	err = Store.Tickets().ExecuteTransition(tk, transition)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	utils.SendJSON(w, tk)
 }
