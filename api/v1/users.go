@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/praelatus/praelatus/api/middleware"
 	"github.com/praelatus/praelatus/api/utils"
@@ -281,17 +280,10 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 
 // RefreshSession will reset the expiration on the current session
 func RefreshSession(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("PRAESESSION")
+	err := middleware.RefreshSession(r)
 	if err != nil {
-		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
-		log.Println(err)
-		return
 	}
-
-	duration, _ := time.ParseDuration("3h")
-	cookie.Expires = time.Now().Add(duration)
-	r.AddCookie(cookie)
 
 	w.Write([]byte{})
 }

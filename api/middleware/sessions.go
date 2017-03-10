@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"log"
 	"net/http"
 	"time"
@@ -15,21 +15,12 @@ var hashKey = securecookie.GenerateRandomKey(64)
 var blockKey = securecookie.GenerateRandomKey(32)
 var sec = securecookie.New(hashKey, blockKey)
 
-func genSecKey(leng int) []byte {
-	b := make([]byte, leng)
-	_, err := rand.Read(b)
-
-	// if we can't generate secure strings fail out
-	if err != nil {
-		panic(err)
-	}
-
-	return b
+func generateSessionID() string {
+	b := securecookie.GenerateRandomKey(32)
+	return base64.URLEncoding.EncodeToString(b)
 }
 
-// GetUserSession will check the given http.Request for a session token and if
-// found it will return the corresponding user.
-func GetUserSession(r *http.Request) *models.User {
+func getSessionID(r *http.Request) string {
 	var encoded string
 
 	cookie, _ := r.Cookie("PRAESESSION")
@@ -42,14 +33,20 @@ func GetUserSession(r *http.Request) *models.User {
 		encoded = r.Header.Get("Authorization")
 	}
 
-	if encoded == "" {
-		// no session is set
-		return nil
-	}
-
 	var id string
 	if err := sec.Decode("PRAESESSION", encoded, &id); err != nil {
 		log.Println("Error decoding cookie:", err)
+		return ""
+	}
+
+	return id
+}
+
+// GetUserSession will check the given http.Request for a session token and if
+// found it will return the corresponding user.
+func GetUserSession(r *http.Request) *models.User {
+	id := getSessionID(r)
+	if id == "" {
 		return nil
 	}
 
@@ -80,8 +77,7 @@ func SetUserSession(u models.User, w http.ResponseWriter) error {
 		return err
 	}
 
-	duration, _ := time.ParseDuration("3h")
-	exp := time.Now().Add(duration)
+	exp := time.Now().Add(time.Hour * 3)
 	c := http.Cookie{
 		Name:    "PRAESESSION",
 		Value:   encoded,
@@ -100,7 +96,18 @@ func SetUserSession(u models.User, w http.ResponseWriter) error {
 	return Cache.Set(id, sess)
 }
 
-func generateSessionID() string {
-	b := genSecKey(32)
-	return base64.URLEncoding.EncodeToString(b)
+// RefreshSession will reset the expiry on the session for the given request
+func RefreshSession(r *http.Request) error {
+	id := getSessionID(r)
+	if id == "" {
+		return errors.New("no session on this request")
+	}
+
+	sess, err := Cache.Get(id)
+	if err != nil {
+		return err
+	}
+
+	sess.Expires = time.Now().Add(time.Hour * 3)
+	return Cache.Set(id, sess)
 }
