@@ -1,3 +1,5 @@
+// Package bolt implements a store.SessionStore using a BoltDB as
+// the backend
 package bolt
 
 import (
