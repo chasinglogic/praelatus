@@ -1,4 +1,4 @@
-// Package api has our routers and handler methods for all of the available api
+// Package api has our router and HTTP handlers for all of the available api
 // routes
 package api
 
@@ -41,10 +41,10 @@ func Routes() *mux.Router {
 	v1r := router.PathPrefix(context + "/api/v1").Subrouter()
 
 	// setup v1 routes
-	v1.V1Routes(v1r)
+	v1.Routes(v1r)
 
 	// setup latest routes
-	v1.V1Routes(api)
+	v1.Routes(api)
 
 	// setup routes endpoints
 	v1r.HandleFunc("/routes", routes(v1r)).Methods("GET")

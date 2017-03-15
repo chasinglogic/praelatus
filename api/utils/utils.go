@@ -1,3 +1,5 @@
+// Package utils contains utility functions used throughout the api
+// package
 package utils
 
 // Message is a general purpose json struct used primarily for error responses.
