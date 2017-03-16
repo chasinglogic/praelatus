@@ -7,9 +7,9 @@ type PermissionLevel string
 
 // Permission Levels
 const (
-	AdminR PermissionLevel = "ADMIN"
-	CoreR                  = "CORE"
-	UserR                  = "USER"
+	Admin       PermissionLevel = "ADMIN"
+	Contributor                 = "CORE"
+	Viewer                      = "USER"
 )
 
 // Project is the model used to represent a project in the database.
@@ -34,5 +34,6 @@ type Permission struct {
 	CreatedDate time.Time       `json:"created_date"`
 	UpdatedDate time.Time       `json:"updated_date"`
 	Level       PermissionLevel `json:"level"`
-	User        User            `json:"user"`
+	User        User            `json:"user,omitempty"`
+	Team        Team            `json:"team,omitempty"`
 }
