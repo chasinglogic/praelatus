@@ -19,6 +19,8 @@ func projectRouter(router *mux.Router) {
 	router.HandleFunc("/projects/{key}/tickets", GetAllTicketsByProject).Methods("GET")
 	router.HandleFunc("/projects/{key}", RemoveProject).Methods("DELETE")
 	router.HandleFunc("/projects/{key}", UpdateProject).Methods("PUT")
+
+	router.HandleFunc("/projects/{key}/fields/{ticketType}", GetFieldsForScreen)
 }
 
 // GetProject will get a project by it's project key
@@ -44,7 +46,6 @@ func GetProject(w http.ResponseWriter, r *http.Request) {
 // GetAllProjects will get all the projects on this instance that the user has
 // permissions to
 func GetAllProjects(w http.ResponseWriter, r *http.Request) {
-	// TODO permission schemes
 	// u := middleware.GetUserSession(r)
 	projects, err := Store.Projects().GetAll()
 	if err != nil {
@@ -160,4 +161,14 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.SendJSON(w, p)
+}
+
+// GetFieldsForScreen will return the appropriate fields based on the given
+// project key and ticket type
+func GetFieldsForScreen(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["key"]
+	ticketType := vars["ticketType"]
+
+	w.Write([]byte(key + " " + ticketType))
 }
