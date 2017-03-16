@@ -75,7 +75,7 @@ type FieldStore interface {
 	Get(*models.Field) error
 	GetAll() ([]models.Field, error)
 
-	GetByProject(models.Project) ([]models.Field, error)
+	GetByProject(models.Project, models.TicketType) ([]models.Field, error)
 	AddToProject(project models.Project, field *models.Field,
 		ticketTypes ...models.TicketType) error
 
@@ -100,6 +100,8 @@ type UserStore interface {
 type ProjectStore interface {
 	Get(*models.Project) error
 	GetAll() ([]models.Project, error)
+
+	// GetAllByPermission(models.User) ([]models.Project, error)
 
 	New(*models.Project) error
 	Save(models.Project) error

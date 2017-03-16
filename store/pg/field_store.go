@@ -71,7 +71,7 @@ func (fs *FieldStore) GetAll() ([]models.Field, error) {
 }
 
 // GetByProject retrieves all Fields associated with a project
-func (fs *FieldStore) GetByProject(p models.Project) ([]models.Field, error) {
+func (fs *FieldStore) GetByProject(p models.Project, t models.TicketType) ([]models.Field, error) {
 	var fields []models.Field
 
 	rows, err := fs.db.Query(`
