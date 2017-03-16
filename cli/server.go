@@ -56,6 +56,6 @@ func runServer(c *cli.Context) error {
 		r = disableCors(r)
 	}
 
-	log.Println("Ready to serve requests!")
+	log.Println("Listening on", config.Port())
 	return graceful.RunWithErr(config.Port(), time.Minute, r)
 }
