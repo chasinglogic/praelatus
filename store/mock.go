@@ -447,7 +447,7 @@ func (mockFieldStore) GetAll() ([]models.Field, error) {
 	}, nil
 }
 
-func (mockFieldStore) GetByProject(p models.Project) ([]models.Field, error) {
+func (mockFieldStore) GetByProject(p models.Project, t models.TicketType) ([]models.Field, error) {
 	return []models.Field{
 		{
 			ID:       1,
