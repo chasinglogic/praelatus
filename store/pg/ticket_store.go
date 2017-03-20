@@ -412,13 +412,17 @@ func (ts *TicketStore) GetComments(t models.Ticket) ([]models.Comment, error) {
 	var comments []models.Comment
 
 	rows, err := ts.db.Query(`
-    SELECT c.id, c.created_date, c.updated_date, c.body,
-           json_build_object('id', a.id, 'username', a.username, 'email', a.email, 'full_name', a.full_name, 'profile_picture', a.profile_picture) AS author
-    FROM comments AS c
-    JOIN tickets AS t ON t.id = c.ticket_id
-    JOIN users AS a ON a.id = c.author_id
-    WHERE t.id = $1
-    OR t.key = $2`, t.ID, t.Key)
+SELECT c.id, c.created_date, c.updated_date, c.body, t.key
+       json_build_object('id', a.id, 
+                         'username', a.username, 
+                         'email', a.email, 
+                         'full_name', a.full_name, 
+                         'profile_picture', a.profile_picture) AS author
+FROM comments AS c
+JOIN tickets AS t ON t.id = c.ticket_id
+JOIN users AS a ON a.id = c.author_id
+WHERE t.id = $1
+OR t.key = $2`, t.ID, t.Key)
 	if err != nil {
 		return comments, handlePqErr(err)
 	}
@@ -427,7 +431,8 @@ func (ts *TicketStore) GetComments(t models.Ticket) ([]models.Comment, error) {
 		var c models.Comment
 		var ajson json.RawMessage
 
-		err := rows.Scan(&c.ID, &c.CreatedDate, &c.UpdatedDate, &c.Body, &ajson)
+		err := rows.Scan(&c.ID, &c.CreatedDate, &c.UpdatedDate,
+			&c.Body, &c.TicketKey, &ajson)
 		if err != nil {
 			return comments, handlePqErr(err)
 		}
