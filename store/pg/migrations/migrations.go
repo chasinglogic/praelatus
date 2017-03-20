@@ -33,14 +33,9 @@ var schemas = []schema{
 func SchemaVersion(db *sql.DB) int {
 	var v int
 
-	rw, err := db.Query("SELECT schema_version FROM database_information WHERE id = 1")
-	if err != nil {
-		return 0
-	}
-	defer rw.Close()
+	rw := db.QueryRow("SELECT schema_version FROM database_information WHERE id = 1")
 
-	rw.Next()
-	err = rw.Scan(&v)
+	err := rw.Scan(&v)
 	if err != nil {
 		return 0
 	}
