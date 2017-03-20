@@ -26,9 +26,10 @@ func migrateDB(c *cli.Context) error {
 
 	if sql, ok := s.(store.Migrater); ok {
 		sql.Migrate()
+		return nil
 	}
 
-	fmt.Println("not a sql database ")
+	fmt.Println("not a migrateable database ")
 	return nil
 }
 
