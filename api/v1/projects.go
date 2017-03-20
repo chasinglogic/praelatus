@@ -46,8 +46,8 @@ func GetProject(w http.ResponseWriter, r *http.Request) {
 // GetAllProjects will get all the projects on this instance that the user has
 // permissions to
 func GetAllProjects(w http.ResponseWriter, r *http.Request) {
-	// u := middleware.GetUserSession(r)
-	projects, err := Store.Projects().GetAll()
+	u := middleware.GetUserSession(r)
+	projects, err := Store.Projects().GetAllByPermission(u)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
