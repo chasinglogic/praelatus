@@ -53,15 +53,19 @@ func RunMigrations(db *sql.DB) error {
 		version = SchemaVersion(db)
 
 		if version < schema.v {
-			log.Printf("Migrating database to version %d: %s\n", schema.v, schema.name)
+			log.Printf("Migrating database to version %d: %s\n",
+				schema.v, schema.name)
 			_, err := db.Exec(schema.q)
 			if err != nil {
 				return err
 			}
 
-			_, err = db.Exec(`UPDATE database_information 
-							  SET (schema_version) = ($1)
-							  WHERE id = 1;`, schema.v)
+			_, err = db.Exec(`
+UPDATE database_information 
+SET (schema_version) = ($1)
+WHERE id = 1;
+`,
+				schema.v)
 			if err != nil {
 				return err
 			}
