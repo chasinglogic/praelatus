@@ -99,8 +99,12 @@ SELECT p.id, p.created_date, p.name,
 FROM projects AS p
 JOIN users AS lead ON p.lead_id = lead.id
 JOIN permissions AS perm ON p.id = perm.project_id
-WHERE perm.user_id = $1
-AND perm.;
+JOIN users AS u ON perm.user_id = u.id
+WHERE (
+    (perm.user_id = $1 AND perm.level > 0)
+    OR u.is_admin = true
+) 
+OR perm.level < 0;
 `,
 		u.ID)
 
