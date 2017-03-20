@@ -2,11 +2,15 @@
 // interacting with them
 package models
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 func jsonString(i interface{}) string {
 	b, e := json.MarshalIndent(i, "", "\t")
 	if e != nil {
+		fmt.Println(e)
 		return ""
 	}
 
