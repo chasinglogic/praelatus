@@ -5,6 +5,11 @@
 // architecture). Any method which takes a pointer to a model will modify that
 // model in some way (usually filling out the missing data) otherwise the
 // method simply uses the provided model for reference.
+//
+// All methods which take a non pointer requires an ID is non-zero on that model.
+// Additionally, any model which contains other models (i.e. a Ticket has a
+// User as the reporter and assignee) requires that those submodels contain
+// their ID's.
 package store
 
 import (
@@ -101,7 +106,7 @@ type ProjectStore interface {
 	Get(*models.Project) error
 	GetAll() ([]models.Project, error)
 
-	// GetAllByPermission(models.User) ([]models.Project, error)
+	GetAllByPermission(models.User) ([]models.Project, error)
 
 	New(*models.Project) error
 	Save(models.Project) error
