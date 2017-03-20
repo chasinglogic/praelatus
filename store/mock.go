@@ -947,6 +947,45 @@ func (ms mockProjectStore) Get(p *models.Project) error {
 	return nil
 }
 
+func (ms mockProjectStore) GetAllByPermission(u models.User) ([]models.Project, error) {
+	return []models.Project{
+		{
+			ID:          1,
+			CreatedDate: time.Date(2016, time.Month(12), 25, 0, 0, 0, 0, loc),
+			Name:        "Test Project",
+			Key:         "TEST",
+			Lead: models.User{
+				2,
+				"baruser",
+				"barpass",
+				"bar@bar.com",
+				"Bar McBarserson",
+				"",
+				true,
+				true,
+				&settings,
+			},
+		},
+		{
+			ID:          2,
+			Name:        "mock Project",
+			Key:         "MOCK",
+			CreatedDate: time.Date(2016, time.Month(12), 25, 0, 0, 0, 0, loc),
+			Lead: models.User{
+				1,
+				"foouser",
+				"foopass",
+				"foo@foo.com",
+				"Foo McFooserson",
+				"",
+				false,
+				true,
+				&settings,
+			},
+		},
+	}, nil
+}
+
 func (ms mockProjectStore) GetAll() ([]models.Project, error) {
 	return []models.Project{
 		{
