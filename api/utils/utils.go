@@ -41,5 +41,11 @@ func SendJSON(w http.ResponseWriter, v interface{}) {
 		return
 	}
 
+	if resp == nil || string(resp) == "null" {
+		w.WriteHeader(404)
+		w.Write(APIError("not found"))
+		return
+	}
+
 	w.Write(resp)
 }
