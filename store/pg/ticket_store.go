@@ -412,7 +412,7 @@ func (ts *TicketStore) GetComments(t models.Ticket) ([]models.Comment, error) {
 	var comments []models.Comment
 
 	rows, err := ts.db.Query(`
-SELECT c.id, c.created_date, c.updated_date, c.body, t.key
+SELECT c.id, c.created_date, c.updated_date, c.body, t.key,
        json_build_object('id', a.id, 
                          'username', a.username, 
                          'email', a.email, 
@@ -422,7 +422,8 @@ FROM comments AS c
 JOIN tickets AS t ON t.id = c.ticket_id
 JOIN users AS a ON a.id = c.author_id
 WHERE t.id = $1
-OR t.key = $2`, t.ID, t.Key)
+OR t.key = $2`,
+		t.ID, t.Key)
 	if err != nil {
 		return comments, handlePqErr(err)
 	}
