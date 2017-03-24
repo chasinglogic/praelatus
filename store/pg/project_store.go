@@ -98,13 +98,14 @@ SELECT p.id, p.created_date, p.name,
                          'profile_picture', lead.profile_picture) AS lead
 FROM projects AS p
 JOIN users AS lead ON p.lead_id = lead.id
-JOIN permissions AS perm ON p.id = perm.project_id
-JOIN users AS u ON perm.user_id = u.id
-WHERE (
-    (perm.user_id = $1 AND perm.level > 0)
-    OR u.is_admin = true
-) 
-OR perm.level < 0;
+JOIN project_permission_schemes AS 
+     project_scheme ON p.id = project_scheme.project_id
+JOIN permission_scheme AS scheme ON scheme.id = project_scheme.scheme_id
+JOIN permission_scheme_permissions AS perms ON perms.scheme_id = project_scheme.scheme_id
+JOIN user_roles AS roles ON roles.id = perms.role_id
+JOIN roles AS r ON roles.role_id = r.id
+WHERE perm.name = 'VIEW_PROJECT'
+AND (roles.user_id = $1 OR r.name = 'Anonymous');
 `,
 		u.ID)
 
