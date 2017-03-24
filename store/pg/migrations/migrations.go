@@ -28,6 +28,7 @@ var schemas = []schema{
 	v9schema,
 	v10schema,
 	v11schema,
+	v12schema,
 }
 
 // SchemaVersion will find the schema version for the given database
