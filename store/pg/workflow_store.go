@@ -33,9 +33,10 @@ WHERE w.id = $1 OR w.name = $2`,
 }
 
 func getHooks(db *sql.DB, t *models.Transition) error {
-	rows, err := db.Query(`SELECT h.id, endpoint, method, body
-				      FROM hooks AS h
-				      JOIN transitions AS t ON t.id = h.transition_id`)
+	rows, err := db.Query(`
+SELECT h.id, endpoint, method, body
+FROM hooks AS h
+JOIN transitions AS t ON t.id = h.transition_id`)
 	if err != nil {
 		return err
 	}
@@ -176,11 +177,12 @@ func (ws *WorkflowStore) GetAll() ([]models.Workflow, error) {
 
 // GetByProject gets all the workflows for the given project
 func (ws *WorkflowStore) GetByProject(p models.Project) ([]models.Workflow, error) {
-	rows, err := ws.db.Query(`SELECT w.id, w.name 
-                                  FROM workflows AS w
-                                  JOIN projects AS p ON p.id = w.project_id
-                                  WHERE p.id = $1
-                                  OR p.key = $2`, p.ID, p.Key)
+	rows, err := ws.db.Query(`
+SELECT w.id, w.name 
+FROM workflows AS w
+JOIN projects AS p ON p.id = w.project_id
+WHERE p.id = $1 OR p.key = $2`,
+		p.ID, p.Key)
 	if err != nil {
 		return []models.Workflow{}, handlePqErr(err)
 	}
@@ -193,9 +195,9 @@ func (ws *WorkflowStore) GetForTicket(t models.Ticket) (models.Workflow, error) 
 	var w models.Workflow
 
 	row := ws.db.QueryRow(`
-	SELECT id, name FROM workflows
-	WHERE id = $1`, t.WorkflowID)
-
+SELECT id, name FROM workflows
+WHERE id = $1`,
+		t.WorkflowID)
 	err := row.Scan(&w.ID, &w.Name)
 	if err != nil {
 		return w, err
