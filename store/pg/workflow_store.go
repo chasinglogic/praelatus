@@ -210,11 +210,21 @@ func (ws *WorkflowStore) New(p models.Project, workflow *models.Workflow) error 
 		return handlePqErr(err)
 	}
 
-	err = tx.QueryRow(`INSERT INTO workflows 
-			       (name, project_id) VALUES ($1, $2)
-			       RETURNING id;`,
-		workflow.Name, p.ID).
+	err = tx.QueryRow(`
+INSERT INTO workflows (name) 
+VALUES ($1)
+RETURNING id;`,
+		workflow.Name).
 		Scan(&workflow.ID)
+	if err != nil {
+		tx.Rollback()
+		return handlePqErr(err)
+	}
+
+	_, err = tx.Exec(`
+INSERT INTO workflows_projects (workflow_id, project_id) 
+VALUES ($1, $2);`,
+		workflow.ID, p.ID)
 	if err != nil {
 		tx.Rollback()
 		return handlePqErr(err)
