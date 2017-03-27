@@ -31,7 +31,7 @@ INSERT INTO permissions (name) VALUES ('COMMENT_TICKET');
 CREATE TABLE permission_schemes(
        id SERIAL PRIMARY KEY,
        name varchar(100),
-       description varchar(250),
+       description varchar(250)
 );
 
 CREATE TABLE permission_scheme_permissions(
