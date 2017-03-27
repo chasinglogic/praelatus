@@ -16,11 +16,13 @@ type WorkflowStore struct {
 
 // Get gets a workflow from the database
 func (ws *WorkflowStore) Get(w *models.Workflow) error {
-	row := ws.db.QueryRow(`SELECT w.id, w.name 
-				   FROM workflows AS w
-				   JOIN projects AS p ON w.project_id = p.id
-				   WHERE w.id = $1 OR w.name = $2`, w.ID, w.Name)
-
+	row := ws.db.QueryRow(`
+SELECT w.id, w.name 
+FROM workflows AS w
+JOIN workflows_projects AS wkp ON wkp.workflow_id = w.id
+JOIN projects AS p ON wkp.project_id = p.id
+WHERE w.id = $1 OR w.name = $2`,
+		w.ID, w.Name)
 	err := row.Scan(&w.ID, &w.Name)
 	if err != nil {
 		return handlePqErr(err)
@@ -87,10 +89,11 @@ func (ws *WorkflowStore) getTransitions(w *models.Workflow) error {
 	}
 
 	rows, err := ws.db.Query(`
-	SELECT status.id, status.name
-    FROM workflow_statuses 
-	JOIN statuses AS status ON status.id = status_id
-    WHERE workflow_id = $1`, w.ID)
+SELECT status.id, status.name
+FROM workflow_statuses 
+JOIN statuses AS status ON status.id = status_id
+WHERE workflow_id = $1`,
+		w.ID)
 	if err != nil {
 		return handlePqErr(err)
 	}
@@ -111,16 +114,15 @@ func (ws *WorkflowStore) getTransitions(w *models.Workflow) error {
 		statuses = append(statuses, s)
 	}
 
-	rows.Close()
-
 	for _, fromS := range statuses {
 
 		rows, err = ws.db.Query(`
-		SELECT t.id, t.name, row_to_json(to_s.*)
-        FROM transitions AS t
-        JOIN statuses AS to_s ON to_s.id = t.to_status
-        WHERE t.from_status = $1
-        AND t.workflow_id = $2`, fromS.ID, w.ID)
+SELECT t.id, t.name, row_to_json(to_s.*)
+FROM transitions AS t
+JOIN statuses AS to_s ON to_s.id = t.to_status
+WHERE t.from_status = $1
+AND t.workflow_id = $2`,
+			fromS.ID, w.ID)
 		if err != nil {
 			return handlePqErr(err)
 		}
