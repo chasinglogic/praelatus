@@ -29,8 +29,9 @@ func intoProject(row rowScanner, p *models.Project) error {
 	return err
 }
 
-// Get gets a project by it's ID in a postgres DB.
-func (ps *ProjectStore) Get(p *models.Project) error {
+// Get gets a project by it's ID in a postgres DB if the given user
+// has the appropriate permissions.
+func (ps *ProjectStore) Get(u models.User, p *models.Project) error {
 	row := ps.db.QueryRow(`
 SELECT p.id, created_date, name, 
        key, homepage, icon_url, repo,
@@ -40,9 +41,22 @@ SELECT p.id, created_date, name,
                          'full_name', lead.full_name,  
                          'profile_picture', lead.profile_picture) AS lead
 FROM projects  AS p
-JOIN users AS lead ON lead.id = p.lead_id
-WHERE p.id = $1
-OR p.key = $2;
+INNER JOIN users AS lead ON lead.id = p.lead_id
+FULL JOIN project_permission_schemes AS 
+     project_scheme ON p.id = project_scheme.project_id
+LEFT JOIN permission_schemes AS scheme ON scheme.id = project_scheme.permission_scheme_id
+LEFT JOIN permission_scheme_permissions AS perms ON perms.scheme_id = project_scheme.permission_scheme_id
+LEFT JOIN permissions AS perm ON perm.id = perms.perm_id
+LEFT JOIN roles AS r ON perms.role_id = r.id
+LEFT JOIN user_roles AS roles ON roles.role_id = perms.role_id
+LEFT JOIN users AS u ON roles.user_id = u.id
+WHERE (p.id = $1 OR p.key = $2)
+AND (
+    (perm.name = 'VIEW_PROJECT' AND (roles.user_id = $1 OR r.name = 'Anonymous'))
+    OR 
+    (select is_admin from users where users.id = $2 and users.is_admin = true)
+)
+;
 `,
 		p.ID, p.Key)
 
@@ -50,8 +64,8 @@ OR p.key = $2;
 	return handlePqErr(err)
 }
 
-// GetAll returns all projects
-func (ps *ProjectStore) GetAll() ([]models.Project, error) {
+// GetAll returns all projects that the given user has access to
+func (ps *ProjectStore) GetAll(u models.User) ([]models.Project, error) {
 	var projects []models.Project
 
 	rows, err := ps.db.Query(`
@@ -63,51 +77,20 @@ SELECT p.id, p.created_date, p.name,
                          'full_name', lead.full_name,  
                          'profile_picture', lead.profile_picture) AS lead
 FROM projects AS p
-JOIN users AS lead ON p.lead_id = lead.id;
-`)
-
-	if err != nil {
-		return projects, handlePqErr(err)
-	}
-
-	for rows.Next() {
-		var p models.Project
-
-		err = intoProject(rows, &p)
-		if err != nil {
-			return projects, handlePqErr(err)
-		}
-
-		projects = append(projects, p)
-	}
-
-	return projects, nil
-}
-
-// GetAllByPermission returns all projects that the given user has access to
-func (ps *ProjectStore) GetAllByPermission(u models.User) ([]models.Project, error) {
-	var projects []models.Project
-
-	rows, err := ps.db.Query(`
-SELECT p.id, p.created_date, p.name, 
-       p.key, p.repo, p.homepage, p.icon_url, 
-       json_build_object('id', lead.id, 
-                         'username', lead.username,  
-                         'email', lead.email,  
-                         'full_name', lead.full_name,  
-                         'profile_picture', lead.profile_picture) AS lead
-FROM projects AS p
-JOIN users AS lead ON p.lead_id = lead.id
-JOIN project_permission_schemes AS 
+INNER JOIN users AS lead ON p.lead_id = lead.id
+FULL JOIN project_permission_schemes AS 
      project_scheme ON p.id = project_scheme.project_id
-JOIN permission_scheme AS scheme ON scheme.id = project_scheme.scheme_id
-JOIN permission_scheme_permissions AS perms ON perms.scheme_id = project_scheme.scheme_id
-JOIN user_roles AS roles ON roles.id = perms.role_id
-JOIN roles AS r ON roles.role_id = r.id
-WHERE perm.name = 'VIEW_PROJECT'
-AND (roles.user_id = $1 OR r.name = 'Anonymous');
+LEFT JOIN permission_schemes AS scheme ON scheme.id = project_scheme.permission_scheme_id
+LEFT JOIN permission_scheme_permissions AS perms ON perms.scheme_id = project_scheme.permission_scheme_id
+LEFT JOIN permissions AS perm ON perm.id = perms.perm_id
+LEFT JOIN roles AS r ON perms.role_id = r.id
+LEFT JOIN user_roles AS roles ON roles.role_id = perms.role_id
+LEFT JOIN users AS u ON roles.user_id = u.id
+WHERE (perm.name = 'VIEW_PROJECT'
+AND (roles.user_id = $1 OR r.name = 'Anonymous'))
+OR (select is_admin from users where users.id = $2 and users.is_admin = true);
 `,
-		u.ID)
+		u.ID, u.ID)
 
 	if err != nil {
 		return projects, handlePqErr(err)
@@ -172,7 +155,16 @@ DELETE FROM field_tickettype_project WHERE project_id = $1;
 	}
 
 	_, err = tx.Exec(`
-DELETE FROM permissions WHERE project_id = $1;
+DELETE FROM project_permission_schemes WHERE project_id = $1;
+`,
+		project.ID)
+
+	if err != nil {
+		return handlePqErr(tx.Rollback())
+	}
+
+	_, err = tx.Exec(`
+DELETE FROM user_roles WHERE project_id = $1;
 `,
 		project.ID)
 
