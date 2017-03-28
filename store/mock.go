@@ -928,7 +928,7 @@ func (ms mockTypeStore) Remove(t models.TicketType) error {
 // A mock ProjectStore struct
 type mockProjectStore struct{}
 
-func (ms mockProjectStore) Get(p *models.Project) error {
+func (ms mockProjectStore) Get(u models.User, p *models.Project) error {
 	p.ID = 1
 	p.Name = "Test Project"
 	p.Key = "TEST"
@@ -947,46 +947,7 @@ func (ms mockProjectStore) Get(p *models.Project) error {
 	return nil
 }
 
-func (ms mockProjectStore) GetAllByPermission(u models.User) ([]models.Project, error) {
-	return []models.Project{
-		{
-			ID:          1,
-			CreatedDate: time.Date(2016, time.Month(12), 25, 0, 0, 0, 0, loc),
-			Name:        "Test Project",
-			Key:         "TEST",
-			Lead: models.User{
-				2,
-				"baruser",
-				"barpass",
-				"bar@bar.com",
-				"Bar McBarserson",
-				"",
-				true,
-				true,
-				&settings,
-			},
-		},
-		{
-			ID:          2,
-			Name:        "mock Project",
-			Key:         "MOCK",
-			CreatedDate: time.Date(2016, time.Month(12), 25, 0, 0, 0, 0, loc),
-			Lead: models.User{
-				1,
-				"foouser",
-				"foopass",
-				"foo@foo.com",
-				"Foo McFooserson",
-				"",
-				false,
-				true,
-				&settings,
-			},
-		},
-	}, nil
-}
-
-func (ms mockProjectStore) GetAll() ([]models.Project, error) {
+func (ms mockProjectStore) GetAll(u models.User) ([]models.Project, error) {
 	return []models.Project{
 		{
 			ID:          1,
@@ -1320,3 +1281,6 @@ func (m mockSessionStore) Set(id string, u models.Session) error {
 	m.store[id] = &u.User
 	return nil
 }
+
+func (m mockSessionStore) GetRaw(id string) ([]byte, error) { return nil, nil }
+func (m mockSessionStore) SetRaw(id string, b []byte) error { return nil }
