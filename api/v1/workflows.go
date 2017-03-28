@@ -66,7 +66,7 @@ func CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	p := models.Project{Key: vars["project_key"]}
 
-	err = Store.Projects().Get(&p)
+	err = Store.Projects().Get(*u, &p)
 	if err != nil {
 		w.WriteHeader(404)
 		w.Write(utils.APIError("project with that key does not exist"))
@@ -145,7 +145,7 @@ func UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 
 	p := models.Project{Key: r.Context().Value("pkey").(string)}
 
-	err = Store.Projects().Get(&p)
+	err = Store.Projects().Get(*u, &p)
 	if err != nil {
 		w.WriteHeader(404)
 		w.Write(utils.APIError("project with that key does not exist"))
