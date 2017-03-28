@@ -27,6 +27,7 @@ CREATE TABLE permissions (
 INSERT INTO permissions (name) VALUES ('VIEW_PROJECT');
 INSERT INTO permissions (name) VALUES ('CREATE_TICKET');
 INSERT INTO permissions (name) VALUES ('COMMENT_TICKET');
+INSERT INTO permissions (name) VALUES ('TRANSITION_TICKET');
 
 CREATE TABLE permission_schemes(
        id SERIAL PRIMARY KEY,
