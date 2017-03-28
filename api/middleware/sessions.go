@@ -15,6 +15,20 @@ var hashKey = securecookie.GenerateRandomKey(64)
 var blockKey = securecookie.GenerateRandomKey(32)
 var sec = securecookie.New(hashKey, blockKey)
 
+func init() {
+	bKey := Cache.GetRaw("blockKey")
+	hKey := Cache.GetRaw("hashKey")
+
+	if bKey != nil && hKey != nil {
+		blockKey = bKey
+		hashKey = hKey
+		sec = securecookie.New(hashKey, blockKey)
+	}
+
+	Cache.SetRaw("hashKey", hashKey)
+	Cache.SetRaw("blockKey", blockKey)
+}
+
 func generateSessionID() string {
 	b := securecookie.GenerateRandomKey(32)
 	return base64.URLEncoding.EncodeToString(b)
@@ -31,6 +45,10 @@ func getSessionID(r *http.Request) string {
 	if cookie == nil {
 		// if the cookie is not set check the header
 		encoded = r.Header.Get("Authorization")
+	}
+
+	if encoded == "" {
+		return ""
 	}
 
 	var id string
