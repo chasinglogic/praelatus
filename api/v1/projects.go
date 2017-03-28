@@ -25,6 +25,8 @@ func projectRouter(router *mux.Router) {
 
 // GetProject will get a project by it's project key
 func GetProject(w http.ResponseWriter, r *http.Request) {
+	u := middleware.GetUserSession(r)
+
 	vars := mux.Vars(r)
 	key := vars["key"]
 
@@ -32,7 +34,7 @@ func GetProject(w http.ResponseWriter, r *http.Request) {
 		Key: key,
 	}
 
-	err := Store.Projects().Get(&p)
+	err := Store.Projects().Get(*u, &p)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
@@ -47,12 +49,11 @@ func GetProject(w http.ResponseWriter, r *http.Request) {
 // permissions to
 func GetAllProjects(w http.ResponseWriter, r *http.Request) {
 	u := middleware.GetUserSession(r)
-
 	if u == nil {
 		u = &models.User{ID: 0}
 	}
 
-	projects, err := Store.Projects().GetAllByPermission(*u)
+	projects, err := Store.Projects().GetAll(*u)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
