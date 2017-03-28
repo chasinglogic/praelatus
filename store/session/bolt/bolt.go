@@ -71,3 +71,28 @@ func New(filename string) store.SessionStore {
 	ss.db = db
 	return ss
 }
+
+// GetRaw retrieves the raw data at key
+func (c *SessionStore) GetRaw(key string) ([]byte, error) {
+	var data []byte
+
+	err := c.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("sessions"))
+		data = b.Get([]byte(key))
+		return nil
+	})
+
+	return data, err
+}
+
+// SetRaw will set the value of key to the raw []byte's given
+func (c *SessionStore) SetRaw(key string, data []byte) error {
+	return c.db.Update(func(tx *bolt.Tx) error {
+		bucket, err := tx.CreateBucketIfNotExists([]byte("sessions"))
+		if err != nil {
+			return err
+		}
+
+		return bucket.Put([]byte(key), data)
+	})
+}
