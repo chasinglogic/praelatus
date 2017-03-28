@@ -72,6 +72,10 @@ type Migrater interface {
 type SessionStore interface {
 	Get(string) (models.Session, error)
 	Set(string, models.Session) error
+
+	GetRaw(string) ([]byte, error)
+	SetRaw(string, []byte) error
+
 	Remove(string) error
 }
 
@@ -103,10 +107,8 @@ type UserStore interface {
 
 // ProjectStore contains methods for storing and retrieving Projects
 type ProjectStore interface {
-	Get(*models.Project) error
-	GetAll() ([]models.Project, error)
-
-	GetAllByPermission(models.User) ([]models.Project, error)
+	Get(models.User, *models.Project) error
+	GetAll(models.User) ([]models.Project, error)
 
 	New(*models.Project) error
 	Save(models.Project) error
