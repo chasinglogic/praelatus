@@ -8,7 +8,7 @@ import (
 
 func TestProjectGet(t *testing.T) {
 	p := &models.Project{ID: 1}
-	e := s.Projects().Get(p)
+	e := s.Projects().Get(models.User{ID: 1}, p)
 	failIfErr("Project Get", t, e)
 
 	if p.Key == "" {
@@ -16,7 +16,7 @@ func TestProjectGet(t *testing.T) {
 	}
 
 	p = &models.Project{Key: "TEST"}
-	e = s.Projects().Get(p)
+	e = s.Projects().Get(models.User{ID: 1}, p)
 	failIfErr("Project Get", t, e)
 
 	if p.ID == 0 {
@@ -25,7 +25,7 @@ func TestProjectGet(t *testing.T) {
 }
 
 func TestProjectGetAll(t *testing.T) {
-	p, e := s.Projects().GetAll()
+	p, e := s.Projects().GetAll(models.User{ID: 1})
 	failIfErr("Project Get All", t, e)
 
 	if p == nil || len(p) == 0 {
@@ -35,7 +35,7 @@ func TestProjectGetAll(t *testing.T) {
 
 func TestProjectSave(t *testing.T) {
 	p := &models.Project{ID: 1}
-	e := s.Projects().Get(p)
+	e := s.Projects().Get(models.User{ID: 1}, p)
 	failIfErr("Project Save", t, e)
 
 	p.IconURL = "TEST"
@@ -44,7 +44,7 @@ func TestProjectSave(t *testing.T) {
 	failIfErr("Project Save", t, e)
 
 	p = &models.Project{ID: 1}
-	e = s.Projects().Get(p)
+	e = s.Projects().Get(models.User{ID: 1}, p)
 	failIfErr("Project Save", t, e)
 
 	if p.IconURL != "TEST" {
