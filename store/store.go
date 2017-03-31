@@ -1,15 +1,25 @@
-// Package store defines the interfaces we use for storing and retrieving
-// models. Managing data this way allows us to easily compose and change the
-// way/s that we store our models without changing the rest of the application.
-// (i.e. we can support multiple databases much more easily because of this
-// architecture). Any method which takes a pointer to a model will modify that
-// model in some way (usually filling out the missing data) otherwise the
-// method simply uses the provided model for reference.
+// Package store defines the interfaces we use for storing and
+// retrieving models. Managing data this way allows us to easily
+// compose and change the way/s that we store our models without
+// changing the rest of the application.  (i.e. we can support
+// multiple databases much more easily because of this
+// architecture). Any method which takes a pointer to a model will
+// modify that model in some way (usually filling out the missing
+// data) otherwise the method simply uses the provided model for
+// reference.
 //
-// All methods which take a non pointer requires an ID is non-zero on that model.
-// Additionally, any model which contains other models (i.e. a Ticket has a
-// User as the reporter and assignee) requires that those submodels contain
-// their ID's.
+// All methods which take a non pointer requires an ID is non-zero on
+// that model.  Additionally, any model which contains other models
+// (i.e. a Ticket has a User as the reporter and assignee) requires
+// that those submodels contain their ID's.
+//
+// All methods which take a models.User as their first argument
+// represent an "Action". An Action is anything which requires a
+// permissions check and the underlying store will take care of
+// checking the permissions of the user for you. However some calls to
+// the store should still be protected by simple authentication but
+// require no permission schemes. Those checks should be performed in
+// the HTTP handler for simplicity and performance.
 package store
 
 import (
@@ -20,22 +30,24 @@ import (
 )
 
 var (
-	// ErrDuplicateEntry is returned when a unique constraint is violated.
+	// ErrDuplicateEntry is returned when a unique constraint is
+	// violated.
 	ErrDuplicateEntry = errors.New("duplicate entry attempted")
 
-	// ErrNotFound is returned when an invalid resource is given or searched
-	// for
+	// ErrNotFound is returned when an invalid resource is given
+	// or searched for
 	ErrNotFound = errors.New("no such resource")
 
-	// ErrNoSession is returned when a session does not exist in the SessionStore
+	// ErrNoSession is returned when a session does not exist in
+	// the SessionStore
 	ErrNoSession = errors.New("no session found")
 
 	// ErrSessionInvalid is returned when a session has timed out
 	ErrSessionInvalid = errors.New("session invalid")
 )
 
-// Store is implemented by any struct that has the ability to store all of the
-// available models in Praelatus
+// Store is implemented by any struct that has the ability to store
+// all of the available models in Praelatus
 type Store interface {
 	Users() UserStore
 	Teams() TeamStore
@@ -48,27 +60,29 @@ type Store interface {
 	Workflows() WorkflowStore
 }
 
-// SQLStore is implemented by any store which wants to provide a direct sql.DB
-// connection to the database this is useful when migrating and testing
+// SQLStore is implemented by any store which wants to provide a
+// direct sql.DB connection to the database this is useful when
+// migrating and testing
 type SQLStore interface {
 	Conn() *sql.DB
 }
 
-// Droppable is implemented by any store which allows for all of the data to be
-// wiped, this is useful for testing and debugging
+// Droppable is implemented by any store which allows for all of the
+// data to be wiped, this is useful for testing and debugging
 type Droppable interface {
 	Drop() error
 }
 
-// Migrater is implemented by any store which requires setup to be run for
-// example creating tables in a sql database or setting up collections in a
-// mongodb
+// Migrater is implemented by any store which requires setup to be run
+// for example creating tables in a sql database or setting up
+// collections in a mongodb
 type Migrater interface {
 	Migrate() error
 }
 
-// SessionStore is implemented by any struct supporting a simple key value
-// store, preferably a fast one as this is used for storing user sessions
+// SessionStore is implemented by any struct supporting a simple key
+// value store, preferably a fast one as this is used for storing user
+// sessions
 type SessionStore interface {
 	Get(string) (models.Session, error)
 	Set(string, models.Session) error
@@ -79,18 +93,18 @@ type SessionStore interface {
 	Remove(string) error
 }
 
-// FieldStore contains methods for storing and retrieving Fields and FieldValues
+// FieldStore contains methods for storing and retrieving Fields and
+// FieldValues
 type FieldStore interface {
 	Get(*models.Field) error
 	GetAll() ([]models.Field, error)
 
 	GetByProject(models.Project, models.TicketType) ([]models.Field, error)
-	AddToProject(project models.Project, field *models.Field,
-		ticketTypes ...models.TicketType) error
+	AddToProject(models.User, models.Project, *models.Field, ...models.TicketType) error
 
-	New(*models.Field) error
-	Save(models.Field) error
-	Remove(models.Field) error
+	New(models.User, *models.Field) error
+	Save(models.User, models.Field) error
+	Remove(models.User, models.Field) error
 }
 
 // UserStore contains methods for storing and retrieving Users
@@ -110,9 +124,9 @@ type ProjectStore interface {
 	Get(models.User, *models.Project) error
 	GetAll(models.User) ([]models.Project, error)
 
-	New(*models.Project) error
-	Save(models.Project) error
-	Remove(models.Project) error
+	New(models.User, *models.Project) error
+	Save(models.User, models.Project) error
+	Remove(models.User, models.Project) error
 }
 
 // TypeStore contains methods for storing and retrieving Ticket Types
@@ -127,22 +141,22 @@ type TypeStore interface {
 
 // TicketStore contains methods for storing and retrieving Tickets
 type TicketStore interface {
-	Get(*models.Ticket) error
-	GetAll() ([]models.Ticket, error)
-	GetAllByProject(models.Project) ([]models.Ticket, error)
+	Get(models.User, *models.Ticket) error
+	GetAll(models.User) ([]models.Ticket, error)
+	GetAllByProject(models.User, models.Project) ([]models.Ticket, error)
 
-	GetComments(models.Ticket) ([]models.Comment, error)
-	NewComment(models.Ticket, *models.Comment) error
-	SaveComment(models.Comment) error
-	RemoveComment(models.Comment) error
+	GetComments(models.User, models.Ticket) ([]models.Comment, error)
+	NewComment(models.User, models.Ticket, *models.Comment) error
+	SaveComment(models.User, models.Comment) error
+	RemoveComment(models.User, models.Comment) error
 
 	NextTicketKey(models.Project) string
 
-	ExecuteTransition(*models.Ticket, models.Transition) error
+	ExecuteTransition(models.User, *models.Ticket, models.Transition) error
 
-	New(models.Project, *models.Ticket) error
-	Save(models.Ticket) error
-	Remove(models.Ticket) error
+	New(models.User, models.Project, *models.Ticket) error
+	Save(models.User, models.Ticket) error
+	Remove(models.User, models.Ticket) error
 }
 
 // TeamStore contains methods for storing and retrieving Teams
