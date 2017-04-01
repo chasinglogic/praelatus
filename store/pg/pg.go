@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/lib/pq"
+	"github.com/praelatus/praelatus/models"
 	"github.com/praelatus/praelatus/store"
 	"github.com/praelatus/praelatus/store/pg/migrations"
 )
@@ -128,6 +129,70 @@ func (pg *Store) Migrate() error {
 	return migrations.RunMigrations(pg.db)
 }
 
+func (pg *Store) IsAdmin(u models.User) bool {
+	return checkIfAdmin(pg.db, u.ID)
+}
+
+func (pg *Store) CheckPermission(permission string, project models.Project, user models.User) bool {
+	return checkPermission(pg.db, permission, project.ID, user.ID)
+}
+
+// checkIfAdmin will return true if the given userID references a user
+// who is a system admin
+func checkIfAdmin(db *sql.DB, userID int64) bool {
+	var isAdmin bool
+
+	row := db.QueryRow(`SELECT is_admin FROM users WHERE id = $1`,
+		userID)
+
+	err := row.Scan(&isAdmin)
+	if err != nil {
+		handlePqErr(err)
+		return false
+	}
+
+	return isAdmin
+}
+
+// checkPermission will check on the given db that the user with
+// userID has the permission permName on the project indicated by
+// projectID returning a boolean
+func checkPermission(db *sql.DB, permName string, projectID, userID int64) bool {
+	var id int64
+
+	row := db.QueryRow(`
+SELECT id FROM projects AS p
+FULL JOIN project_permission_schemes AS 
+     project_scheme ON p.id = project_scheme.project_id
+LEFT JOIN permission_schemes AS scheme ON scheme.id = project_scheme.permission_scheme_id
+LEFT JOIN permission_scheme_permissions AS perms ON perms.scheme_id = project_scheme.permission_scheme_id
+LEFT JOIN permissions AS perm ON perm.id = perms.perm_id
+LEFT JOIN roles AS r ON perms.role_id = r.id
+LEFT JOIN user_roles AS roles ON roles.role_id = perms.role_id
+LEFT JOIN users AS u ON roles.user_id = u.id
+WHERE p.id = $1
+AND
+(
+    (select is_admin from users where users.id = $2 and users.is_admin = true) 
+    OR
+    (perm.name = $3 AND (roles.user_id = $2))
+)
+`,
+		projectID, userID, permName)
+
+	err := row.Scan(&id)
+	if err != nil {
+		handlePqErr(err)
+		return false
+	}
+
+	if id != 0 {
+		return true
+	}
+
+	return false
+}
+
 // toPqErr converts an error to a pq.Error so we can access more info about what
 // happened.
 func toPqErr(e error) *pq.Error {
@@ -151,7 +216,7 @@ func handlePqErr(e error) error {
 		return e
 	}
 
-	log.Printf("pq error [%v] %s\n", pqe.Code, pqe.Message)
+	log.Printf("DATABASE: [%v] %s\n", pqe.Code, pqe.Message)
 
 	// fmt.Println("PQ ERROR CODE:", pqe.Code)
 	if pqe.Code == "23505" {
