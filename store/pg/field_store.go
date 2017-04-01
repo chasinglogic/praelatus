@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/praelatus/praelatus/models"
+	"github.com/praelatus/praelatus/store"
 )
 
 // FieldStore contains methods for storing and retrieving Fields and
@@ -75,13 +76,14 @@ func (fs *FieldStore) GetByProject(p models.Project, t models.TicketType) ([]mod
 	var fields []models.Field
 
 	rows, err := fs.db.Query(`
-		SELECT fields.id, fields.name, fields.data_type 
-		FROM fields
-		JOIN field_tickettype_project AS ftp 
-		ON fields.id = ftp.field_id
-		JOIN projects AS p 
-		ON p.id = ftp.project_id
-		WHERE p.key = $1;`, p.Key)
+SELECT fields.id, fields.name, fields.data_type 
+FROM fields
+JOIN field_tickettype_project AS ftp 
+ON fields.id = ftp.field_id
+JOIN projects AS p 
+ON p.id = ftp.project_id
+WHERE p.key = $1;`,
+		p.Key)
 	if err != nil {
 		return fields, handlePqErr(err)
 	}
@@ -101,22 +103,25 @@ func (fs *FieldStore) GetByProject(p models.Project, t models.TicketType) ([]mod
 }
 
 // AddToProject adds a field to a project's tickets
-func (fs *FieldStore) AddToProject(project models.Project, field *models.Field,
-	ticketTypes ...models.TicketType) error {
+func (fs *FieldStore) AddToProject(u models.User, project models.Project, field *models.Field, ticketTypes ...models.TicketType) error {
+	if !checkPermission(fs.db, "ADMIN_PROJECT", u.ID, project.ID) {
+		return store.ErrPermissionDenied
+	}
 
 	if ticketTypes == nil {
-		_, err := fs.db.Exec(`INSERT INTO field_tickettype_project 
-							 (field_id, project_id) VALUES ($1, $2)`,
+		_, err := fs.db.Exec(`
+INSERT INTO field_tickettype_project 
+(field_id, project_id) VALUES ($1, $2)`,
 			field.ID, project.ID)
 		return handlePqErr(err)
 	}
 
 	for _, typ := range ticketTypes {
-
-		_, err := fs.db.Exec(`INSERT INTO field_tickettype_project 
-							 (field_id, project_id, ticket_type_id) 
-							 VALUES ($1, $2, $3)`,
-			field.ID, project.ID, typ.ID)
+		_, err := fs.db.Exec(`
+INSERT INTO field_tickettype_project (field_id, project_id, ticket_type_id) 
+VALUES ($1, $2, $3)
+`,
+			field.ID, project.ID, typ.ID, u.ID)
 		if err != nil {
 			return handlePqErr(err)
 		}
@@ -128,8 +133,9 @@ func (fs *FieldStore) AddToProject(project models.Project, field *models.Field,
 
 // Save updates an existing field in the database.
 func (fs *FieldStore) Save(field models.Field) error {
-	_, err := fs.db.Exec(`UPDATE fields SET 
-					     (name, data_type) = ($1, $2) WHERE id = $3;`,
+	_, err := fs.db.Exec(`
+UPDATE fields SET 
+(name, data_type) = ($1, $2) WHERE id = $3;`,
 		field.Name, field.DataType, field.ID)
 
 	return handlePqErr(err)
