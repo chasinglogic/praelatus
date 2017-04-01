@@ -107,7 +107,8 @@ type FieldStore interface {
 	GetByProject(models.Project, models.TicketType) ([]models.Field, error)
 	AddToProject(models.User, models.Project, *models.Field, ...models.TicketType) error
 
-	New(models.User, *models.Field) error
+	New(*models.Field) error
+	Create(models.User, *models.Field) error
 	Save(models.User, models.Field) error
 	Remove(models.User, models.Field) error
 }
@@ -129,7 +130,8 @@ type ProjectStore interface {
 	Get(models.User, *models.Project) error
 	GetAll(models.User) ([]models.Project, error)
 
-	New(models.User, *models.Project) error
+	New(*models.Project) error
+	Create(models.User, *models.Project) error
 	Save(models.User, models.Project) error
 	Remove(models.User, models.Project) error
 }
@@ -159,7 +161,8 @@ type TicketStore interface {
 
 	ExecuteTransition(models.User, *models.Ticket, models.Transition) error
 
-	New(models.User, models.Project, *models.Ticket) error
+	New(models.Project, *models.Ticket) error
+	Create(models.User, models.Project, *models.Ticket) error
 	Save(models.User, models.Ticket) error
 	Remove(models.User, models.Ticket) error
 }
