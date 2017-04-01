@@ -152,7 +152,7 @@ func SeedTickets(s Store) error {
 			Type: models.TicketType{ID: 1},
 		}
 
-		e := s.Tickets().New(models.Project{ID: 1, Key: "TEST"}, &t)
+		e := s.Tickets().New(models.User{ID: 1}, models.Project{ID: 1, Key: "TEST"}, &t)
 		if e != nil && e != ErrDuplicateEntry {
 			return e
 		}
@@ -195,7 +195,7 @@ func SeedStatuses(s Store) error {
 // SeedComments will add some comments to all tickets
 func SeedComments(s Store) error {
 	fmt.Println("Seeding comments")
-	t, se := s.Tickets().GetAll()
+	t, se := s.Tickets().GetAll(models.User{ID: 1})
 	if se != nil {
 		return se
 	}
@@ -211,7 +211,7 @@ func SeedComments(s Store) error {
 				Author: models.User{ID: 1},
 			}
 
-			e := s.Tickets().NewComment(tk, c)
+			e := s.Tickets().NewComment(models.User{ID: 1}, tk, c)
 			if e != nil && e != ErrDuplicateEntry {
 				return e
 			}
@@ -259,7 +259,7 @@ func SeedFields(s Store) error {
 
 	fmt.Println("Seeding fields")
 	for _, f := range fields {
-		e := s.Fields().New(&f)
+		e := s.Fields().New(models.User{ID: 1}, &f)
 		if e != nil && e != ErrDuplicateEntry {
 			return e
 		}
@@ -268,7 +268,7 @@ func SeedFields(s Store) error {
 			return nil
 		}
 
-		e = s.Fields().AddToProject(models.Project{ID: 1}, &f)
+		e = s.Fields().AddToProject(models.User{ID: 1}, models.Project{ID: 1}, &f)
 		if e != nil && e != ErrDuplicateEntry {
 			return e
 		}
@@ -303,7 +303,7 @@ func SeedProjects(s Store) error {
 
 	fmt.Println("Seeding projects")
 	for _, p := range projects {
-		e := s.Projects().New(&p)
+		e := s.Projects().New(models.User{ID: 1}, &p)
 		if e != nil && e != ErrDuplicateEntry {
 			return e
 		}
