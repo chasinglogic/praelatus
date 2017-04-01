@@ -462,27 +462,27 @@ func (mockFieldStore) GetByProject(p models.Project, t models.TicketType) ([]mod
 	}, nil
 }
 
-func (mockFieldStore) AddToProject(p models.Project, f *models.Field, t ...models.TicketType) error {
+func (mockFieldStore) AddToProject(u models.User, p models.Project, f *models.Field, t ...models.TicketType) error {
 	return nil
 }
 
-func (mockFieldStore) New(f *models.Field) error {
+func (mockFieldStore) New(u models.User, f *models.Field) error {
 	f.ID = 1
 	return nil
 }
 
-func (mockFieldStore) Save(f models.Field) error {
+func (mockFieldStore) Save(u models.User, f models.Field) error {
 	return nil
 }
 
-func (mockFieldStore) Remove(f models.Field) error {
+func (mockFieldStore) Remove(u models.User, f models.Field) error {
 	return nil
 }
 
 // //A mock TicketStore struct
 type mockTicketStore struct{}
 
-func (mockTicketStore) Get(t *models.Ticket) error {
+func (mockTicketStore) Get(u models.User, t *models.Ticket) error {
 	t.ID = 1
 
 	t.CreatedDate = time.Date(2016, time.Month(12), 25, 0, 0, 0, 0, loc)
@@ -568,7 +568,7 @@ func (mockTicketStore) Get(t *models.Ticket) error {
 	return nil
 }
 
-func (ms mockTicketStore) GetAll() ([]models.Ticket, error) {
+func (ms mockTicketStore) GetAll(u models.User) ([]models.Ticket, error) {
 	return []models.Ticket{
 		{
 			ID:          1,
@@ -700,12 +700,12 @@ func (ms mockTicketStore) GetAll() ([]models.Ticket, error) {
 	}, nil
 }
 
-func (ms mockTicketStore) ExecuteTransition(t *models.Ticket, tr models.Transition) error {
+func (ms mockTicketStore) ExecuteTransition(u models.User, t *models.Ticket, tr models.Transition) error {
 	t.Status = tr.ToStatus
 	return nil
 }
 
-func (ms mockTicketStore) GetAllByProject(p models.Project) ([]models.Ticket, error) {
+func (ms mockTicketStore) GetAllByProject(u models.User, p models.Project) ([]models.Ticket, error) {
 	return []models.Ticket{
 		{
 			ID:          1,
@@ -837,7 +837,7 @@ func (ms mockTicketStore) GetAllByProject(p models.Project) ([]models.Ticket, er
 	}, nil
 }
 
-func (ms mockTicketStore) GetComments(t models.Ticket) ([]models.Comment, error) {
+func (ms mockTicketStore) GetComments(u models.User, t models.Ticket) ([]models.Comment, error) {
 	return []models.Comment{
 		{
 			1,
@@ -860,16 +860,16 @@ func (ms mockTicketStore) GetComments(t models.Ticket) ([]models.Comment, error)
 	}, nil
 }
 
-func (ms mockTicketStore) NewComment(t models.Ticket, c *models.Comment) error {
+func (ms mockTicketStore) NewComment(u models.User, t models.Ticket, c *models.Comment) error {
 	c.ID = 1
 	return nil
 }
 
-func (ms mockTicketStore) SaveComment(c models.Comment) error {
+func (ms mockTicketStore) SaveComment(u models.User, c models.Comment) error {
 	return nil
 }
 
-func (ms mockTicketStore) RemoveComment(c models.Comment) error {
+func (ms mockTicketStore) RemoveComment(u models.User, c models.Comment) error {
 	return nil
 }
 
@@ -877,16 +877,16 @@ func (ms mockTicketStore) NextTicketKey(p models.Project) string {
 	return "TEST-2"
 }
 
-func (ms mockTicketStore) New(p models.Project, t *models.Ticket) error {
+func (ms mockTicketStore) New(u models.User, p models.Project, t *models.Ticket) error {
 	t.ID = 1
 	return nil
 }
 
-func (ms mockTicketStore) Save(t models.Ticket) error {
+func (ms mockTicketStore) Save(u models.User, t models.Ticket) error {
 	return nil
 }
 
-func (ms mockTicketStore) Remove(t models.Ticket) error {
+func (ms mockTicketStore) Remove(u models.User, t models.Ticket) error {
 	return nil
 }
 
@@ -986,16 +986,16 @@ func (ms mockProjectStore) GetAll(u models.User) ([]models.Project, error) {
 	}, nil
 }
 
-func (ms mockProjectStore) New(p *models.Project) error {
+func (ms mockProjectStore) New(u models.User, p *models.Project) error {
 	p.ID = 1
 	return nil
 }
 
-func (ms mockProjectStore) Save(p models.Project) error {
+func (ms mockProjectStore) Save(u models.User, p models.Project) error {
 	return nil
 }
 
-func (ms mockProjectStore) Remove(p models.Project) error {
+func (ms mockProjectStore) Remove(u models.User, p models.Project) error {
 	return nil
 }
 
