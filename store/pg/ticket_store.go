@@ -18,8 +18,10 @@ type TicketStore struct {
 }
 
 func getOpts(db *sql.DB, fid int64, fo *models.FieldOption) error {
-	rows, err := db.Query(`SELECT option FROM field_options 
-                               WHERE field_id = $1`, fid)
+	rows, err := db.Query(`
+SELECT option FROM field_options 
+WHERE field_id = $1`,
+		fid)
 	if err != nil {
 		return err
 	}
@@ -41,12 +43,13 @@ func getOpts(db *sql.DB, fid int64, fo *models.FieldOption) error {
 
 func populateFields(db *sql.DB, t *models.Ticket) error {
 	rows, err := db.Query(`
-        SELECT fv.id, f.name, f.data_type, 
-               fv.int_value, fv.flt_value, fv.str_value, 
-               fv.opt_value, fv.dte_value, f.id
-        FROM field_values AS fv
-        JOIN fields AS f ON f.id = fv.field_id
-        WHERE fv.ticket_id = $1`, t.ID)
+SELECT fv.id, f.name, f.data_type, 
+       fv.int_value, fv.flt_value, fv.str_value, 
+       fv.opt_value, fv.dte_value, f.id
+FROM field_values AS fv
+JOIN fields AS f ON f.id = fv.field_id
+WHERE fv.ticket_id = $1`,
+		t.ID)
 	if err != nil {
 		return err
 	}
@@ -106,11 +109,12 @@ func populateFields(db *sql.DB, t *models.Ticket) error {
 
 func populateTransitions(db *sql.DB, t *models.Ticket) error {
 	rows, err := db.Query(`
-	SELECT t.id, t.name, row_to_json(to_s.*)
-	FROM transitions AS t
-	JOIN statuses AS to_s ON to_s.id = t.to_status
-	WHERE t.from_status = $1
-    AND t.workflow_id = $2`, t.Status.ID, t.WorkflowID)
+SELECT t.id, t.name, row_to_json(to_s.*)
+FROM transitions AS t
+JOIN statuses AS to_s ON to_s.id = t.to_status
+WHERE t.from_status = $1
+AND t.workflow_id = $2`,
+		t.Status.ID, t.WorkflowID)
 	if err != nil {
 		return err
 	}
@@ -120,10 +124,12 @@ func populateTransitions(db *sql.DB, t *models.Ticket) error {
 }
 
 func populateLabels(db *sql.DB, t *models.Ticket) error {
-	rows, err := db.Query(`SELECT l.id, l.name 
-                           FROM tickets_labels AS tl
-                           JOIN labels AS l ON tl.label_id = l.id
-                           WHERE tl.ticket_id = $1`, t.ID)
+	rows, err := db.Query(`
+SELECT l.id, l.name 
+FROM tickets_labels AS tl
+JOIN labels AS l ON tl.label_id = l.id
+WHERE tl.ticket_id = $1`,
+		t.ID)
 	if err != nil {
 		return err
 	}
@@ -190,23 +196,43 @@ func intoTicket(row rowScanner, db *sql.DB, t *models.Ticket) error {
 }
 
 // Get gets a Ticket from a postgres DB by it's ID
-func (ts *TicketStore) Get(t *models.Ticket) error {
+func (ts *TicketStore) Get(u models.User, t *models.Ticket) error {
 	row := ts.db.QueryRow(`
-	SELECT t.id, t.key, t.created_date, 
-           t.updated_date, t.summary, t.description, t.workflow_id,
-           json_build_object('id', a.id, 'username', a.username, 'email', a.email, 'full_name', a.full_name, 'profile_picture', a.profile_picture) AS assignee,
-           json_build_object('id', r.id, 'username', r.username, 'email', r.email, 'full_name', r.full_name, 'profile_picture', r.profile_picture) AS reporter, 
-           row_to_json(s.*) AS status, 
-           row_to_json(tt.*) AS ticket_type 
-    FROM tickets AS t 
-    JOIN users AS a ON a.id = t.assignee_id
-    JOIN users AS r ON r.id = t.reporter_id
-    JOIN statuses AS s ON s.id = t.status_id
-    JOIN ticket_types AS tt ON tt.id = t.ticket_type_id
-    JOIN projects AS p ON p.id = t.project_id
-    WHERE t.id = $1 
-    OR t.key = $2`, t.ID, t.Key)
-
+SELECT t.id, t.key, t.created_date, 
+       t.updated_date, t.summary, t.description, t.workflow_id,
+       json_build_object('id', a.id,
+                         'username', a.username,
+                         'email', a.email,
+                         'full_name', a.full_name,
+                         'profile_picture', a.profile_picture) AS assignee,
+       json_build_object('id', r.id,
+                         'username', r.username,
+                         'email', r.email,
+                         'full_name', r.full_name,
+                         'profile_picture', r.profile_picture) AS reporter, 
+       row_to_json(s.*) AS status, 
+       row_to_json(tt.*) AS ticket_type 
+FROM tickets AS t 
+JOIN users AS a ON a.id = t.assignee_id
+JOIN users AS r ON r.id = t.reporter_id
+JOIN statuses AS s ON s.id = t.status_id
+JOIN ticket_types AS tt ON tt.id = t.ticket_type_id
+JOIN projects AS p ON p.id = t.project_id
+FULL JOIN project_permission_schemes AS 
+     project_scheme ON p.id = project_scheme.project_id
+LEFT JOIN permission_schemes AS scheme ON scheme.id = project_scheme.permission_scheme_id
+LEFT JOIN permission_scheme_permissions AS perms ON perms.scheme_id = project_scheme.permission_scheme_id
+LEFT JOIN permissions AS perm ON perm.id = perms.perm_id
+LEFT JOIN roles AS r ON perms.role_id = r.id
+LEFT JOIN user_roles AS roles ON roles.role_id = perms.role_id
+LEFT JOIN users AS u ON roles.user_id = u.id
+WHERE (t.id = $1 OR t.key = $2)
+AND (
+    (perm.name = 'VIEW_PROJECT' AND (roles.user_id = $3 OR r.name = 'Anonymous'))
+    OR 
+    (select is_admin from users where users.id = $3 and users.is_admin = true)
+)`,
+		t.ID, t.Key, u.ID)
 	err := intoTicket(row, ts.db, t)
 	return handlePqErr(err)
 }
