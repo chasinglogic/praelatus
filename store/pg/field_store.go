@@ -111,14 +111,16 @@ func (fs *FieldStore) AddToProject(u models.User, project models.Project, field 
 	if ticketTypes == nil {
 		_, err := fs.db.Exec(`
 INSERT INTO field_tickettype_project 
-(field_id, project_id) VALUES ($1, $2)`,
+(field_id, project_id) VALUES ($1, $2)
+`,
 			field.ID, project.ID)
 		return handlePqErr(err)
 	}
 
 	for _, typ := range ticketTypes {
 		_, err := fs.db.Exec(`
-INSERT INTO field_tickettype_project (field_id, project_id, ticket_type_id) 
+INSERT INTO field_tickettype_project
+(field_id, project_id, ticket_type_id) 
 VALUES ($1, $2, $3)
 `,
 			field.ID, project.ID, typ.ID, u.ID)
@@ -135,7 +137,8 @@ VALUES ($1, $2, $3)
 func (fs *FieldStore) Save(field models.Field) error {
 	_, err := fs.db.Exec(`
 UPDATE fields SET 
-(name, data_type) = ($1, $2) WHERE id = $3;`,
+(name, data_type) = ($1, $2) WHERE id = $3;
+`,
 		field.Name, field.DataType, field.ID)
 
 	return handlePqErr(err)
@@ -143,9 +146,10 @@ UPDATE fields SET
 
 // New creates a new Field in the database.
 func (fs *FieldStore) New(field *models.Field) error {
-	err := fs.db.QueryRow(`INSERT INTO fields 
-						  (name, data_type) VALUES ($1, $2)
-						  RETURNING id;`,
+	err := fs.db.QueryRow(`
+INSERT INTO fields 
+(name, data_type) VALUES ($1, $2)
+RETURNING id;`,
 		field.Name, field.DataType).
 		Scan(&field.ID)
 	if err != nil {
@@ -154,8 +158,11 @@ func (fs *FieldStore) New(field *models.Field) error {
 
 	if field.DataType == "OPT" {
 		for _, opt := range field.Options.Options {
-			_, err = fs.db.Exec(`INSERT INTO field_options (option, field_id) 
-                                             VALUES ($1, $2)`, opt, field.ID)
+			_, err = fs.db.Exec(`
+INSERT INTO field_options (option, field_id) 
+VALUES ($1, $2)
+`,
+				opt, field.ID)
 			if err != nil {
 				return handlePqErr(err)
 			}
@@ -174,8 +181,10 @@ func (fs *FieldStore) Remove(field models.Field) error {
 		return handlePqErr(err)
 	}
 
-	err = tx.QueryRow(`SELECT COUNT(id) FROM field_values 
-					   WHERE field_id = $1`, field.ID).Scan(&c)
+	err = tx.QueryRow(`
+SELECT COUNT(id) FROM field_values 
+WHERE field_id = $1`,
+		field.ID).Scan(&c)
 	if err != nil {
 		return handlePqErr(tx.Rollback())
 	}
