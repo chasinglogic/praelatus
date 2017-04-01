@@ -13,13 +13,14 @@
 // (i.e. a Ticket has a User as the reporter and assignee) requires
 // that those submodels contain their ID's.
 //
-// All methods which take a models.User as their first argument
-// represent an "Action". An Action is anything which requires a
-// permissions check and the underlying store will take care of
-// checking the permissions of the user for you. However some calls to
-// the store should still be protected by simple authentication but
-// require no permission schemes. Those checks should be performed in
-// the HTTP handler for simplicity and performance.
+// All methods which take a models.User as their first argument and
+// are not part of UserStore represent an "Action". An Action is
+// anything which requires a permissions check and the underlying
+// store will take care of checking the permissions of the user for
+// you. However some calls to the store should still be protected by
+// simple authentication but require no permission schemes. Those
+// checks should be performed in the HTTP handler for simplicity and
+// performance.
 package store
 
 import (
@@ -44,6 +45,10 @@ var (
 
 	// ErrSessionInvalid is returned when a session has timed out
 	ErrSessionInvalid = errors.New("session invalid")
+
+	// ErrPermissionDenied is returned when the given user does
+	// not have permission to perform the action requested
+	ErrPermissionDenied = errors.New("permission denied")
 )
 
 // Store is implemented by any struct that has the ability to store
