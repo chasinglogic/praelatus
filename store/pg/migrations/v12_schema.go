@@ -28,6 +28,8 @@ INSERT INTO permissions (name) VALUES ('VIEW_PROJECT');
 INSERT INTO permissions (name) VALUES ('CREATE_TICKET');
 INSERT INTO permissions (name) VALUES ('COMMENT_TICKET');
 INSERT INTO permissions (name) VALUES ('TRANSITION_TICKET');
+INSERT INTO permissions (name) VALUES ('EDIT_TICKET');
+INSERT INTO permissions (name) VALUES ('DELETE_TICKET');
 
 CREATE TABLE permission_schemes(
        id SERIAL PRIMARY KEY,
