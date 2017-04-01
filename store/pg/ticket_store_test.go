@@ -8,7 +8,7 @@ import (
 
 func TestTicketGet(t *testing.T) {
 	tk := &models.Ticket{ID: 1}
-	e := s.Tickets().Get(tk)
+	e := s.Tickets().Get(models.User{ID: 1}, tk)
 	failIfErr("Ticket Get", t, e)
 
 	if tk.Key == "" {
