@@ -10,7 +10,7 @@ import (
 )
 
 var s store.Store
-var seeded bool
+var seeded = true
 
 func init() {
 	if !seeded {
