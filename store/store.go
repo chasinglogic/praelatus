@@ -152,19 +152,20 @@ type TicketStore interface {
 	GetAll(models.User) ([]models.Ticket, error)
 	GetAllByProject(models.User, models.Project) ([]models.Ticket, error)
 
-	GetComments(models.User, models.Ticket) ([]models.Comment, error)
-	NewComment(models.User, models.Ticket, *models.Comment) error
-	SaveComment(models.User, models.Comment) error
-	RemoveComment(models.User, models.Comment) error
+	GetComments(models.User, models.Project, models.Ticket) ([]models.Comment, error)
+	NewComment(models.Ticket, *models.Comment) error
+	CreateComment(models.User, models.Project, models.Ticket, *models.Comment) error
+	SaveComment(models.User, models.Project, models.Comment) error
+	RemoveComment(models.User, models.Project, models.Comment) error
 
 	NextTicketKey(models.Project) string
 
-	ExecuteTransition(models.User, *models.Ticket, models.Transition) error
+	ExecuteTransition(models.User, models.Project, *models.Ticket, models.Transition) error
 
 	New(models.Project, *models.Ticket) error
 	Create(models.User, models.Project, *models.Ticket) error
-	Save(models.User, models.Ticket) error
-	Remove(models.User, models.Ticket) error
+	Save(models.User, models.Project, models.Ticket) error
+	Remove(models.User, models.Project, models.Ticket) error
 }
 
 // TeamStore contains methods for storing and retrieving Teams
