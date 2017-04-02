@@ -69,7 +69,12 @@ func GetAllTicketsByProject(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	pkey := vars["key"]
 
-	tks, err := Store.Tickets().GetAllByProject(models.Project{Key: pkey})
+	u := middleware.GetUserSession(r)
+	if u == nil {
+		u = &models.User{ID: 0}
+	}
+
+	tks, err := Store.Tickets().GetAllByProject(*u, models.Project{Key: pkey})
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError("failed to retrieve tickets from the database"))
@@ -101,7 +106,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Projects().New(&p)
+	err = Store.Projects().Create(*u, &p)
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(utils.APIError(err.Error()))
@@ -121,11 +126,11 @@ func RemoveProject(w http.ResponseWriter, r *http.Request) {
 	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to delete a project"))
 		return
 	}
 
-	err := Store.Projects().Remove(models.Project{Key: key})
+	err := Store.Projects().Remove(*u, models.Project{Key: key})
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
@@ -145,7 +150,7 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to update a project"))
 		return
 	}
 
@@ -158,7 +163,7 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Projects().New(&p)
+	err = Store.Projects().Save(*u, p)
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(utils.APIError(err.Error()))
