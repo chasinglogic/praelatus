@@ -107,7 +107,7 @@ func UpdateField(w http.ResponseWriter, r *http.Request) {
 	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator to update a field"))
 		return
 	}
 
@@ -120,7 +120,7 @@ func UpdateField(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Fields().Save(t)
+	err = Store.Fields().Save(*u, t)
 	if err != nil {
 		w.WriteHeader(400)
 		w.Write(utils.APIError(err.Error()))
@@ -140,7 +140,7 @@ func DeleteField(w http.ResponseWriter, r *http.Request) {
 	u := middleware.GetUserSession(r)
 	if u == nil || !u.IsAdmin {
 		w.WriteHeader(403)
-		w.Write(utils.APIError("you must be logged in as a system administrator to create a project"))
+		w.Write(utils.APIError("you must be logged in as a system administrator remove a field"))
 		return
 	}
 
@@ -152,7 +152,7 @@ func DeleteField(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Fields().Remove(models.Field{ID: int64(i)})
+	err = Store.Fields().Remove(*u, models.Field{ID: int64(i)})
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
