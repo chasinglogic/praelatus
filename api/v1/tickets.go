@@ -256,7 +256,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tk := &models.Ticket{Key: cm.TicketKey}
-	err := Store.Tickets().Get(*u, tk)
+	err = Store.Tickets().Get(*u, tk)
 	if tk.ID == 0 {
 		utils.APIErr(w, 404, "ticket not found")
 		return
@@ -267,7 +267,7 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Tickets().SaveComment(cm)
+	err = Store.Tickets().SaveComment(*u, tk.Project, cm)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
@@ -282,19 +282,36 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 func RemoveComment(w http.ResponseWriter, r *http.Request) {
 	u := middleware.GetUserSession(r)
 	if u == nil {
-		w.WriteHeader(403)
-		w.Write(utils.APIError("you must be logged in to update a ticket"))
+		utils.APIErr(w, 403, "you must be logged in to remove a comment")
 		return
 	}
 
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
 
-	err := Store.Tickets().RemoveComment(models.Comment{ID: int64(id)})
+	cm := models.Comment{ID: int64(id)}
+
+	err := Store.Tickets().GetComment(*u, &cm)
 	if err != nil {
-		w.WriteHeader(500)
-		w.Write(utils.APIError(err.Error()))
-		log.Println(err)
+		utils.APIErr(w, 500, err.Error())
+		return
+	}
+
+	tk := &models.Ticket{Key: cm.TicketKey}
+	err = Store.Tickets().Get(*u, tk)
+	if tk.ID == 0 {
+		utils.APIErr(w, 404, "ticket not found")
+		return
+	}
+
+	if err != nil {
+		utils.APIErr(w, 500, err.Error())
+		return
+	}
+
+	err = Store.Tickets().RemoveComment(*u, tk.Project, cm)
+	if err != nil {
+		utils.APIErr(w, 500, err.Error())
 		return
 	}
 
@@ -347,7 +364,7 @@ func TransitionTicket(w http.ResponseWriter, r *http.Request) {
 		Key: mux.Vars(r)["key"],
 	}
 
-	err := Store.Tickets().Get(tk)
+	err := Store.Tickets().Get(*u, tk)
 	if err != nil {
 		if err == store.ErrNotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -367,7 +384,7 @@ func TransitionTicket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Tickets().ExecuteTransition(tk, transition)
+	err = Store.Tickets().ExecuteTransition(*u, tk.Project, tk, transition)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
