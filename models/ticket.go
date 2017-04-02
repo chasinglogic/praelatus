@@ -27,6 +27,8 @@ type Ticket struct {
 
 	Transitions []Transition `json:"transitions"`
 	Comments    []Comment    `json:"comments,omitempty"`
+
+	Project Project `json:"project"`
 }
 
 func (t *Ticket) String() string {
