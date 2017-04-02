@@ -134,7 +134,11 @@ VALUES ($1, $2, $3)
 }
 
 // Save updates an existing field in the database.
-func (fs *FieldStore) Save(field models.Field) error {
+func (fs *FieldStore) Save(u models.User, field models.Field) error {
+	if !checkIfAdmin(fs.db, u.ID) {
+		return store.ErrPermissionDenied
+	}
+
 	_, err := fs.db.Exec(`
 UPDATE fields SET 
 (name, data_type) = ($1, $2) WHERE id = $3;
@@ -172,8 +176,21 @@ VALUES ($1, $2)
 	return handlePqErr(err)
 }
 
+// Create will create the field if the given user is a system administrator
+func (fs *FieldStore) Create(u models.User, field *models.Field) error {
+	if !checkIfAdmin(fs.db, u.ID) {
+		return store.ErrPermissionDenied
+	}
+
+	return fs.New(field)
+}
+
 // Remove updates an existing field in the database.
-func (fs *FieldStore) Remove(field models.Field) error {
+func (fs *FieldStore) Remove(u models.User, field models.Field) error {
+	if !checkIfAdmin(fs.db, u.ID) {
+		return store.ErrPermissionDenied
+	}
+
 	var c int
 
 	tx, err := fs.db.Begin()
