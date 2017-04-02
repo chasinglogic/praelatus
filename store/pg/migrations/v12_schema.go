@@ -27,6 +27,10 @@ CREATE TABLE permissions (
 INSERT INTO permissions (name) VALUES ('VIEW_PROJECT');
 INSERT INTO permissions (name) VALUES ('CREATE_TICKET');
 INSERT INTO permissions (name) VALUES ('COMMENT_TICKET');
+INSERT INTO permissions (name) VALUES ('REMOVE_COMMENT');
+INSERT INTO permissions (name) VALUES ('REMOVE_OWN_COMMENT');
+INSERT INTO permissions (name) VALUES ('EDIT_OWN_COMMENT');
+INSERT INTO permissions (name) VALUES ('EDIT_COMMENT');
 INSERT INTO permissions (name) VALUES ('TRANSITION_TICKET');
 INSERT INTO permissions (name) VALUES ('EDIT_TICKET');
 INSERT INTO permissions (name) VALUES ('DELETE_TICKET');
