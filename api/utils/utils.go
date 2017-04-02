@@ -17,8 +17,8 @@ type APIMessage struct {
 	Message string `json:"message"`
 }
 
-// APIError is a convenience function for generating an API Message
-func APIError(msg string, fields ...string) []byte {
+// APIMsg is a convenience function for generating an API Message
+func APIMsg(msg string, fields ...string) []byte {
 	e := APIMessage{
 		Message: msg,
 	}
@@ -31,19 +31,41 @@ func APIError(msg string, fields ...string) []byte {
 	return byt
 }
 
+// Success returns the default success message
+func Success() []byte {
+	return APIMsg("operation completed successfully")
+}
+
+// APIError is a legacy function, deprecated should use APIErr or
+// APIMsg as appropriate
+func APIError(msg string, fields ...string) []byte {
+	return APIMsg(msg, fields...)
+}
+
+// APIErr will send the appropriate message and status code to the
+// given ResponseWriter
+func APIErr(w http.ResponseWriter, status int, msg string) {
+	if status >= 500 {
+		log.Println(msg)
+	}
+
+	w.WriteHeader(status)
+	w.Write(APIMsg(msg))
+}
+
 // SendJSON is a convenience function for sending JSON to the given ResponseWriter
 func SendJSON(w http.ResponseWriter, v interface{}) {
 	resp, err := json.Marshal(v)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write(APIError("Failed to marshal database response to JSON."))
+		w.Write(APIMsg("Failed to marshal database response to JSON."))
 		log.Println(err)
 		return
 	}
 
 	if resp == nil || string(resp) == "null" {
 		w.WriteHeader(404)
-		w.Write(APIError("not found"))
+		w.Write(APIMsg("not found"))
 		return
 	}
 
