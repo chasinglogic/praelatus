@@ -152,6 +152,7 @@ type TicketStore interface {
 	GetAll(models.User) ([]models.Ticket, error)
 	GetAllByProject(models.User, models.Project) ([]models.Ticket, error)
 
+	GetComment(models.User, *models.Comment) error
 	GetComments(models.User, models.Project, models.Ticket) ([]models.Comment, error)
 	NewComment(models.Ticket, *models.Comment) error
 	CreateComment(models.User, models.Project, models.Ticket, *models.Comment) error

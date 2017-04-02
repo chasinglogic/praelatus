@@ -501,6 +501,36 @@ VALUES ($1, $2)
 	return handlePqErr(err)
 }
 
+// GetComment can be used to get a single comment from the database
+func (ts *TicketStore) GetComment(u models.User, cm *models.Comment) error {
+	var projectID int64
+	var c models.Comment
+
+	err := ts.db.QueryRow(`
+SELECT c.id, c.created_date, c.updated_date, c.body, t.key,
+       a.id, a.username, a.email, a.full_name, 
+       a.profile_picture, p.id
+FROM comments AS c
+JOIN tickets AS t ON t.id = c.ticket_id
+JOIN projects AS p ON p.id = t.project_id
+WHERE c.id = $1
+`,
+		cm.ID).
+		Scan(&c.ID, &c.CreatedDate, &c.UpdatedDate,
+			&c.Body, &c.TicketKey, &c.Author.ID,
+			&c.Author.Username, &c.Author.Email,
+			&c.Author.FullName, &c.Author.ProfilePic, projectID)
+	if err != nil {
+		return err
+	}
+
+	if checkPermission(ts.db, "VIEW_PROJECT", projectID, u.ID) {
+		return nil
+	}
+
+	return store.ErrPermissionDenied
+}
+
 // GetComments will return all comments for a ticket based on it's ID
 func (ts *TicketStore) GetComments(u models.User, p models.Project, t models.Ticket) ([]models.Comment, error) {
 	if !checkPermission(ts.db, "VIEW_PROJECT", u.ID, p.ID) {

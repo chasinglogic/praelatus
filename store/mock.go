@@ -842,6 +842,11 @@ func (ms mockTicketStore) GetAllByProject(u models.User, p models.Project) ([]mo
 	}, nil
 }
 
+func (ms mockTicketStore) GetComment(u models.User, cm *models.Comment) error {
+	cm.ID = 1
+	return nil
+}
+
 func (ms mockTicketStore) GetComments(u models.User, p models.Project, t models.Ticket) ([]models.Comment, error) {
 	return []models.Comment{
 		{
