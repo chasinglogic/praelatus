@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/praelatus/praelatus/models"
+	"github.com/praelatus/praelatus/store"
 )
 
 // ProjectStore contains methods for storing and retrieving Projects from a
@@ -124,8 +125,22 @@ RETURNING id;
 	return handlePqErr(err)
 }
 
+// Create creates a project in the database if the given user is a
+// system admin
+func (ps *ProjectStore) Create(u models.User, project *models.Project) error {
+	if !checkIfAdmin(ps.db, u.ID) {
+		return store.ErrPermissionDenied
+	}
+
+	return ps.New(project)
+}
+
 // Save updates a Project in the database.
-func (ps *ProjectStore) Save(project models.Project) error {
+func (ps *ProjectStore) Save(u models.User, project models.Project) error {
+	if !checkIfAdmin(ps.db, u.ID) {
+		return store.ErrPermissionDenied
+	}
+
 	_, err := ps.db.Exec(`
 UPDATE projects SET 
 (name, key, repo, homepage, icon_url, lead_id) 
@@ -139,7 +154,11 @@ WHERE projects.id = $7;
 }
 
 // Remove updates a Project in the database.
-func (ps *ProjectStore) Remove(project models.Project) error {
+func (ps *ProjectStore) Remove(u models.User, project models.Project) error {
+	if !checkIfAdmin(ps.db, u.ID) {
+		return store.ErrPermissionDenied
+	}
+
 	tx, err := ps.db.Begin()
 	if err != nil {
 		return handlePqErr(err)
