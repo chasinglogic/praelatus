@@ -180,7 +180,8 @@ func (ws *WorkflowStore) GetByProject(p models.Project) ([]models.Workflow, erro
 	rows, err := ws.db.Query(`
 SELECT w.id, w.name 
 FROM workflows AS w
-JOIN projects AS p ON p.id = w.project_id
+JOIN workflows_projects AS wp ON wp.workflow_id = w.id
+JOIN projects AS p ON p.id = wp.project_id
 WHERE p.id = $1 OR p.key = $2`,
 		p.ID, p.Key)
 	if err != nil {
