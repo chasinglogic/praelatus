@@ -43,6 +43,7 @@ func testDB(c *cli.Context) error {
 
 func cleanDB(c *cli.Context) error {
 	s := config.Store()
+
 	sql, ok := s.(store.Droppable)
 	if !ok {
 		fmt.Println("Configured database is not droppable nothing to do.")
