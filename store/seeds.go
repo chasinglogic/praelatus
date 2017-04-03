@@ -204,10 +204,11 @@ func SeedComments(s Store) error {
 		for x := 0; x < 25; x++ {
 			c := &models.Comment{
 				Body: fmt.Sprintf(`This is the %d th comment
-				# Yo Dawg
-				**I** *heard* you
-				> like markdown
-				so I put markdown in your comments`, x),
+# Yo Dawg
+**I** *heard* you
+> like markdown
+so I put markdown in your comments`,
+					x),
 				Author: models.User{ID: 1},
 			}
 
