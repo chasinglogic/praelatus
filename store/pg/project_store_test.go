@@ -40,7 +40,7 @@ func TestProjectSave(t *testing.T) {
 
 	p.IconURL = "TEST"
 
-	e = s.Projects().Save(*p)
+	e = s.Projects().Save(models.User{ID: 1}, *p)
 	failIfErr("Project Save", t, e)
 
 	p = &models.Project{ID: 1}
@@ -54,6 +54,6 @@ func TestProjectSave(t *testing.T) {
 
 func TestProjectRemove(t *testing.T) {
 	p := &models.Project{ID: 3}
-	e := s.Projects().Remove(*p)
+	e := s.Projects().Remove(models.User{ID: 1}, *p)
 	failIfErr("Project Remove", t, e)
 }

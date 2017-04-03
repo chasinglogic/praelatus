@@ -150,10 +150,17 @@ WHERE tl.ticket_id = $1`,
 }
 
 func intoTicket(row rowScanner, db *sql.DB, t *models.Ticket) error {
-	var ajson, rjson, sjson, tjson, pjson json.RawMessage
-
 	err := row.Scan(&t.ID, &t.Key, &t.CreatedDate, &t.UpdatedDate, &t.Summary,
-		&t.Description, &t.WorkflowID, &ajson, &rjson, &sjson, &tjson, &pjson)
+		&t.Description, &t.WorkflowID,
+		&t.Assignee.ID, &t.Assignee.Username, &t.Assignee.Email,
+		&t.Assignee.FullName, &t.Assignee.ProfilePic,
+		&t.Reporter.ID, &t.Reporter.Username, &t.Reporter.Email,
+		&t.Reporter.FullName, &t.Reporter.ProfilePic,
+		&t.Status.ID, &t.Status.Name,
+		&t.Type.ID, &t.Type.Name,
+		&t.Project.ID, &t.Project.CreatedDate, &t.Project.Name,
+		&t.Project.Key, &t.Project.Homepage, &t.Project.IconURL,
+		&t.Project.Repo)
 	if err != nil {
 		return handlePqErr(err)
 	}
@@ -173,31 +180,6 @@ func intoTicket(row rowScanner, db *sql.DB, t *models.Ticket) error {
 		return handlePqErr(err)
 	}
 
-	err = json.Unmarshal(ajson, &t.Assignee)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(rjson, &t.Reporter)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(sjson, &t.Status)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(tjson, &t.Type)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(pjson, &t.Project)
-	if err != nil {
-		return err
-	}
-
 	return handlePqErr(err)
 }
 
@@ -206,19 +188,11 @@ func (ts *TicketStore) Get(u models.User, t *models.Ticket) error {
 	row := ts.db.QueryRow(`
 SELECT t.id, t.key, t.created_date, 
        t.updated_date, t.summary, t.description, t.workflow_id,
-       json_build_object('id', a.id,
-                         'username', a.username,
-                         'email', a.email,
-                         'full_name', a.full_name,
-                         'profile_picture', a.profile_picture) AS assignee,
-       json_build_object('id', r.id,
-                         'username', r.username,
-                         'email', r.email,
-                         'full_name', r.full_name,
-                         'profile_picture', r.profile_picture) AS reporter, 
-       row_to_json(s.*) AS status, 
-       row_to_json(tt.*) AS ticket_type,
-       row_to_json(p.*) AS project
+       a.id, a.username, a.email, a.full_name, a.profile_picture, 
+       r.id, r.username, r.email, r.full_name, r.profile_picture,
+       s.id, s.name,
+       tt.id, tt.name,
+       p.id, p.created_date, p.name, p.key, p.homepage, p.icon_url, p.repo
 FROM tickets AS t 
 JOIN users AS a ON a.id = t.assignee_id
 JOIN users AS r ON r.id = t.reporter_id
@@ -251,19 +225,11 @@ func (ts *TicketStore) GetAll(u models.User) ([]models.Ticket, error) {
 	rows, err := ts.db.Query(`
 SELECT t.id, t.key, t.created_date, 
        t.updated_date, t.summary, t.description, t.workflow_id,
-       json_build_object('id', a.id, 
-                         'username', a.username,
-                         'email', a.email, 
-                         'full_name', a.full_name, 
-                         'profile_picture', a.profile_picture) AS assignee, 
-       json_build_object('id', r.id, 
-                         'username', r.username, 
-                         'email', r.email, 
-                         'full_name', r.full_name, 
-                         'profile_picture', r.profile_picture) AS reporter, 
-       row_to_json(s.*) AS status, 
-       row_to_json(tt.*) AS ticket_type, 
-       row_to_json(p.*) AS project
+       a.id, a.username, a.email, a.full_name, a.profile_picture, 
+       r.id, r.username, r.email, r.full_name, r.profile_picture,
+       s.id, s.name,
+       tt.id, tt.name,
+       p.id, p.created_date, p.name, p.key, p.homepage, p.icon_url, p.repo
 FROM tickets AS t 
 JOIN users AS a ON a.id = t.assignee_id
 JOIN users AS r ON r.id = t.reporter_id
@@ -275,11 +241,11 @@ FULL JOIN project_permission_schemes AS
 LEFT JOIN permission_schemes AS scheme ON scheme.id = project_scheme.permission_scheme_id
 LEFT JOIN permission_scheme_permissions AS perms ON perms.scheme_id = project_scheme.permission_scheme_id
 LEFT JOIN permissions AS perm ON perm.id = perms.perm_id
-LEFT JOIN roles AS r ON perms.role_id = r.id
+LEFT JOIN roles AS rl ON perms.role_id = rl.id
 LEFT JOIN user_roles AS roles ON roles.role_id = perms.role_id
 LEFT JOIN users AS u ON roles.user_id = u.id
 WHERE (perm.name = 'VIEW_PROJECT'
-AND (roles.user_id = $1 OR r.name = 'Anonymous'))
+AND (roles.user_id = $1 OR rl.name = 'Anonymous'))
 OR (select is_admin from users where users.id = $1 and users.is_admin = true);
 `,
 		u.ID)
@@ -307,14 +273,18 @@ OR (select is_admin from users where users.id = $1 and users.is_admin = true);
 func (ts *TicketStore) GetAllByProject(u models.User, p models.Project) ([]models.Ticket, error) {
 	var tickets []models.Ticket
 
+	if !checkPermission(ts.db, "VIEW_PROJECT", p.ID, u.ID) {
+		return nil, store.ErrPermissionDenied
+	}
+
 	rows, err := ts.db.Query(`
 SELECT t.id, t.key, t.created_date, 
        t.updated_date, t.summary, t.description, t.workflow_id,
-       row_to_json(a.*) AS assignee, 
-       row_to_json(r.*) AS reporter, 
-       row_to_json(s.*) AS status, 
-       row_to_json(tt.*) AS ticket_type,
-       row_to_json(p.*) AS project
+       a.id, a.username, a.email, a.full_name, a.profile_picture, 
+       r.id, r.username, r.email, r.full_name, r.profile_picture,
+       s.id, s.name,
+       tt.id, tt.name,
+       p.id, p.created_date, p.name, p.key, p.homepage, p.icon_url, p.repo
 FROM tickets AS t 
 JOIN users AS a ON a.id = t.assignee_id
 JOIN users AS r ON r.id = t.reporter_id
@@ -322,20 +292,7 @@ JOIN projects AS p ON p.id = t.project_id
 JOIN statuses AS s ON s.id = t.status_id
 JOIN ticket_types AS tt ON tt.id = t.ticket_type_id
 WHERE (p.id = $1
-OR p.key = $2) AND
-(
-    FULL JOIN project_permission_schemes AS 
-         project_scheme ON p.id = project_scheme.project_id
-    LEFT JOIN permission_schemes AS scheme ON scheme.id = project_scheme.permission_scheme_id
-    LEFT JOIN permission_scheme_permissions AS perms ON perms.scheme_id = project_scheme.permission_scheme_id
-    LEFT JOIN permissions AS perm ON perm.id = perms.perm_id
-    LEFT JOIN roles AS r ON perms.role_id = r.id
-    LEFT JOIN user_roles AS roles ON roles.role_id = perms.role_id
-    LEFT JOIN users AS u ON roles.user_id = u.id
-    WHERE (perm.name = 'VIEW_PROJECT'
-    AND (roles.user_id = $1 OR r.name = 'Anonymous'))
-    OR (select is_admin from users where users.id = $1 and users.is_admin = true);
-)
+OR p.key = $2);
 `,
 		p.ID, p.Key, u.ID)
 	if err != nil {
@@ -448,14 +405,20 @@ func (ts *TicketStore) New(project models.Project, ticket *models.Ticket) error 
 	err := ts.db.QueryRow(`
 INSERT INTO tickets 
     (summary, description, project_id, assignee_id, 
-     reporter_id, ticket_type_id, status_id, key, workflow_id) 
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     reporter_id, ticket_type_id, status_id, key, 
+     workflow_id, created_date, updated_date) 
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING id;
 `,
 		ticket.Summary, ticket.Description, project.ID,
 		ticket.Assignee.ID, ticket.Reporter.ID, ticket.Type.ID,
-		ticket.Status.ID, ticket.Key, ticket.WorkflowID).
+		ticket.Status.ID, ticket.Key, ticket.WorkflowID,
+		ticket.CreatedDate, ticket.UpdatedDate).
 		Scan(&ticket.ID)
+
+	if err != nil {
+		return handlePqErr(err)
+	}
 
 	for _, fv := range ticket.Fields {
 		var fieldID int64
