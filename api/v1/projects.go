@@ -74,7 +74,13 @@ func GetAllTicketsByProject(w http.ResponseWriter, r *http.Request) {
 		u = &models.User{ID: 0}
 	}
 
-	tks, err := Store.Tickets().GetAllByProject(*u, models.Project{Key: pkey})
+	p := models.Project{Key: pkey}
+	err := Store.Projects().Get(*u, &p)
+	if err != nil {
+		utils.APIErr(w, 500, err.Error())
+	}
+
+	tks, err := Store.Tickets().GetAllByProject(*u, p)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError("failed to retrieve tickets from the database"))
