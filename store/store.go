@@ -104,7 +104,7 @@ type FieldStore interface {
 	Get(*models.Field) error
 	GetAll() ([]models.Field, error)
 
-	GetByProject(models.Project, models.TicketType) ([]models.Field, error)
+	GetForScreen(models.User, models.Project, models.TicketType) ([]models.Field, error)
 	AddToProject(models.User, models.Project, *models.Field, ...models.TicketType) error
 
 	New(*models.Field) error
