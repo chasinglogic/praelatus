@@ -3,6 +3,7 @@ package pg
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/praelatus/praelatus/models"
 	"github.com/praelatus/praelatus/store"
@@ -18,8 +19,13 @@ type FieldStore struct {
 func (fs *FieldStore) Get(f *models.Field) error {
 	var row *sql.Row
 
-	row = fs.db.QueryRow(`SELECT id, name, data_type FROM fields 
-			      WHERE id = $1 OR name = $2`, f.ID, f.Name)
+	row = fs.db.QueryRow(`
+SELECT id, name, data_type FROM fields 
+WHERE id = $1 OR name = $2
+`,
+		f.ID, f.Name)
+
+	fmt.Println("QUERY DONE")
 	err := row.Scan(&f.ID, &f.Name, &f.DataType)
 	if err != nil {
 		return handlePqErr(err)
@@ -71,8 +77,12 @@ func (fs *FieldStore) GetAll() ([]models.Field, error) {
 	return fields, nil
 }
 
-// GetByProject retrieves all Fields associated with a project
-func (fs *FieldStore) GetByProject(p models.Project, t models.TicketType) ([]models.Field, error) {
+// GetForScreen retrieves all Fields associated with a project
+func (fs *FieldStore) GetForScreen(u models.User, p models.Project, t models.TicketType) ([]models.Field, error) {
+	if !checkPermission(fs.db, "VIEW_PROJECT", p.ID, u.ID) {
+		return nil, store.ErrPermissionDenied
+	}
+
 	var fields []models.Field
 
 	rows, err := fs.db.Query(`
