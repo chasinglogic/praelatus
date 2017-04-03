@@ -17,7 +17,7 @@ func TestTicketGet(t *testing.T) {
 }
 
 func TestTicketGetAll(t *testing.T) {
-	tks, e := s.Tickets().GetAll()
+	tks, e := s.Tickets().GetAll(models.User{ID: 1})
 	failIfErr("Ticket Get All", t, e)
 
 	if tks == nil || len(tks) == 0 {
@@ -26,7 +26,7 @@ func TestTicketGetAll(t *testing.T) {
 }
 
 func TestTicketGetAllByProject(t *testing.T) {
-	tks, e := s.Tickets().GetAllByProject(models.Project{ID: 1})
+	tks, e := s.Tickets().GetAllByProject(models.User{ID: 1}, models.Project{ID: 1})
 	failIfErr("Ticket Get All By Project", t, e)
 
 	if tks == nil || len(tks) == 0 {
@@ -36,7 +36,7 @@ func TestTicketGetAllByProject(t *testing.T) {
 
 func TestTicketGetComments(t *testing.T) {
 	tk := models.Ticket{ID: 1}
-	c, e := s.Tickets().GetComments(tk)
+	c, e := s.Tickets().GetComments(models.User{ID: 1}, models.Project{ID: 1}, tk)
 	failIfErr("Get Comments", t, e)
 
 	if len(c) == 0 || c == nil {
@@ -51,28 +51,28 @@ func TestTicketSaveComment(t *testing.T) {
 		Author: models.User{ID: 1},
 	}
 
-	e := s.Tickets().SaveComment(c)
+	e := s.Tickets().SaveComment(models.User{ID: 1}, models.Project{ID: 1}, c)
 	failIfErr("Save comment", t, e)
 }
 
 func TestTicketRemoveComment(t *testing.T) {
 	c := models.Comment{ID: 2}
-	e := s.Tickets().RemoveComment(c)
+	e := s.Tickets().RemoveComment(models.User{ID: 1}, models.Project{ID: 1}, c)
 	failIfErr("Remove comment", t, e)
 }
 
 func TestTicketSave(t *testing.T) {
 	tk := models.Ticket{ID: 2}
-	e := s.Tickets().Get(&tk)
+	e := s.Tickets().Get(models.User{ID: 1}, &tk)
 	failIfErr("Ticket save", t, e)
 
 	tk.Summary = "Test ticket save"
 
-	e = s.Tickets().Save(tk)
+	e = s.Tickets().Save(models.User{ID: 1}, models.Project{ID: 1}, tk)
 	failIfErr("Ticket save", t, e)
 
 	tk = models.Ticket{ID: 2}
-	e = s.Tickets().Get(&tk)
+	e = s.Tickets().Get(models.User{ID: 1}, &tk)
 	failIfErr("Ticket save", t, e)
 
 	if tk.Summary != "Test ticket save" {
@@ -82,13 +82,13 @@ func TestTicketSave(t *testing.T) {
 
 func TestTicketRemove(t *testing.T) {
 	tk := models.Ticket{ID: 3}
-	e := s.Tickets().Remove(tk)
+	e := s.Tickets().Remove(models.User{ID: 1}, models.Project{ID: 1}, tk)
 	failIfErr("Ticket save", t, e)
 }
 
 func TestExecuteTransition(t *testing.T) {
 	tk := models.Ticket{ID: 4}
-	err := s.Tickets().ExecuteTransition(&tk, models.Transition{
+	err := s.Tickets().ExecuteTransition(models.User{ID: 1}, models.Project{ID: 1}, &tk, models.Transition{
 		Name:     "In Progress",
 		ToStatus: models.Status{ID: 2},
 		Hooks:    []models.Hook{},
@@ -96,7 +96,7 @@ func TestExecuteTransition(t *testing.T) {
 
 	failIfErr("execute transition", t, err)
 
-	err = s.Tickets().Get(&tk)
+	err = s.Tickets().Get(models.User{ID: 1}, &tk)
 
 	failIfErr("execute transition", t, err)
 
