@@ -160,8 +160,10 @@ func checkIfAdmin(db *sql.DB, userID int64) bool {
 func checkPermission(db *sql.DB, permName string, projectID, userID int64) bool {
 	var id int64
 
+	fmt.Println("pid", projectID)
+
 	row := db.QueryRow(`
-SELECT id FROM projects AS p
+SELECT p.id FROM projects AS p
 FULL JOIN project_permission_schemes AS 
      project_scheme ON p.id = project_scheme.project_id
 LEFT JOIN permission_schemes AS scheme ON scheme.id = project_scheme.permission_scheme_id
@@ -175,17 +177,19 @@ AND
 (
     (select is_admin from users where users.id = $2 and users.is_admin = true) 
     OR
-    (perm.name = $3 AND (roles.user_id = $2))
+    (perm.name = $4 AND roles.user_id = $3)
 )
 `,
-		projectID, userID, permName)
+		projectID, userID, userID, permName)
 
 	err := row.Scan(&id)
 	if err != nil {
+		fmt.Println("Error checking perm", err)
 		handlePqErr(err)
 		return false
 	}
 
+	fmt.Println("id", id)
 	if id != 0 {
 		return true
 	}
