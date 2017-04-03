@@ -13,7 +13,7 @@ var s store.Store
 var seeded = true
 
 func init() {
-	if !seeded {
+	if s == nil {
 		fmt.Println("Prepping tests")
 		p := pg.New(config.DBURL())
 
@@ -23,7 +23,10 @@ func init() {
 		}
 
 		s = p
-		e = store.SeedAll(s)
+	}
+
+	if !seeded {
+		e := store.SeedAll(s)
 		if e != nil {
 			panic(e)
 		}
