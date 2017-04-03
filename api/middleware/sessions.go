@@ -15,26 +15,27 @@ var hashKey = securecookie.GenerateRandomKey(64)
 var blockKey = securecookie.GenerateRandomKey(32)
 var sec = securecookie.New(hashKey, blockKey)
 
-func init() {
-	bKey, _ := Cache.GetRaw("blockKey")
-	hKey, _ := Cache.GetRaw("hashKey")
+// TODO fix this
+// func init() {
+// 	bKey, _ := Cache.GetRaw("blockKey")
+// 	hKey, _ := Cache.GetRaw("hashKey")
 
-	if bKey != nil && hKey != nil {
-		blockKey = bKey
-		hashKey = hKey
-		sec = securecookie.New(hashKey, blockKey)
-	}
+// 	if bKey != nil && hKey != nil {
+// 		blockKey = bKey
+// 		hashKey = hKey
+// 		sec = securecookie.New(hashKey, blockKey)
+// 	}
 
-	ferr := Cache.SetRaw("hashKey", hashKey)
-	serr := Cache.SetRaw("blockKey", blockKey)
+// 	ferr := Cache.SetRaw("hashKey", hashKey)
+// 	serr := Cache.SetRaw("blockKey", blockKey)
 
-	// We don't really care about the errors just want to be
-	// notified if there's can issue
-	if ferr != nil || serr != nil {
-		log.Println(ferr)
-		log.Println(serr)
-	}
-}
+// 	// We don't really care about the errors just want to be
+// 	// notified if there's can issue
+// 	if ferr != nil || serr != nil {
+// 		log.Println(ferr)
+// 		log.Println(serr)
+// 	}
+// }
 
 func generateSessionID() string {
 	b := securecookie.GenerateRandomKey(32)
