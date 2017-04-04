@@ -844,6 +844,7 @@ func (ms mockTicketStore) GetComments(t models.Ticket) ([]models.Comment, error)
 			time.Date(2016, time.Month(12), 25, 0, 0, 0, 0, loc),
 			time.Date(2016, time.Month(12), 25, 0, 0, 0, 0, loc),
 			"This is a fake comment",
+			t.Key,
 			models.User{
 				2,
 				"baruser",
