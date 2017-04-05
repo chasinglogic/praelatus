@@ -204,12 +204,12 @@ FULL JOIN project_permission_schemes AS
 LEFT JOIN permission_schemes AS scheme ON scheme.id = project_scheme.permission_scheme_id
 LEFT JOIN permission_scheme_permissions AS perms ON perms.scheme_id = project_scheme.permission_scheme_id
 LEFT JOIN permissions AS perm ON perm.id = perms.perm_id
-LEFT JOIN roles AS r ON perms.role_id = r.id
+LEFT JOIN roles AS rl ON perms.role_id = rl.id
 LEFT JOIN user_roles AS roles ON roles.role_id = perms.role_id
 LEFT JOIN users AS u ON roles.user_id = u.id
 WHERE (t.id = $1 OR t.key = $2)
 AND (
-    (perm.name = 'VIEW_PROJECT' AND (roles.user_id = $3 OR r.name = 'Anonymous'))
+    (perm.name = 'VIEW_PROJECT' AND (roles.user_id = $3 OR rl.name = 'Anonymous'))
     OR 
     (select is_admin from users where users.id = $3 and users.is_admin = true)
 )`,
@@ -294,7 +294,7 @@ JOIN ticket_types AS tt ON tt.id = t.ticket_type_id
 WHERE (p.id = $1
 OR p.key = $2);
 `,
-		p.ID, p.Key, u.ID)
+		p.ID, p.Key)
 	if err != nil {
 		return tickets, handlePqErr(err)
 	}
@@ -665,8 +665,8 @@ func (ts *TicketStore) ExecuteTransition(u models.User, project models.Project, 
 	t.Status = tr.ToStatus
 
 	_, err := ts.db.Exec(`
-	UPDATE tickets
-        SET status_id = $1;`, t.Status.ID)
+UPDATE tickets
+SET status_id = $1;`, t.Status.ID)
 
 	if err != nil {
 		return err
