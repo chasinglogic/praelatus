@@ -160,8 +160,6 @@ func checkIfAdmin(db *sql.DB, userID int64) bool {
 func checkPermission(db *sql.DB, permName string, projectID, userID int64) bool {
 	var id int64
 
-	fmt.Println("pid", projectID)
-
 	row := db.QueryRow(`
 SELECT p.id FROM projects AS p
 FULL JOIN project_permission_schemes AS 
@@ -189,7 +187,6 @@ AND
 		return false
 	}
 
-	fmt.Println("id", id)
 	if id != 0 {
 		return true
 	}
