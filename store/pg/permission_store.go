@@ -16,13 +16,72 @@ type PermissionStore struct {
 	db *sql.DB
 }
 
+func (ps *PermissionStore) fillPermissions(p *models.PermissionScheme) error {
+	var roles []models.Role
+
+	rows, err := ps.db.Query(`SELECT id, name FROM roles`)
+	if err != nil {
+		return handlePqErr(err)
+	}
+
+	for rows.Next() {
+		var role models.Role
+
+		err = rows.Scan(&role.ID, &role.Name)
+		if err != nil {
+			return handlePqErr(err)
+		}
+
+		roles = append(roles, role)
+	}
+
+	for _, r := range roles {
+		var permissions []permission.Permission
+
+		rows, err := ps.db.Query(`
+SELECT perm.name FROM permissions AS perm
+JOIN permission_scheme_permissions AS scheme ON scheme.perm_id = perm.id
+WHERE scheme.scheme_id = $1 AND scheme.role_id = $2
+`,
+			p.ID, r.ID)
+		if err != nil {
+			return handlePqErr(err)
+		}
+
+		for rows.Next() {
+			var perm permission.Permission
+
+			err = rows.Scan(&perm)
+			if err != nil {
+				return handlePqErr(err)
+			}
+
+			permissions = append(permissions, perm)
+		}
+
+		p.Permissions[r.Name] = permissions
+	}
+
+	return nil
+}
+
 // Get will return a permission scheme from the database
 func (ps *PermissionStore) Get(u models.User, p *models.PermissionScheme) error {
 	if !ps.IsAdmin(u) {
 		return store.ErrPermissionDenied
 	}
 
-	return nil
+	err := ps.db.QueryRow(`
+SELECT name, description FROM permissions_schemes
+WHERE id = $1 OR name = $2
+`,
+		p.ID, p.Name).
+		Scan(&p.ID, &p.Name)
+	if err != nil {
+		return handlePqErr(err)
+	}
+
+	return ps.fillPermissions(p)
 }
 
 // GetAll will return all permission schemes from the database
@@ -31,7 +90,30 @@ func (ps *PermissionStore) GetAll(u models.User) ([]models.PermissionScheme, err
 		return nil, store.ErrPermissionDenied
 	}
 
-	return nil, nil
+	rows, err := ps.db.Query(`SELECT name, description FROM permissions_schemes`)
+	if err != nil {
+		return nil, handlePqErr(err)
+	}
+
+	var schemes []models.PermissionScheme
+
+	for rows.Next() {
+		var p models.PermissionScheme
+
+		err = rows.Scan(&p.ID, &p.Name)
+		if err != nil {
+			return schemes, handlePqErr(err)
+		}
+
+		err = ps.fillPermissions(&p)
+		if err != nil {
+			return schemes, handlePqErr(err)
+		}
+
+		schemes = append(schemes, p)
+	}
+
+	return schemes, nil
 }
 
 // New will create the given permission scheme in the database and
@@ -63,7 +145,7 @@ RETURNING id;
 			QueryRow("SELECT id FROM roles WHERE name = $1", role).
 			Scan(roleID)
 		if err != nil {
-			return store.Err{Err: err}
+			return handlePqErr(err)
 		}
 
 		if roleID == nil {
@@ -79,7 +161,7 @@ RETURNING id;
 				Scan(permID)
 			if err != nil {
 				tx.Rollback()
-				return store.Err{Err: err}
+				return handlePqErr(err)
 			}
 
 			if permID == nil {
@@ -95,7 +177,7 @@ VALUES ($1, $2, $3)`,
 				p.ID, roleID, permID)
 			if err != nil {
 				tx.Rollback()
-				return store.Err{Err: err}
+				return handlePqErr(err)
 			}
 		}
 	}
@@ -111,6 +193,103 @@ func (ps *PermissionStore) Create(u models.User, p *models.PermissionScheme) err
 	}
 
 	return ps.New(p)
+}
+
+// Save will update the permission scheme in the database if it exists
+func (ps *PermissionStore) Save(u models.User, p models.PermissionScheme) error {
+	if !ps.IsAdmin(u) {
+		return store.ErrPermissionDenied
+	}
+
+	tx, err := ps.db.Begin()
+	if err != nil {
+		return store.Err{Err: err}
+	}
+
+	_, err = tx.Exec(`
+UPDATE permission_schemes 
+SET (name, description) = ($1, $2)
+WHERE id = $3`,
+		p.Name, p.Description, p.ID)
+	if err != nil {
+		tx.Rollback()
+		return handlePqErr(err)
+	}
+
+	for role := range p.Permissions {
+		var roleID *int64
+
+		err = tx.
+			QueryRow("SELECT id FROM roles WHERE name = $1", role).
+			Scan(roleID)
+		if err != nil {
+			return handlePqErr(err)
+		}
+
+		if roleID == nil {
+			tx.Rollback()
+			return store.ErrInvalidInput{Err: fmt.Errorf("%s is not a valid role", role)}
+		}
+
+		for _, perm := range p.Permissions[role] {
+			var permID *int64
+
+			err = tx.
+				QueryRow("SELECT id FROM permissions WHERE name = $1", perm).
+				Scan(permID)
+			if err != nil {
+				tx.Rollback()
+				return handlePqErr(err)
+			}
+
+			if permID == nil {
+				tx.Rollback()
+				return store.ErrInvalidInput{
+					Err: fmt.Errorf("%s is not a valid permission", perm),
+				}
+			}
+
+			_, err = tx.Exec(`
+DELETE FROM permission_scheme_permissions WHERE scheme_id = $1
+`,
+				p.ID)
+			if err != nil {
+				tx.Rollback()
+				return handlePqErr(err)
+			}
+
+			_, err = tx.Exec(`
+INSERT INTO permission_scheme_permissions (scheme_id, role_id, perm_id) 
+VALUES ($1, $2, $3)`,
+				p.ID, roleID, permID)
+			if err != nil {
+				tx.Rollback()
+				return handlePqErr(err)
+			}
+		}
+	}
+
+	return nil
+
+}
+
+// Remove will remove the given permission scheme from the database
+func (ps *PermissionStore) Remove(u models.User, p models.PermissionScheme) error {
+	if !ps.IsAdmin(u) {
+		return store.ErrPermissionDenied
+	}
+
+	_, err := ps.db.Exec(`
+DELETE FROM permission_scheme_permissions WHERE scheme_id = $1;
+DELETE FROM project_permission_schemes WHERE scheme_id = $1;
+DELETE FROM permission_schemes WHERE id = $1;
+`,
+		p.ID)
+	if err != nil {
+		return handlePqErr(err)
+	}
+
+	return nil
 }
 
 // IsAdmin will return a boolean indicating whether the provided user
