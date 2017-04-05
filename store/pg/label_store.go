@@ -14,16 +14,12 @@ type LabelStore struct {
 
 // Get gets a label from the database
 func (ls *LabelStore) Get(l *models.Label) error {
-	var row *sql.Row
-
-	switch l.Name {
-	case "":
-		row = ls.db.QueryRow("SELECT id, name FROM labels WHERE id = $1", l.ID)
-	default:
-		row = ls.db.QueryRow("SELECT id, name FROM labels WHERE name = $1", l.Name)
-	}
-
-	err := row.Scan(&l.ID, &l.Name)
+	err := ls.db.QueryRow(`
+SELECT id, name FROM labels 
+WHERE id = $1 OR name = $2
+`,
+		l.ID, l.Name).
+		Scan(&l.ID, &l.Name)
 	return handlePqErr(err)
 }
 
@@ -48,16 +44,22 @@ func (ls *LabelStore) GetAll() ([]models.Label, error) {
 
 // New creates a new label in the database
 func (ls *LabelStore) New(label *models.Label) error {
-	err := ls.db.QueryRow(`INSERT INTO labels (name) VALUES ($1)
-						   RETURNING id;`, label.Name).
+	err := ls.db.QueryRow(`
+INSERT INTO labels (name) VALUES ($1)
+RETURNING id;
+`,
+		label.Name).
 		Scan(&label.ID)
 	return handlePqErr(err)
 }
 
 // Save updates a label in the database
 func (ls *LabelStore) Save(label models.Label) error {
-	_, err := ls.db.Exec(`UPDATE labels SET (name) = ($1) 
-						  WHERE id = $2;`, label.Name, label.ID)
+	_, err := ls.db.Exec(`
+UPDATE labels SET (name) = ($1) 
+WHERE id = $2;
+`,
+		label.Name, label.ID)
 	return handlePqErr(err)
 }
 
@@ -85,8 +87,11 @@ func (ls *LabelStore) Remove(label models.Label) error {
 // Search will take a name and search for the closest matching label
 // in the store
 func (ls *LabelStore) Search(query string) ([]models.Label, error) {
-	rows, err := ls.db.Query(`SELECT id, name FROM labels
-                                  WHERE name LIKE $1`, query+"%")
+	rows, err := ls.db.Query(`
+SELECT id, name FROM labels
+WHERE name LIKE $1
+`,
+		query+"%")
 	if err != nil {
 		return nil, handlePqErr(err)
 	}
