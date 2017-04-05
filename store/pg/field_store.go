@@ -3,7 +3,6 @@ package pg
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/praelatus/praelatus/models"
 	"github.com/praelatus/praelatus/store"
@@ -25,7 +24,6 @@ WHERE id = $1 OR name = $2
 `,
 		f.ID, f.Name)
 
-	fmt.Println("QUERY DONE")
 	err := row.Scan(&f.ID, &f.Name, &f.DataType)
 	if err != nil {
 		return handlePqErr(err)
