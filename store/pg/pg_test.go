@@ -8,7 +8,7 @@ import (
 	"github.com/praelatus/praelatus/store/pg"
 )
 
-var s store.Store
+var s *pg.Store
 var seeded = false
 
 func init() {
