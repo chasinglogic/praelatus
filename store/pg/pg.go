@@ -1,5 +1,6 @@
-// Package pg implements all of the appropriate interfaces to be used as a
-// store.Store, store.SQLStore, store.Migrater, and store.Droppable
+// Package pg implements all of the appropriate interfaces to be used
+// as a store.Store, store.SQLStore, store.Migrater, and
+// store.Droppable for a Postgres database
 package pg
 
 import (
@@ -9,7 +10,7 @@ import (
 	"os"
 
 	"github.com/lib/pq"
-	"github.com/praelatus/praelatus/models"
+	"github.com/praelatus/praelatus/models/permission"
 	"github.com/praelatus/praelatus/store"
 	"github.com/praelatus/praelatus/store/pg/migrations"
 )
@@ -22,17 +23,19 @@ type rowScanner interface {
 
 // Store implements the store.Store and store.SQLStore interface for a postgres DB.
 type Store struct {
-	db        *sql.DB
-	replicas  []sql.DB
-	users     *UserStore
-	projects  *ProjectStore
-	fields    *FieldStore
-	workflows *WorkflowStore
-	tickets   *TicketStore
-	types     *TypeStore
-	labels    *LabelStore
-	statuses  *StatusStore
-	teams     *TeamStore
+	db          *sql.DB
+	replicas    []sql.DB
+	users       *UserStore
+	projects    *ProjectStore
+	fields      *FieldStore
+	workflows   *WorkflowStore
+	tickets     *TicketStore
+	types       *TypeStore
+	labels      *LabelStore
+	statuses    *StatusStore
+	teams       *TeamStore
+	permissions *PermissionStore
+	roles       *RoleStore
 }
 
 // New connects to the postgres database provided and returns a store
@@ -52,17 +55,19 @@ func New(conn string, replicas ...string) *Store {
 	}
 
 	s := &Store{
-		db:        d,
-		replicas:  []sql.DB{},
-		users:     &UserStore{d},
-		projects:  &ProjectStore{d},
-		fields:    &FieldStore{d},
-		tickets:   &TicketStore{d},
-		labels:    &LabelStore{d},
-		workflows: &WorkflowStore{d},
-		types:     &TypeStore{d},
-		statuses:  &StatusStore{d},
-		teams:     &TeamStore{d},
+		db:          d,
+		replicas:    []sql.DB{},
+		users:       &UserStore{d},
+		projects:    &ProjectStore{d},
+		fields:      &FieldStore{d},
+		tickets:     &TicketStore{d},
+		labels:      &LabelStore{d},
+		workflows:   &WorkflowStore{d},
+		types:       &TypeStore{d},
+		statuses:    &StatusStore{d},
+		teams:       &TeamStore{d},
+		permissions: &PermissionStore{d},
+		roles:       &RoleStore{d},
 	}
 
 	return s
@@ -113,6 +118,16 @@ func (pg *Store) Labels() store.LabelStore {
 	return pg.labels
 }
 
+// Permissions returns the underlying PermissionStore for a postgres DB
+func (pg *Store) Permissions() store.PermissionStore {
+	return pg.permissions
+}
+
+// Roles returns the underlying RoleStore for a postgres DB
+func (pg *Store) Roles() store.RoleStore {
+	return pg.roles
+}
+
 // Conn implements store.SQLStore for postgres db
 func (pg *Store) Conn() *sql.DB {
 	return pg.db
@@ -127,14 +142,6 @@ func (pg *Store) Drop() error {
 // Migrate implements store.SQLStore for postgres db
 func (pg *Store) Migrate() error {
 	return migrations.RunMigrations(pg.db)
-}
-
-func (pg *Store) IsAdmin(u models.User) bool {
-	return checkIfAdmin(pg.db, u.ID)
-}
-
-func (pg *Store) CheckPermission(permission string, project models.Project, user models.User) bool {
-	return checkPermission(pg.db, permission, project.ID, user.ID)
 }
 
 // checkIfAdmin will return true if the given userID references a user
@@ -157,7 +164,7 @@ func checkIfAdmin(db *sql.DB, userID int64) bool {
 // checkPermission will check on the given db that the user with
 // userID has the permission permName on the project indicated by
 // projectID returning a boolean
-func checkPermission(db *sql.DB, permName string, projectID, userID int64) bool {
+func checkPermission(db *sql.DB, permName permission.Permission, projectID, userID int64) bool {
 	var id int64
 
 	row := db.QueryRow(`
@@ -207,22 +214,21 @@ func toPqErr(e error) *pq.Error {
 // handlePqErr takes an error converts it to a pq.Error if appropriate and will
 // return the appropriate store error, if no handling matches it will just
 // return the error as it is.
-func handlePqErr(e error) error {
+func handlePqErr(e error) store.Error {
 	if e == sql.ErrNoRows {
 		return store.ErrNotFound
 	}
 
 	pqe := toPqErr(e)
 	if pqe == nil {
-		return e
+		return store.Err{Err: e}
 	}
 
 	log.Printf("DATABASE: [%v] %s\n", pqe.Code, pqe.Message)
 
-	// fmt.Println("PQ ERROR CODE:", pqe.Code)
 	if pqe.Code == "23505" {
 		return store.ErrDuplicateEntry
 	}
 
-	return e
+	return store.Err{Err: e}
 }
