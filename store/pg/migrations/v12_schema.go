@@ -14,7 +14,7 @@ CREATE TABLE user_roles(
        role_id    integer REFERENCES roles(id)
 );
 
-INSERT INTO roles (name) VALUES ('Admin');
+INSERT INTO roles (name) VALUES ('Administrator');
 INSERT INTO roles (name) VALUES ('Contributor');
 INSERT INTO roles (name) VALUES ('User');
 INSERT INTO roles (name) VALUES ('Anonymous');
