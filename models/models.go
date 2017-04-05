@@ -1,5 +1,5 @@
 // Package models contains all of our models and utility functions for
-// interacting with them
+// creating and modifying them
 package models
 
 import (
