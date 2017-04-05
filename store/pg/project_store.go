@@ -34,8 +34,8 @@ func intoProject(row rowScanner, p *models.Project) error {
 // has the appropriate permissions.
 func (ps *ProjectStore) Get(u models.User, p *models.Project) error {
 	row := ps.db.QueryRow(`
-SELECT p.id, created_date, name, 
-       key, homepage, icon_url, repo,
+SELECT p.id, p.created_date, p.name, 
+       p.key, p.homepage, p.icon_url, p.repo,
        json_build_object('id', lead.id, 
                          'username', lead.username,  
                          'email', lead.email,  
@@ -51,15 +51,15 @@ LEFT JOIN permissions AS perm ON perm.id = perms.perm_id
 LEFT JOIN roles AS r ON perms.role_id = r.id
 LEFT JOIN user_roles AS roles ON roles.role_id = perms.role_id
 LEFT JOIN users AS u ON roles.user_id = u.id
-WHERE (p.id = $1 OR p.key = $2)
+WHERE (p.id = $2 OR p.key = $3)
 AND (
     (perm.name = 'VIEW_PROJECT' AND (roles.user_id = $1 OR r.name = 'Anonymous'))
     OR 
-    (select is_admin from users where users.id = $2 and users.is_admin = true)
+    (select is_admin from users where users.id = $1 and users.is_admin = true)
 )
 ;
 `,
-		p.ID, p.Key)
+		u.ID, p.ID, p.Key)
 
 	err := intoProject(row, p)
 	return handlePqErr(err)
