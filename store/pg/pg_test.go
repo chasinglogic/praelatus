@@ -1,7 +1,6 @@
 package pg_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/praelatus/praelatus/config"
@@ -10,11 +9,10 @@ import (
 )
 
 var s store.Store
-var seeded = true
+var seeded = false
 
 func init() {
 	if s == nil {
-		fmt.Println("Prepping tests")
 		p := pg.New(config.DBURL())
 
 		e := p.Migrate()
