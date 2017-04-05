@@ -19,7 +19,7 @@ var (
 )
 
 func handleHookEvent(result chan Result) {
-	for _ := range webWorkers {
+	for range webWorkers {
 		go sendRequest(result)
 	}
 
