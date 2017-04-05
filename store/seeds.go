@@ -414,10 +414,17 @@ func SeedUsers(s Store) error {
 		return be
 	}
 
+	t4, be := models.NewUser("saveusertest", "test", "Test Testerson IV",
+		"test4@example.com", true)
+	if be != nil {
+		return be
+	}
+
 	users := []models.User{
 		*t2,
 		*t1,
 		*t3,
+		*t4,
 	}
 
 	fmt.Println("Seeding users")
