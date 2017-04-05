@@ -504,7 +504,6 @@ func (ts *TicketStore) GetComments(u models.User, p models.Project, t models.Tic
 
 	rows, err := ts.db.Query(`
 SELECT c.id, c.created_date, c.updated_date, c.body, t.key,
-SELECT c.id, c.created_date, c.updated_date, c.body,
        json_build_object('id', a.id, 
                          'username', a.username, 
                          'email', a.email, 
