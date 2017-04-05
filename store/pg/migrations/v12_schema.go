@@ -5,7 +5,7 @@ DROP TABLE permissions;
 
 CREATE TABLE roles(
        id SERIAL PRIMARY KEY,
-       name varchar(100) NOT NULL
+       name varchar(100) UNIQUE NOT NULL
 );
 
 CREATE TABLE user_roles(
@@ -37,8 +37,8 @@ INSERT INTO permissions (name) VALUES ('DELETE_TICKET');
 
 CREATE TABLE permission_schemes(
        id SERIAL PRIMARY KEY,
-       name varchar(100),
-       description varchar(250)
+       name varchar(100) UNIQUE NOT NULL,
+       description varchar(250) DEFAULT ''
 );
 
 CREATE TABLE permission_scheme_permissions(
