@@ -26,6 +26,9 @@ func projectRouter(router *mux.Router) {
 // GetProject will get a project by it's project key
 func GetProject(w http.ResponseWriter, r *http.Request) {
 	u := middleware.GetUserSession(r)
+	if u == nil {
+		u = &models.User{ID: 0}
+	}
 
 	vars := mux.Vars(r)
 	key := vars["key"]
