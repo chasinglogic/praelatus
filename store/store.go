@@ -28,28 +28,78 @@ import (
 	"errors"
 
 	"github.com/praelatus/praelatus/models"
+	"github.com/praelatus/praelatus/models/permission"
 )
 
 var (
 	// ErrDuplicateEntry is returned when a unique constraint is
 	// violated.
-	ErrDuplicateEntry = errors.New("duplicate entry attempted")
+	ErrDuplicateEntry = Err{
+		errors.New("duplicate entry attempted"),
+	}
 
 	// ErrNotFound is returned when an invalid resource is given
 	// or searched for
-	ErrNotFound = errors.New("no such resource")
+	ErrNotFound = Err{
+		errors.New("no such resource"),
+	}
 
 	// ErrNoSession is returned when a session does not exist in
 	// the SessionStore
-	ErrNoSession = errors.New("no session found")
+	ErrNoSession = Err{
+		errors.New("no session found"),
+	}
 
 	// ErrSessionInvalid is returned when a session has timed out
-	ErrSessionInvalid = errors.New("session invalid")
+	ErrSessionInvalid = Err{
+		errors.New("session invalid"),
+	}
 
 	// ErrPermissionDenied is returned when the given user does
 	// not have permission to perform the action requested
-	ErrPermissionDenied = errors.New("permission denied")
+	ErrPermissionDenied = Err{
+		errors.New("permission denied"),
+	}
 )
+
+// Error wraps the primitive error so that handlers can tell if the
+// reason was invalid input or not to provide better error messages to
+// the client
+type Error interface {
+	Error() string
+	InvalidInput() bool
+}
+
+// Err is used to wrap store errors which are not invalid input
+type Err struct {
+	Err error
+}
+
+func (e Err) Error() string {
+	return e.Err.Error()
+}
+
+// InvalidInput returns a boolean false indicating this is not an
+// invalid input error
+func (e Err) InvalidInput() bool {
+	return false
+}
+
+// ErrInvalidInput is used to indicate an error is caused by invalid
+// input, i.e. not a valid role name
+type ErrInvalidInput struct {
+	Err error
+}
+
+func (e ErrInvalidInput) Error() string {
+	return e.Err.Error()
+}
+
+// InvalidInput returns a boolean true indicating this is an
+// invalid input error
+func (e ErrInvalidInput) InvalidInput() bool {
+	return true
+}
 
 // Store is implemented by any struct that has the ability to store
 // all of the available models in Praelatus
@@ -215,4 +265,27 @@ type LabelStore interface {
 	Remove(models.Label) error
 
 	Search(query string) ([]models.Label, error)
+}
+
+// PermissionStore contains methods for storing, retrieving, and
+// manipulating permissions, roles, and permission schemes
+type PermissionStore interface {
+	Get(models.User, *models.PermissionScheme) error
+	GetAll(models.User) ([]models.PermissionScheme, error)
+
+	New(*models.PermissionScheme) Error
+	// Create(models.User, *models.PermissionScheme) error
+	// Save(models.User, models.PermissionScheme) error
+	// Remove(models.User, models.PermissionScheme) error
+
+	IsAdmin(models.User) bool
+	CheckPermission(permission.Permission, models.Project, models.User) bool
+}
+
+// RoleStore contains methods for storing, and retrieving roles
+type RoleStore interface {
+	// Get(models.User, *models.Role) error
+	// GetAll(models.User) ([]models.Role, error)
+
+	// GetForUser(models.User) []models.Role
 }
