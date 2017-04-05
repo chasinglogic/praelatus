@@ -365,9 +365,14 @@ func (ws *WorkflowStore) Remove(w models.Workflow) error {
 		return handlePqErr(err)
 	}
 
-	_, err = tx.Exec(`DELETE FROM hooks 
-                          WHERE transition_id 
-                          in(SELECT id FROM transitions WHERE workflow_id = $1);`, w.ID)
+	_, err = tx.Exec(`
+DELETE FROM hooks 
+WHERE transition_id in
+(
+    SELECT id FROM transitions WHERE workflow_id = $1
+);
+`,
+		w.ID)
 	if err != nil {
 		tx.Rollback()
 		return handlePqErr(err)
@@ -380,6 +385,12 @@ func (ws *WorkflowStore) Remove(w models.Workflow) error {
 	}
 
 	_, err = tx.Exec(`DELETE FROM transitions WHERE workflow_id = $1;`, w.ID)
+	if err != nil {
+		tx.Rollback()
+		return handlePqErr(err)
+	}
+
+	_, err = tx.Exec(`DELETE FROM workflows_projects WHERE workflow_id = $1;`, w.ID)
 	if err != nil {
 		tx.Rollback()
 		return handlePqErr(err)
