@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/praelatus/praelatus/models"
+	"github.com/praelatus/praelatus/models/permission"
 )
 
 // DefaultWorkflow should be given when the /api/workflows/default endpoint is
@@ -43,11 +44,51 @@ var DefaultWorkflow = models.Workflow{
 	},
 }
 
+// DefaultPermissionScheme is the default permission scheme for a new instance
+var DefaultPermissionScheme = models.PermissionScheme{
+	Name:        "Default Permission Scheme",
+	Description: "The recommended defaults for permissions.",
+	Permissions: map[string][]permission.Permission{
+		"Administrator": []permission.Permission{
+			permission.VIEWPROJECT,
+			permission.CREATETICKET,
+			permission.COMMENTTICKET,
+			permission.REMOVECOMMENT,
+			permission.REMOVEOWNCOMMENT,
+			permission.EDITOWNCOMMENT,
+			permission.EDITCOMMENT,
+			permission.TRANSITIONTICKET,
+			permission.EDITTICKET,
+			permission.REMOVETICKET,
+		},
+		"Contributor": []permission.Permission{
+			permission.VIEWPROJECT,
+			permission.CREATETICKET,
+			permission.COMMENTTICKET,
+			permission.REMOVEOWNCOMMENT,
+			permission.EDITOWNCOMMENT,
+			permission.TRANSITIONTICKET,
+			permission.EDITTICKET,
+		},
+		"User": []permission.Permission{
+			permission.VIEWPROJECT,
+			permission.CREATETICKET,
+			permission.COMMENTTICKET,
+			permission.REMOVEOWNCOMMENT,
+			permission.EDITOWNCOMMENT,
+		},
+		"Anonymous": []permission.Permission{
+			permission.VIEWPROJECT,
+		},
+	},
+}
+
 var defaults = []func(s Store) error{
 	SeedTicketTypes,
 	SeedFields,
 	SeedStatuses,
 	SeedWorkflows,
+	SeedPermissions,
 }
 
 var seedFuncs = []func(s Store) error{
@@ -61,6 +102,7 @@ var seedFuncs = []func(s Store) error{
 	SeedWorkflows,
 	SeedTickets,
 	SeedComments,
+	SeedPermissions,
 }
 
 // SeedDefaults will seed the database with the basics needed to use Praelatus
@@ -476,5 +518,11 @@ func SeedWorkflows(s Store) error {
 		return e
 	}
 
+	return nil
+}
+
+// SeedPermissions will put the default permission scheme in the
+// database
+func SeedPermissions(s Store) error {
 	return nil
 }
