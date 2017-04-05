@@ -274,9 +274,9 @@ type PermissionStore interface {
 	GetAll(models.User) ([]models.PermissionScheme, error)
 
 	New(*models.PermissionScheme) Error
-	// Create(models.User, *models.PermissionScheme) error
-	// Save(models.User, models.PermissionScheme) error
-	// Remove(models.User, models.PermissionScheme) error
+	Create(models.User, *models.PermissionScheme) error
+	Save(models.User, models.PermissionScheme) error
+	Remove(models.User, models.PermissionScheme) error
 
 	IsAdmin(models.User) bool
 	CheckPermission(permission.Permission, models.Project, models.User) bool
@@ -284,8 +284,14 @@ type PermissionStore interface {
 
 // RoleStore contains methods for storing, and retrieving roles
 type RoleStore interface {
-	// Get(models.User, *models.Role) error
-	// GetAll(models.User) ([]models.Role, error)
+	Get(models.User, *models.Role) error
+	GetAll(models.User) ([]models.Role, error)
 
-	// GetForUser(models.User) []models.Role
+	New(*models.Role) error
+	Create(models.User, *models.Role) error
+	Save(models.User, models.Role) error
+	Remove(models.User, models.Role) error
+
+	AddUserToRole(models.User, models.User, models.Project, models.Role) error
+	GetForUser(models.User) []models.Role
 }
