@@ -286,8 +286,8 @@ type PermissionStore interface {
 
 // RoleStore contains methods for storing, and retrieving roles
 type RoleStore interface {
-	Get(models.User, *models.Role) error
-	GetAll(models.User) ([]models.Role, error)
+	Get(*models.Role) error
+	GetAll() ([]models.Role, error)
 
 	New(*models.Role) error
 	Create(models.User, *models.Role) error
