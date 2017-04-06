@@ -21,6 +21,9 @@ func projectRouter(router *mux.Router) {
 	router.HandleFunc("/projects/{key}", UpdateProject).Methods("PUT")
 
 	router.HandleFunc("/projects/{key}/fields/{ticketType}", GetFieldsForScreen)
+
+	router.HandleFunc("/projects/roles", GetRolesForProject)
+	router.HandleFunc("/projects/roles/{roleId}/addUser/{userId}", AddUserToRole)
 }
 
 // GetProject will get a project by it's project key
@@ -192,3 +195,7 @@ func GetFieldsForScreen(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte(key + " " + ticketType))
 }
+
+func GetRolesForProject(w http.ResponseWriter, r *http.Request) {}
+
+func AddUserToRole(w http.ResponseWriter, r *http.Request) {}
