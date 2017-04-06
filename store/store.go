@@ -294,6 +294,8 @@ type RoleStore interface {
 	Save(models.User, models.Role) error
 	Remove(models.User, models.Role) error
 
-	AddUserToRole(models.User, models.User, models.Project, models.Role) error
 	GetForUser(models.User) ([]models.Role, error)
+
+	AddUserToRole(models.User, models.User, models.Project, models.Role) error
+	GetRolesForProject(models.User, models.Project) ([]models.Role, error)
 }
