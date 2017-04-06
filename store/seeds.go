@@ -51,6 +51,7 @@ var DefaultPermissionScheme = models.PermissionScheme{
 	Permissions: map[string][]permission.Permission{
 		"Administrator": []permission.Permission{
 			permission.VIEWPROJECT,
+			permission.ADMINPROJECT,
 			permission.CREATETICKET,
 			permission.COMMENTTICKET,
 			permission.REMOVECOMMENT,
