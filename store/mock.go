@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/praelatus/praelatus/models"
+	"github.com/praelatus/praelatus/models/permission"
 )
 
 // Mock will return a mock store and session store to use for testing
@@ -56,6 +57,14 @@ func (ms mockStore) Statuses() StatusStore {
 
 func (ms mockStore) Workflows() WorkflowStore {
 	return mockWorkflowStore{}
+}
+
+func (ms mockStore) Permissions() PermissionStore {
+	return mockPermissionStore{}
+}
+
+func (ms mockStore) Roles() RoleStore {
+	return mockRoleStore{}
 }
 
 type mockUsersStore struct{}
@@ -1309,3 +1318,107 @@ func (m mockSessionStore) Set(id string, u models.Session) error {
 
 func (m mockSessionStore) GetRaw(id string) ([]byte, error) { return nil, nil }
 func (m mockSessionStore) SetRaw(id string, b []byte) error { return nil }
+
+// A mock PermissionStore struct
+type mockPermissionStore struct{}
+
+func (ms mockPermissionStore) Get(u models.User, l *models.PermissionScheme) error {
+	l.ID = 1
+	l.Name = "mock"
+	return nil
+}
+
+func (ms mockPermissionStore) GetAll(u models.User) ([]models.PermissionScheme, error) {
+	return []models.PermissionScheme{
+		{
+			ID:   1,
+			Name: "mock",
+		},
+		{
+			ID:   2,
+			Name: "fake",
+		},
+	}, nil
+}
+
+func (ms mockPermissionStore) Create(u models.User, l *models.PermissionScheme) error {
+	return ms.New(l)
+}
+
+func (ms mockPermissionStore) New(l *models.PermissionScheme) Error {
+	l.ID = 1
+	return nil
+}
+
+func (ms mockPermissionStore) Save(u models.User, l models.PermissionScheme) error {
+	return nil
+}
+
+func (ms mockPermissionStore) Remove(u models.User, l models.PermissionScheme) error {
+	return nil
+}
+
+func (ms mockPermissionStore) CheckPermission(permName permission.Permission, p models.Project, u models.User) bool {
+	return true
+}
+
+func (ms mockPermissionStore) IsAdmin(u models.User) bool {
+	return true
+}
+
+// A mock RoleStore struct
+type mockRoleStore struct{}
+
+func (ms mockRoleStore) Get(u models.User, l *models.Role) error {
+	l.ID = 1
+	l.Name = "mock"
+	return nil
+}
+
+func (ms mockRoleStore) GetAll(u models.User) ([]models.Role, error) {
+	return []models.Role{
+		{
+			ID:   1,
+			Name: "mock",
+		},
+		{
+			ID:   2,
+			Name: "fake",
+		},
+	}, nil
+}
+
+func (ms mockRoleStore) GetForUser(u models.User) ([]models.Role, error) {
+	return []models.Role{
+		{
+			ID:   1,
+			Name: "mock",
+		},
+		{
+			ID:   2,
+			Name: "fake",
+		},
+	}, nil
+}
+
+func (ms mockRoleStore) Create(u models.User, l *models.Role) error {
+	return ms.New(l)
+}
+
+func (ms mockRoleStore) New(l *models.Role) error {
+	l.ID = 1
+	return nil
+}
+
+func (ms mockRoleStore) Save(u models.User, l models.Role) error {
+	return nil
+}
+
+func (ms mockRoleStore) Remove(u models.User, l models.Role) error {
+	return nil
+}
+
+func (ms mockRoleStore) AddUserToRole(u models.User,
+	u2 models.User, p models.Project, r models.Role) error {
+	return nil
+}
