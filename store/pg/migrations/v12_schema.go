@@ -4,14 +4,15 @@ const setupRoleBasedPermissions = `
 DROP TABLE permissions;
 
 CREATE TABLE roles(
-       id SERIAL PRIMARY KEY,
-       name varchar(100) UNIQUE NOT NULL
+    id SERIAL PRIMARY KEY,
+    name varchar(100) UNIQUE NOT NULL
 );
 
 CREATE TABLE user_roles(
-       user_id    integer REFERENCES users(id),
-       project_id integer REFERENCES projects(id),
-       role_id    integer REFERENCES roles(id)
+    user_id    integer REFERENCES users(id),
+    project_id integer REFERENCES projects(id),
+    role_id    integer REFERENCES roles(id),
+    PRIMARY KEY(user_id, project_id, role_id)
 );
 
 INSERT INTO roles (name) VALUES ('Administrator');
@@ -20,8 +21,8 @@ INSERT INTO roles (name) VALUES ('User');
 INSERT INTO roles (name) VALUES ('Anonymous');
 
 CREATE TABLE permissions (
-       id SERIAL PRIMARY KEY,
-       name varchar(100)
+    id SERIAL PRIMARY KEY,
+    name varchar(100)
 );
 
 INSERT INTO permissions (name) VALUES ('VIEW_PROJECT');
@@ -37,20 +38,22 @@ INSERT INTO permissions (name) VALUES ('EDIT_TICKET');
 INSERT INTO permissions (name) VALUES ('REMOVE_TICKET');
 
 CREATE TABLE permission_schemes(
-       id          SERIAL PRIMARY KEY,
-       name        varchar(100) UNIQUE NOT NULL,
-       description varchar(250) DEFAULT ''
+    id       SERIAL PRIMARY KEY,
+    name     varchar(100) UNIQUE NOT NULL,
+    description varchar(250) DEFAULT ''
 );
 
 CREATE TABLE permission_scheme_permissions(
-       role_id   integer REFERENCES roles(id),
-       scheme_id integer REFERENCES permission_schemes(id),
-       perm_id   integer REFERENCES permissions(id)
+    role_id   integer REFERENCES roles(id),
+    scheme_id integer REFERENCES permission_schemes(id),
+    perm_id   integer REFERENCES permissions(id)
+    PRIMARY KEY(scheme_id, perm_id, role_id)
 );
 
 CREATE TABLE project_permission_schemes(
-       permission_scheme_id  integer REFERENCES permission_schemes(id),
-       project_id            integer REFERENCES projects(id)
+    permission_scheme_id  integer REFERENCES permission_schemes(id),
+    project_id            integer REFERENCES projects(id)
+    PRIMARY KEY(scheme_id, perm_id, role_id)
 );
 `
 
