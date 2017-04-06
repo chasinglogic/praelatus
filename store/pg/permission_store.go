@@ -72,15 +72,17 @@ func (ps *PermissionStore) Get(u models.User, p *models.PermissionScheme) error 
 	}
 
 	err := ps.db.QueryRow(`
-SELECT name, description FROM permissions_schemes
+SELECT id, name, description FROM permission_schemes
 WHERE id = $1 OR name = $2
 `,
 		p.ID, p.Name).
-		Scan(&p.ID, &p.Name)
+		Scan(&p.ID, &p.Name, &p.Description)
+
 	if err != nil {
 		return handlePqErr(err)
 	}
 
+	p.Permissions = make(map[string][]permission.Permission)
 	return ps.fillPermissions(p)
 }
 
@@ -90,7 +92,7 @@ func (ps *PermissionStore) GetAll(u models.User) ([]models.PermissionScheme, err
 		return nil, store.ErrPermissionDenied
 	}
 
-	rows, err := ps.db.Query(`SELECT name, description FROM permissions_schemes`)
+	rows, err := ps.db.Query(`SELECT id, name, description FROM permission_schemes`)
 	if err != nil {
 		return nil, handlePqErr(err)
 	}
@@ -99,8 +101,9 @@ func (ps *PermissionStore) GetAll(u models.User) ([]models.PermissionScheme, err
 
 	for rows.Next() {
 		var p models.PermissionScheme
+		p.Permissions = make(map[string][]permission.Permission)
 
-		err = rows.Scan(&p.ID, &p.Name)
+		err = rows.Scan(&p.ID, &p.Name, &p.Description)
 		if err != nil {
 			return schemes, handlePqErr(err)
 		}
@@ -139,36 +142,38 @@ RETURNING id;
 	}
 
 	for role := range p.Permissions {
-		var roleID *int64
+		var roleID int64
 
 		err = tx.
 			QueryRow("SELECT id FROM roles WHERE name = $1", role).
-			Scan(roleID)
-		if err != nil {
-			return handlePqErr(err)
-		}
-
-		if roleID == nil {
+			Scan(&roleID)
+		if roleID == 0 {
 			tx.Rollback()
+			fmt.Println(err)
 			return store.ErrInvalidInput{Err: fmt.Errorf("%s is not a valid role", role)}
 		}
 
+		if err != nil {
+			tx.Rollback()
+			return handlePqErr(err)
+		}
+
 		for _, perm := range p.Permissions[role] {
-			var permID *int64
+			var permID int64
 
 			err = tx.
 				QueryRow("SELECT id FROM permissions WHERE name = $1", perm).
-				Scan(permID)
-			if err != nil {
-				tx.Rollback()
-				return handlePqErr(err)
-			}
-
-			if permID == nil {
+				Scan(&permID)
+			if permID == 0 {
 				tx.Rollback()
 				return store.ErrInvalidInput{
 					Err: fmt.Errorf("%s is not a valid permission", perm),
 				}
+			}
+
+			if err != nil {
+				tx.Rollback()
+				return handlePqErr(err)
 			}
 
 			_, err = tx.Exec(`
@@ -182,7 +187,7 @@ VALUES ($1, $2, $3)`,
 		}
 	}
 
-	return nil
+	return handlePqErr(tx.Commit())
 }
 
 // Create is the action version of new, verifying that the user is an
@@ -217,36 +222,36 @@ WHERE id = $3`,
 	}
 
 	for role := range p.Permissions {
-		var roleID *int64
+		var roleID int64
 
 		err = tx.
 			QueryRow("SELECT id FROM roles WHERE name = $1", role).
-			Scan(roleID)
-		if err != nil {
-			return handlePqErr(err)
-		}
-
-		if roleID == nil {
+			Scan(&roleID)
+		if roleID == 0 {
 			tx.Rollback()
 			return store.ErrInvalidInput{Err: fmt.Errorf("%s is not a valid role", role)}
 		}
 
+		if err != nil {
+			return handlePqErr(err)
+		}
+
 		for _, perm := range p.Permissions[role] {
-			var permID *int64
+			var permID int64
 
 			err = tx.
 				QueryRow("SELECT id FROM permissions WHERE name = $1", perm).
-				Scan(permID)
-			if err != nil {
-				tx.Rollback()
-				return handlePqErr(err)
-			}
-
-			if permID == nil {
+				Scan(&permID)
+			if permID == 0 {
 				tx.Rollback()
 				return store.ErrInvalidInput{
 					Err: fmt.Errorf("%s is not a valid permission", perm),
 				}
+			}
+
+			if err != nil {
+				tx.Rollback()
+				return handlePqErr(err)
 			}
 
 			_, err = tx.Exec(`
@@ -269,7 +274,7 @@ VALUES ($1, $2, $3)`,
 		}
 	}
 
-	return nil
+	return handlePqErr(tx.Commit())
 
 }
 
@@ -279,9 +284,28 @@ func (ps *PermissionStore) Remove(u models.User, p models.PermissionScheme) erro
 		return store.ErrPermissionDenied
 	}
 
-	_, err := ps.db.Exec(`
+	tx, err := ps.db.Begin()
+	if err != nil {
+		return handlePqErr(err)
+	}
+
+	_, err = tx.Exec(`
 DELETE FROM permission_scheme_permissions WHERE scheme_id = $1;
-DELETE FROM project_permission_schemes WHERE scheme_id = $1;
+`,
+		p.ID)
+	if err != nil {
+		return handlePqErr(err)
+	}
+
+	_, err = tx.Exec(`
+DELETE FROM project_permission_schemes WHERE permission_scheme_id = $1;
+`,
+		p.ID)
+	if err != nil {
+		return handlePqErr(err)
+	}
+
+	_, err = tx.Exec(`
 DELETE FROM permission_schemes WHERE id = $1;
 `,
 		p.ID)
@@ -289,7 +313,7 @@ DELETE FROM permission_schemes WHERE id = $1;
 		return handlePqErr(err)
 	}
 
-	return nil
+	return handlePqErr(tx.Commit())
 }
 
 // IsAdmin will return a boolean indicating whether the provided user
