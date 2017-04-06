@@ -35,30 +35,30 @@ var (
 	// ErrDuplicateEntry is returned when a unique constraint is
 	// violated.
 	ErrDuplicateEntry = Err{
-		errors.New("duplicate entry attempted"),
+		Err: errors.New("duplicate entry attempted"),
 	}
 
 	// ErrNotFound is returned when an invalid resource is given
 	// or searched for
 	ErrNotFound = Err{
-		errors.New("no such resource"),
+		Err: errors.New("no such resource"),
 	}
 
 	// ErrNoSession is returned when a session does not exist in
 	// the SessionStore
 	ErrNoSession = Err{
-		errors.New("no session found"),
+		Err: errors.New("no session found"),
 	}
 
 	// ErrSessionInvalid is returned when a session has timed out
 	ErrSessionInvalid = Err{
-		errors.New("session invalid"),
+		Err: errors.New("session invalid"),
 	}
 
 	// ErrPermissionDenied is returned when the given user does
 	// not have permission to perform the action requested
 	ErrPermissionDenied = Err{
-		errors.New("permission denied"),
+		Err: errors.New("permission denied"),
 	}
 )
 
@@ -113,6 +113,8 @@ type Store interface {
 	Projects() ProjectStore
 	Statuses() StatusStore
 	Workflows() WorkflowStore
+	Permissions() PermissionStore
+	Roles() RoleStore
 }
 
 // SQLStore is implemented by any store which wants to provide a
@@ -293,5 +295,5 @@ type RoleStore interface {
 	Remove(models.User, models.Role) error
 
 	AddUserToRole(models.User, models.User, models.Project, models.Role) error
-	GetForUser(models.User) []models.Role
+	GetForUser(models.User) ([]models.Role, error)
 }
