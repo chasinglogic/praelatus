@@ -9,6 +9,7 @@ type Permission string
 // These are the permissions available in Praelatus
 const (
 	VIEWPROJECT      Permission = "VIEW_PROJECT"
+	ADMINPROJECT                = "ADMIN_PROJECT"
 	CREATETICKET                = "CREATE_TICKET"
 	COMMENTTICKET               = "COMMENT_TICKET"
 	REMOVECOMMENT               = "REMOVE_COMMENT"
