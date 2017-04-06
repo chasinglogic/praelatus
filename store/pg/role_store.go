@@ -23,10 +23,10 @@ func (rs *RoleStore) Get(u models.User, r *models.Role) error {
 
 func (rs *RoleStore) GetAll(u models.User) ([]models.Role, error) {
 	if !checkIfAdmin(rs.db, u.ID) {
-		return store.ErrPermissionDenied
+		return nil, store.ErrPermissionDenied
 	}
 
-	return nil
+	return nil, nil
 }
 
 func (rs *RoleStore) New(r *models.Role) error {
@@ -68,8 +68,8 @@ func (rs *RoleStore) AddUserToRole(userAdding models.User, userToAdd models.User
 
 func (rs *RoleStore) GetForUser(u models.User) ([]models.Role, error) {
 	if !checkIfAdmin(rs.db, u.ID) {
-		return store.ErrPermissionDenied
+		return nil, store.ErrPermissionDenied
 	}
 
-	return nil
+	return nil, nil
 }
