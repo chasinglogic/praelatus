@@ -81,4 +81,8 @@ func TestAddUserToRoleAndGetForUser(t *testing.T) {
 	if len(l) == 0 {
 		t.Errorf("Expected roles to be returned got %d roles instead\n", len(l))
 	}
+
+	if l[0].Project == nil {
+		t.Error("Expected project field to be populated, got nil instead")
+	}
 }
