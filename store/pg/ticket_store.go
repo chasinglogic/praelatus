@@ -567,7 +567,8 @@ INSERT INTO comments
 VALUES ($1, $2, $3)
 RETURNING id;
 `,
-		c.Body, t.ID, c.Author.ID).Scan(&c.ID)
+		c.Body, t.ID, c.Author.ID).
+		Scan(&c.ID)
 
 	return handlePqErr(err)
 }
