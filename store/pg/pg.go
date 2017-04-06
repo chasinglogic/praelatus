@@ -215,6 +215,10 @@ func toPqErr(e error) *pq.Error {
 // return the appropriate store error, if no handling matches it will just
 // return the error as it is.
 func handlePqErr(e error) store.Error {
+	if e == nil {
+		return nil
+	}
+
 	if e == sql.ErrNoRows {
 		return store.ErrNotFound
 	}
