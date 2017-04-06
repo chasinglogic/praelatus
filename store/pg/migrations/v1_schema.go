@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS database_information (
 	id SERIAL PRIMARY KEY,
 	schema_version integer
 );
+
 INSERT INTO database_information (schema_version) VALUES (1);
 `
 

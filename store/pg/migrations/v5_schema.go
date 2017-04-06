@@ -19,19 +19,19 @@ CREATE TABLE IF NOT EXISTS workflow_statuses (
 );
 
 CREATE TABLE IF NOT EXISTS transitions (
-    id          SERIAL PRIMARY KEY,
-	name		varchar(250) NOT NULL,
+    id   SERIAL PRIMARY KEY,
+    name varchar(250) NOT NULL,
 
     workflow_id integer REFERENCES workflows (id),
-	from_status integer REFERENCES statuses (id),
-    to_status integer REFERENCES statuses (id)
+    from_status integer REFERENCES statuses (id),
+    to_status   integer REFERENCES statuses (id)
 );
 
 CREATE TABLE IF NOT EXISTS hooks (
-    id            SERIAL PRIMARY KEY,
-	endpoint      varchar(250) NOT NULL,
-	method        varchar(10) NOT NULL,
-	body          text,
+    id       SERIAL PRIMARY KEY,
+    endpoint varchar(250) NOT NULL,
+    method   varchar(10) NOT NULL,
+    body     text DEFAULT '',
 
     transition_id integer REFERENCES transitions (id)
 );

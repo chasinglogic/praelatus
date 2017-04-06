@@ -2,7 +2,7 @@ package migrations
 
 const addWorkflowID = `
 ALTER TABLE tickets ADD COLUMN workflow_id 
-	integer REFERENCES workflows (id);
+	integer REFERENCES workflows (id) NOT NULL;
 UPDATE tickets SET workflow_id = 1 WHERE workflow_id = null;
 `
 

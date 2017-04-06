@@ -33,23 +33,23 @@ INSERT INTO permissions (name) VALUES ('EDIT_OWN_COMMENT');
 INSERT INTO permissions (name) VALUES ('EDIT_COMMENT');
 INSERT INTO permissions (name) VALUES ('TRANSITION_TICKET');
 INSERT INTO permissions (name) VALUES ('EDIT_TICKET');
-INSERT INTO permissions (name) VALUES ('DELETE_TICKET');
+INSERT INTO permissions (name) VALUES ('REMOVE_TICKET');
 
 CREATE TABLE permission_schemes(
-       id SERIAL PRIMARY KEY,
-       name varchar(100) UNIQUE NOT NULL,
+       id          SERIAL PRIMARY KEY,
+       name        varchar(100) UNIQUE NOT NULL,
        description varchar(250) DEFAULT ''
 );
 
 CREATE TABLE permission_scheme_permissions(
-       role_id integer REFERENCES roles(id),
+       role_id   integer REFERENCES roles(id),
        scheme_id integer REFERENCES permission_schemes(id),
-       perm_id integer REFERENCES permissions(id)
+       perm_id   integer REFERENCES permissions(id)
 );
 
 CREATE TABLE project_permission_schemes(
-       permission_scheme_id integer REFERENCES permission_schemes(id),
-       project_id           integer REFERENCES projects(id)
+       permission_scheme_id  integer REFERENCES permission_schemes(id),
+       project_id            integer REFERENCES projects(id)
 );
 `
 
