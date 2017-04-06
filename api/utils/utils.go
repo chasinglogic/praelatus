@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/praelatus/praelatus/store"
 )
 
 // APIMessage is a general purpose struct for sending messages to the client,
@@ -47,10 +49,34 @@ func APIError(msg string, fields ...string) []byte {
 func APIErr(w http.ResponseWriter, status int, msg string) {
 	if status >= 500 {
 		log.Println(msg)
+		w.WriteHeader(status)
+		w.Write(APIMsg(http.StatusText(status)))
+		return
 	}
 
 	w.WriteHeader(status)
 	w.Write(APIMsg(msg))
+}
+
+// GetErrorCode returns the appropriate http status code for the given
+// error
+func GetErrorCode(e error) int {
+	if inv, ok := e.(store.Error); ok {
+		if inv.InvalidInput() {
+			return http.StatusBadRequest
+		}
+
+		switch inv {
+		case store.ErrDuplicateEntry:
+			return http.StatusBadRequest
+		case store.ErrNotFound:
+			return http.StatusNotFound
+		case store.ErrPermissionDenied:
+			return http.StatusForbidden
+		}
+	}
+
+	return http.StatusInternalServerError
 }
 
 // SendJSON is a convenience function for sending JSON to the given ResponseWriter
