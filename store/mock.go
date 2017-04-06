@@ -1369,13 +1369,13 @@ func (ms mockPermissionStore) IsAdmin(u models.User) bool {
 // A mock RoleStore struct
 type mockRoleStore struct{}
 
-func (ms mockRoleStore) Get(u models.User, l *models.Role) error {
+func (ms mockRoleStore) Get(l *models.Role) error {
 	l.ID = 1
 	l.Name = "mock"
 	return nil
 }
 
-func (ms mockRoleStore) GetAll(u models.User) ([]models.Role, error) {
+func (ms mockRoleStore) GetAll() ([]models.Role, error) {
 	return []models.Role{
 		{
 			ID:   1,
