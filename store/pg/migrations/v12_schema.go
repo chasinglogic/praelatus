@@ -46,14 +46,14 @@ CREATE TABLE permission_schemes(
 CREATE TABLE permission_scheme_permissions(
     role_id   integer REFERENCES roles(id),
     scheme_id integer REFERENCES permission_schemes(id),
-    perm_id   integer REFERENCES permissions(id)
+    perm_id   integer REFERENCES permissions(id),
     PRIMARY KEY(scheme_id, perm_id, role_id)
 );
 
 CREATE TABLE project_permission_schemes(
     permission_scheme_id  integer REFERENCES permission_schemes(id),
-    project_id            integer REFERENCES projects(id)
-    PRIMARY KEY(scheme_id, perm_id, role_id)
+    project_id            integer REFERENCES projects(id),
+    PRIMARY KEY(permission_scheme_id, project_id)
 );
 `
 
