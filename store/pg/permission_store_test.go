@@ -1,6 +1,7 @@
 package pg_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/praelatus/praelatus/models"
@@ -19,9 +20,27 @@ func TestPermissionStoreGet(t *testing.T) {
 		t.Error("Expected a label and got nil instead")
 	}
 
-	if p.String() != compareScheme.String() {
+	if p.ID != compareScheme.ID {
+		t.Errorf("Expected: %d Got: %d\n",
+			compareScheme.ID, p.ID)
+	}
+
+	if p.Name != compareScheme.Name {
 		t.Errorf("Expected: %s Got: %s\n",
-			compareScheme.String(), p.String())
+			compareScheme.Name, p.Name)
+	}
+
+	if p.Description != compareScheme.Description {
+		t.Errorf("Expected: %s Got: %s\n",
+			compareScheme.Description, p.Description)
+	}
+
+	for _, key := range []string{"Administrator", "Contributor", "Viewer"} {
+		if !reflect.DeepEqual(compareScheme.Permissions[key], p.Permissions[key]) {
+			t.Errorf("Expected: %v Got: %v\n",
+				compareScheme.Permissions[key],
+				p.Permissions[key])
+		}
 	}
 }
 
