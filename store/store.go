@@ -297,5 +297,5 @@ type RoleStore interface {
 	GetForUser(models.User) ([]models.Role, error)
 
 	AddUserToRole(models.User, models.User, models.Project, models.Role) error
-	GetRolesForProject(models.User, models.Project) ([]models.Role, error)
+	GetForProject(models.User, models.Project) ([]models.Role, error)
 }
