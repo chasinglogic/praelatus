@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/api/middleware"
@@ -22,8 +23,8 @@ func projectRouter(router *mux.Router) {
 
 	router.HandleFunc("/projects/{key}/fields/{ticketType}", GetFieldsForScreen)
 
-	router.HandleFunc("/projects/roles", GetRolesForProject)
-	router.HandleFunc("/projects/roles/{roleId}/addUser/{userId}", AddUserToRole)
+	router.HandleFunc("/projects/{key}/roles", GetRolesForProject)
+	router.HandleFunc("/projects/{key}/roles/{roleId}/addUser/{userId}", AddUserToRole)
 }
 
 // GetProject will get a project by it's project key
@@ -196,6 +197,70 @@ func GetFieldsForScreen(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(key + " " + ticketType))
 }
 
-func GetRolesForProject(w http.ResponseWriter, r *http.Request) {}
+func GetRolesForProject(w http.ResponseWriter, r *http.Request) {
+	u := middleware.GetUserSession(r)
+	if u == nil {
+		utils.APIErr(w, http.StatusUnauthorized,
+			"you must be logged in as a project administrator")
+		return
+	}
 
-func AddUserToRole(w http.ResponseWriter, r *http.Request) {}
+	vars := mux.Vars(r)
+	key := vars["key"]
+
+	var p models.Project
+	p.Key = key
+
+	err := Store.Projects().Get(*u, &p)
+	if err != nil {
+		utils.APIErr(w, utils.GetErrorCode(err), err.Error())
+		return
+	}
+
+	roles, err := Store.Roles().GetForProject(*u, p)
+	if err != nil {
+		utils.APIErr(w, utils.GetErrorCode(err), err.Error())
+		return
+	}
+
+	utils.SendJSON(w, roles)
+}
+
+// AddUserToRole takes the project key finds the project then adds the
+// user for userID to the role for roleID on that project
+func AddUserToRole(w http.ResponseWriter, r *http.Request) {
+	u := middleware.GetUserSession(r)
+	if u == nil {
+		utils.APIErr(w, http.StatusUnauthorized,
+			"you must be logged in as a project administrator")
+		return
+	}
+
+	vars := mux.Vars(r)
+	key := vars["key"]
+	roleID, err := strconv.Atoi(vars["roleId"])
+	userID, uerr := strconv.Atoi(vars["userId"])
+
+	if err != nil || uerr != nil {
+		utils.APIErr(w, http.StatusBadRequest, "invalid id")
+		return
+	}
+
+	var p models.Project
+	p.Key = key
+
+	err = Store.Projects().Get(*u, &p)
+	if err != nil {
+		utils.APIErr(w, utils.GetErrorCode(err), err.Error())
+		return
+	}
+
+	err = Store.Roles().AddUserToRole(*u, models.User{ID: int64(userID)},
+		p, models.Role{ID: int64(roleID)})
+	if err != nil {
+		utils.APIErr(w, utils.GetErrorCode(err), err.Error())
+		return
+	}
+
+	w.Write(utils.APIMsg("successfully added user to role"))
+}
