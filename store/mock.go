@@ -1401,6 +1401,19 @@ func (ms mockRoleStore) GetForUser(u models.User) ([]models.Role, error) {
 	}, nil
 }
 
+func (ms mockRoleStore) GetForProject(u models.User, p models.Project) ([]models.Role, error) {
+	return []models.Role{
+		{
+			ID:   1,
+			Name: "mock",
+		},
+		{
+			ID:   2,
+			Name: "fake",
+		},
+	}, nil
+}
+
 func (ms mockRoleStore) Create(u models.User, l *models.Role) error {
 	return ms.New(l)
 }
