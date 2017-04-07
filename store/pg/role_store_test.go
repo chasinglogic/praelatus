@@ -85,4 +85,19 @@ func TestAddUserToRoleAndGetForUser(t *testing.T) {
 	if l[0].Project == nil {
 		t.Error("Expected project field to be populated, got nil instead")
 	}
+
+	roles, e := s.Roles().GetForProject(models.User{ID: 1}, *l[0].Project)
+	failIfErr("Get For Project", t, e)
+
+	var membersFilled bool
+
+	for _, r := range roles {
+		if r.Members != nil {
+			membersFilled = true
+		}
+	}
+
+	if !membersFilled {
+		t.Errorf("Expected members to be filled in, got %v\n", roles)
+	}
 }
