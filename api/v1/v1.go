@@ -20,4 +20,6 @@ func Routes(router *mux.Router) {
 	typeRouter(router)
 	userRouter(router)
 	workflowRouter(router)
+	roleRouter(router)
+	permissionSchemeRouter(router)
 }
