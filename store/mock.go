@@ -1410,10 +1410,36 @@ func (ms mockRoleStore) GetForProject(u models.User, p models.Project) ([]models
 		{
 			ID:   1,
 			Name: "mock",
+			Members: []models.User{
+				{
+					1,
+					"foouser",
+					"foopass",
+					"foo@foo.com",
+					"Foo McFooserson",
+					"",
+					false,
+					true,
+					&settings,
+				},
+			},
 		},
 		{
 			ID:   2,
 			Name: "fake",
+			Members: []models.User{
+				{
+					1,
+					"foouser",
+					"foopass",
+					"foo@foo.com",
+					"Foo McFooserson",
+					"",
+					false,
+					true,
+					&settings,
+				},
+			},
 		},
 	}, nil
 }
