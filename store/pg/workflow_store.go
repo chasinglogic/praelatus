@@ -2,7 +2,6 @@ package pg
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 
 	"github.com/praelatus/praelatus/models"
@@ -60,14 +59,9 @@ func transitionsFromRows(db *sql.DB, rows *sql.Rows) ([]models.Transition, error
 
 	for rows.Next() {
 		var t models.Transition
-		var status json.RawMessage
 
-		err := rows.Scan(&t.ID, &t.Name, &status)
-		if err != nil {
-			return nil, handlePqErr(err)
-		}
-
-		err = json.Unmarshal(status, &t.ToStatus)
+		err := rows.Scan(&t.ID, &t.Name,
+			&t.ToStatus.ID, &t.ToStatus.Name)
 		if err != nil {
 			return nil, handlePqErr(err)
 		}
@@ -118,7 +112,7 @@ WHERE workflow_id = $1`,
 	for _, fromS := range statuses {
 
 		rows, err = ws.db.Query(`
-SELECT t.id, t.name, row_to_json(to_s.*)
+SELECT t.id, t.name, to_s.id, to_s.name
 FROM transitions AS t
 JOIN statuses AS to_s ON to_s.id = t.to_status
 WHERE t.from_status = $1
