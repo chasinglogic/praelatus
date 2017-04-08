@@ -1,3 +1,5 @@
+// Package bolt implements a store.SessionStore using a BoltDB as
+// the backend
 package bolt
 
 import (
@@ -14,9 +16,17 @@ type SessionStore struct {
 	db *bolt.DB
 }
 
+// Remove will remove the given key from the bolt session store
+func (c *SessionStore) Remove(key string) error {
+	return c.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("sessions"))
+		return b.Delete([]byte(key))
+	})
+}
+
 // Get will get the sesion information for the given session key
-func (c *SessionStore) Get(key string) (models.User, error) {
-	var u models.User
+func (c *SessionStore) Get(key string) (models.Session, error) {
+	var u models.Session
 	var jsn []byte
 
 	c.db.View(func(tx *bolt.Tx) error {
@@ -34,7 +44,7 @@ func (c *SessionStore) Get(key string) (models.User, error) {
 }
 
 // Set will set the session information for the given session key
-func (c *SessionStore) Set(key string, model models.User) error {
+func (c *SessionStore) Set(key string, model models.Session) error {
 	jsn, err := json.Marshal(model)
 	if err != nil {
 		return err
@@ -60,4 +70,29 @@ func New(filename string) store.SessionStore {
 
 	ss.db = db
 	return ss
+}
+
+// GetRaw retrieves the raw data at key
+func (c *SessionStore) GetRaw(key string) ([]byte, error) {
+	var data []byte
+
+	err := c.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("sessions"))
+		data = b.Get([]byte(key))
+		return nil
+	})
+
+	return data, err
+}
+
+// SetRaw will set the value of key to the raw []byte's given
+func (c *SessionStore) SetRaw(key string, data []byte) error {
+	return c.db.Update(func(tx *bolt.Tx) error {
+		bucket, err := tx.CreateBucketIfNotExists([]byte("sessions"))
+		if err != nil {
+			return err
+		}
+
+		return bucket.Put([]byte(key), data)
+	})
 }

@@ -1,12 +1,16 @@
 // Package models contains all of our models and utility functions for
-// interacting with them
+// creating and modifying them
 package models
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 func jsonString(i interface{}) string {
 	b, e := json.MarshalIndent(i, "", "\t")
 	if e != nil {
+		fmt.Println(e)
 		return ""
 	}
 

@@ -2,7 +2,11 @@
 // is where the cli itsself is defined and ran
 package cli
 
-import "github.com/urfave/cli"
+import (
+	"fmt"
+
+	"github.com/urfave/cli"
+)
 
 // Run runs the cli of Praelatus with the given argv
 func Run(args []string) {
@@ -11,6 +15,13 @@ func Run(args []string) {
 	app.Usage = "Praelatus, an Open Source bug tracker / ticketing system"
 	app.Version = "0.0.1"
 	app.Action = runServer
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "devmode",
+			Usage: "runs server in devmode which changes some security behavior to ease development",
+		},
+	}
+
 	app.Authors = []cli.Author{
 		{
 			Name:  "Mathew Robinson",
@@ -32,12 +43,6 @@ func Run(args []string) {
 			Name:   "serve",
 			Usage:  "start running the REST api",
 			Action: runServer,
-			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name:  "devmode",
-					Usage: "runs server in devmode which changes some security behavior to ease development",
-				},
-			},
 		},
 		{
 			Name:  "config",
@@ -71,7 +76,6 @@ func Run(args []string) {
 			Action: migrateDB,
 		},
 		{
-			// TODO expand upon this as necessary
 			Name:  "admin",
 			Usage: "various admin functions for the instance",
 			Subcommands: []cli.Command{
@@ -102,5 +106,8 @@ func Run(args []string) {
 		},
 	}
 
-	app.Run(args)
+	err := app.Run(args)
+	if err != nil {
+		fmt.Println(err)
+	}
 }

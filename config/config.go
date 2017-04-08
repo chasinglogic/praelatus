@@ -38,7 +38,6 @@ func (c Config) String() string {
 // Cfg is the global config variable used in the helper methods of this package
 var Cfg Config
 
-// TODO make this cross platform
 func init() {
 	Cfg.DBURL = os.Getenv("PRAELATUS_DB")
 	if Cfg.DBURL == "" {
@@ -57,6 +56,10 @@ func init() {
 
 	Cfg.Port = os.Getenv("PRAELATUS_PORT")
 	if Cfg.Port == "" {
+		Cfg.Port = ":" + os.Getenv("PORT")
+	}
+
+	if Cfg.Port == ":" {
 		Cfg.Port = ":8080"
 	}
 
@@ -89,7 +92,7 @@ func init() {
 
 	err = json.Unmarshal(jsn, &c)
 	if err != nil {
-		fmt.Println("Error unmarshaling config file defaulting to environment variable configuration")
+		fmt.Println("Error unmarshaling config file:", err)
 		os.Exit(1)
 	}
 
@@ -115,7 +118,6 @@ func Store() store.Store {
 }
 
 // SessionStore will return a session store with a default location
-// TODO support redis
 func SessionStore() store.SessionStore {
 	switch Cfg.SessionStore {
 	case "bolt":
@@ -133,4 +135,10 @@ func SessionURL() string {
 // ContextPath will return a context path if any is configured
 func ContextPath() string {
 	return Cfg.ContextPath
+}
+
+// WebWorkers returns the number of web workers to run for sending http
+// requests from hooks
+func WebWorkers() int {
+	return 10
 }

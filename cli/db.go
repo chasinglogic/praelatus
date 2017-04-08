@@ -26,9 +26,10 @@ func migrateDB(c *cli.Context) error {
 
 	if sql, ok := s.(store.Migrater); ok {
 		sql.Migrate()
+		return nil
 	}
 
-	fmt.Println("not a sql database ")
+	fmt.Println("not a migrateable database ")
 	return nil
 }
 
@@ -42,6 +43,7 @@ func testDB(c *cli.Context) error {
 
 func cleanDB(c *cli.Context) error {
 	s := config.Store()
+
 	sql, ok := s.(store.Droppable)
 	if !ok {
 		fmt.Println("Configured database is not droppable nothing to do.")

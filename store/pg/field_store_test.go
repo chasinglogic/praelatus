@@ -26,7 +26,6 @@ func TestFieldGetAll(t *testing.T) {
 	}
 }
 
-// TODO field schemas aren't ready yet
 // func TestFieldGetByProject(t *testing.T) {
 // 	p := models.Project{ID: 1}
 
@@ -45,7 +44,7 @@ func TestFieldSave(t *testing.T) {
 		DataType: "INT",
 	}
 
-	e := s.Fields().Save(f1)
+	e := s.Fields().Save(models.User{ID: 1}, f1)
 	failIfErr("Field Save", t, e)
 
 	f := &models.Field{ID: 2}
@@ -67,6 +66,6 @@ func TestFieldRemove(t *testing.T) {
 		Name: "TestField2",
 	}
 
-	e := s.Fields().Remove(f)
+	e := s.Fields().Remove(models.User{ID: 1}, f)
 	failIfErr("Field Remove", t, e)
 }

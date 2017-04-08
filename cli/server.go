@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/praelatus/praelatus/api"
+	"github.com/praelatus/praelatus/api/middleware"
 	"github.com/praelatus/praelatus/config"
+	"github.com/praelatus/praelatus/models"
 	"github.com/praelatus/praelatus/store"
 	"github.com/tylerb/graceful"
 	"github.com/urfave/cli"
@@ -17,10 +19,27 @@ import (
 func disableCors(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			if w.Header().Get("Access-Control-Allow-Origin") == "" {
-				w.Header().Add("Access-Control-Allow-Origin", "*")
+			w.Header().Add("Access-Control-Allow-Origin", "*")
+			w.Header().Add("Access-Control-Allow-Headers", "Content-Type,Authorization,Token")
+			w.Header().Add("Access-Control-Expose-Headers", "*")
+			w.Header().Add("Access-Control-Allow-Credentials", "true")
+
+			if r.Method == "OPTIONS" {
+				w.Write([]byte{})
+				return
 			}
 
+			next.ServeHTTP(w, r)
+		})
+}
+
+func alwaysAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			u, _ := models.NewUser("testadmin", "test",
+				"Test Testerson", "test@example.com", true)
+			_ = middleware.SetUserSession(*u, w)
+			r.Header.Set("Authorization", w.Header().Get("Token"))
 			next.ServeHTTP(w, r)
 		})
 }
@@ -44,12 +63,13 @@ func runServer(c *cli.Context) error {
 	}
 
 	log.Println("Prepping API")
-	var r http.Handler = api.New(s, ss)
-	if c.Bool("devmode") {
-		log.Println("Running in dev mode, disabling cors...")
+	r := api.New(s, ss)
+	if c.Bool("devmode") || os.Getenv("PRAELATUS_DEV_MODE") == "1" {
+		log.Println("Running in dev mode, disabling cors and authentication...")
 		r = disableCors(r)
+		r = alwaysAuth(r)
 	}
 
-	log.Println("Ready to serve requests!")
+	log.Println("Listening on", config.Port())
 	return graceful.RunWithErr(config.Port(), time.Minute, r)
 }

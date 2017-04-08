@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/praelatus/praelatus/models"
+	"github.com/praelatus/praelatus/store"
 )
 
 // FieldStore contains methods for storing and retrieving Fields and
@@ -17,8 +18,12 @@ type FieldStore struct {
 func (fs *FieldStore) Get(f *models.Field) error {
 	var row *sql.Row
 
-	row = fs.db.QueryRow(`SELECT id, name, data_type FROM fields 
-			      WHERE id = $1 OR name = $2`, f.ID, f.Name)
+	row = fs.db.QueryRow(`
+SELECT id, name, data_type FROM fields 
+WHERE id = $1 OR name = $2
+`,
+		f.ID, f.Name)
+
 	err := row.Scan(&f.ID, &f.Name, &f.DataType)
 	if err != nil {
 		return handlePqErr(err)
@@ -70,18 +75,23 @@ func (fs *FieldStore) GetAll() ([]models.Field, error) {
 	return fields, nil
 }
 
-// GetByProject retrieves all Fields associated with a project
-func (fs *FieldStore) GetByProject(p models.Project) ([]models.Field, error) {
+// GetForScreen retrieves all Fields associated with a project
+func (fs *FieldStore) GetForScreen(u models.User, p models.Project, t models.TicketType) ([]models.Field, error) {
+	if !checkPermission(fs.db, "VIEW_PROJECT", p.ID, u.ID) {
+		return nil, store.ErrPermissionDenied
+	}
+
 	var fields []models.Field
 
 	rows, err := fs.db.Query(`
-		SELECT fields.id, fields.name, fields.data_type 
-		FROM fields
-		JOIN field_tickettype_project AS ftp 
-		ON fields.id = ftp.field_id
-		JOIN projects AS p 
-		ON p.id = ftp.project_id
-		WHERE p.key = $1;`, p.Key)
+SELECT fields.id, fields.name, fields.data_type 
+FROM fields
+JOIN field_tickettype_project AS ftp 
+ON fields.id = ftp.field_id
+JOIN projects AS p 
+ON p.id = ftp.project_id
+WHERE p.key = $1;`,
+		p.Key)
 	if err != nil {
 		return fields, handlePqErr(err)
 	}
@@ -101,22 +111,27 @@ func (fs *FieldStore) GetByProject(p models.Project) ([]models.Field, error) {
 }
 
 // AddToProject adds a field to a project's tickets
-func (fs *FieldStore) AddToProject(project models.Project, field *models.Field,
-	ticketTypes ...models.TicketType) error {
+func (fs *FieldStore) AddToProject(u models.User, project models.Project, field *models.Field, ticketTypes ...models.TicketType) error {
+	if !checkPermission(fs.db, "ADMIN_PROJECT", u.ID, project.ID) {
+		return store.ErrPermissionDenied
+	}
 
 	if ticketTypes == nil {
-		_, err := fs.db.Exec(`INSERT INTO field_tickettype_project 
-							 (field_id, project_id) VALUES ($1, $2)`,
+		_, err := fs.db.Exec(`
+INSERT INTO field_tickettype_project 
+(field_id, project_id) VALUES ($1, $2)
+`,
 			field.ID, project.ID)
 		return handlePqErr(err)
 	}
 
 	for _, typ := range ticketTypes {
-
-		_, err := fs.db.Exec(`INSERT INTO field_tickettype_project 
-							 (field_id, project_id, ticket_type_id) 
-							 VALUES ($1, $2, $3)`,
-			field.ID, project.ID, typ.ID)
+		_, err := fs.db.Exec(`
+INSERT INTO field_tickettype_project
+(field_id, project_id, ticket_type_id) 
+VALUES ($1, $2, $3)
+`,
+			field.ID, project.ID, typ.ID, u.ID)
 		if err != nil {
 			return handlePqErr(err)
 		}
@@ -127,9 +142,15 @@ func (fs *FieldStore) AddToProject(project models.Project, field *models.Field,
 }
 
 // Save updates an existing field in the database.
-func (fs *FieldStore) Save(field models.Field) error {
-	_, err := fs.db.Exec(`UPDATE fields SET 
-					     (name, data_type) = ($1, $2) WHERE id = $3;`,
+func (fs *FieldStore) Save(u models.User, field models.Field) error {
+	if !checkIfAdmin(fs.db, u.ID) {
+		return store.ErrPermissionDenied
+	}
+
+	_, err := fs.db.Exec(`
+UPDATE fields SET 
+(name, data_type) = ($1, $2) WHERE id = $3;
+`,
 		field.Name, field.DataType, field.ID)
 
 	return handlePqErr(err)
@@ -137,9 +158,10 @@ func (fs *FieldStore) Save(field models.Field) error {
 
 // New creates a new Field in the database.
 func (fs *FieldStore) New(field *models.Field) error {
-	err := fs.db.QueryRow(`INSERT INTO fields 
-						  (name, data_type) VALUES ($1, $2)
-						  RETURNING id;`,
+	err := fs.db.QueryRow(`
+INSERT INTO fields 
+(name, data_type) VALUES ($1, $2)
+RETURNING id;`,
 		field.Name, field.DataType).
 		Scan(&field.ID)
 	if err != nil {
@@ -148,8 +170,11 @@ func (fs *FieldStore) New(field *models.Field) error {
 
 	if field.DataType == "OPT" {
 		for _, opt := range field.Options.Options {
-			_, err = fs.db.Exec(`INSERT INTO field_options (option, field_id) 
-                                             VALUES ($1, $2)`, opt, field.ID)
+			_, err = fs.db.Exec(`
+INSERT INTO field_options (option, field_id) 
+VALUES ($1, $2)
+`,
+				opt, field.ID)
 			if err != nil {
 				return handlePqErr(err)
 			}
@@ -159,8 +184,21 @@ func (fs *FieldStore) New(field *models.Field) error {
 	return handlePqErr(err)
 }
 
+// Create will create the field if the given user is a system administrator
+func (fs *FieldStore) Create(u models.User, field *models.Field) error {
+	if !checkIfAdmin(fs.db, u.ID) {
+		return store.ErrPermissionDenied
+	}
+
+	return fs.New(field)
+}
+
 // Remove updates an existing field in the database.
-func (fs *FieldStore) Remove(field models.Field) error {
+func (fs *FieldStore) Remove(u models.User, field models.Field) error {
+	if !checkIfAdmin(fs.db, u.ID) {
+		return store.ErrPermissionDenied
+	}
+
 	var c int
 
 	tx, err := fs.db.Begin()
@@ -168,8 +206,10 @@ func (fs *FieldStore) Remove(field models.Field) error {
 		return handlePqErr(err)
 	}
 
-	err = tx.QueryRow(`SELECT COUNT(id) FROM field_values 
-					   WHERE field_id = $1`, field.ID).Scan(&c)
+	err = tx.QueryRow(`
+SELECT COUNT(id) FROM field_values 
+WHERE field_id = $1`,
+		field.ID).Scan(&c)
 	if err != nil {
 		return handlePqErr(tx.Rollback())
 	}

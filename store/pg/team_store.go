@@ -2,7 +2,6 @@ package pg
 
 import (
 	"database/sql"
-	"encoding/json"
 
 	"github.com/praelatus/praelatus/models"
 )
@@ -14,27 +13,47 @@ type TeamStore struct {
 }
 
 func intoTeam(db *sql.DB, row rowScanner, t *models.Team) error {
-	var u models.User
-	var ujson json.RawMessage
-
-	err := row.Scan(&t.ID, &t.Name, &ujson)
+	err := row.Scan(&t.ID, &t.Name, &t.Lead.ID,
+		&t.Lead.Username, &t.Lead.Email, &t.Lead.FullName,
+		&t.Lead.ProfilePic)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(ujson, &u)
+	return nil
+}
+
+// Get retrieves a team from the database based on ID
+func (ts *TeamStore) Get(t *models.Team) error {
+	row := ts.db.QueryRow(`
+SELECT t.id, t.name, lead.id, 
+       lead.username, lead.email,
+       lead.full_name, lead.profile_picture
+FROM teams AS t
+JOIN users AS lead ON lead.id = t.lead_id
+WHERE t.id = $1
+OR t.name = $2;
+`,
+		t.ID, t.Name)
+	err := intoTeam(ts.db, row, t)
 	if err != nil {
-		return err
+		return handlePqErr(err)
 	}
 
-	t.Lead = u
+	err = ts.GetMembers(t)
+	return handlePqErr(err)
+}
 
-	rows, err := db.Query(`SELECT u.id, u.username, u.email, 
-								  u.full_name, u.profile_picture, u.is_admin
-						   FROM teams_users AS tu 
-						   JOIN users AS u ON tu.user_id = u.id
-						   JOIN teams AS t ON tu.team_id = t.id
-						   WHERE tu.team_id = $1;`, t.ID)
+// GetMembers will get the members for the given team.
+func (ts *TeamStore) GetMembers(t *models.Team) error {
+	rows, err := ts.db.Query(`
+SELECT u.id, username, email, full_name, 
+       profile_picture, is_admin
+FROM teams_users AS tu
+JOIN users AS u ON tu.user_id = u.id
+WHERE tu.team_id = $1
+`,
+		t.ID)
 	if err != nil {
 		return handlePqErr(err)
 	}
@@ -47,51 +66,10 @@ func intoTeam(db *sql.DB, row rowScanner, t *models.Team) error {
 		err = rows.Scan(&u.ID, &u.Username, &u.Email, &u.FullName,
 			&u.ProfilePic, &u.IsAdmin)
 		if err != nil {
-			return err
-		}
-
-		t.Members = append(t.Members, u)
-	}
-
-	return nil
-}
-
-// Get retrieves a team from the database based on ID
-func (ts *TeamStore) Get(t *models.Team) error {
-	row := ts.db.QueryRow(`SELECT t.id, t.name, 
-							  json_build_object('id', lead.id, 'username', lead.username, 'email', lead.email, 'full_name', lead.full_name, 'profile_picture', lead.profile_picture) AS lead 
-							  FROM teams AS t
-							  JOIN users AS lead ON lead.id = t.lead_id
-							  WHERE t.id = $1
-							  OR t.name = $2;`, t.ID, t.Name)
-
-	err := intoTeam(ts.db, row, t)
-	return handlePqErr(err)
-}
-
-// GetMembers will get the members for the given team.
-func (ts *TeamStore) GetMembers(t *models.Team) error {
-	rows, err := ts.db.Query(`SELECT u.id, username, email, full_name, 
-									 profile_picture, is_admin
-							  FROM teams_users AS tu
-							  JOIN users AS u ON tu.user_id = u.id
-							  WHERE tu.team_id = $1`, t.ID)
-	if err != nil {
-		return handlePqErr(err)
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		var u *models.User
-
-		err = rows.Scan(&u.ID, &u.Username, &u.Email, &u.FullName,
-			&u.ProfilePic, &u.IsAdmin)
-		if err != nil {
 			return handlePqErr(err)
 		}
 
-		t.Members = append(t.Members, *u)
+		t.Members = append(t.Members, u)
 	}
 
 	return nil
@@ -101,10 +79,13 @@ func (ts *TeamStore) GetMembers(t *models.Team) error {
 func (ts *TeamStore) GetAll() ([]models.Team, error) {
 	var teams []models.Team
 
-	rows, err := ts.db.Query(`SELECT t.id, t.name, 
-							  json_build_object('id', lead.id, 'username', lead.username, 'email', lead.email, 'full_name', lead.full_name, 'profile_picture', lead.profile_picture) AS lead
-							  FROM teams AS t
-							  JOIN users AS lead ON lead.id = t.lead_id`)
+	rows, err := ts.db.Query(`
+SELECT t.id, t.name, lead.id, 
+       lead.username, lead.email,
+       lead.full_name, lead.profile_picture
+FROM teams AS t
+JOIN users AS lead ON lead.id = t.lead_id
+`)
 	if err != nil {
 		return teams, handlePqErr(err)
 	}
@@ -119,22 +100,32 @@ func (ts *TeamStore) GetAll() ([]models.Team, error) {
 			return teams, handlePqErr(err)
 		}
 
+		err = ts.GetMembers(t)
+		if err != nil {
+			return teams, handlePqErr(err)
+		}
+
 		teams = append(teams, *t)
 	}
 
-	return teams, handlePqErr(err)
+	return teams, nil
 }
 
 // GetForUser will get the given users associated teams
 func (ts *TeamStore) GetForUser(u models.User) ([]models.Team, error) {
 	var teams []models.Team
 
-	rows, err := ts.db.Query(`SELECT t.id, t.name, row_to_json(lead.*)
-							FROM teams_users
-							JOIN teams AS t ON t.id = teams_users.team_id
-							JOIN users as u ON u.id = teams_users.user_id
-							JOIN users as lead ON lead.id = t.lead_id
-							WHERE u.id = $1`, u.ID)
+	rows, err := ts.db.Query(`
+SELECT t.id, t.name, lead.id, 
+       lead.username, lead.email,
+       lead.full_name, lead.profile_picture
+FROM teams_users
+JOIN teams AS t ON t.id = teams_users.team_id
+JOIN users as u ON u.id = teams_users.user_id
+JOIN users as lead ON lead.id = t.lead_id
+WHERE u.id = $1
+`,
+		u.ID)
 	if err != nil {
 		return teams, err
 	}
@@ -162,8 +153,9 @@ func (ts *TeamStore) AddMembers(t models.Team, users ...models.User) error {
 	}
 
 	for _, u := range users {
-		_, err := ts.db.Exec(`INSERT INTO teams_users (team_id, user_id)
-							  VALUES ($1, $2)`, t.ID, u.ID)
+		_, err := ts.db.Exec(`
+INSERT INTO teams_users (team_id, user_id)
+VALUES ($1, $2)`, t.ID, u.ID)
 		if err != nil {
 			return handlePqErr(err)
 		}
@@ -174,9 +166,10 @@ func (ts *TeamStore) AddMembers(t models.Team, users ...models.User) error {
 
 // New adds a new team to the database.
 func (ts *TeamStore) New(t *models.Team) error {
-	err := ts.db.QueryRow(`INSERT INTO teams 
-						  (name, lead_id) VALUES ($1, $2)
-						  RETURNING id;`,
+	err := ts.db.QueryRow(`
+INSERT INTO teams (name, lead_id) 
+VALUES ($1, $2)
+RETURNING id;`,
 		t.Name, t.Lead.ID).
 		Scan(&t.ID)
 	if err != nil {
@@ -184,8 +177,9 @@ func (ts *TeamStore) New(t *models.Team) error {
 	}
 
 	for _, mem := range t.Members {
-		_, err = ts.db.Exec(`INSERT INTO teams_users
-					         (team_id, user_id) VALUES ($1, $2)`, t.ID, mem.ID)
+		_, err = ts.db.Exec(`
+INSERT INTO teams_users (team_id, user_id) 
+VALUES ($1, $2)`, t.ID, mem.ID)
 	}
 
 	return handlePqErr(err)
@@ -193,9 +187,11 @@ func (ts *TeamStore) New(t *models.Team) error {
 
 // Save updates a t to the database.
 func (ts *TeamStore) Save(t models.Team) error {
-	_, err := ts.db.Exec(`UPDATE teams SET 
-					     (name, lead_id) = ($1, $2)
-						 WHERE id = $3;`,
+	_, err := ts.db.Exec(`
+UPDATE teams 
+SET (name, lead_id) = ($1, $2)
+WHERE id = $3;
+`,
 		t.Name, t.Lead.ID, t.ID)
 	return handlePqErr(err)
 }

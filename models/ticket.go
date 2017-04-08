@@ -23,11 +23,28 @@ type Ticket struct {
 	Assignee    User         `json:"assignee"`
 	Status      Status       `json:"status"`
 
-	Comments []Comment `json:"comments,omitempty"`
+	WorkflowID int64 `json:"workflow_id"`
+
+	Transitions []Transition `json:"transitions"`
+	Comments    []Comment    `json:"comments,omitempty"`
+
+	Project Project `json:"project"`
 }
 
 func (t *Ticket) String() string {
 	return jsonString(t)
+}
+
+// Transition searches through the available transitions for the ticket
+// returning a boolean indicating success or failure and the transition
+func (t *Ticket) Transition(name string) (Transition, bool) {
+	for _, transition := range t.Transitions {
+		if transition.Name == name {
+			return transition, true
+		}
+	}
+
+	return Transition{}, false
 }
 
 // Status represents a ticket's current status.
