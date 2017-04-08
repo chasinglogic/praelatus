@@ -2,7 +2,6 @@ package pg
 
 import (
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"log"
 	"strconv"
@@ -110,7 +109,7 @@ WHERE fv.ticket_id = $1`,
 
 func populateTransitions(db *sql.DB, t *models.Ticket) error {
 	rows, err := db.Query(`
-SELECT t.id, t.name, row_to_json(to_s.*)
+SELECT t.id, t.name, s.id, s.name
 FROM transitions AS t
 JOIN statuses AS to_s ON to_s.id = t.to_status
 WHERE t.from_status = $1
@@ -504,11 +503,8 @@ func (ts *TicketStore) GetComments(u models.User, p models.Project, t models.Tic
 
 	rows, err := ts.db.Query(`
 SELECT c.id, c.created_date, c.updated_date, c.body, t.key,
-       json_build_object('id', a.id, 
-                         'username', a.username, 
-                         'email', a.email, 
-                         'full_name', a.full_name, 
-                         'profile_picture', a.profile_picture) AS author
+       a.id, a.username, a.email, a.full_name, 
+       a.profile_picture
 FROM comments AS c
 JOIN tickets AS t ON t.id = c.ticket_id
 JOIN users AS a ON a.id = c.author_id
@@ -522,15 +518,10 @@ OR t.key = $2
 
 	for rows.Next() {
 		var c models.Comment
-		var ajson json.RawMessage
 
 		err := rows.Scan(&c.ID, &c.CreatedDate, &c.UpdatedDate,
-			&c.Body, &c.TicketKey, &ajson)
-		if err != nil {
-			return comments, handlePqErr(err)
-		}
-
-		err = json.Unmarshal(ajson, &c.Author)
+			&c.Body, &c.TicketKey, &c.Author.ID, &c.Author.Username,
+			&c.Author.Email, &c.Author.FullName, &c.Author.ProfilePic)
 		if err != nil {
 			return comments, handlePqErr(err)
 		}
