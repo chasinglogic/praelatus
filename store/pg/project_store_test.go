@@ -57,3 +57,9 @@ func TestProjectRemove(t *testing.T) {
 	e := s.Projects().Remove(models.User{ID: 1}, *p)
 	failIfErr("Project Remove", t, e)
 }
+
+func TestSetPermissionScheme(t *testing.T) {
+	err := s.Projects().SetPermissionScheme(models.User{ID: 1},
+		models.Project{ID: 1}, models.PermissionScheme{ID: 1})
+	failIfErr("Project Set Permission Scheme", t, err)
+}
