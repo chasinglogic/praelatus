@@ -25,6 +25,9 @@ func projectRouter(router *mux.Router) {
 
 	router.HandleFunc("/projects/{key}/roles", GetRolesForProject)
 	router.HandleFunc("/projects/{key}/roles/{roleId}/addUser/{userId}", AddUserToRole)
+
+	router.HandleFunc("/projects/{key}/permissionscheme", GetPermissionScheme).Methods("GET")
+	router.HandleFunc("/projects/{key}/permissionscheme/{schemeId}", SetPermissionScheme).Methods("POST")
 }
 
 // GetProject will get a project by it's project key
@@ -197,6 +200,8 @@ func GetFieldsForScreen(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(key + " " + ticketType))
 }
 
+// GetRolesForProject will return the system roles with the members
+// who are configured for the given project
 func GetRolesForProject(w http.ResponseWriter, r *http.Request) {
 	u := middleware.GetUserSession(r)
 	if u == nil {
@@ -263,4 +268,41 @@ func AddUserToRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(utils.APIMsg("successfully added user to role"))
+}
+
+// SetPermissionScheme will handle the incoming request and set the
+// permission scheme for the appropriate project
+func SetPermissionScheme(w http.ResponseWriter, r *http.Request) {
+	u := middleware.GetUserSession(r)
+	if u == nil {
+		utils.APIErr(w, http.StatusUnauthorized,
+			"you must be logged in as a project administrator")
+		return
+	}
+
+	vars := mux.Vars(r)
+
+	var p models.Project
+	p.Key = vars["key"]
+
+	id, err := strconv.Atoi(vars["schemeId"])
+	if err != nil {
+		utils.APIErr(w, http.StatusBadRequest, "invalid id")
+		return
+	}
+
+	err = Store.Projects().Get(*u, &p)
+	if err != nil {
+		utils.APIErr(w, utils.GetErrorCode(err), err.Error())
+		return
+	}
+
+	err = Store.Projects().
+		SetPermissionScheme(*u, p, models.PermissionScheme{ID: int64(id)})
+	if err != nil {
+		utils.APIErr(w, utils.GetErrorCode(err), err.Error())
+		return
+	}
+
+	w.Write(utils.APIMsg("successfully set permission scheme"))
 }
