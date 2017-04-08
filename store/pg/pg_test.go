@@ -15,7 +15,12 @@ func init() {
 	if s == nil {
 		p := pg.New(config.DBURL())
 
-		e := p.Migrate()
+		e := p.Drop()
+		if e != nil {
+			panic(e)
+		}
+
+		e = p.Migrate()
 		if e != nil {
 			panic(e)
 		}
