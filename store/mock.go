@@ -1438,8 +1438,7 @@ func (ms mockRoleStore) GetForProject(u models.User, p models.Project) ([]models
 					false,
 					true,
 					&settings,
-				},
-			},
+				}},
 		},
 	}, nil
 }
