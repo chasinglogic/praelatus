@@ -228,3 +228,19 @@ WHERE ticket_id in(SELECT id FROM tickets WHERE project_id = $1);
 
 	return handlePqErr(tx.Commit())
 }
+
+// SetPermissionScheme will associate the given permission scheme with the given project
+func (ps *ProjectStore) SetPermissionScheme(u models.User, p models.Project, scheme models.PermissionScheme) error {
+	if !checkPermission(ps.db, "ADMIN_PROJECT", p.ID, u.ID) {
+		return store.ErrPermissionDenied
+	}
+
+	_, err := ps.db.Exec(`
+INSERT INTO project_permission_schemes 
+(permission_scheme_id, project_id)
+VALUES ($1, $2)
+`,
+		scheme.ID, p.ID)
+
+	return handlePqErr(err)
+}

@@ -186,6 +186,8 @@ type ProjectStore interface {
 	Create(models.User, *models.Project) error
 	Save(models.User, models.Project) error
 	Remove(models.User, models.Project) error
+
+	SetPermissionScheme(models.User, models.Project, models.PermissionScheme) error
 }
 
 // TypeStore contains methods for storing and retrieving Ticket Types

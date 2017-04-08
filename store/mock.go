@@ -1029,6 +1029,10 @@ func (ms mockProjectStore) Save(u models.User, p models.Project) error {
 	return nil
 }
 
+func (ms mockProjectStore) SetPermissionScheme(u models.User, p models.Project, scheme models.PermissionScheme) error {
+	return nil
+}
+
 func (ms mockProjectStore) Remove(u models.User, p models.Project) error {
 	return nil
 }
