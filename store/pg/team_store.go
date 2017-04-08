@@ -61,7 +61,7 @@ WHERE tu.team_id = $1
 	defer rows.Close()
 
 	for rows.Next() {
-		var u *models.User
+		var u models.User
 
 		err = rows.Scan(&u.ID, &u.Username, &u.Email, &u.FullName,
 			&u.ProfilePic, &u.IsAdmin)
@@ -69,7 +69,7 @@ WHERE tu.team_id = $1
 			return handlePqErr(err)
 		}
 
-		t.Members = append(t.Members, *u)
+		t.Members = append(t.Members, u)
 	}
 
 	return nil
