@@ -109,7 +109,7 @@ WHERE fv.ticket_id = $1`,
 
 func populateTransitions(db *sql.DB, t *models.Ticket) error {
 	rows, err := db.Query(`
-SELECT t.id, t.name, s.id, s.name
+SELECT t.id, t.name, to_s.id, to_s.name
 FROM transitions AS t
 JOIN statuses AS to_s ON to_s.id = t.to_status
 WHERE t.from_status = $1
