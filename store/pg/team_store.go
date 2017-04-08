@@ -2,7 +2,6 @@ package pg
 
 import (
 	"database/sql"
-	"encoding/json"
 
 	"github.com/praelatus/praelatus/models"
 )
@@ -14,46 +13,11 @@ type TeamStore struct {
 }
 
 func intoTeam(db *sql.DB, row rowScanner, t *models.Team) error {
-	var u models.User
-	var ujson json.RawMessage
-
-	err := row.Scan(&t.ID, &t.Name, &ujson)
+	err := row.Scan(&t.ID, &t.Name, &t.Lead.ID,
+		&t.Lead.Username, &t.Lead.Email, &t.Lead.FullName,
+		&t.Lead.ProfilePic)
 	if err != nil {
 		return err
-	}
-
-	err = json.Unmarshal(ujson, &u)
-	if err != nil {
-		return err
-	}
-
-	t.Lead = u
-
-	rows, err := db.Query(`
-SELECT u.id, u.username, u.email, 
-       u.full_name, u.profile_picture, u.is_admin
-FROM teams_users AS tu 
-JOIN users AS u ON tu.user_id = u.id
-JOIN teams AS t ON tu.team_id = t.id
-WHERE tu.team_id = $1;
-`,
-		t.ID)
-	if err != nil {
-		return handlePqErr(err)
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		var u models.User
-
-		err = rows.Scan(&u.ID, &u.Username, &u.Email, &u.FullName,
-			&u.ProfilePic, &u.IsAdmin)
-		if err != nil {
-			return err
-		}
-
-		t.Members = append(t.Members, u)
 	}
 
 	return nil
@@ -62,12 +26,9 @@ WHERE tu.team_id = $1;
 // Get retrieves a team from the database based on ID
 func (ts *TeamStore) Get(t *models.Team) error {
 	row := ts.db.QueryRow(`
-SELECT t.id, t.name, 
-       json_build_object('id', lead.id, 
-                         'username', lead.username, 
-                         'email', lead.email, 
-                         'full_name', lead.full_name, 
-                         'profile_picture', lead.profile_picture) AS lead 
+SELECT t.id, t.name, lead.id, 
+       lead.username, lead.email,
+       lead.full_name, lead.profile_picture
 FROM teams AS t
 JOIN users AS lead ON lead.id = t.lead_id
 WHERE t.id = $1
@@ -75,6 +36,11 @@ OR t.name = $2;
 `,
 		t.ID, t.Name)
 	err := intoTeam(ts.db, row, t)
+	if err != nil {
+		return handlePqErr(err)
+	}
+
+	err = ts.GetMembers(t)
 	return handlePqErr(err)
 }
 
@@ -114,12 +80,9 @@ func (ts *TeamStore) GetAll() ([]models.Team, error) {
 	var teams []models.Team
 
 	rows, err := ts.db.Query(`
-SELECT t.id, t.name, 
-       json_build_object('id', lead.id, 
-                         'username', lead.username, 
-                         'email', lead.email, 
-                         'full_name', lead.full_name, 
-                         'profile_picture', lead.profile_picture) AS lead
+SELECT t.id, t.name, lead.id, 
+       lead.username, lead.email,
+       lead.full_name, lead.profile_picture
 FROM teams AS t
 JOIN users AS lead ON lead.id = t.lead_id
 `)
@@ -137,10 +100,15 @@ JOIN users AS lead ON lead.id = t.lead_id
 			return teams, handlePqErr(err)
 		}
 
+		err = ts.GetMembers(t)
+		if err != nil {
+			return teams, handlePqErr(err)
+		}
+
 		teams = append(teams, *t)
 	}
 
-	return teams, handlePqErr(err)
+	return teams, nil
 }
 
 // GetForUser will get the given users associated teams
@@ -148,7 +116,9 @@ func (ts *TeamStore) GetForUser(u models.User) ([]models.Team, error) {
 	var teams []models.Team
 
 	rows, err := ts.db.Query(`
-SELECT t.id, t.name, row_to_json(lead.*)
+SELECT t.id, t.name, lead.id, 
+       lead.username, lead.email,
+       lead.full_name, lead.profile_picture
 FROM teams_users
 JOIN teams AS t ON t.id = teams_users.team_id
 JOIN users as u ON u.id = teams_users.user_id
