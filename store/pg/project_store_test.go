@@ -50,6 +50,8 @@ func TestProjectSave(t *testing.T) {
 	if p.IconURL != "TEST" {
 		t.Errorf("Expected project to have iconURL TEST got %s\n", p.IconURL)
 	}
+
+	t.Log("p", p)
 }
 
 func TestProjectRemove(t *testing.T) {
