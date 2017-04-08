@@ -2,7 +2,6 @@ package pg
 
 import (
 	"database/sql"
-	"encoding/json"
 
 	"github.com/praelatus/praelatus/models"
 	"github.com/praelatus/praelatus/store"
@@ -15,17 +14,13 @@ type ProjectStore struct {
 }
 
 func intoProject(row rowScanner, p *models.Project) error {
-	var lead models.User
-	var ljson json.RawMessage
-
 	err := row.Scan(&p.ID, &p.CreatedDate, &p.Name, &p.Key,
-		&p.Homepage, &p.IconURL, &p.Repo, &ljson)
+		&p.Repo, &p.Homepage, &p.IconURL, &p.Lead.ID,
+		&p.Lead.Username, &p.Lead.Email, &p.Lead.FullName,
+		&p.Lead.ProfilePic)
 	if err != nil {
 		return err
 	}
-
-	err = json.Unmarshal(ljson, &lead)
-	p.Lead = lead
 
 	return err
 }
@@ -35,12 +30,9 @@ func intoProject(row rowScanner, p *models.Project) error {
 func (ps *ProjectStore) Get(u models.User, p *models.Project) error {
 	row := ps.db.QueryRow(`
 SELECT p.id, p.created_date, p.name, 
-       p.key, p.homepage, p.icon_url, p.repo,
-       json_build_object('id', lead.id, 
-                         'username', lead.username,  
-                         'email', lead.email,  
-                         'full_name', lead.full_name,  
-                         'profile_picture', lead.profile_picture) AS lead
+       p.key, p.repo, p.homepage, p.icon_url, 
+       lead.id, lead.username, lead.email, lead.full_name,  
+       lead.profile_picture
 FROM projects  AS p
 INNER JOIN users AS lead ON lead.id = p.lead_id
 FULL JOIN project_permission_schemes AS 
@@ -72,11 +64,8 @@ func (ps *ProjectStore) GetAll(u models.User) ([]models.Project, error) {
 	rows, err := ps.db.Query(`
 SELECT p.id, p.created_date, p.name, 
        p.key, p.repo, p.homepage, p.icon_url, 
-       json_build_object('id', lead.id, 
-                         'username', lead.username,  
-                         'email', lead.email,  
-                         'full_name', lead.full_name,  
-                         'profile_picture', lead.profile_picture) AS lead
+       lead.id, lead.username, lead.email, lead.full_name,  
+       lead.profile_picture
 FROM projects AS p
 INNER JOIN users AS lead ON p.lead_id = lead.id
 FULL JOIN project_permission_schemes AS 
