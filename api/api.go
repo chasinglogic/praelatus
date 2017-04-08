@@ -1,9 +1,10 @@
-// Package api has our routers and handler methods for all of the available api
+// Package api has our router and HTTP handlers for all of the available api
 // routes
 package api
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/config"
@@ -38,13 +39,13 @@ func Routes() *mux.Router {
 
 	router := mux.NewRouter()
 	api := router.PathPrefix(context + "/api").Subrouter()
-	v1r := router.PathPrefix(context + "/api/v1").Subrouter()
+	v1r := api.PathPrefix("/v1").Subrouter()
 
 	// setup v1 routes
-	v1.V1Routes(v1r)
+	v1.Routes(v1r)
 
 	// setup latest routes
-	v1.V1Routes(api)
+	v1.Routes(api)
 
 	// setup routes endpoints
 	v1r.HandleFunc("/routes", routes(v1r)).Methods("GET")
@@ -53,11 +54,23 @@ func Routes() *mux.Router {
 
 	router.HandleFunc(context+"/",
 		func(w http.ResponseWriter, r *http.Request) {
-			http.ServeFile(w, r, "client/index.html")
-		})
+			path := strings.Split(r.URL.Path, "/")
+			root := path[1]
 
-	router.NotFoundHandler = http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
+			// TODO handle complex context paths (i.e. if
+			// we have a context path of /my/praelatus
+			// this will not work.)
+			if context != "" {
+				root = path[2]
+			}
+
+			switch root {
+			case "api":
+				api.ServeHTTP(w, r)
+			default:
+				router.ServeHTTP(w, r)
+			}
+
 			http.ServeFile(w, r, "client/index.html")
 		})
 

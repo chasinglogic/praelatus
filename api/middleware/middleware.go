@@ -1,3 +1,5 @@
+// Package middleware contains the HTTP middleware used in the api as
+// well as utility functions for interacting with them
 package middleware
 
 import (

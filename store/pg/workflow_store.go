@@ -2,7 +2,6 @@ package pg
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 
 	"github.com/praelatus/praelatus/models"
@@ -16,11 +15,13 @@ type WorkflowStore struct {
 
 // Get gets a workflow from the database
 func (ws *WorkflowStore) Get(w *models.Workflow) error {
-	row := ws.db.QueryRow(`SELECT w.id, w.name 
-				   FROM workflows AS w
-				   JOIN projects AS p ON w.project_id = p.id
-				   WHERE w.id = $1 OR w.name = $2`, w.ID, w.Name)
-
+	row := ws.db.QueryRow(`
+SELECT w.id, w.name 
+FROM workflows AS w
+JOIN workflows_projects AS wkp ON wkp.workflow_id = w.id
+JOIN projects AS p ON wkp.project_id = p.id
+WHERE w.id = $1 OR w.name = $2`,
+		w.ID, w.Name)
 	err := row.Scan(&w.ID, &w.Name)
 	if err != nil {
 		return handlePqErr(err)
@@ -31,9 +32,10 @@ func (ws *WorkflowStore) Get(w *models.Workflow) error {
 }
 
 func getHooks(db *sql.DB, t *models.Transition) error {
-	rows, err := db.Query(`SELECT h.id, endpoint, method, body
-				      FROM hooks AS h
-				      JOIN transitions AS t ON t.id = h.transition_id`)
+	rows, err := db.Query(`
+SELECT h.id, endpoint, method, body
+FROM hooks AS h
+JOIN transitions AS t ON t.id = h.transition_id`)
 	if err != nil {
 		return err
 	}
@@ -57,14 +59,9 @@ func transitionsFromRows(db *sql.DB, rows *sql.Rows) ([]models.Transition, error
 
 	for rows.Next() {
 		var t models.Transition
-		var status json.RawMessage
 
-		err := rows.Scan(&t.ID, &t.Name, &status)
-		if err != nil {
-			return nil, handlePqErr(err)
-		}
-
-		err = json.Unmarshal(status, &t.ToStatus)
+		err := rows.Scan(&t.ID, &t.Name,
+			&t.ToStatus.ID, &t.ToStatus.Name)
 		if err != nil {
 			return nil, handlePqErr(err)
 		}
@@ -87,10 +84,11 @@ func (ws *WorkflowStore) getTransitions(w *models.Workflow) error {
 	}
 
 	rows, err := ws.db.Query(`
-	SELECT status.id, status.name
-    FROM workflow_statuses 
-	JOIN statuses AS status ON status.id = status_id
-    WHERE workflow_id = $1`, w.ID)
+SELECT status.id, status.name
+FROM workflow_statuses 
+JOIN statuses AS status ON status.id = status_id
+WHERE workflow_id = $1`,
+		w.ID)
 	if err != nil {
 		return handlePqErr(err)
 	}
@@ -111,16 +109,15 @@ func (ws *WorkflowStore) getTransitions(w *models.Workflow) error {
 		statuses = append(statuses, s)
 	}
 
-	rows.Close()
-
 	for _, fromS := range statuses {
 
 		rows, err = ws.db.Query(`
-		SELECT t.id, t.name, row_to_json(to_s.*)
-        FROM transitions AS t
-        JOIN statuses AS to_s ON to_s.id = t.to_status
-        WHERE t.from_status = $1
-        AND t.workflow_id = $2`, fromS.ID, w.ID)
+SELECT t.id, t.name, to_s.id, to_s.name
+FROM transitions AS t
+JOIN statuses AS to_s ON to_s.id = t.to_status
+WHERE t.from_status = $1
+AND t.workflow_id = $2`,
+			fromS.ID, w.ID)
 		if err != nil {
 			return handlePqErr(err)
 		}
@@ -174,11 +171,13 @@ func (ws *WorkflowStore) GetAll() ([]models.Workflow, error) {
 
 // GetByProject gets all the workflows for the given project
 func (ws *WorkflowStore) GetByProject(p models.Project) ([]models.Workflow, error) {
-	rows, err := ws.db.Query(`SELECT w.id, w.name 
-                                  FROM workflows AS w
-                                  JOIN projects AS p ON p.id = w.project_id
-                                  WHERE p.id = $1
-                                  OR p.key = $2`, p.ID, p.Key)
+	rows, err := ws.db.Query(`
+SELECT w.id, w.name 
+FROM workflows AS w
+JOIN workflows_projects AS wp ON wp.workflow_id = w.id
+JOIN projects AS p ON p.id = wp.project_id
+WHERE p.id = $1 OR p.key = $2`,
+		p.ID, p.Key)
 	if err != nil {
 		return []models.Workflow{}, handlePqErr(err)
 	}
@@ -191,9 +190,9 @@ func (ws *WorkflowStore) GetForTicket(t models.Ticket) (models.Workflow, error) 
 	var w models.Workflow
 
 	row := ws.db.QueryRow(`
-	SELECT id, name FROM workflows
-	WHERE id = $1`, t.WorkflowID)
-
+SELECT id, name FROM workflows
+WHERE id = $1`,
+		t.WorkflowID)
 	err := row.Scan(&w.ID, &w.Name)
 	if err != nil {
 		return w, err
@@ -210,11 +209,21 @@ func (ws *WorkflowStore) New(p models.Project, workflow *models.Workflow) error 
 		return handlePqErr(err)
 	}
 
-	err = tx.QueryRow(`INSERT INTO workflows 
-			       (name, project_id) VALUES ($1, $2)
-			       RETURNING id;`,
-		workflow.Name, p.ID).
+	err = tx.QueryRow(`
+INSERT INTO workflows (name) 
+VALUES ($1)
+RETURNING id;`,
+		workflow.Name).
 		Scan(&workflow.ID)
+	if err != nil {
+		tx.Rollback()
+		return handlePqErr(err)
+	}
+
+	_, err = tx.Exec(`
+INSERT INTO workflows_projects (workflow_id, project_id) 
+VALUES ($1, $2);`,
+		workflow.ID, p.ID)
 	if err != nil {
 		tx.Rollback()
 		return handlePqErr(err)
@@ -350,9 +359,14 @@ func (ws *WorkflowStore) Remove(w models.Workflow) error {
 		return handlePqErr(err)
 	}
 
-	_, err = tx.Exec(`DELETE FROM hooks 
-                          WHERE transition_id 
-                          in(SELECT id FROM transitions WHERE workflow_id = $1);`, w.ID)
+	_, err = tx.Exec(`
+DELETE FROM hooks 
+WHERE transition_id in
+(
+    SELECT id FROM transitions WHERE workflow_id = $1
+);
+`,
+		w.ID)
 	if err != nil {
 		tx.Rollback()
 		return handlePqErr(err)
@@ -365,6 +379,12 @@ func (ws *WorkflowStore) Remove(w models.Workflow) error {
 	}
 
 	_, err = tx.Exec(`DELETE FROM transitions WHERE workflow_id = $1;`, w.ID)
+	if err != nil {
+		tx.Rollback()
+		return handlePqErr(err)
+	}
+
+	_, err = tx.Exec(`DELETE FROM workflows_projects WHERE workflow_id = $1;`, w.ID)
 	if err != nil {
 		tx.Rollback()
 		return handlePqErr(err)

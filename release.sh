@@ -186,9 +186,13 @@ do
         fi
 
         if [ "$platform" == "windows" ]; then
+	    ls
+	    exit 0
             zip $STARTING_DIR/$PACKAGE_NAME *
         else
-            tar czf $STARTING_DIR/$PACKAGE_NAME *
+	    ls
+	    exit 0
+            tar -czvf $STARTING_DIR/$PACKAGE_NAME *
         fi
 
         cd $STARTING_DIR
@@ -197,7 +201,7 @@ done
 
 # create the tag
 echo "tagging release..."
-git tag -fa $TAG_NAME -m "$RELEASE_NAME"
+# git tag -fa $TAG_NAME -m "$RELEASE_NAME"
 
 # push the tag
 echo "Pushing tags..."

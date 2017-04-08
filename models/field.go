@@ -33,6 +33,18 @@ func (f *Field) String() string {
 	return jsonString(f)
 }
 
+// IsValidDataType is used to verify that the field has a data type we can
+// support
+func (f *Field) IsValidDataType() bool {
+	for _, t := range DataTypes {
+		if t == f.DataType {
+			return true
+		}
+	}
+
+	return false
+}
+
 // FieldValue holds the value for a field on a given ticket.
 type FieldValue struct {
 	ID       int64  `json:"id"`
@@ -45,7 +57,7 @@ type FieldValue struct {
 
 // IsValidDataType is used to verify that the field has a data type we can
 // support
-func (f *Field) IsValidDataType() bool {
+func (f *FieldValue) IsValidDataType() bool {
 	for _, t := range DataTypes {
 		if t == f.DataType {
 			return true
@@ -53,4 +65,8 @@ func (f *Field) IsValidDataType() bool {
 	}
 
 	return false
+}
+
+func (f *FieldValue) String() string {
+	return jsonString(f)
 }

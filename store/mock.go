@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/praelatus/praelatus/models"
+	"github.com/praelatus/praelatus/models/permission"
 )
 
 // Mock will return a mock store and session store to use for testing
@@ -56,6 +57,14 @@ func (ms mockStore) Statuses() StatusStore {
 
 func (ms mockStore) Workflows() WorkflowStore {
 	return mockWorkflowStore{}
+}
+
+func (ms mockStore) Permissions() PermissionStore {
+	return mockPermissionStore{}
+}
+
+func (ms mockStore) Roles() RoleStore {
+	return mockRoleStore{}
 }
 
 type mockUsersStore struct{}
@@ -447,7 +456,7 @@ func (mockFieldStore) GetAll() ([]models.Field, error) {
 	}, nil
 }
 
-func (mockFieldStore) GetByProject(p models.Project) ([]models.Field, error) {
+func (mockFieldStore) GetForScreen(u models.User, p models.Project, t models.TicketType) ([]models.Field, error) {
 	return []models.Field{
 		{
 			ID:       1,
@@ -462,7 +471,7 @@ func (mockFieldStore) GetByProject(p models.Project) ([]models.Field, error) {
 	}, nil
 }
 
-func (mockFieldStore) AddToProject(p models.Project, f *models.Field, t ...models.TicketType) error {
+func (mockFieldStore) AddToProject(u models.User, p models.Project, f *models.Field, t ...models.TicketType) error {
 	return nil
 }
 
@@ -471,18 +480,23 @@ func (mockFieldStore) New(f *models.Field) error {
 	return nil
 }
 
-func (mockFieldStore) Save(f models.Field) error {
+func (mockFieldStore) Create(u models.User, f *models.Field) error {
+	f.ID = 1
 	return nil
 }
 
-func (mockFieldStore) Remove(f models.Field) error {
+func (mockFieldStore) Save(u models.User, f models.Field) error {
+	return nil
+}
+
+func (mockFieldStore) Remove(u models.User, f models.Field) error {
 	return nil
 }
 
 // //A mock TicketStore struct
 type mockTicketStore struct{}
 
-func (mockTicketStore) Get(t *models.Ticket) error {
+func (mockTicketStore) Get(u models.User, t *models.Ticket) error {
 	t.ID = 1
 
 	t.CreatedDate = time.Date(2016, time.Month(12), 25, 0, 0, 0, 0, loc)
@@ -568,7 +582,7 @@ func (mockTicketStore) Get(t *models.Ticket) error {
 	return nil
 }
 
-func (ms mockTicketStore) GetAll() ([]models.Ticket, error) {
+func (ms mockTicketStore) GetAll(u models.User) ([]models.Ticket, error) {
 	return []models.Ticket{
 		{
 			ID:          1,
@@ -700,12 +714,12 @@ func (ms mockTicketStore) GetAll() ([]models.Ticket, error) {
 	}, nil
 }
 
-func (ms mockTicketStore) ExecuteTransition(t *models.Ticket, tr models.Transition) error {
+func (ms mockTicketStore) ExecuteTransition(u models.User, p models.Project, t *models.Ticket, tr models.Transition) error {
 	t.Status = tr.ToStatus
 	return nil
 }
 
-func (ms mockTicketStore) GetAllByProject(p models.Project) ([]models.Ticket, error) {
+func (ms mockTicketStore) GetAllByProject(u models.User, p models.Project) ([]models.Ticket, error) {
 	return []models.Ticket{
 		{
 			ID:          1,
@@ -837,7 +851,12 @@ func (ms mockTicketStore) GetAllByProject(p models.Project) ([]models.Ticket, er
 	}, nil
 }
 
-func (ms mockTicketStore) GetComments(t models.Ticket) ([]models.Comment, error) {
+func (ms mockTicketStore) GetComment(u models.User, cm *models.Comment) error {
+	cm.ID = 1
+	return nil
+}
+
+func (ms mockTicketStore) GetComments(u models.User, p models.Project, t models.Ticket) ([]models.Comment, error) {
 	return []models.Comment{
 		{
 			1,
@@ -860,16 +879,21 @@ func (ms mockTicketStore) GetComments(t models.Ticket) ([]models.Comment, error)
 	}, nil
 }
 
+func (ms mockTicketStore) CreateComment(u models.User, p models.Project, t models.Ticket, c *models.Comment) error {
+	c.ID = 1
+	return nil
+}
+
 func (ms mockTicketStore) NewComment(t models.Ticket, c *models.Comment) error {
 	c.ID = 1
 	return nil
 }
 
-func (ms mockTicketStore) SaveComment(c models.Comment) error {
+func (ms mockTicketStore) SaveComment(u models.User, p models.Project, c models.Comment) error {
 	return nil
 }
 
-func (ms mockTicketStore) RemoveComment(c models.Comment) error {
+func (ms mockTicketStore) RemoveComment(u models.User, p models.Project, c models.Comment) error {
 	return nil
 }
 
@@ -882,11 +906,16 @@ func (ms mockTicketStore) New(p models.Project, t *models.Ticket) error {
 	return nil
 }
 
-func (ms mockTicketStore) Save(t models.Ticket) error {
+func (ms mockTicketStore) Create(u models.User, p models.Project, t *models.Ticket) error {
+	t.ID = 1
 	return nil
 }
 
-func (ms mockTicketStore) Remove(t models.Ticket) error {
+func (ms mockTicketStore) Save(u models.User, p models.Project, t models.Ticket) error {
+	return nil
+}
+
+func (ms mockTicketStore) Remove(u models.User, p models.Project, t models.Ticket) error {
 	return nil
 }
 
@@ -928,7 +957,7 @@ func (ms mockTypeStore) Remove(t models.TicketType) error {
 // A mock ProjectStore struct
 type mockProjectStore struct{}
 
-func (ms mockProjectStore) Get(p *models.Project) error {
+func (ms mockProjectStore) Get(u models.User, p *models.Project) error {
 	p.ID = 1
 	p.Name = "Test Project"
 	p.Key = "TEST"
@@ -947,7 +976,7 @@ func (ms mockProjectStore) Get(p *models.Project) error {
 	return nil
 }
 
-func (ms mockProjectStore) GetAll() ([]models.Project, error) {
+func (ms mockProjectStore) GetAll(u models.User) ([]models.Project, error) {
 	return []models.Project{
 		{
 			ID:          1,
@@ -991,11 +1020,20 @@ func (ms mockProjectStore) New(p *models.Project) error {
 	return nil
 }
 
-func (ms mockProjectStore) Save(p models.Project) error {
+func (ms mockProjectStore) Create(u models.User, p *models.Project) error {
+	p.ID = 1
 	return nil
 }
 
-func (ms mockProjectStore) Remove(p models.Project) error {
+func (ms mockProjectStore) Save(u models.User, p models.Project) error {
+	return nil
+}
+
+func (ms mockProjectStore) SetPermissionScheme(u models.User, p models.Project, scheme models.PermissionScheme) error {
+	return nil
+}
+
+func (ms mockProjectStore) Remove(u models.User, p models.Project) error {
 	return nil
 }
 
@@ -1279,5 +1317,150 @@ func (m mockSessionStore) Get(id string) (models.Session, error) {
 
 func (m mockSessionStore) Set(id string, u models.Session) error {
 	m.store[id] = &u.User
+	return nil
+}
+
+func (m mockSessionStore) GetRaw(id string) ([]byte, error) { return nil, nil }
+func (m mockSessionStore) SetRaw(id string, b []byte) error { return nil }
+
+// A mock PermissionStore struct
+type mockPermissionStore struct{}
+
+func (ms mockPermissionStore) Get(u models.User, l *models.PermissionScheme) error {
+	l.ID = 1
+	l.Name = "mock"
+	return nil
+}
+
+func (ms mockPermissionStore) GetAll(u models.User) ([]models.PermissionScheme, error) {
+	return []models.PermissionScheme{
+		{
+			ID:   1,
+			Name: "mock",
+		},
+		{
+			ID:   2,
+			Name: "fake",
+		},
+	}, nil
+}
+
+func (ms mockPermissionStore) Create(u models.User, l *models.PermissionScheme) error {
+	return ms.New(l)
+}
+
+func (ms mockPermissionStore) New(l *models.PermissionScheme) Error {
+	l.ID = 1
+	return nil
+}
+
+func (ms mockPermissionStore) Save(u models.User, l models.PermissionScheme) error {
+	return nil
+}
+
+func (ms mockPermissionStore) Remove(u models.User, l models.PermissionScheme) error {
+	return nil
+}
+
+func (ms mockPermissionStore) CheckPermission(permName permission.Permission, p models.Project, u models.User) bool {
+	return true
+}
+
+func (ms mockPermissionStore) IsAdmin(u models.User) bool {
+	return true
+}
+
+// A mock RoleStore struct
+type mockRoleStore struct{}
+
+func (ms mockRoleStore) Get(l *models.Role) error {
+	l.ID = 1
+	l.Name = "mock"
+	return nil
+}
+
+func (ms mockRoleStore) GetAll() ([]models.Role, error) {
+	return []models.Role{
+		{
+			ID:   1,
+			Name: "mock",
+		},
+		{
+			ID:   2,
+			Name: "fake",
+		},
+	}, nil
+}
+
+func (ms mockRoleStore) GetForUser(u models.User) ([]models.Role, error) {
+	return []models.Role{
+		{
+			ID:   1,
+			Name: "mock",
+		},
+		{
+			ID:   2,
+			Name: "fake",
+		},
+	}, nil
+}
+
+func (ms mockRoleStore) GetForProject(u models.User, p models.Project) ([]models.Role, error) {
+	return []models.Role{
+		{
+			ID:   1,
+			Name: "mock",
+			Members: []models.User{
+				{
+					1,
+					"foouser",
+					"foopass",
+					"foo@foo.com",
+					"Foo McFooserson",
+					"",
+					false,
+					true,
+					&settings,
+				},
+			},
+		},
+		{
+			ID:   2,
+			Name: "fake",
+			Members: []models.User{
+				{
+					1,
+					"foouser",
+					"foopass",
+					"foo@foo.com",
+					"Foo McFooserson",
+					"",
+					false,
+					true,
+					&settings,
+				}},
+		},
+	}, nil
+}
+
+func (ms mockRoleStore) Create(u models.User, l *models.Role) error {
+	return ms.New(l)
+}
+
+func (ms mockRoleStore) New(l *models.Role) error {
+	l.ID = 1
+	return nil
+}
+
+func (ms mockRoleStore) Save(u models.User, l models.Role) error {
+	return nil
+}
+
+func (ms mockRoleStore) Remove(u models.User, l models.Role) error {
+	return nil
+}
+
+func (ms mockRoleStore) AddUserToRole(u models.User,
+	u2 models.User, p models.Project, r models.Role) error {
 	return nil
 }

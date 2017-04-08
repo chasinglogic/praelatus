@@ -35,7 +35,7 @@ func TestUserGetAll(t *testing.T) {
 }
 
 func TestUserSave(t *testing.T) {
-	u := models.User{ID: 2}
+	u := models.User{ID: 4}
 	e := s.Users().Get(&u)
 	failIfErr("User Save", t, e)
 
@@ -44,7 +44,7 @@ func TestUserSave(t *testing.T) {
 	e = s.Users().Save(u)
 	failIfErr("User Save", t, e)
 
-	u = models.User{ID: 2}
+	u = models.User{ID: 4}
 	e = s.Users().Get(&u)
 	failIfErr("User Save", t, e)
 

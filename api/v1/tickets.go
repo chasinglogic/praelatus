@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/praelatus/praelatus/api/middleware"
@@ -41,7 +42,12 @@ func GetTicket(w http.ResponseWriter, r *http.Request) {
 		Key: key,
 	}
 
-	err := Store.Tickets().Get(tk)
+	u := middleware.GetUserSession(r)
+	if u == nil {
+		u = &models.User{ID: 0}
+	}
+
+	err := Store.Tickets().Get(*u, tk)
 	if err != nil {
 		log.Println(err.Error())
 
@@ -56,8 +62,8 @@ func GetTicket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if preload == "comments" {
-		cm, err := Store.Tickets().GetComments(*tk)
+	if strings.Contains(preload, "comments") {
+		cm, err := Store.Tickets().GetComments(*u, tk.Project, *tk)
 		if err != nil && err != store.ErrNotFound {
 			w.WriteHeader(500)
 			w.Write(utils.APIError("failed to retrieve comments"))
@@ -73,7 +79,12 @@ func GetTicket(w http.ResponseWriter, r *http.Request) {
 
 // GetAllTickets will get all the tickets for this instance
 func GetAllTickets(w http.ResponseWriter, r *http.Request) {
-	tks, err := Store.Tickets().GetAll()
+	u := middleware.GetUserSession(r)
+	if u == nil {
+		u = &models.User{ID: 0}
+	}
+
+	tks, err := Store.Tickets().GetAll(*u)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError("failed to retrieve tickets from the database"))
@@ -130,11 +141,19 @@ func RemoveTicket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := Store.Tickets().Remove(models.Ticket{Key: key})
+	tk := &models.Ticket{Key: key}
+
+	err := Store.Tickets().Get(*u, tk)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
-		log.Println(err)
+		return
+	}
+
+	err = Store.Tickets().Remove(*u, tk.Project, *tk)
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write(utils.APIError(err.Error()))
 		return
 	}
 
@@ -168,15 +187,13 @@ func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 		tk.Key = key
 	}
 
-	err = Store.Tickets().Save(tk)
+	err = Store.Tickets().Save(*u, tk.Project, tk)
 	if err != nil {
-		w.WriteHeader(500)
-		w.Write(utils.APIError(err.Error()))
-		log.Println(err)
+		utils.APIErr(w, 500, err.Error())
 		return
 	}
 
-	w.Write([]byte{})
+	w.Write(utils.Success())
 }
 
 // GetComments will get the comments for the ticket indicated by the ticket key
@@ -185,7 +202,24 @@ func GetComments(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 
-	comments, err := Store.Tickets().GetComments(models.Ticket{Key: key})
+	u := middleware.GetUserSession(r)
+	if u == nil {
+		u = &models.User{ID: 0}
+	}
+
+	tk := &models.Ticket{Key: key}
+	err := Store.Tickets().Get(*u, tk)
+	if tk.ID == 0 {
+		utils.APIErr(w, 404, "ticket not found")
+		return
+	}
+
+	if err != nil {
+		utils.APIErr(w, 500, err.Error())
+		return
+	}
+
+	comments, err := Store.Tickets().GetComments(*u, tk.Project, *tk)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
@@ -200,8 +234,7 @@ func GetComments(w http.ResponseWriter, r *http.Request) {
 func UpdateComment(w http.ResponseWriter, r *http.Request) {
 	u := middleware.GetUserSession(r)
 	if u == nil {
-		w.WriteHeader(403)
-		w.Write(utils.APIError("you must be logged in to update a ticket"))
+		utils.APIErr(w, 403, "you must be logged in to update a comment")
 		return
 	}
 
@@ -222,7 +255,19 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 		cm.ID = int64(id)
 	}
 
-	err = Store.Tickets().SaveComment(cm)
+	tk := &models.Ticket{Key: cm.TicketKey}
+	err = Store.Tickets().Get(*u, tk)
+	if tk.ID == 0 {
+		utils.APIErr(w, 404, "ticket not found")
+		return
+	}
+
+	if err != nil {
+		utils.APIErr(w, 500, err.Error())
+		return
+	}
+
+	err = Store.Tickets().SaveComment(*u, tk.Project, cm)
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write(utils.APIError(err.Error()))
@@ -237,19 +282,36 @@ func UpdateComment(w http.ResponseWriter, r *http.Request) {
 func RemoveComment(w http.ResponseWriter, r *http.Request) {
 	u := middleware.GetUserSession(r)
 	if u == nil {
-		w.WriteHeader(403)
-		w.Write(utils.APIError("you must be logged in to update a ticket"))
+		utils.APIErr(w, 403, "you must be logged in to remove a comment")
 		return
 	}
 
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
 
-	err := Store.Tickets().RemoveComment(models.Comment{ID: int64(id)})
+	cm := models.Comment{ID: int64(id)}
+
+	err := Store.Tickets().GetComment(*u, &cm)
 	if err != nil {
-		w.WriteHeader(500)
-		w.Write(utils.APIError(err.Error()))
-		log.Println(err)
+		utils.APIErr(w, 500, err.Error())
+		return
+	}
+
+	tk := &models.Ticket{Key: cm.TicketKey}
+	err = Store.Tickets().Get(*u, tk)
+	if tk.ID == 0 {
+		utils.APIErr(w, 404, "ticket not found")
+		return
+	}
+
+	if err != nil {
+		utils.APIErr(w, 500, err.Error())
+		return
+	}
+
+	err = Store.Tickets().RemoveComment(*u, tk.Project, cm)
+	if err != nil {
+		utils.APIErr(w, 500, err.Error())
 		return
 	}
 
@@ -302,7 +364,7 @@ func TransitionTicket(w http.ResponseWriter, r *http.Request) {
 		Key: mux.Vars(r)["key"],
 	}
 
-	err := Store.Tickets().Get(tk)
+	err := Store.Tickets().Get(*u, tk)
 	if err != nil {
 		if err == store.ErrNotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -322,7 +384,7 @@ func TransitionTicket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Store.Tickets().ExecuteTransition(tk, transition)
+	err = Store.Tickets().ExecuteTransition(*u, tk.Project, tk, transition)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

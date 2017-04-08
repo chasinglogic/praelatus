@@ -1,3 +1,5 @@
+// Package v1 contains all of the routes and handlers for v1 of the
+// API
 package v1
 
 import (
@@ -8,7 +10,8 @@ import (
 // Store is the global store used in our HTTP handlers.
 var Store store.Store
 
-func V1Routes(router *mux.Router) {
+// Routes will set up the appropriate routes on the given mux.Router
+func Routes(router *mux.Router) {
 	labelRouter(router)
 	fieldRouter(router)
 	projectRouter(router)
@@ -17,4 +20,6 @@ func V1Routes(router *mux.Router) {
 	typeRouter(router)
 	userRouter(router)
 	workflowRouter(router)
+	roleRouter(router)
+	permissionSchemeRouter(router)
 }

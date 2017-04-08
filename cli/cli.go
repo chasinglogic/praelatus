@@ -2,7 +2,11 @@
 // is where the cli itsself is defined and ran
 package cli
 
-import "github.com/urfave/cli"
+import (
+	"fmt"
+
+	"github.com/urfave/cli"
+)
 
 // Run runs the cli of Praelatus with the given argv
 func Run(args []string) {
@@ -102,5 +106,8 @@ func Run(args []string) {
 		},
 	}
 
-	app.Run(args)
+	err := app.Run(args)
+	if err != nil {
+		fmt.Println(err)
+	}
 }

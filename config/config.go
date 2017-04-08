@@ -59,7 +59,7 @@ func init() {
 		Cfg.Port = ":" + os.Getenv("PORT")
 	}
 
-	if Cfg.Port == "" {
+	if Cfg.Port == ":" {
 		Cfg.Port = ":8080"
 	}
 

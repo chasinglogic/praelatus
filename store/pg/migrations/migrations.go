@@ -27,20 +27,18 @@ var schemas = []schema{
 	v8schema,
 	v9schema,
 	v10schema,
+	v11schema,
+	v12schema,
+	v13schema,
 }
 
 // SchemaVersion will find the schema version for the given database
 func SchemaVersion(db *sql.DB) int {
 	var v int
 
-	rw, err := db.Query("SELECT schema_version FROM database_information WHERE id = 1")
-	if err != nil {
-		return 0
-	}
-	defer rw.Close()
+	rw := db.QueryRow("SELECT schema_version FROM database_information WHERE id = 1")
 
-	rw.Next()
-	err = rw.Scan(&v)
+	err := rw.Scan(&v)
 	if err != nil {
 		return 0
 	}
@@ -58,15 +56,19 @@ func RunMigrations(db *sql.DB) error {
 		version = SchemaVersion(db)
 
 		if version < schema.v {
-			log.Printf("Migrating database to version %d: %s\n", schema.v, schema.name)
+			log.Printf("Migrating database to version %d: %s\n",
+				schema.v, schema.name)
 			_, err := db.Exec(schema.q)
 			if err != nil {
 				return err
 			}
 
-			_, err = db.Exec(`UPDATE database_information 
-							  SET (schema_version) = ($1)
-							  WHERE id = 1;`, schema.v)
+			_, err = db.Exec(`
+UPDATE database_information 
+SET (schema_version) = ($1)
+WHERE id = 1;
+`,
+				schema.v)
 			if err != nil {
 				return err
 			}

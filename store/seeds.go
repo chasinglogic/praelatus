@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/praelatus/praelatus/models"
+	"github.com/praelatus/praelatus/models/permission"
 )
 
 // DefaultWorkflow should be given when the /api/workflows/default endpoint is
@@ -43,11 +44,52 @@ var DefaultWorkflow = models.Workflow{
 	},
 }
 
+// DefaultPermissionScheme is the default permission scheme for a new instance
+var DefaultPermissionScheme = models.PermissionScheme{
+	Name:        "Default Permission Scheme",
+	Description: "The recommended defaults for permissions.",
+	Permissions: map[string][]permission.Permission{
+		"Administrator": []permission.Permission{
+			permission.VIEWPROJECT,
+			permission.ADMINPROJECT,
+			permission.CREATETICKET,
+			permission.COMMENTTICKET,
+			permission.REMOVECOMMENT,
+			permission.REMOVEOWNCOMMENT,
+			permission.EDITOWNCOMMENT,
+			permission.EDITCOMMENT,
+			permission.TRANSITIONTICKET,
+			permission.EDITTICKET,
+			permission.REMOVETICKET,
+		},
+		"Contributor": []permission.Permission{
+			permission.VIEWPROJECT,
+			permission.CREATETICKET,
+			permission.COMMENTTICKET,
+			permission.REMOVEOWNCOMMENT,
+			permission.EDITOWNCOMMENT,
+			permission.TRANSITIONTICKET,
+			permission.EDITTICKET,
+		},
+		"User": []permission.Permission{
+			permission.VIEWPROJECT,
+			permission.CREATETICKET,
+			permission.COMMENTTICKET,
+			permission.REMOVEOWNCOMMENT,
+			permission.EDITOWNCOMMENT,
+		},
+		"Anonymous": []permission.Permission{
+			permission.VIEWPROJECT,
+		},
+	},
+}
+
 var defaults = []func(s Store) error{
 	SeedTicketTypes,
 	SeedFields,
 	SeedStatuses,
 	SeedWorkflows,
+	SeedPermissions,
 }
 
 var seedFuncs = []func(s Store) error{
@@ -61,6 +103,7 @@ var seedFuncs = []func(s Store) error{
 	SeedWorkflows,
 	SeedTickets,
 	SeedComments,
+	SeedPermissions,
 }
 
 // SeedDefaults will seed the database with the basics needed to use Praelatus
@@ -83,6 +126,10 @@ func SeedAll(s Store) error {
 	fmt.Println("Seeding All")
 	dev = true
 	for _, f := range seedFuncs {
+		if s == nil {
+			fmt.Println("WTF")
+		}
+
 		e := f(s)
 		if e != nil {
 			return e
@@ -195,29 +242,29 @@ func SeedStatuses(s Store) error {
 // SeedComments will add some comments to all tickets
 func SeedComments(s Store) error {
 	fmt.Println("Seeding comments")
-	t, se := s.Tickets().GetAll()
+
+	t, se := s.Tickets().GetAll(models.User{ID: 1})
 	if se != nil {
 		return se
 	}
 
 	for _, tk := range t {
-		for x := 0; x < 25; x++ {
+		noOfComments := rand.Intn(30) + 1
+
+		for x := 1; x < noOfComments; x++ {
 			c := &models.Comment{
 				Body: fmt.Sprintf(`This is the %d th comment
-				# Yo Dawg
-				**I** *heard* you
-				> like markdown
-				so I put markdown in your comments`, x),
+# Yo Dawg
+**I** *heard* you
+> like markdown
+so I put markdown in your comments`,
+					x),
 				Author: models.User{ID: 1},
 			}
 
 			e := s.Tickets().NewComment(tk, c)
 			if e != nil && e != ErrDuplicateEntry {
 				return e
-			}
-
-			if e == ErrDuplicateEntry {
-				return nil
 			}
 		}
 
@@ -268,7 +315,7 @@ func SeedFields(s Store) error {
 			return nil
 		}
 
-		e = s.Fields().AddToProject(models.Project{ID: 1}, &f)
+		e = s.Fields().AddToProject(models.User{ID: 1}, models.Project{ID: 1}, &f)
 		if e != nil && e != ErrDuplicateEntry {
 			return e
 		}
@@ -402,14 +449,28 @@ func SeedUsers(s Store) error {
 	}
 
 	t2, be := models.NewUser("testadmin", "test", "Test Testerson II",
-		"test1@example.com", false)
+		"test1@example.com", true)
+	if be != nil {
+		return be
+	}
+
+	t3, be := models.NewUser("testadmin2", "test", "Test Testerson III",
+		"test1@example.com", true)
+	if be != nil {
+		return be
+	}
+
+	t4, be := models.NewUser("saveusertest", "test", "Test Testerson IV",
+		"test4@example.com", true)
 	if be != nil {
 		return be
 	}
 
 	users := []models.User{
-		*t1,
 		*t2,
+		*t1,
+		*t3,
+		*t4,
 	}
 
 	fmt.Println("Seeding users")
@@ -459,6 +520,31 @@ func SeedWorkflows(s Store) error {
 	e = s.Workflows().New(p2, &wk1)
 	if e != nil && e != ErrDuplicateEntry {
 		return e
+	}
+
+	return nil
+}
+
+// SeedPermissions will put the default permission scheme in the
+// database
+func SeedPermissions(s Store) error {
+	fmt.Println("Seeding permissions")
+
+	s1 := DefaultPermissionScheme
+	s2 := s1
+	s2.Name = "Copy of Default Permission Scheme"
+	s3 := s1
+	s3.Name = "Save Me"
+	s4 := s1
+	s4.Name = "Delete Me"
+
+	schemes := []models.PermissionScheme{s1, s2, s3, s4}
+
+	for _, p := range schemes {
+		err := s.Permissions().New(&p)
+		if err != nil && err != ErrDuplicateEntry {
+			return err
+		}
 	}
 
 	return nil
