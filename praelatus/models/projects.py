@@ -1,4 +1,8 @@
 from base import Base
+from datetime import datetime
+from sqlalchemy import (relationship, Column, Integer,
+                        String, ForeignKey, DateTime)
+
 
 # TODO add roles as a through relationship
 class Project(Base):
@@ -10,7 +14,7 @@ class Project(Base):
     key = Column(String)
     homepage = Column(String)
     icon_url = Column(String)
-    repo = Columng(String)
+    repo = Column(String)
 
     lead_id = Column(Integer, ForeignKey('users.id'))
     lead = relationship('User')
