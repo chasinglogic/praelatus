@@ -5,7 +5,6 @@ from praelatus.lib.utils import rollback
 from praelatus.models.users import User
 
 
-@rollback
 def get(db, username=None, id=None, email=None, filter=None):
     query = db.query(User)
 
@@ -42,6 +41,26 @@ def new(db, **kwargs):
         return new_user
     except KeyError as e:
         raise Exception('Missing key' + str(e.args[0]))
+
+
+def update(db, user, actioning_user=None):
+    if (actioning_user is None
+        or (actioning_user.id != user.id
+            and not actioning_user.is_admin)):
+        raise Exception('permission denied')
+
+    db.add(user)
+    db.commit()
+
+
+def delete(db, user, actioning_user=None):
+    if (actioning_user is None
+        or (actioning_user.id != user.id
+            and not actioning_user.is_admin)):
+        raise Exception('permission denied')
+
+    db.delete(user)
+    db.commit()
 
 
 def gravatar(email):
