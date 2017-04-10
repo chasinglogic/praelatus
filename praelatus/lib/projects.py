@@ -5,6 +5,9 @@ from sqlalchemy import or_
 
 
 def get(db, key=None, id=None, filter=None, actioning_user=None):
+    """get gets projects from the database, if key or id are given one
+    project is returned otherwise if filter is specified it will
+    return all projects which match the given filter."""
     query = db.query(Project).join(User)
 
     if key is not None:
@@ -24,7 +27,7 @@ def get(db, key=None, id=None, filter=None, actioning_user=None):
             )
         )
 
-    query = permission_check(query, actioning_user, 'VIEW_PROJECT')
+    query = permission_check(db, query, actioning_user, 'VIEW_PROJECT')
 
     if any([key, id]):
         return query.first()
@@ -33,6 +36,7 @@ def get(db, key=None, id=None, filter=None, actioning_user=None):
 
 @rollback
 def new(db, **kwargs):
+    """new will create a new project in the database"""
     try:
         lead = kwargs.get('lead')
         permission_scheme = kwargs.get('permission_scheme')
