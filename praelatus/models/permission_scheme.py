@@ -16,6 +16,15 @@ class Permission(Base):
     name = Column(String)
 
 
+users_roles = Table('users_roles', Base.metadata,
+                    Column('user_id', Integer,
+                           ForeignKey('users.id')),
+                    Column('project_id', Integer,
+                           ForeignKey('projects.id')),
+                    Column('role_id', Integer,
+                           ForeignKey('roles.id'))
+)
+
 class Role(Base):
     __tablename__ = 'roles'
 
