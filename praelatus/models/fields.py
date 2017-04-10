@@ -1,13 +1,14 @@
-from base import Base
-from sqlalchemy import (Column, DateTime, String, Table,
-                        Integer, Float, ForeignKey, relationship)
+from praelatus.models.base import Base
+from sqlalchemy import (Column, DateTime, String, Table, Integer,
+                        Float, ForeignKey)
+from sqlalchemy.orm import relationship
 
 
-field_options = Table('field_options', Base.metadata,
+field_options = Table('fields_options', Base.metadata,
                       Column('field_id', Integer,
                              ForeignKey('fields.id')),
                       Column('option_id', Integer,
-                             ForeignKey('options.id'))
+                             ForeignKey('field_options.id'))
                       )
 
 
@@ -30,6 +31,7 @@ class FieldOption(Base):
 class FieldValue(Base):
     __tablename__ = 'field_values'
 
+    id = Column(Integer, primary_key=True)
     ticket_id = Column(Integer, ForeignKey('tickets.id'))
     field_id = Column(Integer, ForeignKey('fields.id'))
     field = relationship('Field')
