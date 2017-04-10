@@ -1,6 +1,7 @@
 from praelatus.models.base import Base
 from sqlalchemy import (Column, Integer, String,
                         UniqueConstraint, ForeignKey, Table)
+from sqlalchemy.orm import relationship
 
 
 class PermissionScheme(Base):
@@ -11,14 +12,25 @@ class PermissionScheme(Base):
     description = Column(String)
 
 
-permission_scheme_permissions = Table(
-    'permission_scheme_permissions', Base.metadata,
-    Column('permission_scheme_id', Integer,
-           ForeignKey('permission_schemes.id')),
-    Column('permission_id', Integer, ForeignKey('permissions.id')),
-    Column('role_id', Integer, ForeignKey('roles.id')),
-    UniqueConstraint('permission_scheme_id', 'role_id', 'permission_id')
-)
+class PermissionSchemePermissions(Base):
+    __tablename__ = 'permission_scheme_permissions'
+    __table_args__ = {
+        'unique_ids': UniqueConstraint('permission_scheme_id',
+                                       'role_id', 'permission_id')
+        }
+
+    id = Column(Integer, primary_key=True)
+    permission_scheme_id = Column('permission_scheme_id', Integer,
+                                  ForeignKey('permission_schemes.id'))
+    permission_scheme = relationship('PermissionScheme',
+                                     backref='permissions')
+
+    permission_id = Column('permission_id', Integer,
+                           ForeignKey('permissions.id'))
+    permission = relationship('Permission')
+
+    role_id = Column('role_id', Integer, ForeignKey('roles.id'))
+    role = relationship('Role')
 
 
 class Permission(Base):
@@ -28,13 +40,21 @@ class Permission(Base):
     name = Column(String)
 
 
-users_roles = Table(
-    'users_roles', Base.metadata,
-    Column('user_id', Integer, ForeignKey('users.id')),
-    Column('project_id', Integer, ForeignKey('projects.id')),
-    Column('role_id', Integer, ForeignKey('roles.id')),
-    UniqueConstraint('user_id', 'role_id', 'role_id')
-)
+class UserRoles(Base):
+    __tablename__ = 'users_roles'
+    __table_args = (
+        UniqueConstraint('user_id', 'role_id', 'role_id')
+        )
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship('User', backref='roles')
+
+    project_id = Column(Integer, ForeignKey('projects.id'))
+    project = relationship('Project', backref='roles')
+
+    role_id = Column(Integer, ForeignKey('roles.id'))
+    role = relationship('Role')
 
 
 class Role(Base):
