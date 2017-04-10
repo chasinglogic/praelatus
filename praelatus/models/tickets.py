@@ -1,4 +1,8 @@
 from base import Base
+from datetime import datetime
+from sqlalchemy import (Column, DateTime, String, Table, Text,
+                        Integer, ForeignKey, relationship)
+
 
 class Ticket(Base):
     __tablename__ = 'tickets'
@@ -7,17 +11,17 @@ class Ticket(Base):
     created_date = Column(DateTime, default=datetime.now())
     updated_date = Column(DateTime, default=datetime.now())
     key = Column(String)
-    summary = Column(String)
-    description = Column(String)
+    summary = Column(String(length=255))
+    description = Column(Text)
 
     reporter_id = Column(Integer, ForeignKey('users.id'))
-    reporter = relationship('User')
+    reporter = relationship('User', foreign_keys=reporter_id)
 
     assignee_id = Column(Integer, ForeignKey('users.id'))
-    assignee = relationship('User')
+    assignee = relationship('User', foreign_keys=assignee_id)
 
-    type_id = Column(Integer, ForeignKey('ticket_types.id'))
-    type = relationship('TicketType')
+    ticket_type_id = Column(Integer, ForeignKey('ticket_types.id'))
+    ticket_type = relationship('TicketType')
 
     status_id = Column(Integer, ForeignKey('statuses.id'))
     status = relationship('Status')
@@ -28,3 +32,37 @@ class Ticket(Base):
     fields = relationship('FieldValue', backref='field_values')
 
 
+class Comment(Base):
+    __tablename__ = 'comments'
+
+    id = Column(Integer, primary_key=True)
+    created_date = Column(DateTime, default=datetime.now())
+    updated_date = Column(DateTime, default=datetime.now())
+    body = Column(Text)
+
+    author_id = Column(Integer, ForeignKey('users.id'))
+    author = relationship('User', foreign_keys=author_id)
+
+
+labels_tickets = Table('labels_tickets', Base.metadata,
+                       Column('ticket_id', Integer,
+                              ForeignKey('tickets.id')),
+                       Column('label_id', Integer,
+                              ForeignKey('labels.id'))
+                       )
+
+
+class Label(Base):
+    __tablename__ = 'labels'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    tickets = relationship('Ticket', secondary=labels_tickets,
+                           backref='labels')
+
+
+class TicketType(Base):
+    __tablename__ = 'ticket_types'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
