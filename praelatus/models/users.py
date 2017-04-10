@@ -1,12 +1,13 @@
-from base import Base
+from praelatus.models.base import Base
 from sqlalchemy import Column, String, Integer, Boolean
+
 
 class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
     full_name = Column(String)
-    username = Column(String)
+    username = Column(String, unique=True)
     password = Column(String)
     email = Column(String)
     profile_pic = Column(String)
@@ -14,4 +15,4 @@ class User(Base):
     is_active = Column(Boolean)
 
     def __repr__(self):
-        return "User(id=%d, username=%s)" % (self.id, self.username)
+        return "User(id=%s, username=%s)" % (self.id, self.username)
