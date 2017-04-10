@@ -1,7 +1,17 @@
 from praelatus.models.base import Base
 from praelatus.models.users import User
 from praelatus.models.projects import Project
-from praelatus.models.permissions import Role, Permission, PermissionScheme
-from praelatus.models.fields import Field, FieldOption, FieldValue
-from praelatus.models.workflows import Workflow, Transition, Hook
-from praelatus.models.tickets import Ticket, Comment, TicketType, Label
+from praelatus.models.permissions import Role 
+from praelatus.models.permissions import Permission
+from praelatus.models.permissions import PermissionScheme
+from praelatus.models.permissions import PermissionSchemePermissions
+from praelatus.models.fields import Field
+from praelatus.models.fields import FieldOption
+from praelatus.models.fields import FieldValue
+from praelatus.models.workflows import Workflow
+from praelatus.models.workflows import Transition
+from praelatus.models.workflows import Hook
+from praelatus.models.tickets import Ticket
+from praelatus.models.tickets import Comment
+from praelatus.models.tickets import TicketType
+from praelatus.models.tickets import Label
