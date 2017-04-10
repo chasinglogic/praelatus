@@ -7,5 +7,7 @@ setup(
         'flask',
         'sqlalchemy',
         'flask-sqlalchemy'
+        'psycopg2',
+        'celery'
     ]
 )
