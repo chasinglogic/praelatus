@@ -1,6 +1,6 @@
 from praelatus.models.base import Base
 from sqlalchemy import (Column, Integer, String,
-                        UniqueConstraint, ForeignKey, Table)
+                        UniqueConstraint, ForeignKey)
 from sqlalchemy.orm import relationship
 
 
