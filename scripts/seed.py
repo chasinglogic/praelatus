@@ -6,6 +6,9 @@ sys.path.append(join(dirname(dirname(__file__))))
 from praelatus.lib import session, clean_db
 import praelatus.lib.users as usr
 import praelatus.lib.projects as prj
+import praelatus.lib.labels as lbls
+import praelatus.lib.roles as rls
+import praelatus.lib.permissions as perm_schemes
 
 # TODO finish the rest of the libs for the other models and add them
 # here
@@ -44,6 +47,65 @@ for u in users:
     except:
         continue
 
+roles = [
+    {
+        'name': 'Administrator'
+    },
+    {
+        'name': 'Contributor'
+    },
+    {
+        'name': 'User'
+    },
+    {
+        'name': 'Anonymous'
+    }
+]
+
+for r in roles:
+    rls.new(db, **r)
+
+permission_scheme = {
+    'name':        'Default Permission Scheme',
+    'description': 'The recommended defaults for permissions.',
+    'permissions': {
+        'Administrator': [
+            'VIEW_PROJECT',
+            'ADMIN_PROJECT',
+            'CREATE_TICKET',
+            'COMMENT_TICKET',
+            'REMOVE_COMMENT',
+            'REMOVE_OWN_COMMENT',
+            'EDIT_OWN_COMMENT',
+            'EDIT_COMMENT',
+            'TRANSITION_TICKET',
+            'EDIT_TICKET',
+            'REMOVE_TICKET',
+        ],
+        'Contributor': [
+            'VIEW_PROJECT',
+            'CREATE_TICKET',
+            'COMMENT_TICKET',
+            'REMOVE_OWN_COMMENT',
+            'EDIT_OWN_COMMENT',
+            'TRANSITION_TICKET',
+            'EDIT_TICKET',
+        ],
+        'User': [
+            'VIEW_PROJECT',
+            'CREATE_TICKET',
+            'COMMENT_TICKET',
+            'REMOVE_OWN_COMMENT',
+            'EDIT_OWN_COMMENT',
+        ],
+        'Anonymous': [
+            'VIEW_PROJECT',
+        ],
+    }
+}
+
+perm_schemes.new(db, **permission_scheme)
+
 projects = [
     {
         'name': 'TEST Project',
@@ -65,7 +127,8 @@ projects = [
 for p in projects:
     try:
         prj.new(db, **p)
-    except:
+    except Exception as e:
+        print(e)
         continue
 
 labels = [
@@ -79,6 +142,12 @@ labels = [
         'name': 'wontfix',
     }
 ]
+
+for l in labels:
+    try:
+        lbls.new(db, **l)
+    except:
+        continue
 
 priorities = ['HIGH', 'MEDIUM', 'LOW']
 
@@ -170,16 +239,16 @@ for i in range(1, 100):
 workflow = {
     'name': 'Simple Workflow',
     'transitions': {
-        'Backlog': {
+        'Backlog': [
             {
                 'name': 'In Progress',
                 'to_status': {
                     'id': 2
                 },
                 'hooks': [],
-                },
             },
-        'In Progress': {
+        ],
+        'In Progress': [
             {
                 'name':     'Done',
                 'to_status': {
@@ -194,8 +263,8 @@ workflow = {
                 },
                 'hooks':    [],
             },
-        },
-        'Done': {
+        ],
+        'Done': [
             {
                 'name':     'ReOpen',
                 'to_status': {
@@ -203,45 +272,6 @@ workflow = {
                 },
                 'hooks':    [],
             },
-        },
-    }
-}
-
-permission_scheme = {
-    'name':        'Default Permission Scheme',
-    'description': 'The recommended defaults for permissions.',
-    'permissions': {
-        'Administrator': [
-            'VIEW_PROJECT',
-            'ADMIN_PROJECT',
-            'CREATE_TICKET',
-            'COMMENT_TICKET',
-            'REMOVE_COMMENT',
-            'REMOVE_OWN_COMMENT',
-            'EDIT_OWN_COMMENT',
-            'EDIT_COMMENT',
-            'TRANSITION_TICKET',
-            'EDIT_TICKET',
-            'REMOVE_TICKET',
-        ],
-        'Contributor': [
-            'VIEW_PROJECT',
-            'CREATE_TICKET',
-            'COMMENT_TICKET',
-            'REMOVE_OWN_COMMENT',
-            'EDIT_OWN_COMMENT',
-            'TRANSITION_TICKET',
-            'EDIT_TICKET',
-        ],
-        'User': [
-            'VIEW_PROJECT',
-            'CREATE_TICKET',
-            'COMMENT_TICKET',
-            'REMOVE_OWN_COMMENT',
-            'EDIT_OWN_COMMENT',
-        ],
-        'Anonymous': [
-            'VIEW_PROJECT',
         ],
     }
 }
