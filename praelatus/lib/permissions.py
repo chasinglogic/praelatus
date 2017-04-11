@@ -1,8 +1,93 @@
 from functools import wraps
 from sqlalchemy import or_, and_
+from sqlalchemy.orm import joinedload
+from praelatus.lib.utils import rollback
 from praelatus.models import (PermissionScheme, Role, Project,
                               PermissionSchemePermissions,
                               Permission, UserRoles, User)
+
+
+def get(db, id=None, name=None, filter=None, actioning_user=None):
+    if (actioning_user is None or
+       not is_system_admin(db, actioning_user)):
+        return None
+
+    query = db.query(PermissionScheme).\
+        options(joinedload(PermissionSchemePermissions))
+
+    if id is not None:
+        query = query.filter(PermissionScheme.id == id)
+
+    if name is not None:
+        query = query.filter(PermissionScheme.name == name)
+
+    if filter is not None:
+        pattern = filter.replace('*', '%')
+        query = query.filter(
+            PermissionScheme.name.like(pattern)
+        )
+
+    if any([id, name]):
+        return query.first()
+    return query.order_by(PermissionScheme.name).all()
+
+
+@rollback
+def new(db, actioning_user=None, **kwargs):
+    try:
+        if (actioning_user is None or
+           not is_system_admin(db, actioning_user)):
+            raise Exception('permission denied')
+
+        new_scheme = PermissionScheme(
+            name=kwargs['name'],
+            description=kwargs.get('description', '')
+        )
+
+        db.add(new_scheme)
+
+        permissions = []
+
+        for role_name, perm_name in permissions:
+            role = db.query(Role).filter_by(name=role_name).first()
+            permission = db.query(Permission).filter_by(name=perm_name).first()
+
+            perm_scheme_perm = PermissionSchemePermissions(
+                permission_scheme_id=new_scheme.id,
+                role_id=role.id,
+                permission_id=permission.id
+            )
+
+            permissions.add(perm_scheme_perm)
+
+        db.add_all(permissions)
+        db.commit()
+    except KeyError as e:
+        raise Exception('Missing key ' + str(e.args[0]))
+
+
+@rollback
+def update(db, permission_scheme=None, actioning_user=None):
+    if (actioning_user is None or
+       not is_system_admin(db, actioning_user)):
+            raise Exception('permission denied')
+
+    db.add(permission_scheme)
+    db.commit(0)
+
+
+@rollback
+def delete(db, permission_scheme=None, actioning_user=None):
+    if (actioning_user is None or
+       not is_system_admin(db, actioning_user)):
+            raise Exception('permission denied')
+
+    db.delete(permission_scheme)
+    db.commit(0)
+
+
+def is_system_admin(db, user):
+    return db.query(User).get(user.id).first().is_admin
 
 
 def permission_required(permission):
