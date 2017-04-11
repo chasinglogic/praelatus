@@ -34,44 +34,49 @@ def permission_required(permission):
             actioning_user = kwargs.get('actioning_user')
             db = *args[0]
 
-            query = db.query(Project.id).\
-                join(UserRoles).\
-                join(Role).\
-                join(PermissionScheme).\
-                join(PermissionSchemePermissions).\
-                join(Permission).\
-                filter(Project.id == project)
-
-            if actioning_user is not None:
-                query = query.filter(
-                    or_(
-                        db.query(User.is_admin).
-                        filter(User.id == actioning_user.id).
-                        subquery('admin').as_scalar(),
-                        and_(
-                            Permission.name == permission,
-                            or_(
-                                Role.name == 'Anonymous',
-                                UserRoles.user_id == actioning_user.id
-                            ),
-                        )
-                    )
-                )
-            else:
-                query = query.filter(
-                    Permission.name == permission,
-                    Role.name == 'Anonymous'
-                )
-
-            if query.first() is None:
-                raise Exception('permission denied')
-
-            return fn(*args, **kwargs)
+            if has_permission(db, permission, project, actioning_user):
+                return fn(*args, **kwargs)
+            raise Exception('permission denied')
         return wrapper
     return decorator
 
 
-def permission_check(db, query, actioning_user, permission_name):
+def has_permission(db, permission, project, actioning_user):
+    query = db.query(Project.id).\
+            join(UserRoles).\
+            join(Role).\
+            join(PermissionScheme).\
+            join(PermissionSchemePermissions).\
+            join(Permission).\
+            filter(Project.id == project)
+
+    if actioning_user is not None:
+        query = query.filter(
+            or_(
+                db.query(User.is_admin).
+                filter(User.id == actioning_user.id).
+                subquery('admin').as_scalar(),
+                and_(
+                    Permission.name == permission,
+                    or_(
+                        Role.name == 'Anonymous',
+                        UserRoles.user_id == actioning_user.id
+                    ),
+                )
+            )
+        )
+    else:
+        query = query.filter(
+            Permission.name == permission,
+            Role.name == 'Anonymous'
+        )
+
+    if query.first() is None:
+        return False
+    return True
+
+
+def add_permission_query(db, query, actioning_user, permission_name):
     """If Projects is already joined to the given query, permission_check
        will add the requisite joins and filters to check for the
        permission permission_name
