@@ -54,7 +54,6 @@ def new(db, **kwargs):
             new_project.lead_id = lead['id']
 
         permission_scheme = kwargs.get('permission_scheme', None)
-        print(permission_scheme)
         if permission_scheme is None:
             # The default permission scheme should always be id 1
             new_project.permission_scheme_id = 1
