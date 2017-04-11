@@ -1,4 +1,5 @@
-from praelatus.lib.utils import rollback, permission_check
+from praelatus.lib.utils import rollback, add_permission_query
+from praelatus.lib.utils import check_permission
 from praelatus.models.projects import Project
 from praelatus.models.users import User
 from sqlalchemy import or_
@@ -27,7 +28,7 @@ def get(db, key=None, id=None, filter=None, actioning_user=None):
             )
         )
 
-    query = permission_check(db, query, actioning_user, 'VIEW_PROJECT')
+    query = add_permission_query(db, query, actioning_user, 'VIEW_PROJECT')
 
     if any([key, id]):
         return query.first()
@@ -57,5 +58,23 @@ def new(db, **kwargs):
         else:
             # The default permission scheme should always be id 1
             new_project.perimssion_scheme_id = 1
+
+        db.add(new_project)
+        db.commit()
+        return new_project
     except KeyError as e:
         raise Exception('Missing key ' + str(e.args[0]))
+
+
+@rollback
+@check_permission('ADMIN_PROJECT')
+def update(db, project=None, actioning_user=None):
+    db.add(project)
+    db.commit()
+
+
+@rollback
+@check_permission('ADMIN_PROJECT')
+def delete(db, project=None, actioning_user=None):
+    db.delete(project)
+    db.commit()
