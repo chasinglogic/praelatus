@@ -1,5 +1,5 @@
 from praelatus.lib.utils import rollback
-from praelatus.lib.permissions import check_permission, add_permission_query
+from praelatus.lib.permissions import permission_required, add_permission_query
 from praelatus.models.projects import Project
 from praelatus.models.users import User
 from sqlalchemy import or_
@@ -51,13 +51,17 @@ def new(db, **kwargs):
         )
 
         if lead is not None:
-            new_project.lead_id = lead.id
+            new_project.lead_id = lead['id']
 
-        if permission_scheme is not None:
-            new_project.permission_scheme_id = permission_scheme.id
-        else:
+        permission_scheme = kwargs.get('permission_scheme', None)
+        print(permission_scheme)
+        if permission_scheme is None:
             # The default permission scheme should always be id 1
-            new_project.perimssion_scheme_id = 1
+            new_project.permission_scheme_id = 1
+        else:
+            new_project.perimssion_scheme_id = permission_scheme['id']
+
+        print(new_project.permission_scheme_id)
 
         db.add(new_project)
         db.commit()
@@ -67,14 +71,14 @@ def new(db, **kwargs):
 
 
 @rollback
-@check_permission('ADMIN_PROJECT')
+@permission_required('ADMIN_PROJECT')
 def update(db, project=None, actioning_user=None):
     db.add(project)
     db.commit()
 
 
 @rollback
-@check_permission('ADMIN_PROJECT')
+@permission_required('ADMIN_PROJECT')
 def delete(db, project=None, actioning_user=None):
     db.delete(project)
     db.commit()
