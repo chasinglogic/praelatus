@@ -12,28 +12,31 @@ class Ticket(Base):
     created_date = Column(DateTime, default=datetime.now())
     updated_date = Column(DateTime, default=datetime.now(),
                           onupdate=datetime.now())
-    key = Column(String)
+    key = Column(String, unique=True)
     summary = Column(String(length=255))
     description = Column(Text)
 
     reporter_id = Column(Integer, ForeignKey('users.id'))
     reporter = relationship('User', foreign_keys=reporter_id,
-                            backref='reported_tickets')
+                            backref='reported_tickets', lazy='joined')
 
     assignee_id = Column(Integer, ForeignKey('users.id'))
     assignee = relationship('User', foreign_keys=assignee_id,
-                            backref='assigned_tickets')
+                            backref='assigned_tickets', lazy='joined')
 
     ticket_type_id = Column(Integer, ForeignKey('ticket_types.id'))
-    ticket_type = relationship('TicketType')
+    ticket_type = relationship('TicketType', lazy='joined')
 
     status_id = Column(Integer, ForeignKey('statuses.id'))
-    status = relationship('Status')
+    status = relationship('Status', lazy='joined')
 
     workflow_id = Column(Integer, ForeignKey('workflows.id'))
 
-    comments = relationship('Comment', backref='comments')
-    fields = relationship('FieldValue', backref='field_values')
+    comments = relationship('Comment', backref='ticket',
+                            lazy='joined')
+
+    fields = relationship('FieldValue', backref='field_values',
+                          lazy='joined')
 
 
 class Comment(Base):
@@ -63,7 +66,7 @@ class Label(Base):
     __tablename__ = 'labels'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String, unique=True)
     tickets = relationship('Ticket', secondary=labels_tickets,
                            backref='labels')
 
@@ -72,11 +75,11 @@ class TicketType(Base):
     __tablename__ = 'ticket_types'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String, unique=True)
 
 
 class Status(Base):
     __tablename__ = 'statuses'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String, unique=True)
