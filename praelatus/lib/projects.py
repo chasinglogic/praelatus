@@ -1,5 +1,5 @@
-from praelatus.lib.utils import rollback, add_permission_query
-from praelatus.lib.utils import check_permission
+from praelatus.lib.utils import rollback
+from praelatus.lib.permissions import check_permission, add_permission_query
 from praelatus.models.projects import Project
 from praelatus.models.users import User
 from sqlalchemy import or_
