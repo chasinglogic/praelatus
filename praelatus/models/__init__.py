@@ -5,6 +5,7 @@ from praelatus.models.permissions import Role
 from praelatus.models.permissions import Permission
 from praelatus.models.permissions import PermissionScheme
 from praelatus.models.permissions import PermissionSchemePermissions
+from praelatus.models.permissions import UserRoles
 from praelatus.models.fields import Field
 from praelatus.models.fields import FieldOption
 from praelatus.models.fields import FieldValue
