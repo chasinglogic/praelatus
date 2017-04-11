@@ -43,6 +43,7 @@ def new(db, **kwargs):
         raise Exception('Missing key' + str(e.args[0]))
 
 
+@rollback
 def update(db, user, actioning_user=None):
     if (actioning_user is None
         or (actioning_user.id != user.id
@@ -53,6 +54,7 @@ def update(db, user, actioning_user=None):
     db.commit()
 
 
+@rollback
 def delete(db, user, actioning_user=None):
     if (actioning_user is None
         or (actioning_user.id != user.id
