@@ -3,6 +3,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 from praelatus.models import Base
+from praelatus.config import config as app_config
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -20,6 +21,11 @@ target_metadata = Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+
+def get_url():
+    """Get the database url using the baked in Praelatus method."""
+    return app_config['DB_URL']
 
 
 def run_migrations_offline():
