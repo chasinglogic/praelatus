@@ -15,12 +15,14 @@ from sqlalchemy.orm import sessionmaker
 
 
 def init_db():
-    global engine
-    print(config)
-    engine = create_engine(config['DB_URL'])
-    Base.metadata.create_all(engine)
-    global Session
-    Session = sessionmaker(bind=engine)
+    try:
+        engine
+    except NameError:
+        global engine
+        engine = create_engine(config['DB_URL'])
+        Base.metadata.create_all(engine)
+        global Session
+        Session = sessionmaker(bind=engine)
 
 
 def session():
@@ -32,5 +34,6 @@ def session():
 
 
 def clean_db():
+    init_db()
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
