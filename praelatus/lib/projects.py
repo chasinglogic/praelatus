@@ -60,8 +60,6 @@ def new(db, **kwargs):
         else:
             new_project.perimssion_scheme_id = permission_scheme['id']
 
-        print(new_project.permission_scheme_id)
-
         db.add(new_project)
         db.commit()
         return new_project
