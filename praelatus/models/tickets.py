@@ -1,7 +1,16 @@
+"""
+Defines the Ticket, Comment, Label, TickeType, and Status models.
+"""
+
 from praelatus.models.base import Base
 from datetime import datetime
-from sqlalchemy import (Column, DateTime, String, Table, Text,
-                        Integer, ForeignKey)
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import String
+from sqlalchemy import Table
+from sqlalchemy import Text
+from sqlalchemy import Integer
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
 
@@ -29,6 +38,9 @@ class Ticket(Base):
 
     status_id = Column(Integer, ForeignKey('statuses.id'))
     status = relationship('Status', lazy='joined')
+
+    project_id = Column(Integer, ForeignKey('projects.id'))
+    project = relationship('Project', lazy='joined')
 
     workflow_id = Column(Integer, ForeignKey('workflows.id'))
 
