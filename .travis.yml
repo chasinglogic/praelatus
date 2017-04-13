@@ -1,0 +1,8 @@
+language: python
+services:
+  - postgres
+  - redis
+install:
+  - pip install tox
+script:
+  - tox
