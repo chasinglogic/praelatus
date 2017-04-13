@@ -11,6 +11,7 @@ Anonymous user.
 """
 
 from sqlalchemy import or_
+from iso8601 import parse_date
 from sqlalchemy.orm import joinedload
 from praelatus.models import Ticket
 from praelatus.models import User
@@ -19,6 +20,7 @@ from praelatus.models import FieldValue
 from praelatus.models import Status
 from praelatus.models import Comment
 from praelatus.models import TicketType
+from praelatus.models.fields import DataTypeError
 
 
 def get(db, id=None, key=None, reporter=None, assignee=None,
@@ -79,3 +81,71 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
 
 
 def new(db, **kwargs):
+    """
+    Creates a new ticket in the database.
+
+    The kwargs are designed such that if a json representation of a
+    ticket is provided as expanded kwargs it will be handled
+    properly.
+
+    If a required argument is not provided then it raises a KeyError
+    indicating which key was missing. Useful for returning HTTP 400
+    errors.
+
+    keyword arguments:
+    project -- json of the project the ticket belongs to
+    assignee -- json of the User who is assigned the ticket, can be None
+    reporter -- json of the User who the ticket is reported by
+    description -- the description for the ticket
+    summary -- the summary for the ticket
+    workflow_id -- the workflow this ticket should be associated with,
+                   if not provided it will be determined by the
+                   ticket_type and project
+    fields -- an array of json FieldValue's can be None
+    ticket_type -- json of the TicketType
+    status -- json of the Status
+    labels -- an array of json Labels
+    """
+
+    new_ticket = Ticket(
+        summary=kwargs['summary'],
+        description=kwargs['description'],
+        assignee_id=kwargs['assignee']['id'],
+        ticket_type_id=kwargs['ticket_type']['id'],
+        status_id=kwargs['status']['id'],
+        workflow_id=kwargs['workflow_id']
+    )
+
+    field_values = kwargs.get('field_values', [])
+    for f in field_values:
+        field = db.query.filter_by(name=f['name']).first()
+        fv = FieldValue(
+            field=field
+        )
+
+        set_field_value(fv, f['value'])
+
+        new_ticket.fields.append(fv)
+
+    db.add(new_ticket)
+    db.commit()
+
+
+def set_field_value(field_value, val):
+    if type(val) is int:
+        field_value.int_value = val
+
+    elif type(val) is float:
+        field_value.flt_value = val
+
+    elif type(val) is str and field_value.field.data_type == 'DATE':
+        field_value.date_value = parse_date(val)
+
+    elif type(val) is dict and field_value.field.data_type == 'OPT':
+        field_value.opt_value = val['selected']
+
+    elif type(val) is str and field_value.field.data_type == 'STRING':
+        field_value.str_value = val
+
+    else:
+        raise DataTypeError('no valid data type found')
