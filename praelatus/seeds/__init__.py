@@ -5,8 +5,7 @@ import praelatus.lib.projects as prj
 import praelatus.lib.labels as lbls
 import praelatus.lib.roles as rls
 import praelatus.lib.fields as flds
-import praelatus.lib.statuses as sts
-import praelatus.lib.
+import praelatus.lib.tickets as tks
 import praelatus.lib.permissions as perm_schemes
 
 
@@ -33,20 +32,18 @@ def seed(db):
             'full_name': 'Test Testerson II',
         }
     ]
-    
-    
+
     for u in users:
         try:
             usr.new(db, **u)
         except:
             continue
-        
-    
+
     for r in defaults.roles:
         rls.new(db, **r)
-           
+
     perm_schemes.new(db, **defaults.permission_scheme)
-            
+
     projects = [
         {
             'name': 'TEST Project',
@@ -64,14 +61,14 @@ def seed(db):
             'lead': {'id': 2},
         }
     ]
-    
+
     for p in projects:
         try:
             prj.new(db, **p)
         except Exception as e:
             print(e)
             continue
-                
+
     labels = [
         {
             'name': 'test',
@@ -83,15 +80,15 @@ def seed(db):
             'name': 'wontfix',
         }
     ]
-                
+
     for l in labels:
         try:
             lbls.new(db, **l)
         except:
             continue
-        
+
     priorities = ['HIGH', 'MEDIUM', 'LOW']
-        
+
     fields = [
         {
             'name':     'Story Points',
@@ -117,7 +114,7 @@ def seed(db):
     ]
 
     for f in fields:
-        
+        flds.new(db, **f)
 
     for i in range(1, 100):
         t = {
@@ -142,3 +139,5 @@ def seed(db):
                 'id': 1,
             }
         }
+
+        tks.new(db, **t)
