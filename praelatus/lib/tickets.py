@@ -26,7 +26,7 @@ from praelatus.models.fields import DataTypeError
 def get(db, id=None, key=None, reporter=None, assignee=None,
         filter=None, actioning_user=None):
     """
-    Get a ticket from the database.
+    Get tickets from the database.
 
     If the keyword arguments id or key are specified returns a single
     sqlalchemy result, otherwise returns all matching results.
@@ -82,9 +82,9 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
 
 def new(db, **kwargs):
     """
-    Creates a new ticket in the database.
+    Creates a new ticket in the database; then returns that ticket.
 
-    The kwargs are designed such that if a json representation of a
+    The kwargs are parsed such that if a json representation of a
     ticket is provided as expanded kwargs it will be handled
     properly.
 
@@ -92,18 +92,20 @@ def new(db, **kwargs):
     indicating which key was missing. Useful for returning HTTP 400
     errors.
 
-    keyword arguments:
+    required keyword arguments:
     project -- json of the project the ticket belongs to
-    assignee -- json of the User who is assigned the ticket, can be None
     reporter -- json of the User who the ticket is reported by
     description -- the description for the ticket
     summary -- the summary for the ticket
+    ticket_type -- json of the TicketType
+    status -- json of the Status
     workflow_id -- the workflow this ticket should be associated with,
                    if not provided it will be determined by the
                    ticket_type and project
-    fields -- an array of json FieldValue's can be None
-    ticket_type -- json of the TicketType
-    status -- json of the Status
+
+    optional keyword arguments:
+    assignee -- json of the User who is assigned the ticket
+    fields -- an array of json FieldValue's
     labels -- an array of json Labels
     """
 
@@ -122,13 +124,17 @@ def new(db, **kwargs):
         fv = FieldValue(
             field=field
         )
-
         set_field_value(fv, f['value'])
-
         new_ticket.fields.append(fv)
+
+    labels = kwargs.get('labels', [])
+    for l in labels:
+        lbl = Label(name=l['name'])
+        new_ticket.labels.append(lbl)
 
     db.add(new_ticket)
     db.commit()
+    return new_ticket
 
 
 def set_field_value(field_value, val):
