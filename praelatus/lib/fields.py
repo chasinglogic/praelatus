@@ -1,5 +1,5 @@
 """
-Contains methods for interacting with fields.
+Contains functions for interacting with fields.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -18,7 +18,7 @@ from praelatus.lib.utils import rollback
 
 def get(db, id=None, name=None, filter=None):
     """
-    Get a field from the database.
+    Get fields from the database.
 
     If the keyword arguments id or name are specified returns a single
     sqlalchemy result, otherwise returns all matching results.
@@ -29,7 +29,6 @@ def get(db, id=None, name=None, filter=None):
     name -- the field name (default None)
     filter -- a pattern to search through fields with (default None)
     """
-
     query = db.query(Field)
 
     if id is not None:
@@ -58,7 +57,7 @@ def valid_type(data_type):
 @rollback
 def new(db, **kwargs):
     """
-    Creates a new field in the database; then returns that field.
+    Create a new field in the database then returns that field.
 
     The kwargs are parsed such that if a json representation of a
     field is provided as expanded kwargs it will be handled
@@ -68,14 +67,13 @@ def new(db, **kwargs):
     indicating which key was missing. Useful for returning HTTP 400
     errors.
 
-    required keyword arguments:
+    Required Keyword Arguments:
     name -- the field name
     data_type -- the field's data_type as specified by DATA_TYPES
 
-    optional keyword arguments
+    Optional Keyword Arguments:
     options -- an array of json FieldOptions required if DATA_TYPE == 'OPT'
     """
-
     new_field = Field(
         name=kwargs['name'],
         data_type=valid_type(kwargs['data_type']),
@@ -92,6 +90,11 @@ def new(db, **kwargs):
 
 @rollback
 def update(db, field):
+    """
+    Update the given field in the database.
+
+    field must be a Field class instance.
+    """
     db.add(field)
     db.commit()
     return field
@@ -99,5 +102,10 @@ def update(db, field):
 
 @rollback
 def delete(db, field):
+    """
+    Remove the given field from the database.
+
+    field must be a Field class instance.
+    """
     db.delete(field)
     db.commit()

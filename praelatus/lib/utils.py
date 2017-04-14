@@ -1,10 +1,15 @@
-"""Contains utility functions and decorators for use in lib"""
+"""Contains utility functions and decorators for use in lib."""
+
 from functools import wraps
 
 
 def rollback(fn):
-    """rollback is a decorator which on an uncaught exception will
-    rollback the db session"""
+    """
+    Decorate a function and rollback the db on an Exception.
+
+    Requires that the first argument is a sqlalchemy session as
+    created by a SessionMaker
+    """
     @wraps(fn)
     def wrapper(*args, **kwargs):
         try:

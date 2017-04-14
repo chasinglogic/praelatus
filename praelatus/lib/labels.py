@@ -1,5 +1,5 @@
 """
-Contains methods for interacting with labels.
+Contains functions for interacting with labels.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -16,21 +16,19 @@ from sqlalchemy.orm import joinedload
 
 
 def get(db, id=None, name=None, filter=None, preload_tickets=False):
-
     """
-    Get projects from the database.
+    Get labels from the database.
 
-    If the keyword arguments id, name, or key are specified returns a
+    If the keyword arguments id or name are specified returns a
     single sqlalchemy result, otherwise returns all matching results.
 
-    keyword arguments:
-    actioning_user -- the user requesting the project (default None)
+    Keyword Arguments:
     id -- database id (default None)
-    key -- the project key (default None)
-    name -- the project name (default None)
-    filter -- a pattern to search through projects with (default None)
+    name -- the label name (default None)
+    filter -- a pattern to search through labels with (default None)
+    preload_tickets -- whether to load the tickets associated with
+                       this label (default False)
     """
-
     query = db.query(Label)
 
     if id is not None:
@@ -53,24 +51,46 @@ def get(db, id=None, name=None, filter=None, preload_tickets=False):
 
 @rollback
 def new(db, **kwargs):
-    try:
-        new_label = Label(
-            name=kwargs['name'],
-        )
-        db.add(new_label)
-        db.commit()
-        return new_label
-    except KeyError:
-        raise Exception('Missing key name')
+    """
+    Create a new label in the database then returns that label.
+
+    The kwargs are parsed such that if a json representation of a
+    label is provided as expanded kwargs it will be handled
+    properly.
+
+    If a required argument is not provided then it raises a KeyError
+    indicating which key was missing. Useful for returning HTTP 400
+    errors.
+
+    Required Keyword Arguments:
+    name -- the label name
+    """
+    new_label = Label(
+        name=kwargs['name'],
+    )
+
+    db.add(new_label)
+    db.commit()
+    return new_label
 
 
 @rollback
 def update(db, label):
+    """
+    Update the given label in the database.
+
+    label must be a Label class instance.
+    """
     db.add(label)
     db.commit()
 
 
 @rollback
 def delete(db, label):
+    """
+    Remove the given label from the database.
+
+    label must be a Label class instance.
+    """
     db.delete(label)
     db.commit()

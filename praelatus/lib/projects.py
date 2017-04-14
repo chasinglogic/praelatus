@@ -1,5 +1,5 @@
 """
-Contains methods for interacting with projects.
+Contains functions for interacting with projects.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -10,11 +10,12 @@ checked before committing the action. None is equivalent to an
 Anonymous user.
 """
 
+from sqlalchemy import or_
+
 from praelatus.lib.utils import rollback
 from praelatus.lib.permissions import permission_required, add_permission_query
 from praelatus.models.projects import Project
 from praelatus.models.users import User
-from sqlalchemy import or_
 
 
 def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
@@ -24,14 +25,13 @@ def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
     If the keyword arguments id, name, or key are specified returns a
     single sqlalchemy result, otherwise returns all matching results.
 
-    keyword arguments:
+    Keyword Arguments:
     actioning_user -- the user requesting the project (default None)
     id -- database id (default None)
     key -- the project key (default None)
     name -- the project name (default None)
     filter -- a pattern to search through projects with (default None)
     """
-
     query = db.query(Project).join(User)
 
     if key is not None:
@@ -64,7 +64,7 @@ def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
 @rollback
 def new(db, **kwargs):
     """
-    Creates a new project in the database; then returns that project.
+    Create a new project in the database then return that project.
 
     The kwargs are parsed such that if a json representation of a
     project is provided as expanded kwargs it will be handled
@@ -84,7 +84,6 @@ def new(db, **kwargs):
     permission_scheme -- the permission scheme to use for this project
     lead -- the project lead for this project
     """
-
     new_project = Project(
         key=kwargs['key'],
         homepage=kwargs.get('homepage'),
@@ -108,6 +107,11 @@ def new(db, **kwargs):
 @rollback
 @permission_required('ADMIN_PROJECT')
 def update(db, project=None, actioning_user=None):
+    """
+    Update the given project in the database.
+
+    project must be a Project class instance.
+    """
     db.add(project)
     db.commit()
 
@@ -115,5 +119,10 @@ def update(db, project=None, actioning_user=None):
 @rollback
 @permission_required('ADMIN_PROJECT')
 def delete(db, project=None, actioning_user=None):
+    """
+    Remove the given project from the database.
+
+    project must be a Project class instance.
+    """
     db.delete(project)
     db.commit()

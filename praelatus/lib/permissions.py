@@ -1,13 +1,43 @@
+"""
+Contains functions for interacting with roles, and permission schemes.
+
+Anywhere a db is taken it is assumed to be a sqlalchemy session
+created by a SessionMaker instance.
+
+Anywhere actioning_user is a keyword argument, this is the user
+performing the call and the permissions of the provided user will be
+checked before committing the action. None is equivalent to an
+Anonymous user.
+"""
+
 from functools import wraps
-from sqlalchemy import or_, and_
+from sqlalchemy import or_
+from sqlalchemy import and_
 from sqlalchemy.orm import joinedload
+
 from praelatus.lib.utils import rollback
-from praelatus.models import (PermissionScheme, Role, Project,
-                              PermissionSchemePermissions,
-                              Permission, UserRoles, User)
+from praelatus.models import PermissionScheme
+from praelatus.models import Role
+from praelatus.models import Project
+from praelatus.models import PermissionSchemePermissions
+from praelatus.models import Permission
+from praelatus.models import UserRoles
+from praelatus.models import User
 
 
 def get(db, id=None, name=None, filter=None, actioning_user=None):
+    """
+    Get permission schemes from the database.
+
+    If the keyword arguments id or name are specified returns a single
+    sqlalchemy result, otherwise returns all matching results.
+
+    Keyword Arguments:
+    actioning_user -- the user requesting the permission scheme (default None)
+    id -- database id (default None)
+    name -- the permission scheme name (default None)
+    filter -- a pattern to search through permission schemes with (default None)
+    """
     if (actioning_user is None or
        not is_system_admin(db, actioning_user)):
         return None
@@ -34,40 +64,57 @@ def get(db, id=None, name=None, filter=None, actioning_user=None):
 
 @rollback
 def new(db, actioning_user=None, **kwargs):
-    try:
-        if (actioning_user is None or
-           not is_system_admin(db, actioning_user)):
-            raise Exception('permission denied')
+    """
+    Create a new permission scheme in the database then return that permission scheme.
 
-        new_scheme = PermissionScheme(
-            name=kwargs['name'],
-            description=kwargs.get('description', '')
-        )
+    The kwargs are parsed such that if a json representation of a
+    permission scheme is provided as expanded kwargs it will be handled
+    properly.
 
-        db.add(new_scheme)
+    If a required argument is not provided then it raises a KeyError
+    indicating which key was missing. Useful for returning HTTP 400
+    errors.
 
-        permissions = []
+    Required Keyword Arguments:
+    name -- the permission scheme name
+    description -- the permission scheme's description
+    actioning_user -- the User creating the permission scheme
+    """
+    if (actioning_user is None or
+       not is_system_admin(db, actioning_user)):
+        raise Exception('permission denied')
 
-        for role_name, perm_name in permissions:
-            role = db.query(Role).filter_by(name=role_name).first()
-            permission = db.query(Permission).filter_by(name=perm_name).first()
+    new_scheme = PermissionScheme(
+        name=kwargs['name'],
+        description=kwargs.get('description', '')
+    )
 
+    permissions = kwargs['permissions']
+    for role_name, perms in permissions:
+        role = db.query(Role).filter_by(name=role_name).first()
+        for perm in perms:
+            permission = db.query(Permission).filter_by(name=perm).first()
             perm_scheme_perm = PermissionSchemePermissions(
                 permission_scheme_id=new_scheme.id,
                 role_id=role.id,
                 permission_id=permission.id
             )
 
-            permissions.add(perm_scheme_perm)
+            new_scheme.permissions.append(perm_scheme_perm)
 
-        db.add_all(permissions)
-        db.commit()
-    except KeyError as e:
-        raise Exception('Missing key ' + str(e.args[0]))
+    db.add(new_scheme)
+    db.commit()
+
+    return new_scheme
 
 
 @rollback
 def update(db, permission_scheme=None, actioning_user=None):
+    """
+    Update the permission scheme in the database.
+
+    permission_scheme must be a PermissionScheme class instance.
+    """
     if (actioning_user is None or
        not is_system_admin(db, actioning_user)):
             raise Exception('permission denied')
@@ -78,6 +125,11 @@ def update(db, permission_scheme=None, actioning_user=None):
 
 @rollback
 def delete(db, permission_scheme=None, actioning_user=None):
+    """
+    Remove the permission scheme from the database.
+
+    permission_scheme must be a PermissionScheme class instance.
+    """
     if (actioning_user is None or
        not is_system_admin(db, actioning_user)):
             raise Exception('permission denied')
@@ -87,13 +139,12 @@ def delete(db, permission_scheme=None, actioning_user=None):
 
 
 def is_system_admin(db, user):
+    """Check if user is a system administrator."""
     return db.query(User).get(user.id).first().is_admin
 
 
 def permission_required(permission):
-    """permission_required will check if the actioning_user has the
-       'permission' indicated by the parameter.
-    """
+    """Check if the actioning_user has permission."""
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
@@ -112,13 +163,14 @@ def permission_required(permission):
 
 
 def has_permission(db, permission, project, actioning_user):
+    """Check if permission is granted to actioning_user on project."""
     query = db.query(Project.id).\
-            join(UserRoles).\
-            join(Role).\
-            join(PermissionScheme).\
-            join(PermissionSchemePermissions).\
-            join(Permission).\
-            filter(Project.id == project)
+        join(UserRoles).\
+        join(Role).\
+        join(PermissionScheme).\
+        join(PermissionSchemePermissions).\
+        join(Permission).\
+        filter(Project.id == project)
 
     if actioning_user is not None:
         query = query.filter(
@@ -147,9 +199,10 @@ def has_permission(db, permission, project, actioning_user):
 
 
 def add_permission_query(db, query, actioning_user, permission_name):
-    """If Projects is already joined to the given query, permission_check
-       will add the requisite joins and filters to check for the
-       permission permission_name
+    """
+    Add the requisite joins and filters to check for permission_name.
+
+    If the Project table is not already joined then this will not work.
     """
     query = query.join(
         PermissionScheme,

@@ -1,5 +1,5 @@
 """
-Contains methods for interacting with tickets.
+Contains functions for interacting with tickets.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -13,6 +13,7 @@ Anonymous user.
 from sqlalchemy import or_
 from iso8601 import parse_date
 from sqlalchemy.orm import joinedload
+
 from praelatus.models import Ticket
 from praelatus.models import User
 from praelatus.models import Label
@@ -31,7 +32,7 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
     If the keyword arguments id or key are specified returns a single
     sqlalchemy result, otherwise returns all matching results.
 
-    keyword arguments:
+    Keyword Arguments:
     actioning_user -- the user requesting the ticket (default None)
     id -- database id (default None)
     key -- the ticket key i.e. TEST-123 (default None)
@@ -39,7 +40,6 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
     assignee -- User class instance who is the assignee (default None)
     filter -- a pattern to search through tickets with (default None)
     """
-
     query = db.query(Ticket).join(
         FieldValue,
         Label,
@@ -82,7 +82,7 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
 
 def new(db, **kwargs):
     """
-    Creates a new ticket in the database; then returns that ticket.
+    Create a new ticket in the database then return that ticket.
 
     The kwargs are parsed such that if a json representation of a
     ticket is provided as expanded kwargs it will be handled
@@ -92,7 +92,7 @@ def new(db, **kwargs):
     indicating which key was missing. Useful for returning HTTP 400
     errors.
 
-    required keyword arguments:
+    Required Keyword Arguments:
     project -- json of the project the ticket belongs to
     reporter -- json of the User who the ticket is reported by
     description -- the description for the ticket
@@ -103,12 +103,11 @@ def new(db, **kwargs):
                    if not provided it will be determined by the
                    ticket_type and project
 
-    optional keyword arguments:
+    Optional Keyword Arguments:
     assignee -- json of the User who is assigned the ticket
     fields -- an array of json FieldValue's
     labels -- an array of json Labels
     """
-
     new_ticket = Ticket(
         summary=kwargs['summary'],
         description=kwargs['description'],
@@ -138,6 +137,7 @@ def new(db, **kwargs):
 
 
 def set_field_value(field_value, val):
+    """Set appropriate field_value member based on type of val."""
     if type(val) is int:
         field_value.int_value = val
 
