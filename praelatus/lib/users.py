@@ -25,22 +25,20 @@ def get(db, username=None, id=None, email=None, filter=None):
 
 @rollback
 def new(db, **kwargs):
-    try:
-        password = bcrypt.hashpw(kwargs['password'].encode('utf-8'),
-                                 bcrypt.gensalt())
-        new_user = User(
-            username=kwargs['username'],
-            password=password,
-            email=kwargs['email'],
-            profile_pic=gravatar(kwargs['email']),
-            is_admin=kwargs.get('is_admin', False),
-            is_active=kwargs.get('is_active', True),
-            full_name=kwargs['full_name'])
-        db.add(new_user)
-        db.commit()
-        return new_user
-    except KeyError as e:
-        raise Exception('Missing key' + str(e.args[0]))
+    password = bcrypt.hashpw(kwargs['password'].encode('utf-8'),
+                             bcrypt.gensalt())
+    new_user = User(
+        username=kwargs['username'],
+        password=password,
+        email=kwargs['email'],
+        profile_pic=gravatar(kwargs['email']),
+        is_admin=kwargs.get('is_admin', False),
+        is_active=kwargs.get('is_active', True),
+        full_name=kwargs['full_name'])
+    db.add(new_user)
+    db.commit()
+
+    return new_user
 
 
 @rollback
