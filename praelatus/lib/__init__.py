@@ -19,7 +19,7 @@ def init_db():
         engine
     except NameError:
         global engine
-        engine = create_engine(config['DB_URL'])
+        engine = create_engine(config.db_url)
         Base.metadata.create_all(engine)
         global Session
         Session = sessionmaker(bind=engine)
@@ -35,5 +35,5 @@ def session():
 
 def clean_db():
     init_db()
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    engine.execute("DROP SCHEMA public CASCADE;")
+    engine.execute("CREATE SCHEMA public;")
