@@ -1,15 +1,19 @@
+"""Contains a function for seeding a database with test data."""
+
 from random import randint
-import praeltaus.seeds.defaults as defaults
 import praelatus.lib.users as usr
 import praelatus.lib.projects as prj
 import praelatus.lib.labels as lbls
-import praelatus.lib.roles as rls
+# import praelatus.lib.roles as rls
 import praelatus.lib.fields as flds
 import praelatus.lib.tickets as tks
 import praelatus.lib.permissions as perm_schemes
 
 
 def seed(db):
+    """Seed the given db with test data."""
+    import praelatus.seeds.defaults as defaults
+
     users = [
         {
             'username': 'testadmin',
