@@ -17,3 +17,4 @@ from praelatus.models.tickets import Ticket
 from praelatus.models.tickets import Comment
 from praelatus.models.tickets import TicketType
 from praelatus.models.tickets import Label
+from praelatus.models.tickets import Status
