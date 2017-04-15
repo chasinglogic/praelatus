@@ -17,10 +17,10 @@ class PermissionScheme(Base):
 
 class PermissionSchemePermissions(Base):
     __tablename__ = 'permission_scheme_permissions'
-    __table_args__ = {
-        'unique_ids': UniqueConstraint('permission_scheme_id',
-                                       'role_id', 'permission_id')
-        }
+    __table_args__ = (
+        UniqueConstraint('permission_scheme_id', 'role_id',
+                         'permission_id'),
+        )
 
     id = Column(Integer, primary_key=True)
     permission_scheme_id = Column('permission_scheme_id', Integer,
