@@ -1,8 +1,6 @@
 include README.md
 include LICENSE
 include alembic.ini
-include requirements.txt
-
-graft alembic
-graft docs
+recursive-include alembic *
+recursive-include docs *
 
