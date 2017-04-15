@@ -1,28 +1,47 @@
-"""Contains all of the configuration for Praelatus"""
+"""Contains all of the configuration for Praelatus."""
+
 import json
 import os
 
 
-def init():
-    global config
-    config = {}
+class Config:
+    """Contains all global app configuration and defaults."""
 
-    if os.path.exists('./config.json'):
-        config = json.loads('./config.json')
-        return
+    default_db = 'postgres://postgres:postgres@localhost:5432/prae_dev'
+    default_port = '8080'
+    default_data_dir = '/var/praelatus/data'
 
-    config['DB_URL'] = os.getenv('PRAELATUS_DB')
-    if config['DB_URL'] is None:
-        config['DB_URL'] = 'postgres://postgres:postgres@localhost:5432/prae_dev'
+    def __init__(self, **kwargs):
+        """Build a new config."""
+        self.db_url = kwargs['db_url']
+        self.port = kwargs['port']
+        self.redis_url = kwargs['redis_url']
+        self.redis_password = kwargs['redis_password']
+        self.data_dir = kwargs['data_dir']
 
-    config['PORT'] = os.getenv('PRAELATUS_PORT')
-    if config['PORT'] is None:
-        config['PORT'] = '8080'
+    def __repr__(self):
+        """Return the str version of the internal dict."""
+        return str(self.__dict__)
 
-    return
+    def load(self):
+        """Create a new Config based on the config file or environment variables."""  # noqa: E501
+        if os.path.exists('/etc/praelatus/config.json'):
+            config = json.loads('/etc/praelatus/config.json')
+            return Config(**config)
+
+        if os.path.exists('./config.json'):
+            config = json.loads('./config.json')
+            return Config(**config)
+
+        config = {}
+        config['db_url'] = os.environ.get('PRAELATUS_DB', self.default_db)
+        config['port'] = os.environ.get('PRAELATUS_PORT', self.default_port)
+        config['redis_url'] = os.getenv('PRAELATUS_REDIS')
+        config['redis_password'] = os.getenv('PRAELATUS_REDIS_PASS')
+        config['data_dir'] = os.getenv('PRAELATUS_DATA_DIRECTORY')
+
+        return Config(**config)
 
 
-try:
-    config
-except NameError:
-    init()
+global config
+config = Config.load(Config)
