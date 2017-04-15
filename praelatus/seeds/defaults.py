@@ -1,6 +1,4 @@
-"""Defaults contains the defaults that should be set up on a new
-instance.
-"""
+"""Contains the defaults that should be set up on a new instance."""
 
 roles = [
     {
