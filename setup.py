@@ -2,6 +2,7 @@
 import os
 import re
 from setuptools import setup
+from setuptools import find_packages
 
 
 praelatusfile = os.path.join(os.path.dirname(__file__),
@@ -41,7 +42,11 @@ setup(
     name='praelatus',
     description='An Open Source bug tracking / ticketing system',
     version=__version__,
-    packages=['praelatus'],
+    packages=find_packages(),
+    package_data={
+        '': '*.ini'
+    },
+    include_package_data=True,
     author="""
 Mathew Robinson <mrobinson@praelatus.io>
 Mark Chandler <mchandler@praelatus.io>
