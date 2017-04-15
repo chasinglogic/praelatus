@@ -45,7 +45,7 @@ class FieldOption(Base):
 class FieldValue(Base):
     __tablename__ = 'field_values'
     __table_args__ = (
-        UniqueConstraint('field_id', 'ticket_id')
+        UniqueConstraint('field_id', 'ticket_id'),
     )
 
     id = Column(Integer, primary_key=True)
