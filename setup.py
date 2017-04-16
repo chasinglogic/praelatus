@@ -2,6 +2,7 @@
 import os
 import re
 from setuptools import setup
+from setuptools import find_packages
 
 praelatusfile = os.path.join(os.path.dirname(__file__),
                              'src', 'praelatus', '__init__.py')
@@ -40,10 +41,8 @@ setup(
     name='praelatus',
     description='An Open Source bug tracking / ticketing system',
     version=__version__,
-    packages=[
-        'src/praelatus',
-        'src/migrations'
-    ],
+    packages=find_packages(where='src'),
+    package_dir={'': 'src'},
     package_data={
         '': '*.ini'
     },
