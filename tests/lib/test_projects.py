@@ -1,12 +1,5 @@
 import praelatus.lib.users as users
 import praelatus.lib.projects as projects
-import pytest
-from praelatus.lib import session
-
-
-@pytest.fixture
-def db():
-    return session()
 
 
 def test_get_one(db):
@@ -20,7 +13,7 @@ def test_get_filter(db):
     print(pjs)
     assert pjs is not None
     assert len(pjs) > 0
-    assert pjs[0].key == 'TEST'
+    assert 'TEST' in pjs[0].key
 
 
 def test_get_filter_action(db):
@@ -30,4 +23,4 @@ def test_get_filter_action(db):
     print(pjs)
     assert pjs is not None
     assert len(pjs) > 0
-    assert pjs[0].key == 'TEST'
+    assert 'TEST' in pjs[0].key

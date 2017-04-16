@@ -1,12 +1,4 @@
 import praelatus.lib.labels as labels
-import pytest
-from praelatus.lib import session
-
-
-@pytest.fixture
-def db():
-    return session()
-
 
 def test_get(db):
     lbl = labels.get(db, name='duplicate')

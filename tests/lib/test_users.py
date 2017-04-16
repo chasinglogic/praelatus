@@ -1,11 +1,4 @@
 import praelatus.lib.users as users
-import pytest
-from praelatus.lib import session
-
-
-@pytest.fixture
-def db():
-    return session()
 
 
 def test_get(db):
