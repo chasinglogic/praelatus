@@ -8,8 +8,10 @@ import praelatus.lib.roles as rls
 import praelatus.lib.fields as flds
 import praelatus.lib.tickets as tks
 import praelatus.lib.permissions as perm_schemes
+from praelatus.lib.utils import rollback
 
 
+@rollback
 def seed(db):
     """Seed the given db with test data."""
     import praelatus.seeds.defaults as defaults
@@ -58,7 +60,7 @@ def seed(db):
         {
             'name': 'TEST Project',
             'key':  'TEST',
-            'lead': {'id': 1},
+            'lead': {'id': 3},
         },
         {
             'name': 'TEST Project 2',
