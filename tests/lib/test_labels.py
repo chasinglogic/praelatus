@@ -13,3 +13,28 @@ def test_get_with_filter(db):
     assert len(lbls) > 0
     assert lbls[0].id is not None
 
+def test_update(db):
+    new_name = 'duplex'
+    lbl = labels.get(db, name='duplicate')
+    lbl.name = new_name
+
+    labels.update(db, label=lbl)
+
+    l = labels.get(db, id=lbl.id)
+    assert l.name == new_name
+
+
+def test_delete(db):
+    label = {
+            'name': 'DELETE THIS',
+    }
+
+    labels.new(db, **label)
+
+    l = labels.get(db, name='DELETE THIS')
+    assert l is not None
+
+    labels.delete(db, label=l)
+
+    l = labels.get(db, name='DELETE THIS')
+    assert l is None
