@@ -81,7 +81,7 @@ def new(db, **kwargs):
 
     options = kwargs.get('options', [])
     for o in options:
-        new_field.options.append(FieldOption(name=o['name']))
+        new_field.options.append(FieldOption(name=o))
 
     db.add(new_field)
     db.commit()
