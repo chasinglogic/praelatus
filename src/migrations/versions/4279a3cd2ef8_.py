@@ -40,11 +40,17 @@ def upgrade():
     sa.Column('description', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('permissions',
+
+    perm_table = op.create_table('permissions',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
+
+    from praelatus.models import Permissions
+    for perm in Permissions:
+        op.execute(perm_table.insert().values(name=perm.value))
+    
     op.create_table('roles',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=True),
