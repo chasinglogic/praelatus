@@ -33,7 +33,6 @@ def migratedb():
     import subprocess
     from subprocess import PIPE
     alembicArgs = [
-        '/bin/bash',
         'alembic',
         '-c migrations/alembic.ini',
         'upgrade',
