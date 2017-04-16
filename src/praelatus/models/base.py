@@ -29,7 +29,7 @@ class BaseModel:
                 continue
 
             # Check if it's a model, if so jsonify it first.
-            if isinstance(val, Base):
+            if isinstance(val, BaseModel):
                 jsn[key] = val.clean_dict()
                 continue
 
