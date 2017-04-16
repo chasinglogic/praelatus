@@ -124,4 +124,4 @@ def gravatar(email):
     """Generate a gravatar profile picture link based on email."""
     md5 = hashlib.md5()
     md5.update(email.encode('utf-8'))
-    return md5.digest()
+    return 'https://gravatar.com/avatar/' + md5.hexdigest()
