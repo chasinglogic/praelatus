@@ -33,18 +33,23 @@ def seed(db):
     for u in defaults.users:
         try:
             usr.new(db, **u)
-        except:
+        except Exception as e:
+            print(e)
             continue
 
     for u in users:
         try:
             usr.new(db, **u)
-        except:
+        except Exception as e:
+            print(e)
             continue
 
     admin = usr.get(db, id=2)
     for r in defaults.roles:
-        rls.new(db, actioning_user=admin, **r)
+        try:
+            rls.new(db, actioning_user=admin, **r)
+        except:
+            continue
 
     perm_schemes.new(db, actioning_user=admin,
                      **defaults.permission_scheme)
@@ -119,7 +124,10 @@ def seed(db):
     ]
 
     for f in fields:
-        flds.new(db, **f)
+        try:
+            flds.new(db, **f)
+        except:
+            continue
 
     for i in range(1, 100):
         t = {
