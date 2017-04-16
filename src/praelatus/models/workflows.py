@@ -1,6 +1,11 @@
 """Contains definitions for Workflow and related models."""
 
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Table
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Text
+from sqlalchemy import ForeignKey
+from sqlalchemy import Table
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
