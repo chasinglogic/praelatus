@@ -15,7 +15,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-def init_db():
+def __init_db():
     """Connect to the database and make the engine globally available."""
     global engine
     engine = create_engine(config.db_url)
@@ -29,12 +29,12 @@ def session():
     try:
         return Session()
     except NameError:
-        init_db()
+        __init_db()
         return Session()
 
 
 def clean_db():
     """Remove all tables and data from the database."""
-    init_db()
+    __init_db()
     engine.execute("DROP SCHEMA public CASCADE;")
     engine.execute("CREATE SCHEMA public;")
