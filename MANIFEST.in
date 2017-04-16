@@ -1,6 +1,8 @@
 include README.md
 include LICENSE
 include alembic.ini
-recursive-include alembic *
 recursive-include docs *
+
+graft src
+
 

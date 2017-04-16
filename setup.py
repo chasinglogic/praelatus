@@ -2,11 +2,9 @@
 import os
 import re
 from setuptools import setup
-from setuptools import find_packages
-
 
 praelatusfile = os.path.join(os.path.dirname(__file__),
-                             'praelatus', '__init__.py')
+                             'src', 'praelatus', '__init__.py')
 
 # Thanks to SQLAlchemy:
 # https://github.com/zzzeek/sqlalchemy/blob/master/setup.py#L104
@@ -42,7 +40,10 @@ setup(
     name='praelatus',
     description='An Open Source bug tracking / ticketing system',
     version=__version__,
-    packages=find_packages(),
+    packages=[
+        'src/praelatus',
+        'src/migrations'
+    ],
     package_data={
         '': '*.ini'
     },
