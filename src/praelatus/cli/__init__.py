@@ -1,7 +1,6 @@
 """Contains the CLI functions for Praelatus."""
 
 import click
-import os
 from os.path import dirname
 from os.path import exists
 from os.path import join
@@ -25,7 +24,14 @@ def seeddb():
 @cli.command()
 def cleandb():
     """Remove all data and drop all tables from the database."""
-    clean_db()
+    print('WARNING: This will remove ALL data and tables from the database.')
+    print('This operation is irreversible.')
+    answer = input('Are you sure? y/N')
+    if 'y' in answer.lower():
+        clean_db()
+        print('All data removed.')
+    else:
+        print('No data was removed.')
 
 
 @cli.command()
@@ -33,7 +39,7 @@ def migrate():
     """Migrate the database up to the latest version."""
     import subprocess
 
-    print("Migrating the database using Alembic...")
+    print('Migrating the database using Alembic...')
 
     migrations_dir = dirname(dirname(dirname(__file__))).replace(' ', '')
     print(migrations_dir)
@@ -47,20 +53,20 @@ def migrate():
     ]
 
     if not exists(migrations_dir):
-        print("failed to find migrations,", migrations_dir)
+        print('failed to find migrations,', migrations_dir)
         return
 
     alembic = subprocess.Popen(alembicArgs, cwd=migrations_dir)
     stdout, stderr = alembic.communicate()
     if stderr is not None:
         print(stderr)
-        print("Database migration failed.")
+        print('Database migration failed.')
     else:
-        print("Database migration finished!")
+        print('Database migration finished!')
 
 
 @cli.command()
 def test():
     """Test connection to the database."""
     session()
-    print("Database connection succeeded!")
+    print('Database connection succeeded!')
