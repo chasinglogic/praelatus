@@ -12,8 +12,9 @@ Anonymous user.
 
 import bcrypt
 import hashlib
+
 from praelatus.lib.utils import rollback
-from praelatus.models.users import User
+from praelatus.models import User
 
 
 def get(db, username=None, id=None, email=None, filter=None):
@@ -77,7 +78,7 @@ def new(db, **kwargs):
         email=kwargs['email'],
         profile_pic=kwargs.get('profile_pic', gravatar(kwargs['email'])),
         is_admin=kwargs.get('is_admin', False),
-        is_active=True,
+        is_active=kwargs.get('is_active', True),
         full_name=kwargs['full_name']
     )
 
