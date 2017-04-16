@@ -75,7 +75,7 @@ def new(db, **kwargs):
 
 
 @rollback
-def update(db, label):
+def update(db, label=None):
     """
     Update the given label in the database.
 
@@ -86,7 +86,7 @@ def update(db, label):
 
 
 @rollback
-def delete(db, label):
+def delete(db, label=None):
     """
     Remove the given label from the database.
 
