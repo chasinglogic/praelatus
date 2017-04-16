@@ -24,3 +24,7 @@ def test_get_filter_action(db):
     assert pjs is not None
     assert len(pjs) > 0
     assert 'TEST' in pjs[0].key
+
+
+def test_update(db):
+    admin = 
