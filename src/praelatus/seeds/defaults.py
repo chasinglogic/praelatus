@@ -1,5 +1,15 @@
 """Contains the defaults that should be set up on a new instance."""
 
+users = [
+    {
+        'username': 'anonymous',
+        'password': 'none',
+        'email': 'anonymous',
+        'full_name': 'Anonymous User',
+        'is_active': False,
+    }
+]
+
 roles = [
     {
         'name': 'Administrator'
