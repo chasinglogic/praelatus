@@ -7,10 +7,10 @@ from os.path import dirname
 from os.path import join
 from os.path import exists
 
-if not exists('praelatus'):
+if not exists('src'):
     os.chdir(dirname(dirname(__file__)))
 
-sys.path.append(os.getcwd())
+sys.path.append(join(os.getcwd(), 'src'))
 
 import praelatus.cli
 praelatus.cli.cli()
