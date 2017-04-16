@@ -1,40 +1,51 @@
 import praelatus.lib.permissions as permissions
+import praelatus.seeds.defaults as defaults
+import praelatus.lib.users as users
 
-def test_get(db):
-    perm = permissions.get(db, name='Default Permission Scheme')
+def test_get(db, admin):
+    perm = permissions.get(db, actioning_user=admin,
+                           name='Default Permission Scheme')
     assert perm is not None
     assert perm.name == 'Default Permission Scheme'
     assert perm.id is not None
 
 
-def test_get_with_filter(db):
-    perms = permissions.get(db, filter='*t*')
+def test_get_with_filter(db, admin):
+    perms = permissions.get(db, actioning_user=admin, filter='*e*')
     assert perms is not None
     assert len(perms) > 0
     assert perms[0].id is not None
 
-def test_update(db):
+
+def test_update(db, admin):
     new_name = 'Permission Scheme Default'
-    perm = permissions.get(db, name='Default Permission Scheme')
+    perm = permissions.get(db, actioning_user=admin,
+                           name='Default Permission Scheme')
     perm.name = new_name
 
-    permissions.update(db, permission=perm)
+    permissions.update(db, actioning_user=admin,
+                       permission_scheme=perm)
 
-    l = permissions.get(db, id=perm.id)
+    l = permissions.get(db, actioning_user=admin, id=perm.id)
     assert l.name == new_name
 
 
-def test_delete(db):
-    permission = {
-            'name': 'DELETE THIS',
-    }
+def test_delete(db, admin):
+    permission = defaults.permission_scheme
+    permission['name'] = 'DELETE THIS'
 
-    permissions.new(db, **permission)
+    permissions.new(db, actioning_user=admin, **permission)
 
-    l = permissions.get(db, name='DELETE THIS')
-    assert l is not None
+    s = permissions.get(db, actioning_user=admin, name='DELETE THIS')
+    assert s is not None
 
-    permissions.delete(db, permission=l)
+    permissions.delete(db, actioning_user=admin, permission_scheme=s)
 
-    l = permissions.get(db, name='DELETE THIS')
-    assert l is None
+    s = permissions.get(db, actioning_user=admin, name='DELETE THIS')
+    assert s is None
+
+
+def test_is_sysetm_admin(db, admin):
+    assert permissions.is_system_admin(db, admin) is True
+    user = users.get(db, username='testuser')
+    assert permissions.is_system_admin(db, user) is False
