@@ -43,7 +43,7 @@ def get(db, id=None, name=None, filter=None, actioning_user=None):
         return None
 
     query = db.query(PermissionScheme).\
-        options(joinedload(PermissionSchemePermissions))
+        options(joinedload('permissions'))
 
     if id is not None:
         query = query.filter(PermissionScheme.id == id)
@@ -119,7 +119,7 @@ def update(db, permission_scheme=None, actioning_user=None):
             raise Exception('permission denied')
 
     db.add(permission_scheme)
-    db.commit(0)
+    db.commit()
 
 
 @rollback
@@ -134,7 +134,7 @@ def delete(db, permission_scheme=None, actioning_user=None):
             raise Exception('permission denied')
 
     db.delete(permission_scheme)
-    db.commit(0)
+    db.commit()
 
 
 def is_system_admin(db, user):
