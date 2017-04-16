@@ -13,7 +13,6 @@ Anonymous user.
 from sqlalchemy.orm import joinedload
 
 from praelatus.models import Role
-from praelatus.models import User
 from praelatus.models import UserRoles
 from praelatus.models import ProjectRoles
 from praelatus.lib.permissions import permission_required
@@ -21,7 +20,7 @@ from praelatus.lib.permissions import sys_admin_required
 
 
 @sys_admin_required
-def get(db, id=None, name=None, filter=None):
+def get(db, actioning_user=None, id=None, name=None, filter=None):
     """
     Get roles from the database.
 
@@ -73,7 +72,7 @@ def new(db, **kwargs):
 
 
 @sys_admin_required
-def update(db, role, actioning_user=None):
+def update(db, role=None, actioning_user=None):
     """
     Update the given role in the database.
 
@@ -84,7 +83,7 @@ def update(db, role, actioning_user=None):
 
 
 @sys_admin_required
-def delete(db, role, actioning_user=None):
+def delete(db, role=None, actioning_user=None):
     """
     Remove the given role from the database.
 
@@ -105,8 +104,8 @@ def get_roles_for_project(db, project=None):
     return ProjectRoles(
         db.query(UserRoles).
         options(
-            joinedload(User),
-            joinedload(Role)
+            joinedload('user'),
+            joinedload('role')
         ).
         filter(UserRoles.project_id == project.id).
         all()
