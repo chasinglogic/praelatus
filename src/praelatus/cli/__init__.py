@@ -22,12 +22,14 @@ def seeddb():
 
 
 @cli.command()
-def cleandb():
+@click.option('--yes', is_flag=True)
+def cleandb(yes):
     """Remove all data and drop all tables from the database."""
     print('WARNING: This will remove ALL data and tables from the database.')
     print('This operation is irreversible.')
-    answer = input('Are you sure? y/N: ')
-    if 'y' in answer.lower():
+    if not yes:
+        answer = input('Are you sure? y/N: ')
+    if yes or 'y' in answer.lower():
         clean_db()
         print('All data removed.')
     else:

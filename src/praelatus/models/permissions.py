@@ -67,7 +67,7 @@ class UserRoles(Base):
 
     project_id = Column(Integer, ForeignKey('projects.id'))
     project = relationship('Project', backref='roles')
-
+ 
     role_id = Column(Integer, ForeignKey('roles.id'))
     role = relationship('Role')
 
