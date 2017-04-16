@@ -4,6 +4,7 @@ import click
 import os
 from os.path import dirname
 from os.path import exists
+from os.path import join
 from praelatus.seeds import seed
 from praelatus.lib import session
 from praelatus.lib import clean_db
@@ -28,30 +29,38 @@ def cleandb():
 
 
 @cli.command()
-def migratedb():
+def migrate():
     """Migrate the database up to the latest version."""
     import subprocess
-    from subprocess import PIPE
+
+    print("Migrating the database using Alembic...")
+
+    migrations_dir = dirname(dirname(dirname(__file__))).replace(' ', '')
+    print(migrations_dir)
+
     alembicArgs = [
         'alembic',
-        '-c migrations/alembic.ini',
+        '-c',
+        '%s' % join(migrations_dir, 'migrations', 'alembic.ini'),
         'upgrade',
         'head'
     ]
 
-    if not exists('migrations/'):
-        os.chdir(dirname(dirname(dirname(__file__))))
+    if not exists(migrations_dir):
+        print("failed to find migrations,", migrations_dir)
+        return
 
-    if not exists('migrations/'):
-        print("failed to find migrations,", os.getcwd())
-
-    alembic = subprocess.Popen(alembicArgs, stdout=PIPE, stderr=PIPE,
-                               cwd=os.getcwd())
-    alembic.wait()
+    alembic = subprocess.Popen(alembicArgs, cwd=migrations_dir)
+    stdout, stderr = alembic.communicate()
+    if stderr is not None:
+        print(stderr)
+        print("Database migration failed.")
+    else:
+        print("Database migration finished!")
 
 
 @cli.command()
-def testdb():
+def test():
     """Test connection to the database."""
     session()
     print("Database connection succeeded!")
