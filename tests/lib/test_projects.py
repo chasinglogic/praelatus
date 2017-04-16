@@ -27,4 +27,4 @@ def test_get_filter_action(db):
 
 
 def test_update(db):
-    admin = 
+    admin = users.get(db, username='testadmin')
