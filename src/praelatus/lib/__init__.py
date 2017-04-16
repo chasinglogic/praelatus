@@ -1,4 +1,5 @@
-"""Contains all 'business logic' for Praelatus.
+"""
+Contains all 'business logic' for Praelatus.
 
 Any function which takes 'db' as it's first argument requires a valid
 sqlachemy session.
@@ -15,17 +16,16 @@ from sqlalchemy.orm import sessionmaker
 
 
 def init_db():
-    try:
-        engine
-    except NameError:
-        global engine
-        engine = create_engine(config.db_url)
-        Base.metadata.create_all(engine)
-        global Session
-        Session = sessionmaker(bind=engine)
+    """Connect to the database and make the engine globally available."""
+    global engine
+    engine = create_engine(config.db_url)
+    Base.metadata.create_all(engine)
+    global Session
+    Session = sessionmaker(bind=engine)
 
 
 def session():
+    """Return a session to for the database will connect if not connected."""
     try:
         return Session()
     except NameError:
@@ -34,6 +34,7 @@ def session():
 
 
 def clean_db():
+    """Remove all tables and data from the database."""
     init_db()
     engine.execute("DROP SCHEMA public CASCADE;")
     engine.execute("CREATE SCHEMA public;")
