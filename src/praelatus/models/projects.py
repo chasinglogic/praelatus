@@ -23,7 +23,7 @@ class Project(Base):
     repo = Column(String)
 
     lead_id = Column(Integer, ForeignKey('users.id'))
-    lead = relationship('User')
+    lead = relationship('User', backref='lead_of')
 
     permission_scheme_id = Column(Integer,
                                   ForeignKey('permission_schemes.id'))
