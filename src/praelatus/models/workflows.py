@@ -1,9 +1,15 @@
-from praelatus.models.base import Base
+"""Contains definitions for Workflow and related models."""
+
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Table
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
 
+from praelatus.models.base import Base
 
+
+# A table that for now is just used for a 1-1 relationship see issue
+# #100 for why this was created. We will eventually support "workflow"
+# schemes and they will be connected through here.
 workflows_projects = Table(
     'workflows_projects', Base.metadata,
     Column('workflow_id', ForeignKey('workflows.id')),
@@ -13,6 +19,8 @@ workflows_projects = Table(
 
 
 class Workflow(Base):
+    """Represents a Worfklow in the database."""
+
     __tablename__ = 'workflows'
 
     id = Column(Integer, primary_key=True)
@@ -32,6 +40,8 @@ class Workflow(Base):
 
 
 class Transition(Base):
+    """Represents a workflow Transition in the database."""
+
     __tablename__ = 'transitions'
 
     id = Column(Integer, primary_key=True)
@@ -45,6 +55,8 @@ class Transition(Base):
 
 
 class Hook(Base):
+    """Represents a hook for a Transition in the database."""
+
     __tablename__ = 'hooks'
 
     id = Column(Integer, primary_key=True)

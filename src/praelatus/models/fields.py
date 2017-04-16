@@ -1,4 +1,5 @@
-from praelatus.models.base import Base
+"""Contains definitions for the Field and related models."""
+
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import String
@@ -8,6 +9,8 @@ from sqlalchemy import Float
 from sqlalchemy import ForeignKey
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
+
+from praelatus.models.base import Base
 
 # Consider using an Enum here?
 DATA_TYPES = [
@@ -27,6 +30,8 @@ field_options = Table('fields_options', Base.metadata,
 
 
 class Field(Base):
+    """Represents a Field in the database."""
+
     __tablename__ = 'fields'
 
     id = Column(Integer, primary_key=True)
@@ -36,6 +41,8 @@ class Field(Base):
 
 
 class FieldOption(Base):
+    """For Fields with the data_type OPT stores those options."""
+
     __tablename__ = 'field_options'
 
     id = Column(Integer, primary_key=True)
@@ -43,6 +50,8 @@ class FieldOption(Base):
 
 
 class FieldValue(Base):
+    """Store an instance of a Field's value on a Ticket."""
+
     __tablename__ = 'field_values'
     __table_args__ = (
         UniqueConstraint('field_id', 'ticket_id'),
@@ -62,4 +71,5 @@ class FieldValue(Base):
 
 class DataTypeError(Exception):
     """A simple Exception which indicates an invalid DataType for a field."""
+
     pass

@@ -1,6 +1,4 @@
-"""
-Defines the Ticket, Comment, Label, TickeType, and Status models.
-"""
+"""Defines the Ticket, Comment, Label, TickeType, and Status models."""
 
 from praelatus.models.base import Base
 from datetime import datetime
@@ -15,6 +13,8 @@ from sqlalchemy.orm import relationship
 
 
 class Ticket(Base):
+    """Represents a Ticket in the database."""
+
     __tablename__ = 'tickets'
 
     id = Column(Integer, primary_key=True)
@@ -52,6 +52,8 @@ class Ticket(Base):
 
 
 class Comment(Base):
+    """Represents a Comment on a Ticket in the database."""
+
     __tablename__ = 'comments'
 
     id = Column(Integer, primary_key=True)
@@ -66,6 +68,7 @@ class Comment(Base):
     ticket_id = Column(Integer, ForeignKey('tickets.id'))
 
 
+# A many to many table for connecting the Label and Ticket classes
 labels_tickets = Table('labels_tickets', Base.metadata,
                        Column('ticket_id', Integer,
                               ForeignKey('tickets.id')),
@@ -75,6 +78,8 @@ labels_tickets = Table('labels_tickets', Base.metadata,
 
 
 class Label(Base):
+    """Represents a Label in the database."""
+
     __tablename__ = 'labels'
 
     id = Column(Integer, primary_key=True)
@@ -84,6 +89,8 @@ class Label(Base):
 
 
 class TicketType(Base):
+    """Represents a TicketType in the database."""
+
     __tablename__ = 'ticket_types'
 
     id = Column(Integer, primary_key=True)
@@ -91,6 +98,8 @@ class TicketType(Base):
 
 
 class Status(Base):
+    """Represents a Status in the database."""
+
     __tablename__ = 'statuses'
 
     id = Column(Integer, primary_key=True)

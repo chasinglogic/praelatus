@@ -1,4 +1,4 @@
-"""Contains definitions for the Project and ProjectRoles classes."""
+"""Contains definitions for the Project and ProjectRoles models."""
 
 import json
 from datetime import datetime
@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 
 from praelatus.models.base import Base
+from praelatus.models.base import BaseModel
 
 
 class Project(Base):
@@ -33,7 +34,7 @@ class Project(Base):
         return "Project(id=%d, key=%s)" % (self.id, self.key)
 
 
-class ProjectRoles:
+class ProjectRoles(BaseModel):
     """Converts UserRoles instances into the correct JSON."""
 
     def __init__(self, user_roles):
@@ -53,6 +54,10 @@ class ProjectRoles:
         role_name, user = self.parse(user_role)
         members = self.roles.get(role_name, [])
         self.roles[role_name] = members.append(user)
+
+    def clean_dict(self):
+        """Make ProjectRoles satisfy the BaseModel if it's included."""
+        return self.roles
 
     def to_json(self):
         """Return the json of self.roles."""

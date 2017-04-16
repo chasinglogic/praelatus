@@ -1,8 +1,13 @@
+"""Contains definitions for the User model."""
+
 from praelatus.models.base import Base
+
 from sqlalchemy import Column, String, Integer, Boolean
 
 
 class User(Base):
+    """Represents a user in the database."""
+
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
@@ -15,4 +20,5 @@ class User(Base):
     is_active = Column(Boolean)
 
     def __repr__(self):
+        """Override BaseModel.__repr__ for better printing."""
         return "User(id=%s, username=%s)" % (self.id, self.username)
