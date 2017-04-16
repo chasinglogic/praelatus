@@ -4,7 +4,7 @@ from random import randint
 import praelatus.lib.users as usr
 import praelatus.lib.projects as prj
 import praelatus.lib.labels as lbls
-# import praelatus.lib.roles as rls
+import praelatus.lib.roles as rls
 import praelatus.lib.fields as flds
 import praelatus.lib.tickets as tks
 import praelatus.lib.permissions as perm_schemes
@@ -23,13 +23,6 @@ def seed(db):
             'is_admin': True,
         },
         {
-            'username': 'anonymous',
-            'password': 'none',
-            'email': 'anonymous',
-            'full_name': 'Anonymous User',
-            'is_active': False,
-        },
-        {
             'username': 'testuser',
             'password': 'test',
             'email': 'test@example.com',
@@ -37,16 +30,24 @@ def seed(db):
         }
     ]
 
+    for u in defaults.users:
+        try:
+            usr.new(db, **u)
+        except:
+            continue
+
     for u in users:
         try:
             usr.new(db, **u)
         except:
             continue
 
+    admin = usr.get(db, id=2)
     for r in defaults.roles:
-        rls.new(db, **r)
+        rls.new(db, actioning_user=admin, **r)
 
-    perm_schemes.new(db, **defaults.permission_scheme)
+    perm_schemes.new(db, actioning_user=admin,
+                     **defaults.permission_scheme)
 
     projects = [
         {
@@ -144,4 +145,7 @@ def seed(db):
             }
         }
 
-        tks.new(db, **t)
+        try:
+            tks.new(db, **t)
+        except:
+            continue
