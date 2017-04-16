@@ -14,8 +14,10 @@ from sqlalchemy import or_
 
 from praelatus.lib.utils import rollback
 from praelatus.lib.permissions import permission_required, add_permission_query
-from praelatus.models.projects import Project
-from praelatus.models.users import User
+from praelatus.models import Project
+from praelatus.models import User
+from praelatus.models import Role
+from praelatus.models import UserRoles
 
 
 def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
@@ -95,6 +97,14 @@ def new(db, **kwargs):
     lead = kwargs.get('lead')
     if lead is not None:
         new_project.lead_id = lead['id']
+        new_project.roles = [
+            UserRoles(
+                user_id=lead['id'],
+                role_id=db.
+                query(Role.id).
+                filter_by(name='Administrator').
+                first())
+        ]
 
     permission_scheme = kwargs.get('permission_scheme', {})
     new_project.permission_scheme_id = permission_scheme.get('id', 1)
