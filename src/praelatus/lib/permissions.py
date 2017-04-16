@@ -33,10 +33,10 @@ def get(db, id=None, name=None, filter=None, actioning_user=None):
     sqlalchemy result, otherwise returns all matching results.
 
     Keyword Arguments:
-    actioning_user -- the user requesting the permission scheme (default None)
-    id -- database id (default None)
-    name -- the permission scheme name (default None)
-    filter -- a pattern to search through permission schemes with (default None)
+    actioning_user -- the user requesting the permission scheme
+    id -- database id
+    name -- the permission scheme name
+    filter -- a pattern to search through permission schemes with
     """
     if (actioning_user is None or
        not is_system_admin(db, actioning_user)):
@@ -65,7 +65,7 @@ def get(db, id=None, name=None, filter=None, actioning_user=None):
 @rollback
 def new(db, actioning_user=None, **kwargs):
     """
-    Create a new permission scheme in the database then return that permission scheme.
+    Create a new permission scheme in the database then return it.
 
     The kwargs are parsed such that if a json representation of a
     permission scheme is provided as expanded kwargs it will be handled
@@ -90,12 +90,11 @@ def new(db, actioning_user=None, **kwargs):
     )
 
     permissions = kwargs['permissions']
-    for role_name, perms in permissions:
+    for role_name, perms in permissions.items():
         role = db.query(Role).filter_by(name=role_name).first()
         for perm in perms:
             permission = db.query(Permission).filter_by(name=perm).first()
             perm_scheme_perm = PermissionSchemePermissions(
-                permission_scheme_id=new_scheme.id,
                 role_id=role.id,
                 permission_id=permission.id
             )
@@ -140,7 +139,20 @@ def delete(db, permission_scheme=None, actioning_user=None):
 
 def is_system_admin(db, user):
     """Check if user is a system administrator."""
-    return db.query(User).get(user.id).first().is_admin
+    return db.query(User).filter_by(id=user.id).first().is_admin
+
+
+def sys_admin_required(fn):
+    """Check if actioning_user is a system administrator."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        actioning_user = kwargs.get('actioning_user')
+        if (actioning_user is None or
+           not is_system_admin(args[0], actioning_user)):
+            raise PermissionError('you must be a system administrator')
+
+        return fn(*args, **kwargs)
+    return wrapper
 
 
 def permission_required(permission):
