@@ -76,7 +76,7 @@ def new(db, actioning_user=None, **kwargs):
     errors.
 
     Required Keyword Arguments:
-    name -- the permission scheme name
+    namm -- the permission scheme name
     description -- the permission scheme's description
     actioning_user -- the User creating the permission scheme
     """
@@ -182,7 +182,7 @@ def has_permission(db, permission, project, actioning_user):
         join(PermissionScheme).\
         join(PermissionSchemePermissions).\
         join(Permission).\
-        filter(Project.id == project)
+        filter(Project.id == project.id)
 
     if actioning_user is not None:
         query = query.filter(
