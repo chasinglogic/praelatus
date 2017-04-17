@@ -1,3 +1,4 @@
+import json
 import praelatus.lib.fields as fields
 
 def test_get(db):
@@ -39,3 +40,16 @@ def test_delete(db):
 
     l = fields.get(db, name='DELETE THIS')
     assert l is None
+
+
+def test_json(db):
+    field = {
+        'name': 'json',
+        'data_type': 'STRING'
+    }
+
+    l = fields.new(db, **field)
+    field['id'] = l.id
+
+    lbl = fields.get(db, id=l.id)
+    assert json.dumps(field) == lbl.to_json()
