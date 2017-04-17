@@ -34,15 +34,16 @@ class Ticket(Base):
                             backref='assigned_tickets', lazy='joined')
 
     ticket_type_id = Column(Integer, ForeignKey('ticket_types.id'))
-    ticket_type = relationship('TicketType', lazy='joined')
+    ticket_type = relationship('TicketType', lazy='joined', backref='tickets')
 
     status_id = Column(Integer, ForeignKey('statuses.id'))
-    status = relationship('Status', lazy='joined')
+    status = relationship('Status', lazy='joined', backref='tickets')
 
     project_id = Column(Integer, ForeignKey('projects.id'))
-    project = relationship('Project', lazy='joined')
+    project = relationship('Project', lazy='joined', backref='tickets')
 
     workflow_id = Column(Integer, ForeignKey('workflows.id'))
+    workflow = relationship('Workflow', backref='tickets')
 
     comments = relationship('Comment', backref='ticket',
                             lazy='joined')
