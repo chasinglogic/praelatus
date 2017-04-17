@@ -29,6 +29,13 @@ class Project(Base):
                                   ForeignKey('permission_schemes.id'))
     permission_scheme = relationship('PermissionScheme', backref='projects')
 
+    def clean_dict(self):
+        """Override BaseModel clean_dict."""
+        jsn = super(Project, self).clean_dict()
+        jsn['lead'] = self.lead.clean_dict()
+        jsn['created_date'] = str(self.created_date)
+        return jsn
+
     def __repr__(self):
         """Stringify the project for prettier printing."""
         return "Project(id=%d, key=%s)" % (self.id, self.key)
