@@ -45,7 +45,53 @@ def test_delete(db, admin):
     assert s is None
 
 
-def test_is_sysetm_admin(db, admin):
+def test_is_system_admin(db, admin):
     assert permissions.is_system_admin(db, admin) is True
     user = users.get(db, username='testuser')
     assert permissions.is_system_admin(db, user) is False
+
+
+
+def test_json(db, admin):
+    json_scheme = {
+        'name':        'JSON Permission Scheme',
+        'description': 'A test for JSON Serialization.',
+        'permissions': {
+            'Administrator': [
+                'VIEW_PROJECT',
+                'ADMIN_PROJECT',
+                'CREATE_TICKET',
+                'COMMENT_TICKET',
+                'REMOVE_COMMENT',
+                'REMOVE_OWN_COMMENT',
+                'EDIT_OWN_COMMENT',
+                'EDIT_COMMENT',
+                'TRANSITION_TICKET',
+                'EDIT_TICKET',
+                'REMOVE_TICKET',
+            ],
+            'Contributor': [
+                'VIEW_PROJECT',
+                'CREATE_TICKET',
+                'COMMENT_TICKET',
+                'REMOVE_OWN_COMMENT',
+                'EDIT_OWN_COMMENT',
+                'TRANSITION_TICKET',
+                'EDIT_TICKET',
+            ],
+            'User': [
+                'VIEW_PROJECT',
+                'CREATE_TICKET',
+                'COMMENT_TICKET',
+                'REMOVE_OWN_COMMENT',
+                'EDIT_OWN_COMMENT',
+            ],
+            'Anonymous': [
+                'VIEW_PROJECT',
+            ],
+        }
+    }
+
+    j = permissions.new(db, actioning_user=admin, **json_scheme)
+    json_scheme['id'] = j.id
+    assert j.clean_dict() == json_scheme
