@@ -20,6 +20,19 @@ class PermissionScheme(Base):
     name = Column(String)
     description = Column(String)
 
+    def clean_dict(self):
+        """Override clean_dict from BaseModel."""
+        jsn = super(PermissionScheme, self).clean_dict()
+
+        permissions = {}
+        for perm in self.permissions:
+            perms = permissions.get(perm.role.name, [])
+            perms.append(perm.permission.name)
+            permissions[perm.role.name] = perms
+
+        jsn['permissions'] = permissions
+        return jsn
+
 
 class PermissionSchemePermissions(Base):
     """Used to tie the Permissions for Roles to PermissionSchemes."""
