@@ -49,6 +49,7 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
         joinedload(Ticket.fields),
         joinedload(Ticket.labels),
         joinedload(Ticket.assignee),
+        joinedload(Ticket.project),
         joinedload(Ticket.reporter)
     )
 
