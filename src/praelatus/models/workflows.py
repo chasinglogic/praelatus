@@ -35,6 +35,28 @@ class Workflow(Base):
     projects = relationship('Project', secondary=workflows_projects,
                             backref='worfklow')
 
+    def clean_dict(self):
+        """Override BaseModel clean_dict."""
+        jsn = super(Workflow, self).clean_dict()
+
+        transitions = {}
+        for tr in self.transitions:
+            from_status = ''
+            # If there is no from_status that means that it's the "Create" step
+            if tr.from_status is None:
+                from_status = 'Create'
+            else:
+                from_status = tr.from_status.name
+
+            ts = transitions.get(from_status, [])
+            ts.append(tr.clean_dict())
+
+            transitions[from_status] = ts
+
+        jsn['transitions'] = transitions
+        return jsn
+
+
 # TODO issue #100
 # class WorkflowScheme(Base):
 #     __tablename__ = 'workflow_schemes'
@@ -63,6 +85,16 @@ class Transition(Base):
 
     from_status_id = Column(Integer, ForeignKey('statuses.id'))
     from_status = relationship('Status', foreign_keys=from_status_id)
+
+    def clean_dict(self):
+        """Override BaseModel clean_dict."""
+        jsn = super(Transition, self).clean_dict()
+        jsn['to_status'] = self.to_status.clean_dict()
+        jsn['hooks'] = []
+        for h in self.hooks:
+            jsn['hooks'].append(h.clean_dict())
+        del jsn['from_status']
+        return jsn
 
 
 class Hook(Base):
