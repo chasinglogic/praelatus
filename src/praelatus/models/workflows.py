@@ -48,9 +48,15 @@ class Transition(Base):
     """Represents a workflow Transition in the database."""
 
     __tablename__ = 'transitions'
+    __table_args__ = (
+        UniqueConstraint('name', 'workflow_id'),
+        )
 
     id = Column(Integer, primary_key=True)
     name = Column(String(length=255))
+
+    workflow_id = Column(Integer, ForeignKey('workflows.id'))
+    workflow = relationship('Workflow', backref='transitions')
 
     to_status_id = Column(Integer, ForeignKey('statuses.id'))
     to_status = relationship('Status', foreign_keys=to_status_id)
