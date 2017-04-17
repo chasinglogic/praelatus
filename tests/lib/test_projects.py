@@ -16,9 +16,7 @@ def test_get_filter(db):
     assert 'TEST' in pjs[0].key
 
 
-def test_get_filter_action(db):
-    admin = users.get(db, username='testadmin')
-
+def test_get_filter_action(db, admin):
     pjs = projects.get(db, filter='test*', actioning_user=admin)
     print(pjs)
     assert pjs is not None
@@ -42,9 +40,9 @@ def test_update(db):
 def test_delete(db):
     lead = users.get(db, username='testuser')
     project = {
-            'name': 'DELETE THIS PROJECT',
-            'key':  'DELETE',
-            'lead': {'id': lead.id},
+        'name': 'DELETE THIS PROJECT',
+        'key':  'DELETE',
+        'lead': {'id': lead.id}
     }
 
     projects.new(db, **project)
@@ -56,3 +54,19 @@ def test_delete(db):
 
     p = projects.get(db, key='DELETE')
     assert p is None
+
+
+def test_json(db, admin):
+    project_json = {
+        'name': 'JSON TEST Project',
+        'key':  'JSON',
+        'lead': admin.clean_dict(),
+        'homepage': None,
+        'icon_url': None,
+        'repo': None
+    }
+
+    p = projects.new(db, actioning_user=admin, **project_json)
+    project_json['id'] = p.id
+    project_json['created_date'] = str(p.created_date)
+    assert p.clean_dict() == project_json
