@@ -17,6 +17,7 @@ from sqlalchemy.orm import joinedload
 from praelatus.models import Ticket
 from praelatus.models import User
 from praelatus.models import Label
+from praelatus.models import Field
 from praelatus.models import FieldValue
 from praelatus.models import Status
 from praelatus.models import Transition
@@ -133,19 +134,23 @@ def new(db, **kwargs):
     if assignee is not None:
         new_ticket.assignee_id = assignee['id']
 
-    field_values = kwargs.get('field_values', [])
+    field_values = kwargs.get('fields', [])
     for f in field_values:
-        field = db.query.filter_by(name=f['name']).first()
+        field = db.query(Field).filter_by(name=f['name']).first()
         fv = FieldValue(
             field=field
         )
         set_field_value(fv, f['value'])
         new_ticket.fields.append(fv)
+        db.add(fv)
+        db.commit()
 
     labels = kwargs.get('labels', [])
     for l in labels:
         lbl = Label(name=l['name'])
         new_ticket.labels.append(lbl)
+        db.add(lbl)
+        db.commit()
 
     db.add(new_ticket)
     db.commit()
@@ -187,8 +192,8 @@ def set_field_value(field_value, val):
     elif type(val) is str and field_value.field.data_type == 'DATE':
         field_value.date_value = parse_date(val)
 
-    elif type(val) is dict and field_value.field.data_type == 'OPT':
-        field_value.opt_value = val['selected']
+    elif type(val) is str and field_value.field.data_type == 'OPT':
+        field_value.opt_value = val
 
     elif type(val) is str and field_value.field.data_type == 'STRING':
         field_value.str_value = val
