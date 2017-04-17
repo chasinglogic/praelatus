@@ -1,4 +1,3 @@
-import json
 import praelatus.lib.fields as fields
 
 def test_get(db):
@@ -52,4 +51,4 @@ def test_json(db):
     field['id'] = l.id
 
     lbl = fields.get(db, id=l.id)
-    assert json.dumps(field) == lbl.to_json()
+    assert field == lbl.clean_dict()
