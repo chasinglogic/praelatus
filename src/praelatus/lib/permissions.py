@@ -21,6 +21,7 @@ from praelatus.models import Role
 from praelatus.models import Project
 from praelatus.models import PermissionSchemePermissions
 from praelatus.models import Permission
+from praelatus.models.permissions import PermissionError
 from praelatus.models import UserRoles
 from praelatus.models import User
 

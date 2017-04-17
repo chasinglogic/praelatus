@@ -95,3 +95,9 @@ class Permissions(Enum):
     TRANSITION_TICKET = 'TRANSITION_TICKET'
     EDIT_TICKET = 'EDIT_TICKET'
     REMOVE_TICKET = 'REMOVE_TICKET'
+
+
+class PermissionError(Exception):
+    """Raised when the user doesn't have the required permission."""
+
+    pass

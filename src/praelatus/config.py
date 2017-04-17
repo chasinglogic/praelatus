@@ -13,11 +13,11 @@ class Config:
 
     def __init__(self, **kwargs):
         """Build a new config."""
-        self.db_url = kwargs['db_url']
-        self.port = kwargs['port']
-        self.redis_url = kwargs['redis_url']
-        self.redis_password = kwargs['redis_password']
-        self.data_dir = kwargs['data_dir']
+        self.db_url = kwargs.get('db_url', self.default_db)
+        self.port = kwargs.get('port', self.default_port)
+        self.redis_url = kwargs.get('redis_url')
+        self.redis_password = kwargs.get('redis_password')
+        self.data_dir = kwargs.get('data_dir')
 
     def __repr__(self):
         """Return the str version of the internal dict."""
@@ -44,4 +44,4 @@ class Config:
 
 
 global config
-config = Config.load(Config)
+config = Config().load()
