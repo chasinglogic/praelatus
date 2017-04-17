@@ -19,6 +19,12 @@ class User(Base):
     is_admin = Column(Boolean)
     is_active = Column(Boolean)
 
+    def clean_dict(self):
+        """Call BaseModel clean_dict but remove password."""
+        d = super(User, self).clean_dict()
+        del d['password']
+        return d
+
     def __repr__(self):
         """Override BaseModel.__repr__ for better printing."""
         return "User(id=%s, username=%s)" % (self.id, self.username)
