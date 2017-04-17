@@ -1,6 +1,7 @@
 """Contains a function for seeding a database with test data."""
 
 from random import randint
+
 import praelatus.lib.users as usr
 import praelatus.lib.projects as prj
 import praelatus.lib.labels as lbls
