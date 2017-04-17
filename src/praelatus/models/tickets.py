@@ -51,6 +51,22 @@ class Ticket(Base):
     fields = relationship('FieldValue', backref='field_values',
                           lazy='joined')
 
+    def clean_dict(self):
+        """Override BaseModel clean_dict."""
+        jsn = super(Ticket, self).clean_dict()
+        jsn['ticket_type'] = self.ticket_type.clean_dict()
+        jsn['status'] = self.status.clean_dict()
+        jsn['project'] = self.project.clean_dict()
+        jsn['reporter'] = self.reporter.clean_dict()
+        jsn['workflow_id'] = self.workflow_id
+        jsn['created_date'] = str(self.created_date)
+        jsn['updated_date'] = str(self.updated_date)
+        if isinstance(self.comments, Base):
+            jsn['comments'] = self.comments.clean_dict()
+        if isinstance(self.assignee, Base):
+            jsn['assignee'] = self.assignee.clean_dict()
+        return jsn
+
 
 class Comment(Base):
     """Represents a Comment on a Ticket in the database."""
