@@ -167,7 +167,7 @@ def seed(db):
                 },
                 {
                     'name': 'Priority',
-                    'selected': priorities[randint(0, 2)]
+                    'value': priorities[randint(0, 2)]
                 }
             ],
             'ticket_type': {
