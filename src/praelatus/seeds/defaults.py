@@ -103,8 +103,17 @@ ticket_types = [
 
 
 workflow = {
-    'name': 'Simple Workflow',
+    'name': 'Default Workflow',
+    'description': 'A simple workflow that fits most use cases.',
     'transitions': {
+        'Create': [
+            {
+                'name': 'Create',
+                'to_status': {
+                    'id': 1
+                }
+            }
+        ],
         'Backlog': [
             {
                 'name': 'In Progress',
