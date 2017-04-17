@@ -19,13 +19,14 @@ from praelatus.models import User
 from praelatus.models import Label
 from praelatus.models import FieldValue
 from praelatus.models import Status
-from praelatus.models import Comment
-from praelatus.models import TicketType
+from praelatus.models import Transition
 from praelatus.models.fields import DataTypeError
+from praelatus.lib.utils import rollback
+from praelatus.lib.permissions import permission_required
 
 
 def get(db, id=None, key=None, reporter=None, assignee=None,
-        filter=None, actioning_user=None):
+        filter=None, actioning_user=None, preload_comments=False):
     """
     Get tickets from the database.
 
@@ -39,14 +40,13 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
     reporter -- User class instance who is the reporter (default None)
     assignee -- User class instance who is the assignee (default None)
     filter -- a pattern to search through tickets with (default None)
+    preload_comments -- whether to include ticket comments (default False)
     """
-    query = db.query(Ticket).join(
-        FieldValue,
-        Label,
-        Status,
-        Comment,
-        TicketType
-    ).options(
+    query = db.query(Ticket).options(
+        joinedload(Ticket.ticket_type),
+        joinedload(Ticket.status),
+        joinedload(Ticket.fields),
+        joinedload(Ticket.labels),
         joinedload(Ticket.assignee),
         joinedload(Ticket.reporter)
     )
@@ -74,6 +74,9 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
                 Status.name.like(pattern)
             )
         )
+
+    if preload_comments:
+        query = query.options(joinedload(Ticket.comments))
 
     if any([id, key]):
         return query.first()
@@ -111,11 +114,24 @@ def new(db, **kwargs):
     new_ticket = Ticket(
         summary=kwargs['summary'],
         description=kwargs['description'],
-        assignee_id=kwargs['assignee']['id'],
+        reporter_id=kwargs['reporter']['id'],
         ticket_type_id=kwargs['ticket_type']['id'],
-        status_id=kwargs['status']['id'],
+        project_id=kwargs['project']['id'],
         workflow_id=kwargs['workflow_id']
     )
+
+    new_ticket.status_id = db.query(Transition.to_status_id).filter(
+        Transition.workflow_id == kwargs['workflow_id'],
+        Transition.name == 'Create'
+    )
+
+    count = db.query(Ticket.id).\
+        filter(Ticket.project_id == kwargs['project']['id']).count()
+    new_ticket.key = kwargs['project']['key'] + '-' + str(count + 1)
+
+    assignee = kwargs.get('assignee')
+    if assignee is not None:
+        new_ticket.assignee_id = assignee['id']
 
     field_values = kwargs.get('field_values', [])
     for f in field_values:
@@ -134,6 +150,30 @@ def new(db, **kwargs):
     db.add(new_ticket)
     db.commit()
     return new_ticket
+
+
+@rollback
+@permission_required('EDIT_TICKET')
+def update(db, actioning_user=None, project=None, ticket=None):
+    """
+    Update the given ticket in the database.
+
+    ticket must be a Ticket class instance.
+    """
+    db.add(ticket)
+    db.commit()
+
+
+@rollback
+@permission_required('REMOVE_TICKET')
+def delete(db, actioning_user=None, project=None, ticket=None):
+    """
+    Remove the given ticket in the database.
+
+    ticket must be a Ticket class instance.
+    """
+    db.delete(ticket)
+    db.commit()
 
 
 def set_field_value(field_value, val):
