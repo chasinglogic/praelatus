@@ -1,5 +1,9 @@
 import praelatus.lib.users as users
 import praelatus.lib.tickets as tickets
+from praelatus.models import Project
+from praelatus.models import Status
+from praelatus.models import TicketType
+import json
 
 
 def test_get_one(db):
@@ -60,3 +64,28 @@ def test_delete(db):
 
     p = tickets.get(db, key='DELETE')
     assert p is None
+
+
+def test_json(db, admin):
+    status = db.query(Status).get(1)
+    project = db.query(Project).get(1)
+    ticket_type = db.query(TicketType).get(1)
+
+    ticket = {
+        'summary': 'json test',
+        'description': 'testing json serialization',
+        'ticket_type': ticket_type.clean_dict(),
+        'workflow_id': 1,
+        'project': project.clean_dict(),
+        'status': status.clean_dict(),
+        'reporter': admin.clean_dict()
+    }
+
+    t = tickets.new(db, acitoning_user=admin, **ticket)
+
+    ticket['key'] = t.key
+    ticket['id'] = t.id
+    ticket['updated_date'] = str(t.updated_date)
+    ticket['created_date'] = str(t.created_date)
+
+    assert ticket == t.clean_dict()
