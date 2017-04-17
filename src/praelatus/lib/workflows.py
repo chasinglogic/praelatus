@@ -21,7 +21,8 @@ from praelatus.lib.permissions import sys_admin_required
 import praelatus.lib.statuses as statuses
 
 
-def get(db, id=None, name=None, filter=None, preload_tickets=False):
+def get(db, actioning_user=None, id=None, name=None, filter=None,
+        preload_tickets=False):
     """
     Get workflows from the database.
 
