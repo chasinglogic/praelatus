@@ -25,7 +25,7 @@ class BaseModel:
 
         for key, val in self.__dict__.items():
             # Check if it's metadata, if so skip it.
-            if key.startswith("_"):
+            if key.startswith("_") or key.endswith('_id'):
                 continue
 
             # Check if it's a model, if so jsonify it first.
