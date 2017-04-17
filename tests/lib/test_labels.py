@@ -1,5 +1,4 @@
 import praelatus.lib.labels as labels
-import json
 
 def test_get(db):
     lbl = labels.get(db, name='duplicate')
@@ -50,4 +49,4 @@ def test_json(db):
     label['id'] = l.id
 
     lbl = labels.get(db, id=l.id)
-    assert json.dumps(label) == lbl.to_json()
+    assert label == lbl.clean_dict()
