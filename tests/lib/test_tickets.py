@@ -6,7 +6,7 @@ def test_get_one(db):
     ticket = tickets.get(db, key='TEST-1')
     assert ticket is not None
     assert ticket.key == 'TEST-1'
-
+    assert len(ticket.fields) > 0
 
 def test_get_filter(db):
     tks = tickets.get(db, filter='test*')
@@ -14,6 +14,7 @@ def test_get_filter(db):
     assert tks is not None
     assert len(tks) > 0
     assert 'TEST' in tks[0].key
+    assert len(tks[0].fields) > 0
 
 
 def test_get_filter_action(db, admin):
@@ -22,6 +23,7 @@ def test_get_filter_action(db, admin):
     assert tks is not None
     assert len(tks) > 0
     assert 'TEST' in tks[0].key
+    assert len(tks[0].fields) > 0
 
 
 def test_update(db):
