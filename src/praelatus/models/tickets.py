@@ -1,6 +1,5 @@
 """Defines the Ticket, Comment, Label, TickeType, and Status models."""
 
-from praelatus.models.base import Base
 from datetime import datetime
 from sqlalchemy import Column
 from sqlalchemy import DateTime
@@ -10,6 +9,8 @@ from sqlalchemy import Text
 from sqlalchemy import Integer
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+
+from praelatus.models.base import Base
 
 
 class Ticket(Base):
