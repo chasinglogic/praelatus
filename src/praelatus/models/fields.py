@@ -9,17 +9,37 @@ from sqlalchemy import Float
 from sqlalchemy import ForeignKey
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.orm import relationship
+from enum import Enum
 
 from praelatus.models.base import Base
 
-# Consider using an Enum here?
-DATA_TYPES = [
-    'FLOAT',
-    'STRING',
-    'INT',
-    'DATE',
-    'OPT'
-]
+
+class DATA_TYPES(Enum):
+    """The valid data types for a Field."""
+
+    FLOAT = 'FLOAT'
+    STRING = 'STRING'
+    INT = 'INT'
+    DATE = 'DATE'
+    OPT = 'OPT'
+
+    @staticmethod
+    def values():
+        """Return a list of the valid DATA_TYPES as strings."""
+        vals = []
+        for typ in DATA_TYPES:
+            vals.append(typ.value)
+        return vals
+
+    def __repr__(self):
+        """Call self.__str__."""
+        return self.__str__
+
+    def __str__(self):
+        """Return a string friendly printing of the DATA_TYPES."""
+        return "[ %s, %s, %s, %s, %s ]" %\
+            (self.FLOAT, self.STRING, self.INT, self.DATE, self.OPT)
+
 
 field_options = Table('fields_options', Base.metadata,
                       Column('field_id', Integer,

@@ -48,10 +48,10 @@ def get(db, id=None, name=None, filter=None):
 
 def valid_type(data_type):
     """Raise an exception if data_type isn't in the accepted DATA_TYPES."""
-    if data_type in DATA_TYPES:
+    if data_type in DATA_TYPES.values():
         return data_type
     raise Exception('Invalid data type %s please select from %s' %
-                    (data_type, DATA_TYPES))
+                    (data_type, DATA_TYPES.values()))
 
 
 @rollback
