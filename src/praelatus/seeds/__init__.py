@@ -7,6 +7,9 @@ import praelatus.lib.labels as lbls
 import praelatus.lib.roles as rls
 import praelatus.lib.fields as flds
 import praelatus.lib.tickets as tks
+import praelatus.lib.ticket_types as types
+import praelatus.lib.workflows as workflows
+import praelatus.lib.statuses as statuses
 import praelatus.lib.permissions as perm_schemes
 from praelatus.lib.utils import rollback
 
@@ -131,6 +134,22 @@ def seed(db):
         except:
             continue
 
+    for s in defaults.statuses:
+        try:
+            statuses.new(db, actioning_user=admin, **s)
+        except Exception as e:
+            print(e)
+            continue
+
+    for t in defaults.ticket_types:
+        try:
+            types.new(db, actioning_user=admin, **t)
+        except Exception as e:
+            print(e)
+            continue
+
+    workflows.new(db, actioning_user=admin, **defaults.workflow)
+
     for i in range(1, 100):
         t = {
             'summary': 'This is ticket #%d' % i,
@@ -139,6 +158,7 @@ def seed(db):
             'reporter': {'id': 1},
             'assignee': {'id': 1},
             'status': {'id': 1},
+            'project': {'id': 1, 'key': 'TEST'},
             'labels': [],
             'fields': [
                 {
@@ -150,12 +170,13 @@ def seed(db):
                     'selected': priorities[randint(0, 2)]
                 }
             ],
-            'type': {
+            'ticket_type': {
                 'id': 1,
             }
         }
 
         try:
             tks.new(db, **t)
-        except:
+        except Exception as e:
+            print(e)
             continue
