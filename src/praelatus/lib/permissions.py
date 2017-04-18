@@ -184,12 +184,12 @@ def has_permission(db, permission_name, project, actioning_user):
         join(PermissionSchemePermissions).\
         join(Permission)
 
-    if isinstance(Project, project):
+    if isinstance(project, Project):
         query = query.filter(Project.id == project.id)
     else:
         query = query.filter(Project.id == project['id'])
 
-    if actioning_user is not None and isinstance(User, actioning_user):
+    if actioning_user is not None and isinstance(actioning_user, User):
         user_id = actioning_user.id
     elif actioning_user is not None:
         user_id = actioning_user['id']
