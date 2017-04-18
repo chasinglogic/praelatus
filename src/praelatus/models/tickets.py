@@ -8,7 +8,9 @@ from sqlalchemy import Table
 from sqlalchemy import Text
 from sqlalchemy import Integer
 from sqlalchemy import ForeignKey
+
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.collections import InstrumentedList
 
 from praelatus.models.base import Base
 
@@ -47,7 +49,7 @@ class Ticket(Base):
     workflow = relationship('Workflow', backref='tickets')
 
     comments = relationship('Comment', backref='ticket',
-                            lazy='joined')
+                            lazy='subquery')
 
     fields = relationship('FieldValue', backref='field_values',
                           lazy='joined')
@@ -62,10 +64,22 @@ class Ticket(Base):
         jsn['workflow_id'] = self.workflow_id
         jsn['created_date'] = str(self.created_date)
         jsn['updated_date'] = str(self.updated_date)
-        if isinstance(self.comments, Base):
-            jsn['comments'] = self.comments.clean_dict()
+        if len(self.comments) > 0:
+            jsn['comments'] = []
+            for c in self.comments:
+                jsn['comments'].append(c.clean_dict())
+        self.assignee
         if isinstance(self.assignee, Base):
             jsn['assignee'] = self.assignee.clean_dict()
+        labels = []
+        for l in self.labels:
+            labels.append(l.name)
+        print('labels', labels)
+        jsn['labels'] = labels
+        fields = []
+        for f in self.fields:
+            fields.append(f.clean_dict())
+        jsn['fields'] = fields
         return jsn
 
 
