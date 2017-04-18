@@ -13,9 +13,15 @@ def test_get_with_filter(db):
     assert len(flds) > 0
     assert flds[0].id is not None
 
-def test_update(db):
+def test_update(db, admin):
     new_name = 'duplex'
-    fld = fields.get(db, name='Story Points')
+    new_field = {
+        'name': 'test field save',
+        'data_type': 'INT'
+    }
+
+    fields.new(db, actioning_user=admin, **new_field)
+    fld = fields.get(db, name='test field save')
     fld.name = new_name
 
     fields.update(db, field=fld)
