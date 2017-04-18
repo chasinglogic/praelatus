@@ -20,6 +20,7 @@ from praelatus.models import Label
 from praelatus.models import Field
 from praelatus.models import FieldValue
 from praelatus.models import Status
+from praelatus.models import Comment
 from praelatus.models import Transition
 from praelatus.models.fields import DataTypeError
 from praelatus.lib.utils import rollback
@@ -146,11 +147,11 @@ def new(db, **kwargs):
 
     field_values = kwargs.get('fields', [])
     for f in field_values:
-        if f.get('id') is not None:
-            fv = db.query(FieldValue).filter_by(id=f['id']).first()
-            fv.value = f['value']
-            new_ticket.fields.append(fv)
-            continue
+        # if f.get('id') is not None:
+        #     fv = db.query(FieldValue).filter_by(id=f['id']).first()
+        #     fv.value = f['value']
+        #     new_ticket.fields.append(fv)
+        #     continue
 
         field = db.query(Field).filter_by(name=f['name']).first()
         fv = FieldValue(
@@ -197,6 +198,26 @@ def delete(db, actioning_user=None, project=None, ticket=None):
     """
     db.delete(ticket)
     db.commit()
+
+
+@rollback
+@permission_required('COMMENT_TICKET')
+def add_comment(db, actioning_user=None, project=None, **kwargs):
+    """
+    Add comment to if acitoning_user has permission.
+
+    Required Keyword Arguments:
+    actioning_user -- user who is making the comment
+    author -- json representation of a User who is the author
+    project -- the project the ticket belongs to
+    ticket_id -- the id of the ticket the comment is being added to
+    """
+    new_comment = Comment(author_id=kwargs['author']['id'],
+                          body=kwargs['body'],
+                          ticket_id=kwargs['ticket_id'])
+    db.add(new_comment)
+    db.commit()
+    return new_comment
 
 
 def set_field_value(field_value, val):
