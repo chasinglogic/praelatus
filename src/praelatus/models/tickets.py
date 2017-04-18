@@ -10,7 +10,6 @@ from sqlalchemy import Integer
 from sqlalchemy import ForeignKey
 
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm.collections import InstrumentedList
 
 from praelatus.models.base import Base
 
@@ -98,6 +97,15 @@ class Comment(Base):
     author = relationship('User', foreign_keys=author_id)
 
     ticket_id = Column(Integer, ForeignKey('tickets.id'))
+
+    def clean_dict(self):
+        """Override BaseModel clean_dict."""
+        jsn = super(Comment, self).clean_dict()
+        jsn['author'] = self.author.clean_dict()
+        jsn['ticket_key'] = self.ticket.key
+        jsn['updated_date'] = str(self.updated_date)
+        jsn['created_date'] = str(self.created_date)
+        return jsn
 
 
 # A many to many table for connecting the Label and Ticket classes
