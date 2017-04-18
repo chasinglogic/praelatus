@@ -37,25 +37,14 @@ def seed(db):
     ]
 
     for u in defaults.users:
-        try:
-            usr.new(db, **u)
-        except Exception as e:
-            print(e)
-            continue
+        usr.new(db, **u)
 
     for u in users:
-        try:
-            usr.new(db, **u)
-        except Exception as e:
-            print(e)
-            continue
+        usr.new(db, **u)
 
     admin = usr.get(db, id=2)
     for r in defaults.roles:
-        try:
-            rls.new(db, actioning_user=admin, **r)
-        except:
-            continue
+        rls.new(db, actioning_user=admin, **r)
 
     perm_schemes.new(db, actioning_user=admin,
                      **defaults.permission_scheme)
@@ -79,11 +68,7 @@ def seed(db):
     ]
 
     for p in projects:
-        try:
-            prj.new(db, **p)
-        except Exception as e:
-            print(e)
-            continue
+        prj.new(db, **p)
 
     labels = [
         {
@@ -98,10 +83,7 @@ def seed(db):
     ]
 
     for l in labels:
-        try:
-            lbls.new(db, **l)
-        except:
-            continue
+        lbls.new(db, **l)
 
     priorities = ['HIGH', 'MEDIUM', 'LOW']
 
@@ -111,53 +93,43 @@ def seed(db):
             'data_type': 'INT',
         },
         {
-            'name':     'TestField2',
-            'data_type': 'FLOAT',
-        },
-        {
-            'name':     'TestField3',
-            'data_type': 'INT',
-        },
-        {
-            'name':     'TestField4',
-            'data_type': 'DATE',
-        },
-        {
             'name':     'Priority',
             'data_type': 'OPT',
             'options':  priorities,
         },
+        {
+            'name': 'Business Value',
+            'data_type': 'FLOAT'
+        },
+        {
+            'name': 'Due Date',
+            'data_type': 'DATE'
+        },
+        {
+            'name': 'Organization',
+            'data_type': 'STRING'
+        },
     ]
 
     for f in fields:
-        try:
-            flds.new(db, **f)
-        except:
-            continue
+        flds.new(db, **f)
 
     for s in defaults.statuses:
-        try:
-            statuses.new(db, actioning_user=admin, **s)
-        except Exception as e:
-            print(e)
-            continue
-
-    for t in defaults.ticket_types:
-        try:
-            types.new(db, actioning_user=admin, **t)
-        except Exception as e:
-            print(e)
-            continue
+        statuses.new(db, actioning_user=admin, **s)
 
     workflows.new(db, actioning_user=admin, **defaults.workflow)
 
+    for t in defaults.ticket_types:
+        types.new(db, actioning_user=admin, **t)
+
     for i in range(1, 100):
+        assignees = [None, {'id': 2}, {'id': 3}]
         t = {
             'summary': 'This is ticket #%d' % i,
             'description': 'This is a test',
             'workflow_id': 1,
-            'reporter': {'id': 1},
-            'assignee': {'id': 1},
+            'reporter': assignees[randint(1, 2)],
+            'assignee': assignees[randint(0, 2)],
             'status': {'id': 1},
             'project': {'id': 1, 'key': 'TEST'},
             'labels': [],
@@ -176,8 +148,4 @@ def seed(db):
             }
         }
 
-        try:
-            tks.new(db, **t)
-        except Exception as e:
-            print(e)
-            continue
+        tks.new(db, **t)
