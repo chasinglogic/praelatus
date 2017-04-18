@@ -57,7 +57,19 @@ class Field(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True)
     data_type = Column(String)
-    options = relationship('FieldOption', secondary=field_options)
+    options = relationship('FieldOption', secondary=field_options,
+                           lazy='subquery')
+
+    def clean_dict(self):
+        """Override BaseModel clean_dict."""
+        jsn = super(Field, self).clean_dict()
+        if jsn['data_type'] == 'OPT':
+            jsn['options'] = []
+            for opt in self.options:
+                jsn['options'].append(opt.name)
+        else:
+            del jsn['options']
+        return jsn
 
 
 class FieldOption(Base):
@@ -87,6 +99,27 @@ class FieldValue(Base):
     opt_value = Column(String(length=255))
     flt_value = Column(Float)
     date_value = Column(DateTime)
+
+    def clean_dict(self):
+        """Override BaseModel clean_dict."""
+        jsn = super(FieldValue, self).clean_dict()
+        # Jsn['Value'] = the appropriate value, based on field data type.
+        jsn['name'] = self.field.name
+        jsn['data_type'] = self.field.data_type
+        if self.field.data_type == 'OPT':
+            jsn['value'] = self.opt_value
+            jsn['options'] = []
+            for opt in self.field.options:
+                jsn['options'].append(opt.name)
+        elif self.field.data_type == 'STRING':
+            jsn['value'] = self.str_value
+        elif self.field.data_type == 'FLOAT':
+            jsn['value'] = self.flt_value
+        elif self.field.data_type == 'DATE':
+            jsn['value'] = str(self.date_value)
+        elif self.field.data_type == 'INT':
+            jsn['value'] = self.int_value
+        return jsn
 
 
 class DataTypeError(Exception):
