@@ -28,6 +28,11 @@ class BaseModel:
             if key.startswith("_") or key.endswith('_id'):
                 continue
 
+            # This is for FieldValue seems less hacky than deleting unused
+            # values
+            if key.endswith('_value'):
+                continue
+
             # Check if it's a model, if so jsonify it first.
             if isinstance(val, BaseModel):
                 jsn[key] = val.clean_dict()
