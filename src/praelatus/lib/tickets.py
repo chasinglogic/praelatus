@@ -46,11 +46,13 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
     query = db.query(Ticket).options(
         joinedload(Ticket.ticket_type),
         joinedload(Ticket.status),
-        joinedload(Ticket.fields),
+        joinedload(Ticket.fields).
+        joinedload(FieldValue.field).
+        joinedload(Field.options),
         joinedload(Ticket.labels),
         joinedload(Ticket.assignee),
         joinedload(Ticket.project),
-        joinedload(Ticket.reporter)
+        joinedload(Ticket.reporter),
     )
 
     if id is not None:
@@ -81,8 +83,15 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
         query = query.options(joinedload(Ticket.comments))
 
     if any([id, key]):
-        return query.first()
-    return query.order_by(Ticket.key).all()
+        result = query.first()
+    else:
+        result = query.order_by(Ticket.key).all()
+
+    if preload_comments:
+        # force comments to load
+        result.comments
+
+    return result
 
 
 def new(db, **kwargs):
@@ -137,6 +146,12 @@ def new(db, **kwargs):
 
     field_values = kwargs.get('fields', [])
     for f in field_values:
+        if f.get('id') is not None:
+            fv = db.query(FieldValue).filter_by(id=f['id']).first()
+            fv.value = f['value']
+            new_ticket.fields.append(fv)
+            continue
+
         field = db.query(Field).filter_by(name=f['name']).first()
         fv = FieldValue(
             field=field
@@ -148,10 +163,12 @@ def new(db, **kwargs):
 
     labels = kwargs.get('labels', [])
     for l in labels:
-        lbl = Label(name=l['name'])
+        lbl = db.query(Label).filter_by(name=l).first()
+        if lbl is None:
+            lbl = Label(name=l)
+            db.add(lbl)
+            db.commit()
         new_ticket.labels.append(lbl)
-        db.add(lbl)
-        db.commit()
 
     db.add(new_ticket)
     db.commit()
