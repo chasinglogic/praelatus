@@ -15,6 +15,8 @@ from praelatus.models import FieldOption
 from praelatus.models.fields import DATA_TYPES
 from praelatus.lib.utils import rollback
 
+from sqlalchemy.orm import joinedload
+
 
 def get(db, id=None, name=None, filter=None):
     """
@@ -29,7 +31,7 @@ def get(db, id=None, name=None, filter=None):
     name -- the field name (default None)
     filter -- a pattern to search through fields with (default None)
     """
-    query = db.query(Field)
+    query = db.query(Field).options(joinedload(Field.options))
 
     if id is not None:
         query = query.filter(Field.id == id)
