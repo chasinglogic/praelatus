@@ -122,8 +122,8 @@ def seed(db):
     for t in defaults.ticket_types:
         types.new(db, actioning_user=admin, **t)
 
+    assignees = [None, {'id': 2}, {'id': 3}]
     for i in range(1, 100):
-        assignees = [None, {'id': 2}, {'id': 3}]
         t = {
             'summary': 'This is ticket #%d' % i,
             'description': 'This is a test',
@@ -149,3 +149,20 @@ def seed(db):
         }
 
         tks.new(db, **t)
+
+    tickets = tks.get(db, actioning_user=admin, filter='TEST*')
+    for t in tickets:
+        for i in range(1, 10):
+            comment = {
+                'body': """This is the %d th comment
+# Yo Dawg
+**I** *heard* you
+> like markdown
+so I put markdown in your comment""" % i,
+                'author': assignees[randint(1, 2)],
+                'ticket_key': t.key,
+                'ticket_id': t.id
+            }
+
+            tks.add_comment(db, actioning_user=comment['author'],
+                            project=t.project, **comment)
