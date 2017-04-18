@@ -1,9 +1,10 @@
+import datetime
+
 import praelatus.lib.users as users
 import praelatus.lib.tickets as tickets
 from praelatus.models import Project
 from praelatus.models import Status
 from praelatus.models import TicketType
-import datetime
 
 
 def test_get_one(db):
@@ -155,3 +156,24 @@ def test_json(db, admin):
                     field['value'] = f['value']
 
     assert ticket == ref_dict
+
+
+def test_add_comment(db, admin):
+    t = tickets.get(db, key='TEST-40')
+    comment = {
+        'body': 'test',
+        'author': admin.clean_dict(),
+        'ticket_key': t.key,
+        'ticket_id': t.id
+    }
+
+    ref_com = tickets.add_comment(db, project=t.project,
+                                  actioning_user=admin, **comment)
+    assert ref_com is not None
+
+    comment['id'] = ref_com.id
+    comment['created_date'] = str(ref_com.created_date)
+    comment['updated_date'] = str(ref_com.updated_date)
+    del comment['ticket_id']
+
+    assert comment == ref_com.clean_dict()
