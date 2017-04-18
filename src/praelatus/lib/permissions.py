@@ -175,34 +175,43 @@ def permission_required(permission):
     return decorator
 
 
-def has_permission(db, permission, project, actioning_user):
+def has_permission(db, permission_name, project, actioning_user):
     """Check if permission is granted to actioning_user on project."""
     query = db.query(Project.id).\
         join(UserRoles).\
         join(Role).\
         join(PermissionScheme).\
         join(PermissionSchemePermissions).\
-        join(Permission).\
-        filter(Project.id == project.id)
+        join(Permission)
+
+    if isinstance(Project, project):
+        query = query.filter(Project.id == project.id)
+    else:
+        query = query.filter(Project.id == project['id'])
+
+    if actioning_user is not None and isinstance(User, actioning_user):
+        user_id = actioning_user.id
+    elif actioning_user is not None:
+        user_id = actioning_user['id']
 
     if actioning_user is not None:
         query = query.filter(
             or_(
                 db.query(User.is_admin).
-                filter(User.id == actioning_user.id).
+                filter(User.id == user_id).
                 subquery('admin').as_scalar(),
                 and_(
-                    Permission.name == permission,
+                    Permission.name == permission_name,
                     or_(
                         Role.name == 'Anonymous',
-                        UserRoles.user_id == actioning_user.id
+                        UserRoles.user_id == user_id
                     ),
                 )
             )
         )
     else:
         query = query.filter(
-            Permission.name == permission,
+            Permission.name == permission_name,
             Role.name == 'Anonymous'
         )
 
