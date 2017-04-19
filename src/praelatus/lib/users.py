@@ -13,11 +13,13 @@ Anonymous user.
 import bcrypt
 import hashlib
 
+from praelatus.lib.permissions import PermissionError
 from praelatus.lib.utils import rollback
 from praelatus.models import User
 
 
-def get(db, username=None, id=None, email=None, filter=None):
+def get(db, actioning_user=None, username=None, id=None, email=None,
+        filter=None):
     """
     Get users from the database.
 
@@ -98,7 +100,7 @@ def update(db, user, actioning_user=None):
     if (actioning_user is None
         or (actioning_user.id != user.id
             and not actioning_user.is_admin)):
-        raise Exception('permission denied')
+        raise PermissionError('permission denied')
 
     db.add(user)
     db.commit()
@@ -114,7 +116,7 @@ def delete(db, user, actioning_user=None):
     if (actioning_user is None
         or (actioning_user.id != user.id
             and not actioning_user.is_admin)):
-        raise Exception('permission denied')
+        raise PermissionError('permission denied')
 
     db.delete(user)
     db.commit()
