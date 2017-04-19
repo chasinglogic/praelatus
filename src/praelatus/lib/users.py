@@ -76,7 +76,7 @@ def new(db, **kwargs):
                              bcrypt.gensalt())
     new_user = User(
         username=kwargs['username'],
-        password=password,
+        password=password.decode('utf-8'),
         email=kwargs['email'],
         profile_pic=kwargs.get('profile_pic', gravatar(kwargs['email'])),
         is_admin=kwargs.get('is_admin', False),
@@ -130,5 +130,10 @@ def gravatar(email):
 
 
 def check_pw(user, password):
-    """Check user's password against password. Alias to bcrypt.checkpw."""
-    return bcrypt.checkpw(password.encode('utf-8'), User.password)
+    """
+    Check user's password against password.
+
+    Alias to bcrypt.checkpw.
+    """
+    return bcrypt.checkpw(password.encode('utf-8'),
+                          user.password.encode('utf-8'))
