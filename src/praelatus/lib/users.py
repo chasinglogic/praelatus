@@ -127,3 +127,8 @@ def gravatar(email):
     md5 = hashlib.md5()
     md5.update(email.encode('utf-8'))
     return 'https://gravatar.com/avatar/' + md5.hexdigest()
+
+
+def check_pw(user, password):
+    """Check user's password against password. Alias to bcrypt.checkpw."""
+    return bcrypt.checkpw(password.encode('utf-8'), User.password)
