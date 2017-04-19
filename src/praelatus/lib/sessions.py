@@ -38,6 +38,11 @@ def set(key, user):
     client().set(key, user.to_json())
 
 
+def delete(key):
+    """Remove the value stored at key."""
+    client().delete(key)
+
+
 def gen_session_id():
     """Generated a uuid, alias for uuid.uuid4."""
     return uuid4()
