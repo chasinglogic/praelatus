@@ -12,6 +12,8 @@ from praelatus.models.permissions import PermissionError
 from praelatus.api.errors import handle_permission_error
 from praelatus.api.errors import handle_key_error
 from praelatus.api.errors import handle_generic_error
+from praelatus.api.middleware import AuthMiddleware
+from praelatus.api.middleware import LogMiddleware
 
 
 class RoutesResource():
@@ -29,7 +31,10 @@ class RoutesResource():
 
 def create_app():
     """Factory method for our API."""
-    app = falcon.API()
+    app = falcon.API(middleware=[
+        LogMiddleware(None),
+        AuthMiddleware()
+    ])
     app.add_route('/api/routes', RoutesResource(app._router._roots))
     add_v1_routes(app)
 
