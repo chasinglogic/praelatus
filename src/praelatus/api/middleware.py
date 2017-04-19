@@ -47,6 +47,6 @@ class LogMiddleware():
 
     def process_response(self, req, resp, resource, req_succeeded):
         """Log response time and other info about response."""
-        resp_time = datetime.now() - req.context['start_time'] 
+        resp_time = datetime.now() - req.context['start_time']
         resp_time = resp_time / timedelta(milliseconds=1)
         print("[%s] %s %s" % (req_succeeded, req.uri, resp_time))
