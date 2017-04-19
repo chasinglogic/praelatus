@@ -1,5 +1,6 @@
 # flake8: noqa
 from praelatus.models.base import Base
+from praelatus.models.base import DuplicateError
 from praelatus.models.users import User
 from praelatus.models.projects import Project
 from praelatus.models.projects import ProjectRoles
