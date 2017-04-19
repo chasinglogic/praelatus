@@ -27,26 +27,11 @@ class AuthMiddleware():
             token = token[len('Token '):]
 
         if token is None:
+            print('No token present')
             req.context['session_id'] = None
             req.context['user'] = None
         else:
+            print('Found token')
             req.context['session_id'] = token
             req.context['user'] = sessions.get(token)
-
-
-class LogMiddleware():
-    """Log requests and performance information used for debugging."""
-
-    def __init__(self, logger):
-        """Set self.logger to a logger which is any writeable."""
-        self.logger = logger
-
-    def process_request(self, req, resp):
-        """Set start_time on req.context."""
-        req.context['start_time'] = datetime.now()
-
-    def process_response(self, req, resp, resource, req_succeeded):
-        """Log response time and other info about response."""
-        resp_time = datetime.now() - req.context['start_time']
-        resp_time = resp_time / timedelta(milliseconds=1)
-        print("[%s] %s %s" % (req_succeeded, req.uri, resp_time))
+            print('user', req.context['user'])
