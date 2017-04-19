@@ -7,5 +7,10 @@ information about how to use the API as a client or how to start
 working on the backend visit https://docs.praelatus.io
 """
 
+from praelatus.api import create_app
+
 __version__ = '0.0.4'
 __api_version__ = 'v1'
+
+# Global app object for gunicorn
+api = create_app()
