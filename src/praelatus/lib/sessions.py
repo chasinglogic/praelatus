@@ -27,8 +27,7 @@ def client():
 
 def get(key):
     """Look in redis for session with key returns a User or None."""
-    c = client()
-    jsn = c.get(key)
+    jsn = client().get(key)
     if jsn is None:
         return jsn
     return User.from_json(json.loads(jsn.decode('utf-8')))
@@ -36,8 +35,7 @@ def get(key):
 
 def set(key, user):
     """Store the user in redis at the given session key."""
-    c = client()
-    c.set(key, user.to_json())
+    client().set(key, user.to_json())
 
 
 def gen_session_id():
