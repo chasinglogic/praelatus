@@ -13,9 +13,12 @@ Anonymous user.
 import bcrypt
 import hashlib
 
+from sqlalchemy.exc import IntegrityError
+
 from praelatus.lib.permissions import PermissionError
 from praelatus.lib.utils import rollback
 from praelatus.models import User
+from praelatus.models import DuplicateError
 
 
 def get(db, actioning_user=None, username=None, id=None, email=None,
@@ -84,8 +87,11 @@ def new(db, **kwargs):
         full_name=kwargs['full_name']
     )
 
-    db.add(new_user)
-    db.commit()
+    try:
+        db.add(new_user)
+        db.commit()
+    except IntegrityError as e:
+        raise DuplicateError('That username is already taken.')
 
     return new_user
 
