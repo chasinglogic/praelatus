@@ -48,5 +48,12 @@ class BaseModel:
         # jsonify our dict using the stdlib
         return json.dumps(self.clean_dict())
 
+    @classmethod
+    def from_json(cls, jsn):
+        """Inhertiable way to deserialize from json."""
+        inst = cls()
+        inst.__dict__ = jsn
+        return inst
+
 
 Base = declarative_base(cls=BaseModel)
