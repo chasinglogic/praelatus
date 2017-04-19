@@ -30,12 +30,22 @@ def get(key):
     jsn = client().get(key)
     if jsn is None:
         return jsn
-    return User.from_json(json.loads(jsn.decode('utf-8')))
+    jsn = jsn.decode('utf-8')
+    try:
+        return User.from_json(json.loads(jsn))
+    except json.JSONDecodeError:
+        return jsn
 
 
-def set(key, user):
+def set(key, value, expires=None):
     """Store the user in redis at the given session key."""
-    client().set(key, user.to_json())
+    val = value
+    if hasattr(value, 'to_json'):
+        val = value.to_json()
+    if expires is not None:
+        client().set(key, val, ex=expires.seconds)
+        return
+    client().set(key, val)
 
 
 def delete(key):
