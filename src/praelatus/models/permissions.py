@@ -110,7 +110,6 @@ class Permissions(Enum):
     REMOVE_TICKET = 'REMOVE_TICKET'
 
 
-class PermissionError(Exception):
+class PermissionError(Exception):  # noqa: D204
     """Raised when the user doesn't have the required permission."""
-
     pass
