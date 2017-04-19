@@ -49,3 +49,7 @@ def test_update(db):
 def test_gravatar():
     gravatar = 'https://gravatar.com/avatar/9cd743073d56a5958655e3cf2105728b'
     assert gravatar == users.gravatar('chasinglogic@gmail.com')
+
+
+def test_check_pw(admin):
+    assert users.check_pw(admin, 'test')
