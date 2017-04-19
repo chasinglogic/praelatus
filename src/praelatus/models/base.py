@@ -33,11 +33,6 @@ class BaseModel:
             if key.endswith('_value'):
                 continue
 
-            # Check if it's a model, if so jsonify it first.
-            if isinstance(val, BaseModel):
-                jsn[key] = val.clean_dict()
-                continue
-
             # Must be a primitive type so just throw it in.
             jsn[key] = val
 
@@ -54,6 +49,11 @@ class BaseModel:
         inst = cls()
         inst.__dict__ = jsn
         return inst
+
+
+class DuplicateError(Exception):  # noqa: D204
+    """Used for signaling to the API that an integrity rule was breached."""
+    pass
 
 
 Base = declarative_base(cls=BaseModel)
