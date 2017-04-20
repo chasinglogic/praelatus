@@ -25,7 +25,6 @@ workflows_projects = Table(
 
 class Workflow(Base):
     """Represents a Worfklow in the database."""
-
     __tablename__ = 'workflows'
 
     id = Column(Integer, primary_key=True)
@@ -68,11 +67,10 @@ class Workflow(Base):
 
 class Transition(Base):
     """Represents a workflow Transition in the database."""
-
     __tablename__ = 'transitions'
     __table_args__ = (
         UniqueConstraint('name', 'workflow_id'),
-        )
+    )
 
     id = Column(Integer, primary_key=True)
     name = Column(String(length=255))
@@ -99,7 +97,6 @@ class Transition(Base):
 
 class Hook(Base):
     """Represents a hook for a Transition in the database."""
-
     __tablename__ = 'hooks'
 
     id = Column(Integer, primary_key=True)
