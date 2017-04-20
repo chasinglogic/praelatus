@@ -27,7 +27,7 @@ roles = [
 
 
 permission_scheme = {
-    'name':        'Default Permission Scheme',
+    'name': 'Default Permission Scheme',
     'description': 'The recommended defaults for permissions.',
     'permissions': {
         'Administrator': [
@@ -125,27 +125,27 @@ workflow = {
         ],
         'In Progress': [
             {
-                'name':     'Done',
+                'name': 'Done',
                 'to_status': {
                     'id': 3
                 },
-                'hooks':    [],
+                'hooks': [],
             },
             {
-                'name':     'Backlog',
+                'name': 'Backlog',
                 'to_status': {
                     'id': 1
                 },
-                'hooks':    [],
+                'hooks': [],
             },
         ],
         'Done': [
             {
-                'name':     'ReOpen',
+                'name': 'ReOpen',
                 'to_status': {
                     'id': 1
                 },
-                'hooks':    [],
+                'hooks': [],
             },
         ],
     }
