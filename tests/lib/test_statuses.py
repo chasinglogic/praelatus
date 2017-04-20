@@ -54,9 +54,3 @@ def test_json(db, admin):
 
     lbl = statuses.get(db, actioning_user=admin, id=l.id)
     assert status == lbl.clean_dict()
-
-
-
-def test_schema(db, admin):
-    status = statuses.get(db, actioning_user=admin, name='Backlog')
-    StatusSchema.validate(status.clean_dict())

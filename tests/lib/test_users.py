@@ -56,16 +56,3 @@ def test_gravatar():
 
 def test_check_pw(admin):
     assert users.check_pw(admin, 'test')
-
-
-def test_user_schema(admin):
-    UserSchema.validate(admin.clean_dict())
-
-
-def test_signup_schema():
-    SignupSchema.validate({
-        "username": "some_new_user",
-        "password": "supersecure",
-        "full_name": "New User",
-        "email": "new@praelatus.io"
-    })
