@@ -12,6 +12,7 @@ from inspect import getdoc
 from praelatus.api.v1 import add_v1_routes
 from praelatus.api.errors import handle_error
 from praelatus.api.middleware import AuthMiddleware
+from praelatus.api.middleware import ContentTypeMiddleware
 
 
 class RoutesResource():
@@ -57,11 +58,12 @@ class RoutesResource():
 def create_app():
     """Factory method for our API."""
     app = falcon.API(middleware=[
-        AuthMiddleware()
+        AuthMiddleware(),
+        ContentTypeMiddleware()
     ])
 
     app.add_route('/api/routes', RoutesResource(app._router._roots))
     add_v1_routes(app)
 
-    # app.add_error_handler(Exception, handler=handle_error)
+    app.add_error_handler(Exception, handler=handle_error)
     return app
