@@ -9,7 +9,10 @@ class BaseSchema():
         'type': 'object',
         'properties': {
             'id': {'type': 'integer'},
-            'name': {'type': 'string'}
+            'name': {
+                'type': 'string',
+                'maxLength': 250
+            }
         }
     }
 
