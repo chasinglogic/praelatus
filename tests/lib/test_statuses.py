@@ -1,5 +1,7 @@
 import praelatus.lib.statuses as statuses
 
+from praelatus.api.schemas import StatusSchema
+
 
 def test_get(db, admin):
     lbl = statuses.get(db, actioning_user=admin, name='Backlog')
@@ -52,3 +54,9 @@ def test_json(db, admin):
 
     lbl = statuses.get(db, actioning_user=admin, id=l.id)
     assert status == lbl.clean_dict()
+
+
+
+def test_schema(db, admin):
+    status = statuses.get(db, actioning_user=admin, name='Backlog')
+    StatusSchema.validate(status.clean_dict())
