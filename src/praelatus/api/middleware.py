@@ -1,9 +1,15 @@
 """Contains our custom middleware for Praelatus."""
 
-from datetime import timedelta
-from datetime import datetime
-
 import praelatus.lib.sessions as sessions
+
+
+class ContentTypeMiddleware():
+    """Checks Accepts header on requests and sets content-type on response."""
+
+    def process_response(self, req, resp, resource, success):
+        """Add Content-Type header when appropriate."""
+        if 'api' in req.uri:
+            resp.set_header('Content-Type', 'application/json')
 
 
 class AuthMiddleware():
