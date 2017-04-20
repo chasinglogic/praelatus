@@ -52,17 +52,17 @@ def seed(db):
     projects = [
         {
             'name': 'TEST Project',
-            'key':  'TEST',
+            'key': 'TEST',
             'lead': {'id': 3},
         },
         {
             'name': 'TEST Project 2',
-            'key':  'TEST2',
+            'key': 'TEST2',
             'lead': {'id': 2},
         },
         {
             'name': 'TEST Project 3',
-            'key':  'TEST3',
+            'key': 'TEST3',
             'lead': {'id': 2},
         }
     ]
@@ -89,13 +89,13 @@ def seed(db):
 
     fields = [
         {
-            'name':     'Story Points',
+            'name': 'Story Points',
             'data_type': 'INT',
         },
         {
-            'name':     'Priority',
+            'name': 'Priority',
             'data_type': 'OPT',
-            'options':  priorities,
+            'options': priorities,
         },
         {
             'name': 'Business Value',
