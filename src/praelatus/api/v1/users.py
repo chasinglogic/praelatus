@@ -11,6 +11,8 @@ from datetime import timedelta
 import praelatus.lib.users as users
 import praelatus.lib.sessions as sessions
 
+from praelatus.api.schemas import UserSchema
+from praelatus.api.schemas import SignupSchema
 from praelatus.models import User
 from praelatus.lib import session as db
 
@@ -82,7 +84,7 @@ class UsersResource():
             "username": "some_new_user",
             "password": "supersecure",
             "full_name": "New User",
-            "email": "new@praelatus.io",
+            "email": "new@praelatus.io"
         }
         ```
         
@@ -103,8 +105,9 @@ class UsersResource():
         }
         ```
         """
-        user = json.loads(req.stream.read().decode('utf-8'))
-        db_u = users.new(db(), **user)
+        signup_req = json.loads(req.stream.read().decode('utf-8'))
+        SignupSchema.validate(signup_req)
+        db_u = users.new(db(), **signup_req)
         self.create_session(db_u, resp)
 
 
@@ -154,6 +157,7 @@ class UserResource():
         Returns a message indicating success or failure.
         """
         jsn = json.loads(req.stream.read().decode('utf-8'))
+        UserSchema.validate(jsn)
         new_u = User.from_json(jsn)
         user = req.context.get('user', {})
         users.update(db(), actioning_user=user, user=new_u)
