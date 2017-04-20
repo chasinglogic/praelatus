@@ -22,14 +22,43 @@ class UsersResource():
         """
         create_session should be a function which takes a user and a
         resp then creates a session in redis sending the session back
-        to resp.
-
-        Used for a user after signup.
+        to resp, it is called after on_post to create a session 
+        for a user after signup.
         """
         self.create_session = create_session
 
     def on_get(self, req, resp):
-        """Return all users."""
+        """
+        Return all users for the instance.
+        
+        Accepts the query parameter filter which searches through
+        users on the instance.
+        
+        Returns an array of user objects as defined by schemas.user
+        
+        ```json
+        [
+            {
+                "full_name": "Test Testerson",
+                "is_admin": true,
+                "email": "test@example.com",
+                "username": "testadmin",
+                "id": 2,
+                "is_active": true,
+                "profile_pic": "https://gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0"
+            },
+            {
+                "full_name": "Test Testerson II",
+                "is_admin": false,
+                "email": "test@example.com",
+                "username": "testuser",
+                "id": 3,
+                "is_active": true,
+                "profile_pic": "https://gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0"
+            }
+        ]
+        ```
+        """
         user = req.context.get('user', {})
         query = req.params.get('filter', '*')
 
@@ -42,8 +71,39 @@ class UsersResource():
         resp.body = json.dumps(usrs)
 
     def on_post(self, req, resp):
-        """Create a user."""
-        user = json.load(req.stream)
+        """
+        Create a user and return the user object with the database
+        information attached.
+        
+        Accepts JSON of the form:
+
+        ```json
+        {
+            "username": "some_new_user",
+            "password": "supersecure",
+            "full_name": "New User",
+            "email": "new@praelatus.io",
+        }
+        ```
+        
+        Returns a session object:
+        
+        ```json
+        {
+            "token": "1a2323f4-8eeb-4739-be43-1d5086ca5163",
+            "user": {
+                "id": 5,
+                "full_name": "New User",
+                "is_admin": false,
+                "is_active": true,
+                "email": "new@praelatus.io",
+                "username": "some_new_user",
+                "profile_pic": "https://gravatar.com/avatar/e688391c89d2551bf1f844249682ace4"
+            }
+        }
+        ```
+        """
+        user = json.loads(req.stream.read().decode('utf-8'))
         db_u = users.new(db(), **user)
         self.create_session(db_u, resp)
 
@@ -52,21 +112,61 @@ class UserResource():
     """Handlers for /api/v1/users/{username} endpoint."""
 
     def on_get(self, req, resp, username):
-        """Return single user by username or id."""
+        """
+        Return single user by username or id.
+
+        Returns user object as defined by schemas.user:
+
+        ```json
+        {
+            "full_name": "Test Testerson",
+            "is_admin": true,
+            "email": "test@example.com",
+            "username": "testadmin",
+            "id": 2,
+            "is_active": true,
+            "profile_pic": "https://gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0"
+        }
+        ```
+        """
         user = req.context.get('user', {})
         db_res = users.get(db(), username=username, actioning_user=user)
         resp.body = db_res.to_json()
 
     def on_put(self, req, resp, username):
-        """Update user."""
-        jsn = json.load(req.stream)
+        """
+        Update the user identified by username.
+
+        Accepts a user object as defined by schemas.user:
+
+        ```json
+        {
+            "full_name": "Test Testerson",
+            "is_admin": true,
+            "email": "test@example.com",
+            "username": "testadmin",
+            "id": 2,
+            "is_active": true,
+            "profile_pic": "https://gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0"
+        }
+        ```
+        
+        Returns a message indicating success or failure.
+        """
+        jsn = json.loads(req.stream.read().decode('utf-8'))
         new_u = User.from_json(jsn)
         user = req.context.get('user', {})
         users.update(db(), actioning_user=user, user=new_u)
         resp.body = json.dumps({'message': 'Successfully updated user.'})
 
     def on_delete(self, req, resp, username):
-        """Delete user."""
+        """
+        Delete the user identified by username.
+        
+        This request requires no body.
+        
+        Returns a message indicating success or failure.
+        """
         sess = db()
         user = req.context.get('user', {})
         del_user = users.get(sess, username=username)
@@ -90,7 +190,7 @@ class SessionResource():
         }
         ```
 
-        Returns a session object as defined by schemas.session:
+        Returns a session object:
 
         ```json
         {
@@ -107,7 +207,7 @@ class SessionResource():
         }
         ```
         """
-        login = json.load(req.stream)
+        login = json.loads(req.stream.read().decode('utf-8'))
         user = users.get(db(), username=login['username'])
         if user is None:
             resp.body = json.dumps({
