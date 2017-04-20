@@ -3,7 +3,6 @@
 import json
 import falcon
 
-
 from praelatus.models import DuplicateError
 from praelatus.models.permissions import PermissionError
 
@@ -11,9 +10,14 @@ from praelatus.models.permissions import PermissionError
 def handle_error(ex, req, resp, params):
     """Send error message back with appropriate status code."""
     status = falcon.HTTP_500
-    body = {'message': str(ex)}
+    body = {
+        'type': ex.__class__.__name__,
+        'message': str(ex)
+    }
 
     if isinstance(ex, KeyError):
+        status = falcon.HTTP_400
+    elif isinstance(ex, json.JSONDecodeError):
         status = falcon.HTTP_400
     elif isinstance(ex, DuplicateError):
         status = falcon.HTTP_409
