@@ -103,9 +103,9 @@ def update(db, user, actioning_user=None):
 
     user must be a User class instance.
     """
-    if (actioning_user is None
-        or (actioning_user.id != user.id
-            and not actioning_user.is_admin)):
+    if (actioning_user is None or
+        (actioning_user.id != user.id and
+         not actioning_user.is_admin)):
         raise PermissionError('permission denied')
 
     db.add(user)
@@ -119,9 +119,9 @@ def delete(db, user, actioning_user=None):
 
     user must be a User class instance.
     """
-    if (actioning_user is None
-        or (actioning_user.id != user.id
-            and not actioning_user.is_admin)):
+    if (actioning_user is None or
+        (actioning_user.id != user.id and
+         not actioning_user.is_admin)):
         raise PermissionError('permission denied')
 
     db.delete(user)
