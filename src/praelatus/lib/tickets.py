@@ -73,7 +73,7 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
         query = query.filter(
             or_(
                 Ticket.key.like(pattern),
-                Ticket.summary.like('%'+filter+'%'),
+                Ticket.summary.like('%' + filter + '%'),
                 Label.name.like(pattern),
                 User.username.like(pattern),
                 Status.name.like(pattern)
