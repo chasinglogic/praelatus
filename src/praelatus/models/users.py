@@ -22,7 +22,7 @@ class User(Base):
     def clean_dict(self):
         """Call BaseModel clean_dict but remove password."""
         d = super(User, self).clean_dict()
-        del d['password']
+        d.pop('password', None)
         return d
 
     def __repr__(self):
