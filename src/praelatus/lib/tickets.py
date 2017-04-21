@@ -3,7 +3,6 @@ Contains functions for interacting with tickets.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
-
 Anywhere actioning_user is a keyword argument, this is the user
 performing the call and the permissions of the provided user will be
 checked before committing the action. None is equivalent to an
@@ -37,12 +36,12 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
 
     Keyword Arguments:
     actioning_user -- the user requesting the ticket (default None)
-    id -- database id (default None)
-    key -- the ticket key i.e. TEST-123 (default None)
-    reporter -- User class instance who is the reporter (default None)
-    assignee -- User class instance who is the assignee (default None)
-    filter -- a pattern to search through tickets with (default None)
-    preload_comments -- whether to include ticket comments (default False)
+    id: database id (default None)
+    key: the ticket key i.e. TEST-123 (default None)
+    reporter: User class instance who is the reporter (default None)
+    assignee: User class instance who is the assignee (default None)
+    filter: a pattern to search through tickets with (default None)
+    preload_comments: whether to include ticket comments (default False)
     """
     query = db.query(Ticket).options(
         joinedload(Ticket.ticket_type),
@@ -63,10 +62,10 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
         query = query.filter(Ticket.key == key)
 
     if assignee is not None:
-        query = query.filter(Ticket.assignee == assignee)
+        query = query.filter(Ticket.assignee_id == assignee['id'])
 
     if reporter is not None:
-        query = query.filter(Ticket.reporter == reporter)
+        query = query.filter(Ticket.reporter_id == reporter['id'])
 
     if filter is not None:
         pattern = filter.replace('*', '%')
@@ -85,6 +84,10 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
 
     if any([id, key]):
         result = query.first()
+        if result:
+            result.transitions = db.query(Transition).\
+                filter(Transition.from_status_id == result.status_id).\
+                all()
     else:
         result = query.order_by(Ticket.key).all()
 
@@ -147,6 +150,8 @@ def new(db, **kwargs):
 
     field_values = kwargs.get('fields', [])
     for f in field_values:
+        # Keeping this for later, when we get updating right this will
+        # be needed.
         # if f.get('id') is not None:
         #     fv = db.query(FieldValue).filter_by(id=f['id']).first()
         #     fv.value = f['value']
