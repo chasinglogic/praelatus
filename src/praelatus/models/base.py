@@ -50,6 +50,10 @@ class BaseModel:
         inst.__dict__ = jsn
         return inst
 
+    def update_from_json(self, jsn):
+        """Inheritable way to update a class instance from json."""
+        self.__dict__.update(jsn)
+
 
 class DuplicateError(Exception):  # noqa: D204
     """Used for signaling to the API that an integrity rule was breached."""
