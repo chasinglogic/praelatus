@@ -27,5 +27,6 @@ def handle_error(ex, req, resp, params):
         status = ex.status
         body['message'] = ex.status
 
+    print(body)
     resp.body = json.dumps(body)
     resp.status = status
