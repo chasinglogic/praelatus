@@ -43,17 +43,19 @@ class CommentSchema(BaseSchema):
     """Used for validation of comment objects."""
     schema = {
         'type': 'object',
-        'id': {'type': 'integer'},
-        'author': UserSchema.schema,
-        'updated_date': {
-            'type': 'string',
-            'format': 'date'
-        },
-        'created_date': {
-            'type': 'string',
-            'format': 'date'
-        },
-        'body': {'type': 'string'}
+        'properties': {
+            'id': {'type': 'integer'},
+            'author': UserSchema.schema,
+            'updated_date': {
+                'type': 'string',
+                'format': 'date'
+            },
+            'created_date': {
+                'type': 'string',
+                'format': 'date'
+            },
+            'body': {'type': 'string'}
+        }
     }
 
 
