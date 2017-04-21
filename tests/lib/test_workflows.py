@@ -65,6 +65,8 @@ def test_get_one(db, admin):
     workflow = workflows.get(db, actioning_user=admin, name='Default Workflow')
     assert workflow is not None
     assert workflow.name == 'Default Workflow'
+    assert workflow.transitions is not None
+    assert len(workflow.transitions) > 0
 
 
 def test_get_filter_action(db, admin):
