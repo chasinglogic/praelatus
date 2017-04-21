@@ -156,11 +156,20 @@ class UserResource():
         
         Returns a message indicating success or failure.
         """
+        user = req.context['user']
         jsn = json.loads(req.stream.read().decode('utf-8'))
         UserSchema.validate(jsn)
-        new_u = User.from_json(jsn)
-        user = req.context.get('user', {})
-        users.update(db(), actioning_user=user, user=new_u)
+        sess = db()
+        new_u = users.get(sess, username=username)
+        if new_u is None:
+            raise falcon.HTTPNotFound()
+        new_u.username = jsn['username']
+        new_u.email = jsn['email']
+        new_u.profile_pic = jsn['profile_pic']
+        new_u.full_name = jsn['full_name']
+        new_u.is_active = jsn.get('is_active', True)
+        new_u.is_admin = jsn.get('is_admin', False)
+        users.update(sess, new_u, actioning_user=user)
         resp.body = json.dumps({'message': 'Successfully updated user.'})
 
     def on_delete(self, req, resp, username):
@@ -171,10 +180,12 @@ class UserResource():
         
         Returns a message indicating success or failure.
         """
+        user = req.context['user']
         sess = db()
-        user = req.context.get('user', {})
         del_user = users.get(sess, username=username)
-        users.delete(sess, actioning_user=user, user=del_user)
+        if del_user is None:
+            raise falcon.HTTPNotFound()
+        users.delete(sess, del_user, actioning_user=user)
         resp.body = json.dumps({'message': 'Successfully deleted user.'})
 
 
@@ -244,7 +255,7 @@ class SessionResource():
         expires_seconds = expires - datetime.now()
 
         # Tie the token to the user
-        sessions.set(token, user, expires=expires_seconds)
+        sessions.set(token, user.clean_dict(), expires=expires_seconds)
         # Tie the user to the token, used for checking if already
         # logged in
         sessions.set(user.username, token, expires=expires_seconds)
