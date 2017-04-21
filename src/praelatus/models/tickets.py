@@ -46,6 +46,8 @@ class Ticket(Base):
 
     workflow_id = Column(Integer, ForeignKey('workflows.id'))
     workflow = relationship('Workflow', backref='tickets')
+    # This should be set by whoever is retrieving the ticket
+    transitions = []
 
     comments = relationship('Comment', backref='ticket',
                             lazy='subquery')
@@ -63,22 +65,29 @@ class Ticket(Base):
         jsn['workflow_id'] = self.workflow_id
         jsn['created_date'] = str(self.created_date)
         jsn['updated_date'] = str(self.updated_date)
+
+        jsn['transitions'] = []
+        for t in self.transitions:
+            jsn['transitions'].append(t.clean_dict())
+
         if len(self.comments) > 0:
             jsn['comments'] = []
             for c in self.comments:
                 jsn['comments'].append(c.clean_dict())
-        self.assignee
-        if isinstance(self.assignee, Base):
+
+        jsn.pop('assignee', None)
+        if self.assignee and isinstance(self.assignee, Base):
+            print('assignee', self.assignee)
             jsn['assignee'] = self.assignee.clean_dict()
-        labels = []
+
+        jsn['labels'] = []
         for l in self.labels:
-            labels.append(l.name)
-        print('labels', labels)
-        jsn['labels'] = labels
-        fields = []
+            jsn['labels'].append(l.name)
+
+        jsn['fields'] = []
         for f in self.fields:
-            fields.append(f.clean_dict())
-        jsn['fields'] = fields
+            jsn['fields'].append(f.clean_dict())
+
         return jsn
 
 
