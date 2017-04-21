@@ -19,8 +19,11 @@ def test_get_with_filter(db, admin):
 
 def test_update(db, admin):
     new_name = 'Permission Scheme Default'
+    permission = defaults.permission_scheme
+    permission['name'] = 'for updating'
+    permissions.new(db, actioning_user=admin, **permission)
     perm = permissions.get(db, actioning_user=admin,
-                           name='Default Permission Scheme')
+                           name='for updating')
     perm.name = new_name
 
     permissions.update(db, actioning_user=admin,
