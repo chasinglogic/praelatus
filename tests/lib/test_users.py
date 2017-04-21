@@ -30,7 +30,7 @@ def test_delete(db):
     u = users.get(db, username='delete_me')
     assert u is not None
 
-    users.delete(db, u, actioning_user=u)
+    users.delete(db, u, actioning_user=u.clean_dict())
 
     u = users.get(db, username='delete_me')
     assert u is None
@@ -42,7 +42,7 @@ def test_update(db):
 
     anon.email = email
 
-    users.update(db, anon, actioning_user=anon)
+    users.update(db, anon, actioning_user=anon.clean_dict())
 
     a = users.get(db, id=1)
     assert a is not None
@@ -54,5 +54,6 @@ def test_gravatar():
     assert gravatar == users.gravatar('chasinglogic@gmail.com')
 
 
-def test_check_pw(admin):
+def test_check_pw(db):
+    admin = users.get(db, username='testadmin')
     assert users.check_pw(admin, 'test')
