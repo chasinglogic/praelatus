@@ -33,11 +33,8 @@ class AuthMiddleware():
             token = token[len('Token '):]
 
         if token is None:
-            print('No token present')
             req.context['session_id'] = None
             req.context['user'] = None
         else:
-            print('Found token')
             req.context['session_id'] = token
             req.context['user'] = sessions.get(token)
-            print('user', req.context['user'])
