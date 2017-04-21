@@ -91,7 +91,7 @@ class Transition(Base):
         jsn['hooks'] = []
         for h in self.hooks:
             jsn['hooks'].append(h.clean_dict())
-        del jsn['from_status']
+        jsn.pop('from_status', None)
         return jsn
 
 
