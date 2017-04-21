@@ -140,7 +140,12 @@ def delete(db, permission_scheme=None, actioning_user=None):
 
 def is_system_admin(db, user):
     """Check if user is a system administrator."""
-    return db.query(User).filter_by(id=user.id).first().is_admin
+    query = db.query(User)
+    if type(user) is dict:
+        query = query.filter_by(id=user.get('id', 0))
+    else:
+        query = query.filter_by(id=user.id)
+    return query.first().is_admin
 
 
 def sys_admin_required(fn):
@@ -192,7 +197,7 @@ def has_permission(db, permission_name, project, actioning_user):
     if actioning_user is not None and isinstance(actioning_user, User):
         user_id = actioning_user.id
     elif actioning_user is not None:
-        user_id = actioning_user['id']
+        user_id = actioning_user.get('id', 0)
 
     if actioning_user is not None:
         query = query.filter(
@@ -242,14 +247,19 @@ def add_permission_query(db, query, actioning_user, permission_name):
         UserRoles.project_id == Project.id
     )
 
+    if actioning_user is not None and isinstance(actioning_user, User):
+        user_id = actioning_user.id
+    elif actioning_user is not None:
+        user_id = actioning_user.get('id', 0)
+
     if actioning_user is not None:
         query = query.filter(
             or_(
                 db.query(User.is_admin).
-                filter(User.id == actioning_user.id).
+                filter(User.id == user_id).
                 subquery('admin').as_scalar(),
                 and_(
-                    UserRoles.user_id == actioning_user.id,
+                    UserRoles.user_id == user_id,
                     Permission.name == permission_name
                 )
             )
