@@ -60,7 +60,7 @@ def test_json(db, admin):
     project_json = {
         'name': 'JSON TEST Project',
         'key':  'JSON',
-        'lead': admin.clean_dict(),
+        'lead': admin,
         'homepage': None,
         'icon_url': None,
         'repo': None

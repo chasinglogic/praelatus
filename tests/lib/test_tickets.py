@@ -12,6 +12,7 @@ def test_get_one(db):
     assert ticket is not None
     assert ticket.key == 'TEST-1'
     assert len(ticket.fields) > 0
+    assert len(ticket.transitions) > 0
 
 def test_get_filter(db):
     tks = tickets.get(db, filter='test*')
@@ -104,7 +105,7 @@ def test_json(db, admin):
         'workflow_id': 1,
         'project': project.clean_dict(),
         'status': status.clean_dict(),
-        'reporter': admin.clean_dict(),
+        'reporter': admin,
         'labels': ['internal', 'test'],
         'fields': [
             {
@@ -145,6 +146,8 @@ def test_json(db, admin):
 
     ref_dict = t.clean_dict()
     ref_dict['labels'] = sorted(ref_dict['labels'])
+    ticket['transitions'] = sorted(ref_dict['transitions'])
+    ref_dict['transitions'] = sorted(ref_dict['transitions'])
 
     for field in ticket['fields']:
         for f in ref_dict['fields']:
@@ -162,7 +165,7 @@ def test_add_comment(db, admin):
     t = tickets.get(db, key='TEST-40')
     comment = {
         'body': 'test',
-        'author': admin.clean_dict(),
+        'author': admin,
         'ticket_key': t.key,
         'ticket_id': t.id
     }
