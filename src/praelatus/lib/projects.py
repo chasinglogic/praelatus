@@ -12,6 +12,8 @@ Anonymous user.
 
 from sqlalchemy import or_
 
+import praelatus.lib.workflows as workflows
+
 from praelatus.lib.utils import rollback
 from praelatus.lib.permissions import permission_required, add_permission_query
 from praelatus.models import Project
@@ -108,6 +110,7 @@ def new(db, **kwargs):
 
     permission_scheme = kwargs.get('permission_scheme', {})
     new_project.permission_scheme_id = permission_scheme.get('id', 1)
+    new_project.workflows = [workflows.get(db, id=1)]
 
     db.add(new_project)
     db.commit()
