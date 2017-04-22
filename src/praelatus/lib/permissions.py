@@ -233,6 +233,10 @@ def add_permission_query(db, query, actioning_user, permission_name):
     """
     query = query.join(
         PermissionScheme,
+        Project.permission_scheme_id == PermissionScheme.id
+    )
+
+    query = query.join(
         PermissionSchemePermissions,
         Permission
     )
@@ -264,9 +268,6 @@ def add_permission_query(db, query, actioning_user, permission_name):
                 )
             )
         )
-
-        print(str(query))
-
     else:
         query = query.filter(
             and_(
