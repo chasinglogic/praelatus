@@ -119,6 +119,7 @@ class FieldValue(Base):
             jsn['value'] = str(self.date_value)
         elif self.field.data_type == 'INT':
             jsn['value'] = self.int_value
+        jsn.pop('field', None)
         return jsn
 
 
