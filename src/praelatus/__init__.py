@@ -7,6 +7,13 @@ information about how to use the API as a client or how to start
 working on the backend visit https://docs.praelatus.io
 """
 
+# Import psycopg2 appropriately based on whether we are on cpython or pypy
+try:
+    import psycopg2  # noqa: F401
+except ImportError:
+    from psycopg2cffi import compat
+    compat.register()
+
 from praelatus.api import create_app
 
 __version__ = '0.0.4'
