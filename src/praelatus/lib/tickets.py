@@ -19,15 +19,19 @@ from praelatus.models import Label
 from praelatus.models import Field
 from praelatus.models import FieldValue
 from praelatus.models import Status
+from praelatus.models import Workflow
 from praelatus.models import Comment
+from praelatus.models import Project
 from praelatus.models import Transition
+from praelatus.models.workflows import workflows_projects
 from praelatus.models.fields import DataTypeError
 from praelatus.lib.utils import rollback
 from praelatus.lib.permissions import permission_required
+from praelatus.lib.permissions import add_permission_query
 
 
 def get(db, id=None, key=None, reporter=None, assignee=None,
-        filter=None, actioning_user=None, preload_comments=False):
+        filter=None, actioning_user=None):
     """
     Get tickets from the database.
 
@@ -41,7 +45,6 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
     reporter: User class instance who is the reporter (default None)
     assignee: User class instance who is the assignee (default None)
     filter: a pattern to search through tickets with (default None)
-    preload_comments: whether to include ticket comments (default False)
     """
     query = db.query(Ticket).options(
         joinedload(Ticket.ticket_type),
@@ -51,9 +54,12 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
         joinedload(Field.options),
         joinedload(Ticket.labels),
         joinedload(Ticket.assignee),
-        joinedload(Ticket.project),
-        joinedload(Ticket.reporter),
+        joinedload(Ticket.reporter)
+    ).join(
+        Project
     )
+
+    query = add_permission_query(db, query, actioning_user, 'VIEW_PROJECT')
 
     if id is not None:
         query = query.filter(Ticket.id == id)
@@ -79,9 +85,6 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
             )
         )
 
-    if preload_comments:
-        query = query.options(joinedload(Ticket.comments))
-
     if any([id, key]):
         result = query.first()
         if result:
@@ -90,10 +93,6 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
                 all()
     else:
         result = query.order_by(Ticket.key).all()
-
-    if preload_comments:
-        # force comments to load
-        result.comments
 
     return result
 
@@ -132,13 +131,22 @@ def new(db, **kwargs):
         reporter_id=kwargs['reporter']['id'],
         ticket_type_id=kwargs['ticket_type']['id'],
         project_id=kwargs['project']['id'],
-        workflow_id=kwargs['workflow_id']
     )
 
-    new_ticket.status_id = db.query(Transition.to_status_id).filter(
-        Transition.workflow_id == kwargs['workflow_id'],
+    new_ticket.workflow_id = db.query(Workflow.id).\
+        join(workflows_projects).\
+        filter('workflows_projects.project_id = ' + str(new_ticket.project_id)).\
+        first()
+
+    print('workflow_id', new_ticket.workflow_id)
+
+    stat = db.query(Transition.to_status_id).filter(
+        Transition.workflow_id == new_ticket.workflow_id,
         Transition.name == 'Create'
-    )
+    ).first()
+    print('status_id', stat)
+
+    new_ticket.status_id = stat
 
     count = db.query(Ticket.id).\
         filter(Ticket.project_id == kwargs['project']['id']).count()
@@ -223,6 +231,15 @@ def add_comment(db, actioning_user=None, project=None, **kwargs):
     db.add(new_comment)
     db.commit()
     return new_comment
+
+
+@rollback
+@permission_required('VIEW_PROJECT')
+def get_comments(db, ticket_id, actioning_user=None, project=None):
+    """Get all comments for the given ticket_id."""
+    return db.Query(Comment).\
+        filter(Comment.ticket_id == ticket_id).\
+        all()
 
 
 def set_field_value(field_value, val):
