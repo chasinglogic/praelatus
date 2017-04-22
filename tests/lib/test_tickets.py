@@ -16,7 +16,6 @@ def test_get_one(db):
 
 def test_get_filter(db):
     tks = tickets.get(db, filter='test*')
-    print(tks)
     assert tks is not None
     assert len(tks) > 0
     assert 'TEST' in tks[0].key
