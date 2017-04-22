@@ -3,6 +3,7 @@
 from praelatus.api.v1.users import UsersResource
 from praelatus.api.v1.users import UserResource
 from praelatus.api.v1.users import SessionResource
+from praelatus.api.v1.tickets import TicketsResource
 
 
 def add_v1_routes(app, prefix='/api/v1/'):
@@ -10,3 +11,4 @@ def add_v1_routes(app, prefix='/api/v1/'):
     app.add_route(prefix+'users', UsersResource(SessionResource.create_session))
     app.add_route(prefix+'users/{username}', UserResource())
     app.add_route(prefix+'users/sessions', SessionResource())
+    app.add_route(prefix+'tickets', TicketsResource())
