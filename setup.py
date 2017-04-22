@@ -17,18 +17,22 @@ with open(praelatusfile) as stream:
 
 # Thanks to Pagure:
 # https://pagure.io/pagure/blog/master/f/setup.py
-def get_requirements(requirements_file='requirements.txt'):
+def get_requirements():
     """
     Get the contents of a file listing the requirements.
-
-    Keyword Arguments:
-    requirements_file -- path to a requirements file
 
     Returns:
         the list of requirements, or an empty list if
         `requirements_file` could not be opened or read
     :return type: list
     """
+    import platform
+
+    if platform.python_implementation() == 'PyPy':
+        requirements_file = 'requirements_pypy.txt'
+    else:
+        requirements_file = 'requirements.txt'
+
     with open(requirements_file) as f:
         return [
             line.rstrip().split('#')[0]
