@@ -49,8 +49,7 @@ class Ticket(Base):
     # This should be set by whoever is retrieving the ticket
     transitions = []
 
-    comments = relationship('Comment', backref='ticket',
-                            lazy='subquery')
+    comments = relationship('Comment', backref='ticket')
 
     fields = relationship('FieldValue', backref='field_values',
                           lazy='joined')
@@ -70,14 +69,8 @@ class Ticket(Base):
         for t in self.transitions:
             jsn['transitions'].append(t.clean_dict())
 
-        if len(self.comments) > 0:
-            jsn['comments'] = []
-            for c in self.comments:
-                jsn['comments'].append(c.clean_dict())
-
         jsn.pop('assignee', None)
         if self.assignee and isinstance(self.assignee, Base):
-            print('assignee', self.assignee)
             jsn['assignee'] = self.assignee.clean_dict()
 
         jsn['labels'] = []
