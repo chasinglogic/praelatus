@@ -46,3 +46,33 @@ def test_crud_user_endpoints(client, headers):
     # Delete the new user
     resp = client.delete('/api/v1/users/delete_me', headers=auth_headers)
     assert resp.json['message'] == 'Successfully deleted user.'
+
+
+def test_get_all_users(client, headers):
+    resp = client.get('/api/v1/users', headers=headers)
+    assert resp.status == falcon.HTTP_200
+    assert len(resp.json) > 0
+
+
+def test_get_filter(client, headers):
+    resp = client.get('/api/v1/users?filter=testadmin', headers=headers)
+    assert resp.status == falcon.HTTP_200
+    assert len(resp.json) == 1
+
+
+def test_404(client, headers):
+    resp = client.get('/api/v1/users/marypoppins', headers=headers)
+    assert resp.status == falcon.HTTP_404
+    assert resp.json['message'] == 'no user with that username exists'
+
+    login = {'username': 'marypoppins', 'password': 'spoonful'}
+    resp = client.post('/api/v1/users/sessions', login, headers=headers)
+    assert resp.status == falcon.HTTP_404
+    assert resp.json['message'] == 'no user with that username exists'
+
+
+def test_failed_login(client, headers):
+    login = {'username': 'testuser', 'password': 'wrong'}
+    resp = client.post('/api/v1/users/sessions', login, headers=headers)
+    assert resp.status == falcon.HTTP_401
+    assert resp.json['message'] == 'invalid password'
