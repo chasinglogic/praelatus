@@ -103,7 +103,6 @@ def update(db, user, actioning_user=None):
 
     user must be a User class instance.
     """
-    print('actioning_user', actioning_user)
     if (actioning_user is None or
         (actioning_user.get('id', 0) != user.id and
          not actioning_user.is_admin)):
@@ -120,7 +119,6 @@ def delete(db, user, actioning_user=None):
 
     user must be a User class instance.
     """
-    print('actioning_user', actioning_user)
     if (actioning_user is None or
         (actioning_user.get('id', 0) != user.id and
          not actioning_user.is_admin)):
