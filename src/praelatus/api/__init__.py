@@ -65,5 +65,8 @@ def create_app():
     app.add_route('/api/routes', RoutesResource(app._router._roots))
     add_v1_routes(app)
 
+    # Make v1 the 'latest' api version
+    add_v1_routes(app, prefix='/api/')
+
     app.add_error_handler(Exception, handler=handle_error)
     return app
