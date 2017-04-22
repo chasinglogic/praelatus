@@ -25,6 +25,20 @@ roles = [
     }
 ]
 
+permissions = [
+    'VIEW_PROJECT',
+    'ADMIN_PROJECT',
+    'CREATE_TICKET',
+    'COMMENT_TICKET',
+    'REMOVE_COMMENT',
+    'REMOVE_OWN_COMMENT',
+    'EDIT_OWN_COMMENT',
+    'EDIT_COMMENT',
+    'TRANSITION_TICKET',
+    'EDIT_TICKET',
+    'REMOVE_TICKET'
+]
+
 
 permission_scheme = {
     'name': 'Default Permission Scheme',
