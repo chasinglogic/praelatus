@@ -105,7 +105,7 @@ class UsersResource():
         }
         ```
         """
-        signup_req = json.loads(req.stream.read().decode('utf-8'))
+        signup_req = json.loads(req.bounded_stream.read().decode('utf-8'))
         SignupSchema.validate(signup_req)
         db_u = users.new(db(), **signup_req)
         self.create_session(db_u, resp)
@@ -134,6 +134,12 @@ class UserResource():
         """
         user = req.context.get('user', {})
         db_res = users.get(db(), username=username, actioning_user=user)
+        if db_res is None:
+            resp.status = falcon.HTTP_404
+            resp.body = json.dumps({
+                'message': 'no user with that username exists'
+            })
+            return
         resp.body = db_res.to_json()
 
     def on_put(self, req, resp, username):
@@ -157,7 +163,7 @@ class UserResource():
         Returns a message indicating success or failure.
         """
         user = req.context['user']
-        jsn = json.loads(req.stream.read().decode('utf-8'))
+        jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
         UserSchema.validate(jsn)
         sess = db()
         new_u = users.get(sess, username=username)
@@ -222,11 +228,11 @@ class SessionResource():
         }
         ```
         """
-        login = json.loads(req.stream.read().decode('utf-8'))
+        login = json.loads(req.bounded_stream.read().decode('utf-8'))
         user = users.get(db(), username=login['username'])
         if user is None:
             resp.body = json.dumps({
-                'message': 'no user with that username exists.'
+                'message': 'no user with that username exists'
             })
             resp.status = falcon.HTTP_404
             return
