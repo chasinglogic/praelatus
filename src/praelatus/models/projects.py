@@ -29,6 +29,9 @@ class Project(Base):
                                   ForeignKey('permission_schemes.id'))
     permission_scheme = relationship('PermissionScheme', backref='projects')
 
+    workflows = relationship('Workflow', back_populates='projects',
+                             secondary='workflows_projects')
+
     def clean_dict(self):
         """Override BaseModel clean_dict."""
         jsn = super(Project, self).clean_dict()

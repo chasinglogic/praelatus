@@ -31,8 +31,9 @@ class Workflow(Base):
     name = Column(String(length=255))
     description = Column(Text)
 
-    projects = relationship('Project', secondary=workflows_projects,
-                            backref='worfklow')
+    projects = relationship('Project',
+                            secondary=workflows_projects,
+                            back_populates='workflows')
 
     def clean_dict(self):
         """Override BaseModel clean_dict."""
