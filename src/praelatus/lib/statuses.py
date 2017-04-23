@@ -15,9 +15,11 @@ from sqlalchemy.orm import joinedload
 from praelatus.models import Status
 from praelatus.models import Ticket
 from praelatus.lib.utils import rollback
+from praelatus.lib.utils import close
 from praelatus.lib.permissions import sys_admin_required
 
 
+@close
 def get(db, actioning_user=None, id=None, name=None, filter=None,
         preload_tickets=False):
     """

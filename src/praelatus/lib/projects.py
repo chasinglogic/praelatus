@@ -14,6 +14,7 @@ from sqlalchemy import or_
 
 import praelatus.lib.workflows as workflows
 
+from praelatus.lib.utils import close
 from praelatus.lib.utils import rollback
 from praelatus.lib.permissions import permission_required, add_permission_query
 from praelatus.models import Project
@@ -22,6 +23,7 @@ from praelatus.models import Role
 from praelatus.models import UserRoles
 
 
+@close
 def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
     """
     Get projects from the database.

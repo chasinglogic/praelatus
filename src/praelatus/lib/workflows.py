@@ -16,11 +16,13 @@ from praelatus.models import Workflow
 from praelatus.models import Ticket
 from praelatus.models import Transition
 from praelatus.models import Hook
+from praelatus.lib.utils import close
 from praelatus.lib.utils import rollback
 from praelatus.lib.permissions import sys_admin_required
 import praelatus.lib.statuses as statuses
 
 
+@close
 def get(db, actioning_user=None, id=None, name=None, filter=None,
         preload_tickets=False):
     """

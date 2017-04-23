@@ -17,10 +17,12 @@ from sqlalchemy.exc import IntegrityError
 
 from praelatus.lib.permissions import PermissionError
 from praelatus.lib.utils import rollback
+from praelatus.lib.utils import close
 from praelatus.models import User
 from praelatus.models import DuplicateError
 
 
+@close
 def get(db, actioning_user=None, username=None, id=None, email=None,
         filter=None):
     """

@@ -26,12 +26,14 @@ from praelatus.models import Transition
 from praelatus.models.workflows import workflows_projects
 from praelatus.models.fields import DataTypeError
 from praelatus.lib.utils import rollback
+from praelatus.lib.utils import close
 from praelatus.lib.permissions import permission_required
 from praelatus.lib.permissions import add_permission_query
 
 
+@close
 def get(db, id=None, key=None, reporter=None, assignee=None,
-        filter=None, actioning_user=None):
+        filter=None, actioning_user=None, preload_comments=False):
     """
     Get tickets from the database.
 
@@ -97,6 +99,7 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
     return result
 
 
+@rollback
 def new(db, **kwargs):
     """
     Create a new ticket in the database then return that ticket.
@@ -138,15 +141,10 @@ def new(db, **kwargs):
         filter('workflows_projects.project_id = ' + str(new_ticket.project_id)).\
         first()
 
-    print('workflow_id', new_ticket.workflow_id)
-
-    stat = db.query(Transition.to_status_id).filter(
+    new_ticket.status_id = db.query(Transition.to_status_id).filter(
         Transition.workflow_id == new_ticket.workflow_id,
         Transition.name == 'Create'
     ).first()
-    print('status_id', stat)
-
-    new_ticket.status_id = stat
 
     count = db.query(Ticket.id).\
         filter(Ticket.project_id == kwargs['project']['id']).count()

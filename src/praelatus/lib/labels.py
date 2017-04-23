@@ -12,9 +12,11 @@ Anonymous user.
 
 from praelatus.models import Label, Ticket
 from praelatus.lib.utils import rollback
+from praelatus.lib.utils import close
 from sqlalchemy.orm import joinedload
 
 
+@close
 def get(db, id=None, name=None, filter=None, preload_tickets=False):
     """
     Get labels from the database.

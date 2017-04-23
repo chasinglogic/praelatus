@@ -3,6 +3,20 @@
 from functools import wraps
 
 
+def close(fn):
+    """Decorate a database function and close the session when finished."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        try:
+            result = fn(*args, **kwargs)
+        except Exception as e:
+            args[0].close()
+            raise e
+        args[0].close()
+        return result
+    return wrapper
+
+
 def rollback(fn):
     """
     Decorate a function and rollback the db on an Exception.
@@ -11,11 +25,12 @@ def rollback(fn):
     created by a SessionMaker
     """
     @wraps(fn)
+    @close
     def wrapper(*args, **kwargs):
         try:
-            return fn(*args, **kwargs)
+            result = fn(*args, **kwargs)
+            return result
         except Exception as e:
             args[0].rollback()
             raise e
-
     return wrapper

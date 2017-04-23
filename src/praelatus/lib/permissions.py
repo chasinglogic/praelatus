@@ -16,6 +16,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import joinedload
 
 from praelatus.lib.utils import rollback
+from praelatus.lib.utils import close
 from praelatus.models import PermissionScheme
 from praelatus.models import Role
 from praelatus.models import Project
@@ -26,6 +27,7 @@ from praelatus.models import UserRoles
 from praelatus.models import User
 
 
+@close
 def get(db, id=None, name=None, filter=None, actioning_user=None):
     """
     Get permission schemes from the database.
