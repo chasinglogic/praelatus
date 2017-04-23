@@ -46,16 +46,20 @@ def seed():
         admin = usr.get(db, id=2)
 
     with session() as db:
+        print('Seeding roles...')
         for r in defaults.roles:
             rls.new(db, actioning_user=admin, **r)
 
+        print('Seeding permissions schemes...')
         perm_schemes.new(db, actioning_user=admin,
                          **defaults.permission_scheme)
 
+        print('Seeding statuses...')
         for s in defaults.statuses:
             statuses.new(db, actioning_user=admin, **s)
 
     with session() as db:
+        print('Seeding workflows...')
         workflows.new(db, actioning_user=admin, **defaults.workflow)
 
     with session() as db:
@@ -77,98 +81,104 @@ def seed():
             }
         ]
         
+        print('Seeding projects...')
         for p in projects:
             prj.new(db, **p)
             
-            labels = [
-                {
-                    'name': 'test',
-                },
-                {
-                    'name': 'duplicate',
-                },
-                {
-                    'name': 'wontfix',
-                }
-            ]
+        labels = [
+            {
+                'name': 'test',
+            },
+            {
+                'name': 'duplicate',
+            },
+            {
+                'name': 'wontfix',
+            }
+        ]
             
-            for l in labels:
-                lbls.new(db, **l)
+        print('Seeding labels...')
+        for l in labels:
+            lbls.new(db, **l)
+            
+        priorities = ['HIGH', 'MEDIUM', 'LOW']
                 
-                priorities = ['HIGH', 'MEDIUM', 'LOW']
+        fields = [
+            {
+                'name': 'Story Points',
+                'data_type': 'INT',
+            },
+            {
+                'name': 'Priority',
+                'data_type': 'OPT',
+                'options': priorities,
+            },
+            {
+                'name': 'Business Value',
+                'data_type': 'FLOAT'
+            },
+            {
+                'name': 'Due Date',
+                'data_type': 'DATE'
+            },
+            {
+                'name': 'Organization',
+                'data_type': 'STRING'
+            },
+        ]
                 
-                fields = [
+        print('Seeding fields...')
+        for f in fields:
+            flds.new(db, **f)
+                    
+        print('Seeding ticket types...')
+        for t in defaults.ticket_types:
+            types.new(db, actioning_user=admin, **t)
+            
+        assignees = [None, {'id': 2}, {'id': 3}]
+        print('Seeding tickets...')
+        for i in range(1, 100):
+            t = {
+                'summary': 'This is ticket #%d' % i,
+                'description': 'This is a test',
+                'workflow_id': 1,
+                'reporter': assignees[randint(1, 2)],
+                'assignee': assignees[randint(0, 2)],
+                'status': {'id': 1},
+                'project': {'id': 1, 'key': 'TEST'},
+                'labels': [],
+                'fields': [
                     {
                         'name': 'Story Points',
-                        'data_type': 'INT',
+                        'value': randint(1, 50),
                     },
                     {
                         'name': 'Priority',
-                        'data_type': 'OPT',
-                        'options': priorities,
-                    },
-                    {
-                        'name': 'Business Value',
-                        'data_type': 'FLOAT'
-                    },
-                    {
-                        'name': 'Due Date',
-                        'data_type': 'DATE'
-                    },
-                    {
-                        'name': 'Organization',
-                        'data_type': 'STRING'
-                    },
-                ]
+                        'value': priorities[randint(0, 2)]
+                    }
+                ],
+                'ticket_type': {
+                    'id': 1,
+                }
+            }
+            
+            tks.new(db, **t)
+            
+    with session() as db:
+        tickets = tks.get(db, actioning_user=admin, filter='TEST*')
+        print('Seeding comments...')
+        for t in tickets:
+            for i in range(1, 10):
+                comment = {
+                    'body': """This is the %d th comment
+# Yo Dawg
+**I** *heard* you
+> like markdown
+so I put markdown in your comment""" % i,
+                    'author': assignees[randint(1, 2)],
+                    'ticket_key': t.key,
+                    'ticket_id': t.id
+                }
                 
-                for f in fields:
-                    flds.new(db, **f)
-                    
-                    for t in defaults.ticket_types:
-                        types.new(db, actioning_user=admin, **t)
-                        
-                        assignees = [None, {'id': 2}, {'id': 3}]
-                        for i in range(1, 100):
-                            t = {
-                                'summary': 'This is ticket #%d' % i,
-                                'description': 'This is a test',
-                                'workflow_id': 1,
-                                'reporter': assignees[randint(1, 2)],
-                                'assignee': assignees[randint(0, 2)],
-                                'status': {'id': 1},
-                                'project': {'id': 1, 'key': 'TEST'},
-                                'labels': [],
-                                'fields': [
-                                    {
-                                        'name': 'Story Points',
-                                        'value': randint(1, 50),
-                                    },
-                                    {
-                                        'name': 'Priority',
-                                        'value': priorities[randint(0, 2)]
-                                    }
-                                ],
-                                'ticket_type': {
-                                    'id': 1,
-                                }
-                            }
-                            
-                            tks.new(db, **t)
-                            
-                            tickets = tks.get(db, actioning_user=admin, filter='TEST*')
-                            for t in tickets:
-                                for i in range(1, 10):
-                                    comment = {
-                                        'body': """This is the %d th comment
-                                        # Yo Dawg
-                                        **I** *heard* you
-                                        > like markdown
-                                        so I put markdown in your comment""" % i,
-                                        'author': assignees[randint(1, 2)],
-                                        'ticket_key': t.key,
-                                        'ticket_id': t.id
-                                    }
-                                    
-                                    tks.add_comment(db, actioning_user=comment['author'],
-                                                    project=t.project, **comment)
-
+                tks.add_comment(db, actioning_user=comment['author'],
+                                project=t.project, **comment)
