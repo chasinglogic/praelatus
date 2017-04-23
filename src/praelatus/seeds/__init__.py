@@ -49,6 +49,11 @@ def seed(db):
     perm_schemes.new(db, actioning_user=admin,
                      **defaults.permission_scheme)
 
+    for s in defaults.statuses:
+        statuses.new(db, actioning_user=admin, **s)
+
+    workflows.new(db, actioning_user=admin, **defaults.workflow)
+
     projects = [
         {
             'name': 'TEST Project',
@@ -113,11 +118,6 @@ def seed(db):
 
     for f in fields:
         flds.new(db, **f)
-
-    for s in defaults.statuses:
-        statuses.new(db, actioning_user=admin, **s)
-
-    workflows.new(db, actioning_user=admin, **defaults.workflow)
 
     for t in defaults.ticket_types:
         types.new(db, actioning_user=admin, **t)
