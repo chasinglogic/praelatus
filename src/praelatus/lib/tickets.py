@@ -25,13 +25,11 @@ from praelatus.models import Project
 from praelatus.models import Transition
 from praelatus.models.workflows import workflows_projects
 from praelatus.models.fields import DataTypeError
-from praelatus.lib.utils import rollback
-from praelatus.lib.utils import close
 from praelatus.lib.permissions import permission_required
 from praelatus.lib.permissions import add_permission_query
 
 
-@close
+
 def get(db, id=None, key=None, reporter=None, assignee=None,
         filter=None, actioning_user=None, preload_comments=False):
     """
@@ -99,7 +97,7 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
     return result
 
 
-@rollback
+
 def new(db, **kwargs):
     """
     Create a new ticket in the database then return that ticket.
@@ -187,7 +185,7 @@ def new(db, **kwargs):
     return new_ticket
 
 
-@rollback
+
 @permission_required('EDIT_TICKET')
 def update(db, actioning_user=None, project=None, ticket=None):
     """
@@ -199,7 +197,7 @@ def update(db, actioning_user=None, project=None, ticket=None):
     db.commit()
 
 
-@rollback
+
 @permission_required('REMOVE_TICKET')
 def delete(db, actioning_user=None, project=None, ticket=None):
     """
@@ -211,7 +209,7 @@ def delete(db, actioning_user=None, project=None, ticket=None):
     db.commit()
 
 
-@rollback
+
 @permission_required('COMMENT_TICKET')
 def add_comment(db, actioning_user=None, project=None, **kwargs):
     """
@@ -231,7 +229,7 @@ def add_comment(db, actioning_user=None, project=None, **kwargs):
     return new_comment
 
 
-@rollback
+
 @permission_required('VIEW_PROJECT')
 def get_comments(db, ticket_id, actioning_user=None, project=None):
     """Get all comments for the given ticket_id."""

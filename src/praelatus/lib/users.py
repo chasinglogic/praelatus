@@ -16,13 +16,11 @@ import hashlib
 from sqlalchemy.exc import IntegrityError
 
 from praelatus.lib.permissions import PermissionError
-from praelatus.lib.utils import rollback
-from praelatus.lib.utils import close
 from praelatus.models import User
 from praelatus.models import DuplicateError
 
 
-@close
+
 def get(db, actioning_user=None, username=None, id=None, email=None,
         filter=None):
     """
@@ -54,7 +52,7 @@ def get(db, actioning_user=None, username=None, id=None, email=None,
     return query.order_by(User.username).all()
 
 
-@rollback
+
 def new(db, **kwargs):
     """
     Create a new user in the database then returns that user.
@@ -98,7 +96,7 @@ def new(db, **kwargs):
     return new_user
 
 
-@rollback
+
 def update(db, user, actioning_user=None):
     """
     Update the given user in the database.
@@ -114,7 +112,7 @@ def update(db, user, actioning_user=None):
     db.commit()
 
 
-@rollback
+
 def delete(db, user, actioning_user=None):
     """
     Remove the given user from the database.

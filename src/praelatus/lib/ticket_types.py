@@ -14,12 +14,9 @@ from sqlalchemy.orm import joinedload
 
 from praelatus.models import TicketType
 from praelatus.models import Ticket
-from praelatus.lib.utils import close
-from praelatus.lib.utils import rollback
 from praelatus.lib.permissions import sys_admin_required
 
 
-@close
 def get(db, actioning_user=None, id=None, name=None, filter=None,
         preload_tickets=False):
     """
@@ -55,7 +52,7 @@ def get(db, actioning_user=None, id=None, name=None, filter=None,
     return query.order_by(TicketType.name).all()
 
 
-@rollback
+
 @sys_admin_required
 def new(db, actioning_user=None, **kwargs):
     """
@@ -81,7 +78,7 @@ def new(db, actioning_user=None, **kwargs):
     return new_ticket_type
 
 
-@rollback
+
 @sys_admin_required
 def update(db, actioning_user=None, ticket_type=None):
     """
@@ -93,7 +90,7 @@ def update(db, actioning_user=None, ticket_type=None):
     db.commit()
 
 
-@rollback
+
 @sys_admin_required
 def delete(db, actioning_user=None, ticket_type=None):
     """

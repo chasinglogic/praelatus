@@ -14,8 +14,6 @@ from sqlalchemy import or_
 
 import praelatus.lib.workflows as workflows
 
-from praelatus.lib.utils import close
-from praelatus.lib.utils import rollback
 from praelatus.lib.permissions import permission_required, add_permission_query
 from praelatus.models import Project
 from praelatus.models import User
@@ -23,7 +21,7 @@ from praelatus.models import Role
 from praelatus.models import UserRoles
 
 
-@close
+
 def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
     """
     Get projects from the database.
@@ -67,7 +65,7 @@ def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
     return query.order_by(Project.key).all()
 
 
-@rollback
+
 def new(db, **kwargs):
     """
     Create a new project in the database then return that project.
@@ -119,7 +117,7 @@ def new(db, **kwargs):
     return new_project
 
 
-@rollback
+
 @permission_required('ADMIN_PROJECT')
 def update(db, project=None, actioning_user=None):
     """
@@ -131,7 +129,7 @@ def update(db, project=None, actioning_user=None):
     db.commit()
 
 
-@rollback
+
 @permission_required('ADMIN_PROJECT')
 def delete(db, project=None, actioning_user=None):
     """

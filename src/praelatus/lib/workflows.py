@@ -16,13 +16,10 @@ from praelatus.models import Workflow
 from praelatus.models import Ticket
 from praelatus.models import Transition
 from praelatus.models import Hook
-from praelatus.lib.utils import close
-from praelatus.lib.utils import rollback
 from praelatus.lib.permissions import sys_admin_required
 import praelatus.lib.statuses as statuses
 
 
-@close
 def get(db, actioning_user=None, id=None, name=None, filter=None,
         preload_tickets=False):
     """
@@ -58,7 +55,7 @@ def get(db, actioning_user=None, id=None, name=None, filter=None,
     return query.order_by(Workflow.name).all()
 
 
-@rollback
+
 @sys_admin_required
 def new(db, actioning_user=None, **kwargs):
     """
@@ -79,6 +76,8 @@ def new(db, actioning_user=None, **kwargs):
         name=kwargs['name'],
         description=kwargs.get('description')
     )
+
+    db.add(new_workflow)
 
     transitions = kwargs.get('transitions', {})
     for from_status_name, available_transisitions in transitions.items():
@@ -105,17 +104,17 @@ def new(db, actioning_user=None, **kwargs):
                 name=tran['name'],
                 from_status=from_status,
                 to_status=to_status,
-                hooks=hks
+                hooks=hks,
             )
 
+            db.add(new_tr)
             new_workflow.transitions.append(new_tr)
 
-    db.add(new_workflow)
     db.commit()
     return new_workflow
 
 
-@rollback
+
 @sys_admin_required
 def update(db, actioning_user=None, workflow=None):
     """
@@ -127,7 +126,7 @@ def update(db, actioning_user=None, workflow=None):
     db.commit()
 
 
-@rollback
+
 @sys_admin_required
 def delete(db, actioning_user=None, workflow=None):
     """

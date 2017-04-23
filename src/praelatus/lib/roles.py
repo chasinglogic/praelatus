@@ -17,11 +17,8 @@ from praelatus.models import UserRoles
 from praelatus.models import ProjectRoles
 from praelatus.lib.permissions import permission_required
 from praelatus.lib.permissions import sys_admin_required
-from praelatus.lib.utils import rollback
-from praelatus.lib.utils import close
 
 
-@close
 @sys_admin_required
 def get(db, actioning_user=None, id=None, name=None, filter=None):
     """
@@ -52,7 +49,7 @@ def get(db, actioning_user=None, id=None, name=None, filter=None):
     return query.order_by(Role.name).all()
 
 
-@close
+
 @sys_admin_required
 def new(db, **kwargs):
     """
@@ -75,7 +72,7 @@ def new(db, **kwargs):
     return new_role
 
 
-@rollback
+
 @sys_admin_required
 def update(db, role=None, actioning_user=None):
     """
@@ -87,7 +84,7 @@ def update(db, role=None, actioning_user=None):
     db.commit()
 
 
-@rollback
+
 @sys_admin_required
 def delete(db, role=None, actioning_user=None):
     """
@@ -99,7 +96,7 @@ def delete(db, role=None, actioning_user=None):
     db.commit()
 
 
-@close
+
 @permission_required('ADMIN_PROJECT')
 def get_roles_for_project(db, project=None):
     """

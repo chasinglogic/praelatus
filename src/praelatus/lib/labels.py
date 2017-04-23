@@ -11,12 +11,9 @@ Anonymous user.
 """
 
 from praelatus.models import Label, Ticket
-from praelatus.lib.utils import rollback
-from praelatus.lib.utils import close
 from sqlalchemy.orm import joinedload
 
 
-@close
 def get(db, id=None, name=None, filter=None, preload_tickets=False):
     """
     Get labels from the database.
@@ -51,7 +48,7 @@ def get(db, id=None, name=None, filter=None, preload_tickets=False):
     return query.order_by(Label.name).all()
 
 
-@rollback
+
 def new(db, **kwargs):
     """
     Create a new label in the database then returns that label.
@@ -76,7 +73,7 @@ def new(db, **kwargs):
     return new_label
 
 
-@rollback
+
 def update(db, label=None):
     """
     Update the given label in the database.
@@ -87,7 +84,7 @@ def update(db, label=None):
     db.commit()
 
 
-@rollback
+
 def delete(db, label=None):
     """
     Remove the given label from the database.

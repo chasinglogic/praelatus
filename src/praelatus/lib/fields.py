@@ -13,13 +13,10 @@ Anonymous user.
 from praelatus.models import Field
 from praelatus.models import FieldOption
 from praelatus.models.fields import DATA_TYPES
-from praelatus.lib.utils import rollback
-from praelatus.lib.utils import close
 
 from sqlalchemy.orm import joinedload
 
 
-@close
 def get(db, id=None, name=None, filter=None):
     """
     Get fields from the database.
@@ -58,7 +55,6 @@ def valid_type(data_type):
                     (data_type, DATA_TYPES.values()))
 
 
-@rollback
 def new(db, **kwargs):
     """
     Create a new field in the database then returns that field.
@@ -92,7 +88,6 @@ def new(db, **kwargs):
     return new_field
 
 
-@rollback
 def update(db, field):
     """
     Update the given field in the database.
@@ -104,7 +99,6 @@ def update(db, field):
     return field
 
 
-@rollback
 def delete(db, field):
     """
     Remove the given field from the database.
