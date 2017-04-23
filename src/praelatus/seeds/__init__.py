@@ -166,3 +166,5 @@ so I put markdown in your comment""" % i,
 
             tks.add_comment(db, actioning_user=comment['author'],
                             project=t.project, **comment)
+
+    db.close()
