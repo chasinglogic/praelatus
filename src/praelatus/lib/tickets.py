@@ -161,7 +161,6 @@ def new(db, **kwargs):
         #     continue
 
         field = db.query(Field).filter_by(name=f['name']).first()
-        print('field', field)
         if field is None:
             raise KeyError('no field with name ' + f['name'] + ' found')
         fv = FieldValue(

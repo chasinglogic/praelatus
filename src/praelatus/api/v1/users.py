@@ -14,7 +14,7 @@ import praelatus.lib.sessions as sessions
 from praelatus.api.schemas import UserSchema
 from praelatus.api.schemas import SignupSchema
 from praelatus.models import User
-from praelatus.lib import session as db
+from praelatus.lib import session
 
 
 class UsersResource():
@@ -64,8 +64,9 @@ class UsersResource():
         user = req.context.get('user', {})
         query = req.params.get('filter', '*')
 
-        db_res = users.get(db(), filter=query,
-                           actioning_user=user)
+        with session() as db:
+            db_res = users.get(db, filter=query, actioning_user=user)
+
         usrs = []
         for u in db_res:
             usrs.append(u.clean_dict())
@@ -107,8 +108,9 @@ class UsersResource():
         """
         signup_req = json.loads(req.bounded_stream.read().decode('utf-8'))
         SignupSchema.validate(signup_req)
-        db_u = users.new(db(), **signup_req)
-        self.create_session(db_u, resp)
+        with session() as db:
+            db_u = users.new(db, **signup_req)
+            self.create_session(db_u, resp)
 
 
 class UserResource():
@@ -133,7 +135,8 @@ class UserResource():
         ```
         """
         user = req.context.get('user', {})
-        db_res = users.get(db(), username=username, actioning_user=user)
+        with session() as db:
+            db_res = users.get(db, username=username, actioning_user=user)
         if db_res is None:
             resp.status = falcon.HTTP_404
             resp.body = json.dumps({
@@ -165,17 +168,17 @@ class UserResource():
         user = req.context['user']
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
         UserSchema.validate(jsn)
-        sess = db()
-        new_u = users.get(sess, username=username)
-        if new_u is None:
-            raise falcon.HTTPNotFound()
-        new_u.username = jsn['username']
-        new_u.email = jsn['email']
-        new_u.profile_pic = jsn['profile_pic']
-        new_u.full_name = jsn['full_name']
-        new_u.is_active = jsn.get('is_active', True)
-        new_u.is_admin = jsn.get('is_admin', False)
-        users.update(sess, new_u, actioning_user=user)
+        with session() as db:
+            new_u = users.get(db, username=username)
+            if new_u is None:
+                raise falcon.HTTPNotFound()
+            new_u.username = jsn['username']
+            new_u.email = jsn['email']
+            new_u.profile_pic = jsn['profile_pic']
+            new_u.full_name = jsn['full_name']
+            new_u.is_active = jsn.get('is_active', True)
+            new_u.is_admin = jsn.get('is_admin', False)
+            users.update(db, new_u, actioning_user=user)
         resp.body = json.dumps({'message': 'Successfully updated user.'})
 
     def on_delete(self, req, resp, username):
@@ -187,11 +190,11 @@ class UserResource():
         Returns a message indicating success or failure.
         """
         user = req.context['user']
-        sess = db()
-        del_user = users.get(sess, username=username)
-        if del_user is None:
-            raise falcon.HTTPNotFound()
-        users.delete(sess, del_user, actioning_user=user)
+        with session() as db:
+            del_user = users.get(db, username=username)
+            if del_user is None:
+                raise falcon.HTTPNotFound()
+            users.delete(db, del_user, actioning_user=user)
         resp.body = json.dumps({'message': 'Successfully deleted user.'})
 
 
@@ -229,7 +232,8 @@ class SessionResource():
         ```
         """
         login = json.loads(req.bounded_stream.read().decode('utf-8'))
-        user = users.get(db(), username=login['username'])
+        with session() as db:
+            user = users.get(db, username=login['username'])
         if user is None:
             resp.body = json.dumps({
                 'message': 'no user with that username exists'
@@ -281,4 +285,5 @@ class SessionResource():
         
         No body is required for this endpoint.
         """
-        sessions.delete(req.context.get('session_id'))
+        sessions.delete(req.context['user']['username'])
+        sessions.delete(req.context['session_id'])

@@ -11,12 +11,13 @@ import praelatus.lib.permissions as permissions
 
 @pytest.fixture
 def db():
-    return session()
-
+    with session() as db:
+        yield db
 
 @pytest.fixture(scope='module')
 def admin():
-    return users.get(session(), username='testadmin').clean_dict()
+    with session() as db:
+        return users.get(db, username='testadmin').clean_dict()
 
 
 def test_signup_schema():
