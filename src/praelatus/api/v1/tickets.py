@@ -3,7 +3,7 @@
 import json
 import falcon
 
-from praelatus.lib import session as db
+from praelatus.lib import session
 import praelatus.lib.tickets as tickets
 
 
@@ -84,10 +84,9 @@ class TicketsResource():
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
         if jsn.get('reporter') is None:
             jsn['reporter'] = user
-        sess = db()
-        db_res = tickets.new(sess, actioning_user=user, **jsn)
-        resp.body = tickets.get(sess, actioning_user=user,
-                                key=db_res.key).to_json()
+        with session() as db:
+            db_res = tickets.new(db, actioning_user=user, **jsn)
+        resp.body = db_res.to_json()
 
     def on_get(self, req, resp):
         """
@@ -247,7 +246,9 @@ class TicketsResource():
         """
         user = req.context['user']
         query = req.params.get('filter', '*')
-        db_res = tickets.get(db(), actioning_user=user, filter=query)
+
+        with session() as db:
+            db_res = tickets.get(db, actioning_user=user, filter=query)
 
         ticks = []
         for t in db_res:
