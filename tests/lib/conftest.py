@@ -1,7 +1,7 @@
 # flake8: noqa
 
 import pytest
-from praelatus.lib import session
+from praelatus.lib import Session
 from praelatus.seeds import seed
 import praelatus.lib.users as users
 
@@ -13,4 +13,4 @@ def admin():
 @pytest.fixture(scope='module')
 def db():
     """Return a database session as a fixture."""
-    return session()
+    return Session()
