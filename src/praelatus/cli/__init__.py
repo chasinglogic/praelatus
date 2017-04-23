@@ -17,10 +17,9 @@ def cli():  # noqa: D103
 @cli.command()
 def seeddb():
     """Seed the database with test data."""
-    db = session()
     print("Seeding the database with test data."
           "This may take a minute...")
-    seed(db)
+    seed()
     print("Seeding finished.")
 
 
