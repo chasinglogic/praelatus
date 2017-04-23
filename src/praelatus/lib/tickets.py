@@ -29,7 +29,6 @@ from praelatus.lib.permissions import permission_required
 from praelatus.lib.permissions import add_permission_query
 
 
-
 def get(db, id=None, key=None, reporter=None, assignee=None,
         filter=None, actioning_user=None, preload_comments=False):
     """
@@ -97,7 +96,6 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
     return result
 
 
-
 def new(db, **kwargs):
     """
     Create a new ticket in the database then return that ticket.
@@ -163,6 +161,9 @@ def new(db, **kwargs):
         #     continue
 
         field = db.query(Field).filter_by(name=f['name']).first()
+        print('field', field)
+        if field is None:
+            raise KeyError('no field with name ' + f['name'] + ' found')
         fv = FieldValue(
             field=field
         )
@@ -185,7 +186,6 @@ def new(db, **kwargs):
     return new_ticket
 
 
-
 @permission_required('EDIT_TICKET')
 def update(db, actioning_user=None, project=None, ticket=None):
     """
@@ -197,7 +197,6 @@ def update(db, actioning_user=None, project=None, ticket=None):
     db.commit()
 
 
-
 @permission_required('REMOVE_TICKET')
 def delete(db, actioning_user=None, project=None, ticket=None):
     """
@@ -207,7 +206,6 @@ def delete(db, actioning_user=None, project=None, ticket=None):
     """
     db.delete(ticket)
     db.commit()
-
 
 
 @permission_required('COMMENT_TICKET')
@@ -227,7 +225,6 @@ def add_comment(db, actioning_user=None, project=None, **kwargs):
     db.add(new_comment)
     db.commit()
     return new_comment
-
 
 
 @permission_required('VIEW_PROJECT')
