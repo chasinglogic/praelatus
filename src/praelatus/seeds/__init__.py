@@ -12,11 +12,9 @@ import praelatus.lib.ticket_types as types
 import praelatus.lib.workflows as workflows
 import praelatus.lib.statuses as statuses
 import praelatus.lib.permissions as perm_schemes
-from praelatus.lib.utils import rollback
 from praelatus.lib import session
 
 
-@rollback
 def seed():
     """Seed the given db with test data."""
     import praelatus.seeds.defaults as defaults
