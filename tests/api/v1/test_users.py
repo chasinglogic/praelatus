@@ -23,7 +23,7 @@ def test_crud_user_endpoints(client, headers):
         "password": "supersecure"
     }
 
-    resp = client.post('/api/v1/users/sessions', login, headers=headers)
+    resp = client.post('/api/v1/tokens', login, headers=headers)
     assert resp.status == falcon.HTTP_200
     assert resp.json['token'] is not None
     token = resp.json['token']
@@ -66,13 +66,13 @@ def test_404(client, headers):
     assert resp.json['message'] == 'no user with that username exists'
 
     login = {'username': 'marypoppins', 'password': 'spoonful'}
-    resp = client.post('/api/v1/users/sessions', login, headers=headers)
+    resp = client.post('/api/v1/tokens', login, headers=headers)
     assert resp.status == falcon.HTTP_404
     assert resp.json['message'] == 'no user with that username exists'
 
 
 def test_failed_login(client, headers):
     login = {'username': 'testuser', 'password': 'wrong'}
-    resp = client.post('/api/v1/users/sessions', login, headers=headers)
+    resp = client.post('/api/v1/tokens', login, headers=headers)
     assert resp.status == falcon.HTTP_401
     assert resp.json['message'] == 'invalid password'
