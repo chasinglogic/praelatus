@@ -1,7 +1,5 @@
 """Contains the resources for the /api/v1/users endpoints."""
 
-# flake8: noqa: D200
-
 import falcon
 import json
 
@@ -13,53 +11,27 @@ import praelatus.lib.sessions as sessions
 
 from praelatus.api.schemas import UserSchema
 from praelatus.api.schemas import SignupSchema
-from praelatus.models import User
 from praelatus.lib import session
 
 
 class UsersResource():
     """Handlers for the /api/v1/users endpoint."""
 
-    def __init__(self, create_session):  # noqa: D400,D205
+    def __init__(self, create_token):  # noqa: D400,D205
         """
-        create_session should be a function which takes a user and a
-        resp then creates a session in redis sending the session back
-        to resp, it is called after on_post to create a session 
-        for a user after signup.
+        create_token should be a function which takes a user and a
+        resp then creates a token for that user and sends it to resp,
+        it is called after on_post to create a token for a user after
+        signup.
         """
-        self.create_session = create_session
+        self.create_token = create_token
 
     def on_get(self, req, resp):
         """
         Return all users for the instance.
-        
-        Accepts the query parameter filter which searches through
-        users on the instance.
-        
-        Returns an array of user objects as defined by schemas.user
-        
-        ```json
-        [
-            {
-                "full_name": "Test Testerson",
-                "is_admin": true,
-                "email": "test@example.com",
-                "username": "testadmin",
-                "id": 2,
-                "is_active": true,
-                "profile_pic": "https://gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0"
-            },
-            {
-                "full_name": "Test Testerson II",
-                "is_admin": false,
-                "email": "test@example.com",
-                "username": "testuser",
-                "id": 3,
-                "is_active": true,
-                "profile_pic": "https://gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0"
-            }
-        ]
-        ```
+
+        API Documentation:
+        https://docs.praelatus.io/API/Reference/#get-users
         """
         user = req.context.get('user', {})
         query = req.params.get('filter', '*')
@@ -75,42 +47,16 @@ class UsersResource():
 
     def on_post(self, req, resp):
         """
-        Create a user and return the user object with the database
-        information attached.
-        
-        Accepts JSON of the form:
+        Create a user then return that user with an auth token.
 
-        ```json
-        {
-            "username": "some_new_user",
-            "password": "supersecure",
-            "full_name": "New User",
-            "email": "new@praelatus.io"
-        }
-        ```
-        
-        Returns a session object:
-        
-        ```json
-        {
-            "token": "1a2323f4-8eeb-4739-be43-1d5086ca5163",
-            "user": {
-                "id": 5,
-                "full_name": "New User",
-                "is_admin": false,
-                "is_active": true,
-                "email": "new@praelatus.io",
-                "username": "some_new_user",
-                "profile_pic": "https://gravatar.com/avatar/e688391c89d2551bf1f844249682ace4"
-            }
-        }
-        ```
+        API Documentation:
+        https://docs.praelatus.io/API/Reference/#post-users
         """
         signup_req = json.loads(req.bounded_stream.read().decode('utf-8'))
         SignupSchema.validate(signup_req)
         with session() as db:
             db_u = users.new(db, **signup_req)
-            self.create_session(db_u, resp)
+            self.create_token(db_u, resp)
 
 
 class UserResource():
@@ -120,50 +66,22 @@ class UserResource():
         """
         Return single user by username or id.
 
-        Returns user object as defined by schemas.user:
-
-        ```json
-        {
-            "full_name": "Test Testerson",
-            "is_admin": true,
-            "email": "test@example.com",
-            "username": "testadmin",
-            "id": 2,
-            "is_active": true,
-            "profile_pic": "https://gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0"
-        }
-        ```
+        API Documentation:
+        https://docs.praelatus.io/API/Reference/#get-usersusername
         """
         user = req.context.get('user', {})
         with session() as db:
             db_res = users.get(db, username=username, actioning_user=user)
-        if db_res is None:
-            resp.status = falcon.HTTP_404
-            resp.body = json.dumps({
-                'message': 'no user with that username exists'
-            })
-            return
-        resp.body = db_res.to_json()
+            if db_res is None:
+                raise falcon.HTTPNotFound()
+            resp.body = db_res.to_json()
 
     def on_put(self, req, resp, username):
         """
         Update the user identified by username.
 
-        Accepts a user object as defined by schemas.user:
-
-        ```json
-        {
-            "full_name": "Test Testerson",
-            "is_admin": true,
-            "email": "test@example.com",
-            "username": "testadmin",
-            "id": 2,
-            "is_active": true,
-            "profile_pic": "https://gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0"
-        }
-        ```
-        
-        Returns a message indicating success or failure.
+        API Documentation:
+        https://docs.praelatus.io/API/Reference/#put-usersusername
         """
         user = req.context['user']
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
@@ -184,10 +102,9 @@ class UserResource():
     def on_delete(self, req, resp, username):
         """
         Delete the user identified by username.
-        
-        This request requires no body.
-        
-        Returns a message indicating success or failure.
+
+        API Documentation:
+        https://docs.praelatus.io/API/Reference/#put-usersusername
         """
         user = req.context['user']
         with session() as db:
@@ -198,38 +115,15 @@ class UserResource():
         resp.body = json.dumps({'message': 'Successfully deleted user.'})
 
 
-class SessionResource():
-    """Handlers for /api/v1/users/sessions endpoint."""
+class TokensResource():
+    """Handlers for /api/v1/tokens endpoint."""
 
     def on_post(self, req, resp):
         """
         Create a new session AKA "log in".
 
-        Accepts JSON of the form:
-
-        ```json
-        {
-            "username": "testadmin",
-            "password": "test"
-        }
-        ```
-
-        Returns a session object:
-
-        ```json
-        {
-            "token": "some-auth-token",
-            "user": {
-                "full_name": "Test Testerson",
-                "is_admin": true,
-                "email": "test@example.com",
-                "username": "testadmin",
-                "id": 2,
-                "is_active": true,
-                "profile_pic": "https://gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0"
-            }
-        }
-        ```
+        API Documentation:
+        https://doc.praelatus.io/API/Reference/#post-tokens
         """
         login = json.loads(req.bounded_stream.read().decode('utf-8'))
         with session() as db:
@@ -246,10 +140,10 @@ class SessionResource():
             resp.status = falcon.HTTP_401
             return
 
-        SessionResource.create_session(user, resp)
+        TokensResource.create_session(user, resp)
 
     @staticmethod
-    def create_session(user, resp):
+    def create_token(user, resp):
         """Create a session for user, set the resp body to the session."""
         # Check if the user is already logged in
         session_exists = sessions.get(user.username)
@@ -260,7 +154,7 @@ class SessionResource():
             token = str(sessions.gen_session_id())
 
         # Cookies take a datetime.datetime
-        expires = datetime.now()+timedelta(hours=1)
+        expires = datetime.now() + timedelta(hours=1)
         # Set takes a timedelta in seconds
         expires_seconds = expires - datetime.now()
 
@@ -281,9 +175,10 @@ class SessionResource():
 
     def on_delete(self, req, resp):
         """
-        Invalidate the current user's session AKA "log out".
-        
-        No body is required for this endpoint.
+        Invalidate the current user's token AKA "log out".
+
+        API Documentation:
+        https://doc.praelatus.io/API/Reference/#delete-tokens
         """
         sessions.delete(req.context['user']['username'])
         sessions.delete(req.context['session_id'])
