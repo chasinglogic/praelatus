@@ -37,7 +37,11 @@ class Workflow(Base):
 
     def clean_dict(self):
         """Override BaseModel clean_dict."""
-        jsn = super(Workflow, self).clean_dict()
+        jsn = {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description
+        }
 
         transitions = {}
         for tr in self.transitions:

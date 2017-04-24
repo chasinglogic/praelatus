@@ -21,7 +21,11 @@ class PermissionScheme(Base):
 
     def clean_dict(self):
         """Override clean_dict from BaseModel."""
-        jsn = super(PermissionScheme, self).clean_dict()
+        jsn = {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description
+        }
 
         permissions = {}
         for perm in self.permissions:

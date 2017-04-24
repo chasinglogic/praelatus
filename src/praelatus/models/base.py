@@ -20,23 +20,10 @@ class BaseModel:
 
         This is used for easy jsonifying of models.
         """
-        # This stores the final json obj
-        jsn = {}
-
-        for key, val in self.__dict__.items():
-            # Check if it's metadata, if so skip it.
-            if key.startswith("_") or key.endswith('_id'):
-                continue
-
-            # This is for FieldValue seems less hacky than deleting unused
-            # values
-            if key.endswith('_value'):
-                continue
-
-            # Must be a primitive type so just throw it in.
-            jsn[key] = val
-
-        return jsn
+        return {
+            'id': self.id,
+            'name': self.name
+        }
 
     def to_json(self):
         """A basic to_json method that works for 90% of the models."""

@@ -34,10 +34,16 @@ class Project(Base):
 
     def clean_dict(self):
         """Override BaseModel clean_dict."""
-        jsn = super(Project, self).clean_dict()
-        jsn['lead'] = self.lead.clean_dict()
-        jsn['created_date'] = str(self.created_date)
-        return jsn
+        return {
+            'id': self.id,
+            'key': self.key,
+            'name': self.name,
+            'homepage': self.homepage,
+            'icon_url': self.icon_url,
+            'repo': self.repo,
+            'lead': self.lead.clean_dict(),
+            'created_date': str(self.created_date)
+        }
 
     def __repr__(self):
         """Stringify the project for prettier printing."""

@@ -56,30 +56,25 @@ class Ticket(Base):
 
     def clean_dict(self):
         """Override BaseModel clean_dict."""
-        jsn = super(Ticket, self).clean_dict()
-        jsn['ticket_type'] = self.ticket_type.clean_dict()
-        jsn['status'] = self.status.clean_dict()
-        jsn['project'] = self.project.clean_dict()
-        jsn['reporter'] = self.reporter.clean_dict()
-        jsn['workflow_id'] = self.workflow_id
-        jsn['created_date'] = str(self.created_date)
-        jsn['updated_date'] = str(self.updated_date)
+        jsn = {
+            'id': self.id,
+            'key': self.key,
+            'summary': self.summary,
+            'description': self.description,
+            'ticket_type': self.ticket_type.clean_dict(),
+            'status': self.status.clean_dict(),
+            'project': self.project.clean_dict(),
+            'reporter': self.reporter.clean_dict(),
+            'workflow_id': self.workflow_id,
+            'created_date': str(self.created_date),
+            'updated_date': str(self.updated_date),
+            'transitions': [x.clean_dict() for x in self.transitions],
+            'fields': [x.clean_dict() for x in self.fields],
+            'labels': [x.name for x in self.labels]
+        }
 
-        jsn['transitions'] = []
-        for t in self.transitions:
-            jsn['transitions'].append(t.clean_dict())
-
-        jsn.pop('assignee', None)
         if self.assignee and isinstance(self.assignee, Base):
             jsn['assignee'] = self.assignee.clean_dict()
-
-        jsn['labels'] = []
-        for l in self.labels:
-            jsn['labels'].append(l.name)
-
-        jsn['fields'] = []
-        for f in self.fields:
-            jsn['fields'].append(f.clean_dict())
 
         return jsn
 
@@ -102,12 +97,14 @@ class Comment(Base):
 
     def clean_dict(self):
         """Override BaseModel clean_dict."""
-        jsn = super(Comment, self).clean_dict()
-        jsn['author'] = self.author.clean_dict()
-        jsn['ticket_key'] = self.ticket.key
-        jsn['updated_date'] = str(self.updated_date)
-        jsn['created_date'] = str(self.created_date)
-        return jsn
+        return {
+            'id': self.id,
+            'author': self.author.clean_dict(),
+            'ticket_key': self.ticket.key,
+            'updated_date': str(self.updated_date),
+            'created_date': str(self.created_date),
+            'body': self.body
+        }
 
 
 # A many to many table for connecting the Label and Ticket classes

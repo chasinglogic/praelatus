@@ -21,9 +21,15 @@ class User(Base):
 
     def clean_dict(self):
         """Call BaseModel clean_dict but remove password."""
-        d = super(User, self).clean_dict()
-        d.pop('password', None)
-        return d
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'full_name': self.full_name,
+            'profile_pic': self.profile_pic,
+            'is_admin': self.is_admin,
+            'is_active': self.is_active
+        }
 
     def __repr__(self):
         """Override BaseModel.__repr__ for better printing."""

@@ -62,13 +62,15 @@ class Field(Base):
 
     def clean_dict(self):
         """Override BaseModel clean_dict."""
-        jsn = super(Field, self).clean_dict()
-        if jsn['data_type'] == 'OPT':
-            jsn['options'] = []
-            for opt in self.options:
-                jsn['options'].append(opt.name)
-        else:
-            del jsn['options']
+        jsn = {
+            'id': self.id,
+            'name': self.name,
+            'data_type': self.data_type
+        }
+
+        if self.data_type == 'OPT':
+            jsn['options'] = [opt.name for opt in self.options]
+
         return jsn
 
 
@@ -102,10 +104,13 @@ class FieldValue(Base):
 
     def clean_dict(self):
         """Override BaseModel clean_dict."""
-        jsn = super(FieldValue, self).clean_dict()
         # Jsn['Value'] = the appropriate value, based on field data type.
-        jsn['name'] = self.field.name
-        jsn['data_type'] = self.field.data_type
+        jsn = {
+            'id': self.id,
+            'name': self.field.name,
+            'data_type': self.field.data_type
+        }
+
         if self.field.data_type == 'OPT':
             jsn['value'] = self.opt_value
             jsn['options'] = []
@@ -119,7 +124,7 @@ class FieldValue(Base):
             jsn['value'] = str(self.date_value)
         elif self.field.data_type == 'INT':
             jsn['value'] = self.int_value
-        jsn.pop('field', None)
+
         return jsn
 
 
