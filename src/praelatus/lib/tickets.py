@@ -89,6 +89,7 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
         if result:
             result.transitions = db.query(Transition).\
                 filter(Transition.from_status_id == result.status_id).\
+                filter(Transition.workflow_id == result.workflow_id).\
                 all()
     else:
         result = query.order_by(Ticket.key).all()
@@ -132,10 +133,13 @@ def new(db, **kwargs):
         project_id=kwargs['project']['id'],
     )
 
-    new_ticket.workflow_id = db.query(Workflow.id).\
-        join(workflows_projects).\
-        filter('workflows_projects.project_id = ' + str(new_ticket.project_id)).\
-        first()
+    # Raw sql here is clearer and faster than using orm
+    new_ticket.workflow_id = db.execute(
+        "select w.id from workflows as w "
+        "join workflows_projects as wkp on wkp.workflow_id = w.id"
+        " where wkp.project_id = :pid",
+        {"pid": new_ticket.project_id}).\
+        first()[0]
 
     new_ticket.status_id = db.query(Transition.to_status_id).filter(
         Transition.workflow_id == new_ticket.workflow_id,
@@ -152,14 +156,6 @@ def new(db, **kwargs):
 
     field_values = kwargs.get('fields', [])
     for f in field_values:
-        # Keeping this for later, when we get updating right this will
-        # be needed.
-        # if f.get('id') is not None:
-        #     fv = db.query(FieldValue).filter_by(id=f['id']).first()
-        #     fv.value = f['value']
-        #     new_ticket.fields.append(fv)
-        #     continue
-
         field = db.query(Field).filter_by(name=f['name']).first()
         if field is None:
             raise KeyError('no field with name ' + f['name'] + ' found')
@@ -186,14 +182,61 @@ def new(db, **kwargs):
 
 
 @permission_required('EDIT_TICKET')
-def update(db, actioning_user=None, project=None, ticket=None):
+def update(db, actioning_user=None, project=None, orig_ticket=None, ticket=None):
     """
     Update the given ticket in the database.
 
-    ticket must be a Ticket class instance.
+    ticket must be a Ticket class instance or a JSON ticket object. If
+    it is JSON then orig_ticket must be supplied which is the Ticket
+    class instance that's being updated.
     """
-    db.add(ticket)
-    db.commit()
+    if isinstance(ticket, Ticket):
+        db.add(ticket)
+        return
+
+    orig_ticket.summary = ticket['summary']
+    orig_ticket.description = ticket['description']
+    orig_ticket.reporter_id = ticket['reporter']['id']
+
+    if ticket.get('assignee') is not None:
+        orig_ticket.assignee_id = ticket['assignee']['id']
+
+    field_values = ticket.get('fields', [])
+    new_fields = []
+    for f in field_values:
+        if f.get('id') is not None:
+            fv = db.query(FieldValue).filter_by(id=f['id']).first()
+            fv.value = f['value']
+            orig_ticket.fields.append(fv)
+            continue
+
+        field = db.query(Field).filter_by(name=f['name']).first()
+        if field is None:
+            raise KeyError('no field with name ' + f['name'] + ' found')
+        fv = FieldValue(
+            field=field
+        )
+
+        set_field_value(fv, f['value'])
+        db.add(fv)
+        new_fields.append(fv)
+        db.commit()
+
+    orig_ticket.fields = new_fields
+
+    labels = ticket.get('labels', [])
+    new_labels = []
+    for l in labels:
+        lbl = db.query(Label).filter_by(name=l).first()
+        if lbl is None:
+            lbl = Label(name=l)
+            db.add(lbl)
+            db.commit()
+        new_labels.append(lbl)
+
+    orig_ticket.labels = new_labels
+
+    db.add(orig_ticket)
 
 
 @permission_required('REMOVE_TICKET')
@@ -204,7 +247,6 @@ def delete(db, actioning_user=None, project=None, ticket=None):
     ticket must be a Ticket class instance.
     """
     db.delete(ticket)
-    db.commit()
 
 
 @permission_required('COMMENT_TICKET')
