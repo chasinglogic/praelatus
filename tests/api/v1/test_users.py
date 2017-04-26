@@ -63,12 +63,10 @@ def test_get_filter(client, headers):
 def test_404(client, headers):
     resp = client.get('/api/v1/users/marypoppins', headers=headers)
     assert resp.status == falcon.HTTP_404
-    assert resp.json['message'] == 'no user with that username exists'
 
     login = {'username': 'marypoppins', 'password': 'spoonful'}
     resp = client.post('/api/v1/tokens', login, headers=headers)
     assert resp.status == falcon.HTTP_404
-    assert resp.json['message'] == 'no user with that username exists'
 
 
 def test_failed_login(client, headers):
