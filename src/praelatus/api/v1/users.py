@@ -140,7 +140,7 @@ class TokensResource():
             resp.status = falcon.HTTP_401
             return
 
-        TokensResource.create_session(user, resp)
+        TokensResource.create_token(user, resp)
 
     @staticmethod
     def create_token(user, resp):
