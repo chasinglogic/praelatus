@@ -25,7 +25,6 @@ from praelatus.models import UserRoles
 from praelatus.models import User
 
 
-
 def get(db, id=None, name=None, filter=None, actioning_user=None):
     """
     Get permission schemes from the database.
@@ -63,7 +62,6 @@ def get(db, id=None, name=None, filter=None, actioning_user=None):
     return query.order_by(PermissionScheme.name).all()
 
 
-
 def new(db, actioning_user=None, **kwargs):
     """
     Create a new permission scheme in the database then return it.
@@ -83,7 +81,7 @@ def new(db, actioning_user=None, **kwargs):
     """
     if (actioning_user is None or
        not is_system_admin(db, actioning_user)):
-        raise Exception('permission denied')
+        raise PermissionError('permission denied')
 
     new_scheme = PermissionScheme(
         name=kwargs['name'],
@@ -108,7 +106,6 @@ def new(db, actioning_user=None, **kwargs):
     return new_scheme
 
 
-
 def update(db, permission_scheme=None, actioning_user=None):
     """
     Update the permission scheme in the database.
@@ -117,11 +114,10 @@ def update(db, permission_scheme=None, actioning_user=None):
     """
     if (actioning_user is None or
        not is_system_admin(db, actioning_user)):
-            raise Exception('permission denied')
+            raise PermissionError('permission denied')
 
     db.add(permission_scheme)
     db.commit()
-
 
 
 def delete(db, permission_scheme=None, actioning_user=None):
@@ -132,7 +128,7 @@ def delete(db, permission_scheme=None, actioning_user=None):
     """
     if (actioning_user is None or
        not is_system_admin(db, actioning_user)):
-            raise Exception('permission denied')
+            raise PermissionError('permission denied')
 
     db.delete(permission_scheme)
     db.commit()
@@ -175,7 +171,7 @@ def permission_required(permission):
 
             if has_permission(db, permission, project, actioning_user):
                 return fn(*args, **kwargs)
-            raise Exception('permission denied')
+            raise PermissionError('permission denied')
         return wrapper
     return decorator
 
@@ -184,6 +180,7 @@ def has_permission(db, permission_name, project, actioning_user):
     """Check if permission is granted to actioning_user on project."""
     query = db.query(Project.id).\
         join(UserRoles).\
+        join(User).\
         join(Role).\
         join(PermissionScheme).\
         join(PermissionSchemePermissions).\
@@ -198,28 +195,24 @@ def has_permission(db, permission_name, project, actioning_user):
         user_id = actioning_user.id
     elif actioning_user is not None:
         user_id = actioning_user.get('id', 0)
+    else:
+        user_id = 0
 
     if actioning_user is not None:
-        query = query.filter(
-            or_(
-                db.query(User.is_admin).
-                filter(User.id == user_id).
-                subquery('admin').as_scalar(),
-                and_(
-                    Permission.name == permission_name,
-                    or_(
-                        Role.name == 'Anonymous',
-                        UserRoles.user_id == user_id
-                    ),
-                )
-            )
-        )
-    else:
-        query = query.filter(
-            Permission.name == permission_name,
-            Role.name == 'Anonymous'
-        )
+        # Check if they're an admin first it's faster this way.
+        is_admin = db.query(User.is_admin).filter(User.id == user_id)
+        if is_admin:
+            return True
 
+    query = query.filter(
+        Permission.name == permission_name,
+        or_(
+            Role.name == 'Anonymous',
+            UserRoles.user_id == user_id
+        ),
+    )
+
+    print('query', query)
     if query.first() is None:
         return False
     return True
