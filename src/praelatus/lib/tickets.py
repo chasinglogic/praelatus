@@ -27,6 +27,8 @@ from praelatus.models.workflows import workflows_projects
 from praelatus.models.fields import DataTypeError
 from praelatus.lib.permissions import permission_required
 from praelatus.lib.permissions import add_permission_query
+from praelatus.lib.permissions import has_permission
+from praelatus.lib.permissions import is_system_admin
 
 
 def get(db, id=None, key=None, reporter=None, assignee=None,
@@ -269,11 +271,68 @@ def add_comment(db, actioning_user=None, project=None, **kwargs):
 
 
 @permission_required('VIEW_PROJECT')
-def get_comments(db, ticket_id, actioning_user=None, project=None):
-    """Get all comments for the given ticket_id."""
-    return db.Query(Comment).\
-        filter(Comment.ticket_id == ticket_id).\
-        all()
+def get_comments(db, ticket_id=0, ticket_key=None,
+                 actioning_user=None, project=None):
+    """Get all comments for the given ticket_id or ticket_key."""
+    query = db.query(Comment)
+    if ticket_key:
+        query = query.join(Ticket).filter(Ticket.key == ticket_key)
+    else:
+        query = query.filter(Comment.ticket_id == ticket_id)
+
+    return query.all()
+
+
+@permission_required('VIEW_PROJECT')
+def get_commemt(db, comment_id, actioning_user=None, project=None):
+    """Get a single comment by ID."""
+    return db.query(Comment).filter_by(id=comment_id).first()
+
+
+def update_comment(db, comment, actioning_user=None, project=None):
+    """
+    Update the given comment.
+
+    comment must be an instance of the Comment class.
+
+    Not using permission_required to make as little DB calls as needed.
+    """
+    if (
+        is_system_admin(db, actioning_user) or
+
+        has_permission(db, 'EDIT_COMMENT', project, actioning_user) or
+
+        (comment.author_id == actioning_user['id'] and
+         has_permission(db, 'EDIT_OWN_COMMENT', project, actioning_user))
+    ):
+        db.add(comment)
+        db.commit()
+        return
+
+    raise PermissionError('permission denied')
+
+
+def delete_comment(db, comment, actioning_user, project):
+    """
+    Delete the given comment.
+
+    comment must be an instance of the Comment class.
+
+    Not using permission_required to make as little DB calls as needed.
+    """
+    if (
+        is_system_admin(db, actioning_user) or
+
+        has_permission(db, 'EDIT_COMMENT', project, actioning_user) or
+
+        (comment.author_id == actioning_user['id'] and
+         has_permission(db, 'EDIT_OWN_COMMENT', project, actioning_user))
+    ):
+        db.delete(comment)
+        db.commit()
+        return
+
+    raise PermissionError('permission denied')
 
 
 def set_field_value(field_value, val):
