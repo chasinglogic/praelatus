@@ -3,9 +3,10 @@
 import json
 import falcon
 
-from praelatus.lib import session
 import praelatus.lib.tickets as tickets
 import praelatus.lib.projects as projects
+
+from praelatus.lib import session
 from praelatus.api.schemas import TicketSchema
 from praelatus.api.schemas import CommentSchema
 
