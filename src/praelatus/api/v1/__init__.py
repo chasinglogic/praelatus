@@ -5,13 +5,23 @@ from praelatus.api.v1.users import UserResource
 from praelatus.api.v1.users import TokensResource
 from praelatus.api.v1.tickets import TicketsResource
 from praelatus.api.v1.tickets import TicketResource
+from praelatus.api.v1.tickets import CommentsResource
+from praelatus.api.v1.tickets import CommentResource
 
 
 def add_v1_routes(app, prefix='/api/v1/'):
     """Add all of the v1 routes to the given app."""
+    # Users
     app.add_route(prefix + 'users',
                   UsersResource(TokensResource.create_token))
     app.add_route(prefix + 'users/{username}', UserResource())
     app.add_route(prefix + 'tokens', TokensResource())
+
+    # Tickets
     app.add_route(prefix + 'tickets', TicketsResource())
-    app.add_route(prefix + 'tickets/{key}', TicketResource())
+    app.add_route(prefix + 'tickets/{ticket_key}', TicketResource())
+
+    # Comments
+    app.add_route(prefix + 'tickets/{ticket_key}/comments', CommentsResource())
+    app.add_route(prefix + 'tickets/{ticket_key}/comments/{id}',
+                  CommentResource())
