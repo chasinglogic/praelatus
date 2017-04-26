@@ -105,6 +105,12 @@ def new(db, **kwargs):
                 role_id=db.
                 query(Role.id).
                 filter_by(name='Administrator').
+                first()),
+            UserRoles(
+                user_id=1,
+                role_id=db.
+                query(Role.id).
+                filter_by(name='Anonymous').
                 first())
         ]
 
