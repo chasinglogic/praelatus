@@ -224,22 +224,20 @@ def add_permission_query(db, query, actioning_user, permission_name):
 
     If the Project table is not already joined then this will not work.
     """
+    # If they're a sys admin no need to modify the query at all.
+    if actioning_user is not None and is_system_admin(db, actioning_user):
+        return
+
     query = query.join(
         PermissionScheme,
         Project.permission_scheme_id == PermissionScheme.id
-    )
-
-    query = query.join(
+    ).join(
         PermissionSchemePermissions,
         Permission
-    )
-
-    query = query.outerjoin(
+    ).outerjoin(
         Role,
         PermissionSchemePermissions.role_id == Role.id
-    )
-
-    query = query.outerjoin(
+    ).outerjoin(
         UserRoles,
         UserRoles.project_id == Project.id
     )
@@ -248,25 +246,13 @@ def add_permission_query(db, query, actioning_user, permission_name):
         user_id = actioning_user.id
     elif actioning_user is not None:
         user_id = actioning_user.get('id', 0)
-
-    if actioning_user is not None:
-        query = query.filter(
-            or_(
-                db.query(User.is_admin).
-                filter(User.id == user_id).
-                subquery('admin').as_scalar(),
-                and_(
-                    UserRoles.user_id == user_id,
-                    Permission.name == permission_name
-                )
-            )
-        )
     else:
-        query = query.filter(
-            and_(
-                Permission.name == permission_name,
-                Role.name == 'Anonymous'
-            )
-        )
+        user_id = 0
 
-    return query
+    return query.filter(
+        Permission.name == permission_name,
+        or_(
+            UserRoles.user_id == user_id,
+            Role.name == 'Anonymous'
+        )
+    )
