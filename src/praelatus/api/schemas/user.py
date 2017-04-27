@@ -24,7 +24,7 @@ class UserSchema(BaseSchema):
             'profile_pic': {'type': 'string'},
             'full_name': {'type': 'string'}
         },
-        'required': ['username', 'full_name', 'is_active', 'email', 'id']
+        'required': ['username', 'full_name', 'email']
     }
 
 
