@@ -14,12 +14,13 @@ from sqlalchemy import or_
 
 import praelatus.lib.workflows as workflows
 
-from praelatus.lib.permissions import permission_required, add_permission_query
+from praelatus.lib.permissions import permission_required
+from praelatus.lib.permissions import add_permission_query
+from praelatus.lib.permissions import sys_admin_required
 from praelatus.models import Project
 from praelatus.models import User
 from praelatus.models import Role
 from praelatus.models import UserRoles
-
 
 
 def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
@@ -65,7 +66,7 @@ def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
     return query.order_by(Project.key).all()
 
 
-
+@sys_admin_required
 def new(db, **kwargs):
     """
     Create a new project in the database then return that project.
