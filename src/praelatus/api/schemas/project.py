@@ -11,8 +11,12 @@ class ProjectSchema(BaseSchema):
         'properties': {
             'id': {'type': 'integer'},
             'name': {'type': 'string'},
+            'repo': {'type': 'string'},
+            'homepage': {'type': 'string'},
+            'icon_url': {'type': 'string'},
             'description': {'type': 'string'},
             'key': {'type': 'string'},
             'lead': UserSchema.schema
-        }
+        },
+        'required': ['name', 'key', 'lead']
     }
