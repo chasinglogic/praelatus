@@ -105,7 +105,7 @@ class CommentsResource():
         Retrieve all comments for the ticket indentified by ticket_key.
 
         API Documentation:
-        https://docs.praelatus.io/API/Reference/#get-ticketsticket_key-comments
+        https://docs.praelatus.io/API/Reference/#get-ticket_keycomments
         """
         user = req.context['user']
         with session() as db:
@@ -120,12 +120,11 @@ class CommentsResource():
         Create a new comment for the ticket identified by ticket_key.
 
         API Documentation:
-        https://docs.praelatus.io/API/Reference/#post-ticketsticket_key-comments
+        https://docs.praelatus.io/API/Reference/#post-ticket_keycomments
         """
         user = req.context['user']
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
-        if jsn.get('author') is None:
-            jsn['author'] = user
+        jsn['author'] = user
         CommentSchema.validate(jsn)
         with session() as db:
             ticket = tickets.get(db, actioning_user=user, key=ticket_key)
@@ -144,7 +143,7 @@ class CommentResource():
         Update the comment at ID for ticket_key.
 
         API Documentation:
-        https://docs.praelatus.io/API/Reference/#put-ticketsticket_key-commentsid
+        https://docs.praelatus.io/API/Reference/#put-ticket_keycommentsid
         """
         user = req.context['user']
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
@@ -159,14 +158,14 @@ class CommentResource():
             tickets.update_comment(db, comment, actioning_user=user,
                                    project=ticket.project)
 
-            resp.body = comment.to_json()
+            resp.body = json.dumps({'message': 'Successfully updated comment.'})
 
     def on_delete(self, req, resp, ticket_key, id):
         """
         Delete the comment at ID for ticket_key.
 
         API Documentation:
-        https://docs.praelatus.io/API/Reference/#delete-ticketsticket_key-commentsid
+        https://docs.praelatus.io/API/Reference/#delete-ticket_keycommentsid
         """
         user = req.context['user']
         with session() as db:
@@ -178,4 +177,4 @@ class CommentResource():
             tickets.delete_comment(db, comment, actioning_user=user,
                                    project=ticket.project)
 
-            resp.body = json.dumps({'message': 'successfully deleted comment'})
+            resp.body = json.dumps({'message': 'Successfully deleted comment.'})
