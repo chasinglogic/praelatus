@@ -42,7 +42,6 @@ class TicketsResource():
         """
         user = req.context['user']
         query = req.params.get('filter', '*')
-
         with session() as db:
             db_res = tickets.get(db, actioning_user=user, filter=query)
             resp.body = json.dumps([t.clean_dict() for t in db_res])
