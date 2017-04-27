@@ -226,7 +226,7 @@ def add_permission_query(db, query, actioning_user, permission_name):
     """
     # If they're a sys admin no need to modify the query at all.
     if actioning_user is not None and is_system_admin(db, actioning_user):
-        return
+        return query
 
     query = query.join(
         PermissionScheme,
