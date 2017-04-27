@@ -7,6 +7,8 @@ from praelatus.api.v1.tickets import TicketsResource
 from praelatus.api.v1.tickets import TicketResource
 from praelatus.api.v1.tickets import CommentsResource
 from praelatus.api.v1.tickets import CommentResource
+from praelatus.api.v1.projects import ProjectsResource
+from praelatus.api.v1.projects import ProjectResource
 
 
 def add_v1_routes(app, prefix='/api/v1/'):
@@ -25,3 +27,7 @@ def add_v1_routes(app, prefix='/api/v1/'):
     app.add_route(prefix + 'tickets/{ticket_key}/comments', CommentsResource())
     app.add_route(prefix + 'tickets/{ticket_key}/comments/{id}',
                   CommentResource())
+
+    # Projects
+    app.add_route(prefix + 'projects', ProjectsResource())
+    app.add_route(prefix + 'projects/{key}', ProjectResource())
