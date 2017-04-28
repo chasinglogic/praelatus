@@ -1,7 +1,6 @@
 """Contains resources for interacting with projects."""
 
 import json
-import falcon
 
 import praelatus.lib.projects as projects
 
