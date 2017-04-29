@@ -74,3 +74,27 @@ def test():
     """Test connection to the database."""
     session()
     print('Database connection succeeded!')
+
+
+@cli.command()
+@click.option("--username", default=None, required=True, help="Unique username") 
+@click.option("--passwd", default=None, required=True, help="Personal password") 
+@click.option("--fullname", default=None, required=True, help="User's full name") 
+@click.option("--email", default=None, required=True, help="User's email") 
+@click.option("--isadmin", default=False, help="Admin priviledges") 
+def create_user(username, passwd, fullname, email, isadmin):
+    """Creates a new user in the DB"""
+
+    import praelatus.lib.users as users
+
+    nu_user = {
+        'username' : username,
+        'password' : passwd,
+        'email' : email,
+        'full_name' : fullname,
+        'is_admin' : isadmin,
+    }
+
+    with session() as db:
+        users.new(db, **nu_user)
+    
