@@ -318,6 +318,7 @@ def test_delete_endpoints(client, auth_headers):
                            headers=auth_headers,
                            body=t['create']['body'])
         jsn = resp.json
+        print('jsn', jsn)
         resp = client.delete(t['url'] + str(jsn[t.get('field', 'id')]),
                              headers=auth_headers)
         assert resp.status == falcon.HTTP_200
