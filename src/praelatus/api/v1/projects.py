@@ -1,6 +1,7 @@
 """Contains resources for interacting with projects."""
 
 import json
+import falcon
 
 import praelatus.lib.projects as projects
 
@@ -57,6 +58,8 @@ class ProjectResource():
         user = req.context['user']
         with session() as db:
             db_res = projects.get(db, actioning_user=user, key=key)
+            if db_res is None:
+                raise falcon.HTTPNotFound()
             resp.body = db_res.to_json()
 
     def on_put(self, req, resp, key):

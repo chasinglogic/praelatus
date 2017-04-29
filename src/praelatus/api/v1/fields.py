@@ -1,6 +1,7 @@
 """Contains resources for interacting with fields."""
 
 import json
+import falcon
 
 import praelatus.lib.fields as fields
 
@@ -13,7 +14,7 @@ class FieldsResource():
 
     def on_post(self, req, resp):
         """
-        Create a new ticketType and return the new ticketType object.
+        Create a new field and return the new field object.
 
         You must be a system administrator to use this endpoint.
 
@@ -49,7 +50,7 @@ class FieldResource():
 
     def on_get(self, req, resp, id):
         """
-        Get a single ticketType by id.
+        Get a single field by id.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-fieldsid
@@ -57,11 +58,13 @@ class FieldResource():
         user = req.context['user']
         with session() as db:
             db_res = fields.get(db, actioning_user=user, id=id)
+            if db_res is None:
+                raise falcon.HTTPNotFound()
             resp.body = db_res.to_json()
 
     def on_put(self, req, resp, id):
         """
-        Update the ticketType indicated by id.
+        Update the field indicated by id.
 
         You must have the ADMIN_TICKETTYPE permission to use this endpoint.
 
@@ -72,20 +75,14 @@ class FieldResource():
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
         with session() as db:
             db_res = fields.get(db, actioning_user=user, id=id)
-            db_res.homepage = jsn.get('homepage', '')
-            db_res.icon_url = jsn.get('icon_url', '')
-            db_res.repo = jsn.get('repo', '')
             db_res.name = jsn['name']
-            db_res.id = jsn['id']
-            if db_res.lead.id != jsn['lead']['id']:
-                db_res.lead_id = jsn['lead']['id']
-            fields.update(db, actioning_user=user, ticketType=db_res)
+            fields.update(db, actioning_user=user, field=db_res)
 
-        resp.body = json.dumps({'message': 'Successfully update ticketType.'})
+        resp.body = json.dumps({'message': 'Successfully update field.'})
 
     def on_delete(self, req, resp, id):
         """
-        Update the ticketType indicated by id.
+        Update the field indicated by id.
 
         You must have the ADMIN_TICKETTYPE permission to use this endpoint.
 
@@ -95,6 +92,6 @@ class FieldResource():
         user = req.context['user']
         with session() as db:
             db_res = fields.get(db, actioning_user=user, id=id)
-            fields.delete(db, actioning_user=user, ticketType=db_res)
+            fields.delete(db, actioning_user=user, field=db_res)
 
-        resp.body = json.dumps({'message': 'Successfully deleted ticketType.'})
+        resp.body = json.dumps({'message': 'Successfully deleted field.'})

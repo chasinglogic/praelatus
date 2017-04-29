@@ -1,6 +1,7 @@
 """Contains resources for interacting with ticket_types."""
 
 import json
+import falcon
 
 import praelatus.lib.ticket_types as ticket_types
 
@@ -57,6 +58,8 @@ class TicketTypeResource():
         user = req.context['user']
         with session() as db:
             db_res = ticket_types.get(db, actioning_user=user, id=id)
+            if db_res is None:
+                raise falcon.HTTPNotFound()
             resp.body = db_res.to_json()
 
     def on_put(self, req, resp, id):
@@ -72,14 +75,8 @@ class TicketTypeResource():
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
         with session() as db:
             db_res = ticket_types.get(db, actioning_user=user, id=id)
-            db_res.homepage = jsn.get('homepage', '')
-            db_res.icon_url = jsn.get('icon_url', '')
-            db_res.repo = jsn.get('repo', '')
             db_res.name = jsn['name']
-            db_res.id = jsn['id']
-            if db_res.lead.id != jsn['lead']['id']:
-                db_res.lead_id = jsn['lead']['id']
-            ticket_types.update(db, actioning_user=user, ticketType=db_res)
+            ticket_types.update(db, actioning_user=user, ticket_type=db_res)
 
         resp.body = json.dumps({'message': 'Successfully update ticketType.'})
 
@@ -95,6 +92,6 @@ class TicketTypeResource():
         user = req.context['user']
         with session() as db:
             db_res = ticket_types.get(db, actioning_user=user, id=id)
-            ticket_types.delete(db, actioning_user=user, ticketType=db_res)
+            ticket_types.delete(db, actioning_user=user, ticket_type=db_res)
 
         resp.body = json.dumps({'message': 'Successfully deleted ticketType.'})

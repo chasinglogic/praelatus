@@ -1,7 +1,9 @@
 """Contains resources for interacting with workflows."""
 
 import json
+import falcon
 
+import praelatus.lib.statuses as statuses
 import praelatus.lib.workflows as workflows
 
 from praelatus.lib import session
@@ -13,7 +15,7 @@ class WorkflowsResource():
 
     def on_post(self, req, resp):
         """
-        Create a new ticketType and return the new ticketType object.
+        Create a new workflow and return the new workflow object.
 
         You must be a system administrator to use this endpoint.
 
@@ -49,7 +51,7 @@ class WorkflowResource():
 
     def on_get(self, req, resp, id):
         """
-        Get a single ticketType by id.
+        Get a single workflow by id.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-workflowsid
@@ -57,11 +59,13 @@ class WorkflowResource():
         user = req.context['user']
         with session() as db:
             db_res = workflows.get(db, actioning_user=user, id=id)
+            if db_res is None:
+                raise falcon.HTTPNotFound()
             resp.body = db_res.to_json()
 
     def on_put(self, req, resp, id):
         """
-        Update the ticketType indicated by id.
+        Update the workflow indicated by id.
 
         You must have the ADMIN_TICKETTYPE permission to use this endpoint.
 
@@ -72,20 +76,15 @@ class WorkflowResource():
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
         with session() as db:
             db_res = workflows.get(db, actioning_user=user, id=id)
-            db_res.homepage = jsn.get('homepage', '')
-            db_res.icon_url = jsn.get('icon_url', '')
-            db_res.repo = jsn.get('repo', '')
-            db_res.name = jsn['name']
-            db_res.id = jsn['id']
-            if db_res.lead.id != jsn['lead']['id']:
-                db_res.lead_id = jsn['lead']['id']
-            workflows.update(db, actioning_user=user, ticketType=db_res)
+            updated = workflows.update_from_json(db, db_res, jsn,
+                                                 actioning_user=user)
+            workflows.update(db, actioning_user=user, workflow=updated)
 
-        resp.body = json.dumps({'message': 'Successfully update ticketType.'})
+        resp.body = json.dumps({'message': 'Successfully update workflow.'})
 
     def on_delete(self, req, resp, id):
         """
-        Update the ticketType indicated by id.
+        Update the workflow indicated by id.
 
         You must have the ADMIN_TICKETTYPE permission to use this endpoint.
 
@@ -95,6 +94,6 @@ class WorkflowResource():
         user = req.context['user']
         with session() as db:
             db_res = workflows.get(db, actioning_user=user, id=id)
-            workflows.delete(db, actioning_user=user, ticketType=db_res)
+            workflows.delete(db, actioning_user=user, workflow=db_res)
 
-        resp.body = json.dumps({'message': 'Successfully deleted ticketType.'})
+        resp.body = json.dumps({'message': 'Successfully deleted workflow.'})
