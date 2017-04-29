@@ -70,7 +70,7 @@ def migrate():
 
 
 @cli.command()
-def test():
+def testdb():
     """Test connection to the database."""
     session()
     print('Database connection succeeded!')
