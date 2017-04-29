@@ -1,23 +1,20 @@
-language: go
-
-go:
-  - 1.8
-
+language: python
+python:
+  - "3.5"
+  - "3.6"
 services:
   - postgres
-  # - redis-server
-
+  - redis
 env:
-  - PRAELATUS_DB="postgres://postgres@localhost:5432/prae_ci_test?sslmode=disable"
-
+  - PRAELATUS_DB=postgres://postgres:postgres@localhost:5432/prae_dev
 before_script:
-  - psql -c 'create database prae_ci_test;' -U postgres
-
+  - psql -c 'create database prae_dev;' -U postgres
 install:
-  - echo "Nope"
-
+  - pip install -r test_requirements.txt
+  - python setup.py install
 script:
-  - go test ./api/... ./store/... ./config/... ./models/... ./cli/...
-
-addons:
-  postgresql: "9.4"
+  - flake8 --exclude=src/migrations --config=./tox.ini src/
+  - praelatus cleandb --yes
+  - praelatus migrate
+  - praelatus seeddb
+  - pytest -vv --cov-report term-missing --cov-config .coveragerc --cov=praelatus tests/
