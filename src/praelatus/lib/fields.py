@@ -17,7 +17,7 @@ from praelatus.models.fields import DATA_TYPES
 from sqlalchemy.orm import joinedload
 
 
-def get(db, id=None, name=None, filter=None):
+def get(db, actioning_user=None, id=None, name=None, filter=None):
     """
     Get fields from the database.
 
@@ -88,7 +88,7 @@ def new(db, **kwargs):
     return new_field
 
 
-def update(db, field):
+def update(db, actioning_user=None, field=None):
     """
     Update the given field in the database.
 
@@ -99,7 +99,7 @@ def update(db, field):
     return field
 
 
-def delete(db, field):
+def delete(db, actioning_user=None, field=None):
     """
     Remove the given field from the database.
 
