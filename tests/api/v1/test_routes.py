@@ -68,7 +68,7 @@ def test_create_and_read_endpoints(client, auth_headers):
             'body': {'name': 'TestAPI'},
             'schema': StatusSchema
         },
-{
+        {
             'url': '/api/v1/workflows',
             'method': 'GET',
             'validator': lambda x: len(x.json) > 0 and x.json[0]['name'] is not None
@@ -83,7 +83,48 @@ def test_create_and_read_endpoints(client, auth_headers):
             'method': 'POST',
             'body': {'name': 'TestAPI'},
             'schema': WorkflowSchema
-        }
+        },
+        {
+            'url': '/api/v1/tickets/TEST-5/comments',
+            'method': 'GET',
+            'validator': lambda x: (len(x.json) > 0 and
+                                    x.json[0]['author'] is not None and
+                                    x.json[0]['body'] is not None)
+        },
+        {
+            'url': '/api/v1/tickets/TEST-5/comments',
+            'method': 'POST',
+            'body': {
+                'author': {'id': 2},
+                'body': 'TestAPI'
+            },
+            'schema': CommentSchema
+        },
+        {
+            'url': '/api/v1/projects',
+            'method': 'GET',
+            'validator': lambda x: len(x.json) > 0 and x.json[0]['name'] is not None
+        },
+        {
+            'url': '/api/v1/projects/TEST',
+            'method': 'GET',
+            'schema': ProjectSchema
+        },
+        {
+            'url': '/api/v1/projects',
+            'method': 'POST',
+            'body': {
+                'lead': {
+                    'id': 2,
+                    'username': 'testadmin',
+                    'email': 'test@example.com',
+                    'full_name': 'Test Testerson',
+                },
+                'key': 'TESTAPI',
+                'name': 'TestAPI'
+            },
+            'schema': ProjectSchema
+        },
     ]
 
     for t in tests:
@@ -113,6 +154,7 @@ def test_update_endpoints(client, auth_headers):
                     'data_type': 'STRING'
                 }
             },
+            'field': 'name',
             'url': '/api/v1/fields/',
             'new': 'updated-api',
             'schema': FieldSchema
@@ -124,6 +166,7 @@ def test_update_endpoints(client, auth_headers):
                     'name': 'test-update-api'
                 }
             },
+            'field': 'name',
             'url': '/api/v1/labels/',
             'new': 'updated-api',
             'schema': LabelSchema
@@ -135,6 +178,7 @@ def test_update_endpoints(client, auth_headers):
                     'name': 'test-update-api'
                 }
             },
+            'field': 'name',
             'url': '/api/v1/workflows/',
             'new': 'updated-api',
             'schema': WorkflowSchema
@@ -146,6 +190,7 @@ def test_update_endpoints(client, auth_headers):
                     'name': 'test-update-api'
                 }
             },
+            'field': 'name',
             'url': '/api/v1/ticketTypes/',
             'new': 'updated-api',
             'schema': TicketTypeSchema
@@ -157,9 +202,30 @@ def test_update_endpoints(client, auth_headers):
                     'name': 'test-update-api'
                 }
             },
+            'field': 'name',
             'url': '/api/v1/statuses/',
             'new': 'updated-api',
             'schema': StatusSchema
+        },
+        {
+            'create': {
+                'url': '/api/v1/projects',
+                'body': {
+                    'key': 'UPDATEAPI',
+                    'name': 'test update api',
+                    'lead': {
+                        'id': 2,
+                        'username': 'testadmin',
+                        'email': 'test@example.com',
+                        'full_name': 'Test Testerson',
+                    }
+                }
+            },
+            'field': 'name',
+            'select': 'key',
+            'new': 'updated api',
+            'url': '/api/v1/projects/',
+            'schema': ProjectSchema
         }
     ]
 
@@ -169,14 +235,14 @@ def test_update_endpoints(client, auth_headers):
                            headers=auth_headers,
                            body=t['create']['body'])
         jsn = resp.json
-        jsn['name'] = t['new']
-        resp = client.put(t['url'] + str(jsn['id']),
+        jsn[t['field']] = t['new']
+        resp = client.put(t['url'] + str(jsn[t.get('select', 'id')]),
                           headers=auth_headers,
                           body=jsn)
         assert resp.status == falcon.HTTP_200
-        resp = client.get(t['url'] + str(jsn['id']),
+        resp = client.get(t['url'] + str(jsn[t.get('select', 'id')]),
                           headers=auth_headers)
-        assert resp.json['name'] == t['new']
+        assert resp.json[t['field']] == t['new']
 
 
 def test_delete_endpoints(client, auth_headers):
@@ -226,6 +292,23 @@ def test_delete_endpoints(client, auth_headers):
                 }
             },
             'url': '/api/v1/statuses/',
+        },
+        {
+            'create': {
+                'url': '/api/v1/projects',
+                'body': {
+                    'key': 'DELETEAPI',
+                    'lead': {
+                        'id': 2,
+                        'username': 'testadmin',
+                        'email': 'test@example.com',
+                        'full_name': 'Test Testerson',
+                    },
+                    'name': 'test delete api'
+                }
+            },
+            'field': 'key',
+            'url': '/api/v1/projects/',
         }
     ]
 
@@ -235,9 +318,9 @@ def test_delete_endpoints(client, auth_headers):
                            headers=auth_headers,
                            body=t['create']['body'])
         jsn = resp.json
-        resp = client.delete(t['url'] + str(jsn['id']),
+        resp = client.delete(t['url'] + str(jsn[t.get('field', 'id')]),
                              headers=auth_headers)
         assert resp.status == falcon.HTTP_200
-        resp = client.get(t['url'] + str(jsn['id']),
+        resp = client.get(t['url'] + str(jsn[t.get('field', 'id')]),
                           headers=auth_headers)
         assert resp.status == falcon.HTTP_404
