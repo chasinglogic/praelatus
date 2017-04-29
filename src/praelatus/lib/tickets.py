@@ -27,9 +27,11 @@ from praelatus.models.workflows import workflows_projects
 from praelatus.models.fields import DataTypeError
 from praelatus.lib.permissions import permission_required
 from praelatus.lib.permissions import add_permission_query
+from praelatus.lib.permissions import has_permission
+from praelatus.lib.permissions import is_system_admin
 
 
-def get(db, id=None, key=None, reporter=None, assignee=None,
+def get(db, id=None, key=None, reporter=None, assignee=None, project_key=None,
         filter=None, actioning_user=None, preload_comments=False):
     """
     Get tickets from the database.
@@ -71,6 +73,9 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
 
     if reporter is not None:
         query = query.filter(Ticket.reporter_id == reporter['id'])
+
+    if project_key is not None:
+        query = query.filter(Project.key == project_key)
 
     if filter is not None:
         pattern = filter.replace('*', '%')
@@ -204,18 +209,14 @@ def update(db, actioning_user=None, project=None, orig_ticket=None, ticket=None)
     field_values = ticket.get('fields', [])
     new_fields = []
     for f in field_values:
-        if f.get('id') is not None:
-            fv = db.query(FieldValue).filter_by(id=f['id']).first()
-            fv.value = f['value']
-            orig_ticket.fields.append(fv)
-            continue
-
-        field = db.query(Field).filter_by(name=f['name']).first()
-        if field is None:
-            raise KeyError('no field with name ' + f['name'] + ' found')
-        fv = FieldValue(
-            field=field
-        )
+        fv = db.query(FieldValue).filter_by(id=f.get('id', 0)).first()
+        if fv is None:
+            field = db.query(Field).filter_by(name=f['name']).first()
+            if field is None:
+                raise KeyError('no field with name ' + f['name'] + ' found')
+            fv = FieldValue(
+                field=field
+            )
 
         set_field_value(fv, f['value'])
         db.add(fv)
@@ -225,18 +226,20 @@ def update(db, actioning_user=None, project=None, orig_ticket=None, ticket=None)
     orig_ticket.fields = new_fields
 
     labels = ticket.get('labels', [])
-    new_labels = []
-    for l in labels:
-        lbl = db.query(Label).filter_by(name=l).first()
-        if lbl is None:
-            lbl = Label(name=l)
-            db.add(lbl)
-            db.commit()
-        new_labels.append(lbl)
+    if orig_ticket.labels != labels:
+        new_labels = []
+        for l in labels:
+            lbl = db.query(Label).filter_by(name=l).first()
+            if lbl is None:
+                lbl = Label(name=l)
+                db.add(lbl)
+                db.commit()
+            new_labels.append(lbl)
 
-    orig_ticket.labels = new_labels
+        orig_ticket.labels = new_labels
 
     db.add(orig_ticket)
+    db.commit()
 
 
 @permission_required('REMOVE_TICKET')
@@ -247,6 +250,7 @@ def delete(db, actioning_user=None, project=None, ticket=None):
     ticket must be a Ticket class instance.
     """
     db.delete(ticket)
+    db.commit()
 
 
 @permission_required('COMMENT_TICKET')
@@ -269,11 +273,68 @@ def add_comment(db, actioning_user=None, project=None, **kwargs):
 
 
 @permission_required('VIEW_PROJECT')
-def get_comments(db, ticket_id, actioning_user=None, project=None):
-    """Get all comments for the given ticket_id."""
-    return db.Query(Comment).\
-        filter(Comment.ticket_id == ticket_id).\
-        all()
+def get_comments(db, ticket_id=0, ticket_key=None,
+                 actioning_user=None, project=None):
+    """Get all comments for the given ticket_id or ticket_key."""
+    query = db.query(Comment)
+    if ticket_key:
+        query = query.join(Ticket).filter(Ticket.key == ticket_key)
+    else:
+        query = query.filter(Comment.ticket_id == ticket_id)
+
+    return query.all()
+
+
+@permission_required('VIEW_PROJECT')
+def get_comment(db, comment_id, actioning_user=None, project=None):
+    """Get a single comment by ID."""
+    return db.query(Comment).filter_by(id=comment_id).first()
+
+
+def update_comment(db, comment, actioning_user=None, project=None):
+    """
+    Update the given comment.
+
+    comment must be an instance of the Comment class.
+
+    Not using permission_required to make as little DB calls as needed.
+    """
+    if (
+        is_system_admin(db, actioning_user) or
+
+        has_permission(db, 'EDIT_COMMENT', project, actioning_user) or
+
+        (comment.author_id == actioning_user['id'] and
+         has_permission(db, 'EDIT_OWN_COMMENT', project, actioning_user))
+    ):
+        db.add(comment)
+        db.commit()
+        return
+
+    raise PermissionError('permission denied')
+
+
+def delete_comment(db, comment, actioning_user, project):
+    """
+    Delete the given comment.
+
+    comment must be an instance of the Comment class.
+
+    Not using permission_required to make as little DB calls as needed.
+    """
+    if (
+        is_system_admin(db, actioning_user) or
+
+        has_permission(db, 'EDIT_COMMENT', project, actioning_user) or
+
+        (comment.author_id == actioning_user['id'] and
+         has_permission(db, 'EDIT_OWN_COMMENT', project, actioning_user))
+    ):
+        db.delete(comment)
+        db.commit()
+        return
+
+    raise PermissionError('permission denied')
 
 
 def set_field_value(field_value, val):

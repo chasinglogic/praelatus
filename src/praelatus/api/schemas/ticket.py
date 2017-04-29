@@ -55,7 +55,8 @@ class CommentSchema(BaseSchema):
                 'format': 'date'
             },
             'body': {'type': 'string'}
-        }
+        },
+        'required': ['body', 'author']
     }
 
 

@@ -80,11 +80,11 @@ def seed():
                 'lead': {'id': 2},
             }
         ]
-        
+
         print('Seeding projects...')
         for p in projects:
-            prj.new(db, **p)
-            
+            prj.new(db, actioning_user=admin, **p)
+
         labels = [
             {
                 'name': 'test',
@@ -96,13 +96,13 @@ def seed():
                 'name': 'wontfix',
             }
         ]
-            
+
         print('Seeding labels...')
         for l in labels:
             lbls.new(db, **l)
-            
+
         priorities = ['HIGH', 'MEDIUM', 'LOW']
-                
+
         fields = [
             {
                 'name': 'Story Points',
@@ -126,15 +126,15 @@ def seed():
                 'data_type': 'STRING'
             },
         ]
-                
+
         print('Seeding fields...')
         for f in fields:
             flds.new(db, **f)
-                    
+
         print('Seeding ticket types...')
         for t in defaults.ticket_types:
             types.new(db, actioning_user=admin, **t)
-            
+
         assignees = [None, {'id': 2}, {'id': 3}]
         print('Seeding tickets...')
         for i in range(1, 100):
@@ -161,9 +161,9 @@ def seed():
                     'id': 1,
                 }
             }
-            
+
             tks.new(db, **t)
-            
+
     with session() as db:
         tickets = tks.get(db, actioning_user=admin, filter='TEST*')
         print('Seeding comments...')
@@ -179,6 +179,6 @@ so I put markdown in your comment""" % i,
                     'ticket_key': t.key,
                     'ticket_id': t.id
                 }
-                
+
                 tks.add_comment(db, actioning_user=comment['author'],
                                 project=t.project, **comment)

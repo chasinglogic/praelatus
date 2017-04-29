@@ -54,7 +54,7 @@ class WorkflowSchema(BaseSchema):
                 'type': 'string',
                 'maxLength': 250
             },
-            'description': {'type': 'string'},
+            'description': {'type': ['string', 'null']},
             'transitions': {
                 'type': 'object',
                 'patternProperties': {

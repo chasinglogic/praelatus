@@ -11,15 +11,18 @@ Anonymous user.
 """
 
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 
 import praelatus.lib.workflows as workflows
 
-from praelatus.lib.permissions import permission_required, add_permission_query
+from praelatus.lib.permissions import permission_required
+from praelatus.lib.permissions import add_permission_query
+from praelatus.lib.permissions import sys_admin_required
 from praelatus.models import Project
 from praelatus.models import User
 from praelatus.models import Role
 from praelatus.models import UserRoles
-
+from praelatus.models import DuplicateError
 
 
 def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
@@ -65,7 +68,7 @@ def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
     return query.order_by(Project.key).all()
 
 
-
+@sys_admin_required
 def new(db, **kwargs):
     """
     Create a new project in the database then return that project.
@@ -105,6 +108,12 @@ def new(db, **kwargs):
                 role_id=db.
                 query(Role.id).
                 filter_by(name='Administrator').
+                first()),
+            UserRoles(
+                user_id=1,
+                role_id=db.
+                query(Role.id).
+                filter_by(name='Anonymous').
                 first())
         ]
 
@@ -112,8 +121,11 @@ def new(db, **kwargs):
     new_project.permission_scheme_id = permission_scheme.get('id', 1)
     new_project.workflows = [workflows.get(db, id=1)]
 
-    db.add(new_project)
-    db.commit()
+    try:
+        db.add(new_project)
+        db.commit()
+    except IntegrityError as e:
+        raise DuplicateError('That project key or name is already taken.')
     return new_project
 
 

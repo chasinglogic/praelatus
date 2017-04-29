@@ -37,7 +37,7 @@ def test_update(db):
     assert proj.name == new_name
 
 
-def test_delete(db):
+def test_delete(db, admin):
     lead = users.get(db, username='testuser')
     project = {
         'name': 'DELETE THIS PROJECT',
@@ -45,7 +45,7 @@ def test_delete(db):
         'lead': {'id': lead.id}
     }
 
-    projects.new(db, **project)
+    projects.new(db, actioning_user=admin, **project)
 
     p = projects.get(db, key='DELETE')
     assert p is not None

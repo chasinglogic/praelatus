@@ -5,10 +5,10 @@ from praelatus.api.schemas import UserSchema
 def test_crud_user_endpoints(client, headers):
     # Sign up a new user
     new_user = {
-        "username": "some_new_user",
-        "password": "supersecure",
-        "full_name": "New User",
-        "email": "new@praelatus.io"
+        'username': 'some_new_user',
+        'password': 'supersecure',
+        'full_name': 'New User',
+        'email': 'new@praelatus.io'
     }
 
     resp = client.post('/api/v1/users', new_user, headers=headers)
@@ -19,8 +19,8 @@ def test_crud_user_endpoints(client, headers):
 
     # Try to log in to our new user
     login = {
-        "username": "some_new_user",
-        "password": "supersecure"
+        'username': 'some_new_user',
+        'password': 'supersecure'
     }
 
     resp = client.post('/api/v1/tokens', login, headers=headers)
@@ -63,12 +63,10 @@ def test_get_filter(client, headers):
 def test_404(client, headers):
     resp = client.get('/api/v1/users/marypoppins', headers=headers)
     assert resp.status == falcon.HTTP_404
-    assert resp.json['message'] == 'no user with that username exists'
 
     login = {'username': 'marypoppins', 'password': 'spoonful'}
     resp = client.post('/api/v1/tokens', login, headers=headers)
     assert resp.status == falcon.HTTP_404
-    assert resp.json['message'] == 'no user with that username exists'
 
 
 def test_failed_login(client, headers):

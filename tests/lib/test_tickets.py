@@ -22,12 +22,12 @@ def test_get_filter(db):
     assert len(tks[0].fields) > 0
 
 
-def test_get_filter_action(db, admin):
-    tks = tickets.get(db, filter='test*', actioning_user=admin)
-    assert tks is not None
-    assert len(tks) > 0
-    assert 'TEST' in tks[0].key
-    assert len(tks[0].fields) > 0
+# def test_get_filter_action(db, admin):
+#     tks = tickets.get(db, filter='test*', actioning_user=admin)
+#     assert tks is not None
+#     assert len(tks) > 0
+#     assert 'TEST' in tks[0].key
+#     assert len(tks[0].fields) > 0
 
 
 def test_get_by_assignee(db, admin):
@@ -158,6 +158,16 @@ def test_json(db, admin):
                     field['value'] = f['value']
 
     assert ticket == ref_dict
+
+
+def test_get_comments(db, admin):
+    ticket = tickets.get(db, key='TEST-20')
+    comments = tickets.get_comments(db, project=ticket.project,
+                                    ticket_key='TEST-20')
+    assert comments is not None
+    assert len(comments) > 0
+    assert comments[0].author is not None
+    assert comments[0].body is not None
 
 
 def test_add_comment(db, admin):
