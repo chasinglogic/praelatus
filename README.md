@@ -1,5 +1,9 @@
-# Praelatus [![License](https://img.shields.io/badge/license-Apache-blue.svg)](https://github.com/chasinglogic/praelatus/blob/master/LICENSE) [![GoDoc](https://godoc.org/github.com/praelatus/praelatus?status.svg)](https://godoc.org/github.com/praelatus/praelatus/) [![Go Report Card](https://goreportcard.com/badge/github.com/praelatus/praelatus)](https://goreportcard.com/report/github.com/praelatus/praelatus)
+# Praelatus [![License](https://img.shields.io/badge/license-Apache-blue.svg)](https://github.com/chasinglogic/praelatus/blob/master/LICENSE)
+
 An Open Source bug tracker and ticketing system.
+
+Documentation is here:
+https://docs.praelatus.io/
 
 If you're looking for the official web frontend it's
 [in its own repo](https://github.com/praelatus/frontend)
@@ -10,15 +14,15 @@ If you're looking for the official web frontend it's
 
 ## What is Praelatus?
 
-Praelatus is a modern bug tracker and ticketing system inspired by JIRA, 
-BugZilla, and the many support ticketing systems members of the Core Team 
+Praelatus is a modern bug tracker and ticketing system inspired by JIRA,
+BugZilla, and the many support ticketing systems members of the Core Team
 have used throughout their careers.
 
-Grown from frustration with today’s disparate and difficult methods of bug 
-reporting, Praelatus aims to simplify the way other 
-[Open Source](https://opensource.org/) projects operate. Through intuitive 
-workflows and support for “Internet Driver’s License” accounts such as Github, 
-Google, and Twitter, any user can submit a ticket in three clicks or less – 
+Grown from frustration with today’s disparate and difficult methods of bug
+reporting, Praelatus aims to simplify the way other
+[Open Source](https://opensource.org/) projects operate. Through intuitive
+workflows and support for “Internet Driver’s License” accounts such as Github,
+Google, and Twitter, any user can submit a ticket in three clicks or less –
 including account creation – without the need of a user manual.
 
 ## Contributing
@@ -41,7 +45,7 @@ Need help getting started hacking on Praelatus? No problem we have docs for that
 
 ## Installation
 
-View our deployment guides for your platform: 
+View our deployment guides for your platform:
 - [Linux](https://doc.praelatus.io/deployments/linux/)
 - [Windows](https://doc.praelatus.io/deployments/windows/)
 
@@ -56,7 +60,7 @@ Praelatus is distributed under the Apache License.
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+	   http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -64,5 +68,3 @@ Praelatus is distributed under the Apache License.
    See the License for the specific language governing permissions and
    limitations under the License.
 ```
-
-
