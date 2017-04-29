@@ -6,10 +6,16 @@ python:
 services:
   - postgres
   - redis
+env:
+  - PRAELATUS_DB=postgres://postgres:postgres@localhost:5432/prae_dev
 before_script:
   - psql -c 'create database prae_dev;' -U postgres
 install:
-  - pip install tox
+  - pip install -r test_requirements.txt
+  - python setup.py install
 script:
-  - tox -e flake
-  - tox -e all_tests
+  - flake8 --exclude=src/migrations --config=./tox.ini src/
+  - praelatus cleandb --yes
+  - praelatus migrate
+  - praelatus seeddb
+  - pytest -vv --cov-report term-missing --cov-config .coveragerc --cov=praelatus tests/
