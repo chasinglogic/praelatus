@@ -8,6 +8,7 @@ from datetime import timedelta
 
 import praelatus.lib.users as users
 import praelatus.lib.sessions as sessions
+import praelatus.lib.tickets as tickets
 
 from praelatus.api.schemas import UserSchema
 from praelatus.api.schemas import SignupSchema
@@ -182,3 +183,39 @@ class TokensResource():
         """
         sessions.delete(req.context['user']['username'])
         sessions.delete(req.context['session_id'])
+
+
+class AssignedResource():
+    """Handlers for the /api/v1/users/{username}/assigned endpoint."""
+
+    # TODO documentation.
+    def on_get(self, req, resp, username):
+        """"
+        Get all assigned tickets for username.
+
+        API Documentation:
+        """
+        user = req.context['user']
+        with session() as db:
+            assignee = users.get(db, username=username)
+            ticks = tickets.get(db, actioning_user=user,
+                                assignee=assignee.clean_dict())
+            resp.body = json.dumps([t.clean_dict() for t in ticks])
+
+
+class ReportedResource():
+    """Handlers for the /api/v1/users/{username}/reported endpoint."""
+
+    # TODO documentation.
+    def on_get(self, req, resp, username):
+        """"
+        Get all reported tickets by username.
+
+        API Documentation:
+        """
+        user = req.context['user']
+        with session() as db:
+            reporter = users.get(db, username=username)
+            ticks = tickets.get(db, actioning_user=user,
+                                reporter=reporter.clean_dict())
+            resp.body = json.dumps([t.clean_dict() for t in ticks])

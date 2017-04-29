@@ -3,11 +3,14 @@
 from praelatus.api.v1.users import UsersResource
 from praelatus.api.v1.users import UserResource
 from praelatus.api.v1.users import TokensResource
+from praelatus.api.v1.users import ReportedResource
+from praelatus.api.v1.users import AssignedResource
 from praelatus.api.v1.tickets import TicketsResource
 from praelatus.api.v1.tickets import TicketResource
 from praelatus.api.v1.tickets import CommentsResource
 from praelatus.api.v1.tickets import CommentResource
 from praelatus.api.v1.projects import ProjectsResource
+from praelatus.api.v1.projects import ProjectTicketsResource
 from praelatus.api.v1.projects import ProjectResource
 from praelatus.api.v1.ticket_types import TicketTypesResource
 from praelatus.api.v1.ticket_types import TicketTypeResource
@@ -27,6 +30,8 @@ def add_v1_routes(app, prefix='/api/v1/'):
     app.add_route(prefix + 'users',
                   UsersResource(TokensResource.create_token))
     app.add_route(prefix + 'users/{username}', UserResource())
+    app.add_route(prefix + 'users/{username}/reported', ReportedResource())
+    app.add_route(prefix + 'users/{username}/assigned', AssignedResource())
 
     # Tokens
     app.add_route(prefix + 'tokens', TokensResource())
@@ -44,6 +49,7 @@ def add_v1_routes(app, prefix='/api/v1/'):
     # Projects
     app.add_route(prefix + 'projects', ProjectsResource())
     app.add_route(prefix + 'projects/{key}', ProjectResource())
+    app.add_route(prefix + 'projects/{key}/tickets', ProjectTicketsResource())
 
     # TicketTypes
     app.add_route(prefix + 'ticketTypes', TicketTypesResource())

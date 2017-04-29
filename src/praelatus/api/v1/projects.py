@@ -4,6 +4,7 @@ import json
 import falcon
 
 import praelatus.lib.projects as projects
+import praelatus.lib.tickets as tickets
 
 from praelatus.lib import session
 from praelatus.api.schemas import ProjectSchema
@@ -101,3 +102,22 @@ class ProjectResource():
             projects.delete(db, actioning_user=user, project=db_res)
 
         resp.body = json.dumps({'message': 'Successfully deleted project.'})
+
+
+class ProjectTicketsResource():
+    """Handlers for the /api/v1/projects/{key}/tickets endpoint."""
+
+    def on_get(self, req, resp, key):
+        """
+        Get all tickets for the project indicated by key.
+
+        This does not except a filter parameter, otherwise is
+        identical to GET /api/v1/tickets
+
+        API Documentation:
+        https://docs.praelatus.io/API/Reference/#get-tickets
+        """
+        user = req.context['user']
+        with session() as db:
+            ticks = tickets.get(db, actioning_user=user, project_key=key)
+            resp.body = json.dumps([t.clean_dict() for t in ticks])
