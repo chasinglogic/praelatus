@@ -1,23 +1,8 @@
-import pytest
-
 from praelatus.api.schemas import *  # noqa: F403
-from praelatus.lib import session
 
-import praelatus.lib.users as users
 import praelatus.lib.workflows as workflows
 import praelatus.lib.tickets as tickets
 import praelatus.lib.permissions as permissions
-
-
-@pytest.fixture
-def db():
-    with session() as db:
-        yield db
-
-@pytest.fixture(scope='module')
-def admin():
-    with session() as db:
-        return users.get(db, username='testadmin').clean_dict()
 
 
 def test_signup_schema():
