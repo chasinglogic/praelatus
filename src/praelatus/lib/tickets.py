@@ -206,18 +206,14 @@ def update(db, actioning_user=None, project=None, orig_ticket=None, ticket=None)
     field_values = ticket.get('fields', [])
     new_fields = []
     for f in field_values:
-        if f.get('id') is not None:
-            fv = db.query(FieldValue).filter_by(id=f['id']).first()
-            fv.value = f['value']
-            orig_ticket.fields.append(fv)
-            continue
-
-        field = db.query(Field).filter_by(name=f['name']).first()
-        if field is None:
-            raise KeyError('no field with name ' + f['name'] + ' found')
-        fv = FieldValue(
-            field=field
-        )
+        fv = db.query(FieldValue).filter_by(id=f.get('id', 0)).first()
+        if fv is None:
+            field = db.query(Field).filter_by(name=f['name']).first()
+            if field is None:
+                raise KeyError('no field with name ' + f['name'] + ' found')
+            fv = FieldValue(
+                field=field
+            )
 
         set_field_value(fv, f['value'])
         db.add(fv)
@@ -227,18 +223,20 @@ def update(db, actioning_user=None, project=None, orig_ticket=None, ticket=None)
     orig_ticket.fields = new_fields
 
     labels = ticket.get('labels', [])
-    new_labels = []
-    for l in labels:
-        lbl = db.query(Label).filter_by(name=l).first()
-        if lbl is None:
-            lbl = Label(name=l)
-            db.add(lbl)
-            db.commit()
-        new_labels.append(lbl)
+    if orig_ticket.labels != labels:
+        new_labels = []
+        for l in labels:
+            lbl = db.query(Label).filter_by(name=l).first()
+            if lbl is None:
+                lbl = Label(name=l)
+                db.add(lbl)
+                db.commit()
+            new_labels.append(lbl)
 
-    orig_ticket.labels = new_labels
+        orig_ticket.labels = new_labels
 
     db.add(orig_ticket)
+    db.commit()
 
 
 @permission_required('REMOVE_TICKET')
@@ -249,6 +247,7 @@ def delete(db, actioning_user=None, project=None, ticket=None):
     ticket must be a Ticket class instance.
     """
     db.delete(ticket)
+    db.commit()
 
 
 @permission_required('COMMENT_TICKET')
@@ -284,7 +283,7 @@ def get_comments(db, ticket_id=0, ticket_key=None,
 
 
 @permission_required('VIEW_PROJECT')
-def get_commemt(db, comment_id, actioning_user=None, project=None):
+def get_comment(db, comment_id, actioning_user=None, project=None):
     """Get a single comment by ID."""
     return db.query(Comment).filter_by(id=comment_id).first()
 
