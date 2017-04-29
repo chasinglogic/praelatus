@@ -3,6 +3,35 @@ from praelatus.api.schemas import TicketSchema
 from praelatus.api.schemas import CommentSchema
 
 
+def test_get_all_tickets(client, auth_headers):
+    resp = client.get('/api/v1/tickets', headers=auth_headers)
+    assert resp.status == falcon.HTTP_200
+    assert len(resp.json) > 1
+    assert resp.json[0]['key'] is not None
+
+    resp = client.get('/api/v1/tickets?filter=testadmin', headers=auth_headers)
+    assert resp.status == falcon.HTTP_200
+    assert len(resp.json) > 1
+    assert resp.json[0]['key'] is not None
+
+    resp = client.get('/api/v1/projects/TEST/tickets', headers=auth_headers)
+    assert resp.status == falcon.HTTP_200
+    assert len(resp.json) > 1
+    assert resp.json[0]['key'] is not None
+
+    resp = client.get('/api/v1/users/testadmin/assigned', headers=auth_headers)
+    assert resp.status == falcon.HTTP_200
+    assert len(resp.json) > 1
+    assert resp.json[0]['key'] is not None
+    assert resp.json[0]['assignee']['username'] == 'testadmin'
+
+    resp = client.get('/api/v1/users/testadmin/reported', headers=auth_headers)
+    assert resp.status == falcon.HTTP_200
+    assert len(resp.json) > 1
+    assert resp.json[0]['key'] is not None
+    assert resp.json[0]['reporter']['username'] == 'testadmin'
+
+
 def test_crud_ticket_endpoints(client, auth_headers):
     new_ticket = {
         'summary': 'This is a test ticket',

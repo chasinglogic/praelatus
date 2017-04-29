@@ -31,7 +31,7 @@ from praelatus.lib.permissions import has_permission
 from praelatus.lib.permissions import is_system_admin
 
 
-def get(db, id=None, key=None, reporter=None, assignee=None,
+def get(db, id=None, key=None, reporter=None, assignee=None, project_key=None,
         filter=None, actioning_user=None, preload_comments=False):
     """
     Get tickets from the database.
@@ -73,6 +73,9 @@ def get(db, id=None, key=None, reporter=None, assignee=None,
 
     if reporter is not None:
         query = query.filter(Ticket.reporter_id == reporter['id'])
+
+    if project_key is not None:
+        query = query.filter(Project.key == project_key)
 
     if filter is not None:
         pattern = filter.replace('*', '%')
