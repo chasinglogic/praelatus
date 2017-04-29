@@ -60,6 +60,8 @@ class TicketResource():
         user = req.context['user']
         with session() as db:
             db_res = tickets.get(db, actioning_user=user, key=ticket_key)
+            if db_res is None:
+                raise falcon.HTTPNotFound()
             resp.body = db_res.to_json()
 
     def on_put(self, req, resp, ticket_key):
@@ -77,7 +79,9 @@ class TicketResource():
             if orig_tick is None:
                 raise falcon.HTTPNotFound()
             tickets.update(db, actioning_user=user,
+                           project=orig_tick.project,
                            orig_ticket=orig_tick, ticket=jsn)
+            resp.body = json.dumps({'message': 'Successfully updated ticket.'})
 
     def on_delete(self, req, resp, ticket_key):
         """
@@ -93,7 +97,7 @@ class TicketResource():
                 raise falcon.HTTPNotFound()
             tickets.delete(db, actioning_user=user,
                            project=tick.project, ticket=tick)
-        resp.body = json.dumps({'message': 'Successfully deleted ticket.'})
+            resp.body = json.dumps({'message': 'Successfully deleted ticket.'})
 
 
 class CommentsResource():
@@ -148,16 +152,16 @@ class CommentResource():
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
         CommentSchema.validate(jsn)
         with session() as db:
-            project = projects.get(db, actioning_user=user,
-                                   key=ticket_key.split('-')[0])
             ticket = tickets.get(db, actioning_user=user,
-                                 key=ticket_key, project=project)
-            comment = tickets.get_comment(db, int(id))
+                                 key=ticket_key)
+            comment = tickets.get_comment(db, int(id), project=ticket.project)
             comment.body = jsn['body']
             tickets.update_comment(db, comment, actioning_user=user,
                                    project=ticket.project)
 
-            resp.body = json.dumps({'message': 'Successfully updated comment.'})
+            resp.body = json.dumps({
+                'message': 'Successfully updated comment.'
+            })
 
     def on_delete(self, req, resp, ticket_key, id):
         """
@@ -168,11 +172,9 @@ class CommentResource():
         """
         user = req.context['user']
         with session() as db:
-            project = projects.get(db, actioning_user=user,
-                                   key=ticket_key.split('-')[0])
             ticket = tickets.get(db, actioning_user=user,
-                                 key=ticket_key, project=project)
-            comment = ticket.get_comment(db, int(id))
+                                 key=ticket_key)
+            comment = ticket.get_comment(db, int(id), project=ticket.project)
             tickets.delete_comment(db, comment, actioning_user=user,
                                    project=ticket.project)
 
