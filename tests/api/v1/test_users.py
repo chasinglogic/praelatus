@@ -5,10 +5,10 @@ from praelatus.api.schemas import UserSchema
 def test_crud_user_endpoints(client, headers):
     # Sign up a new user
     new_user = {
-        "username": "some_new_user",
-        "password": "supersecure",
-        "full_name": "New User",
-        "email": "new@praelatus.io"
+        'username': 'some_new_user',
+        'password': 'supersecure',
+        'full_name': 'New User',
+        'email': 'new@praelatus.io'
     }
 
     resp = client.post('/api/v1/users', new_user, headers=headers)
@@ -19,8 +19,8 @@ def test_crud_user_endpoints(client, headers):
 
     # Try to log in to our new user
     login = {
-        "username": "some_new_user",
-        "password": "supersecure"
+        'username': 'some_new_user',
+        'password': 'supersecure'
     }
 
     resp = client.post('/api/v1/tokens', login, headers=headers)
