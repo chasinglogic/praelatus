@@ -19,11 +19,9 @@ from praelatus.models import Label
 from praelatus.models import Field
 from praelatus.models import FieldValue
 from praelatus.models import Status
-from praelatus.models import Workflow
 from praelatus.models import Comment
 from praelatus.models import Project
 from praelatus.models import Transition
-from praelatus.models.workflows import workflows_projects
 from praelatus.models.fields import DataTypeError
 from praelatus.lib.permissions import permission_required
 from praelatus.lib.permissions import add_permission_query
@@ -92,14 +90,22 @@ def get(db, id=None, key=None, reporter=None, assignee=None, project_key=None,
     if any([id, key]):
         result = query.first()
         if result:
-            result.transitions = db.query(Transition).\
-                filter(Transition.from_status_id == result.status_id).\
-                filter(Transition.workflow_id == result.workflow_id).\
-                all()
+            result.transitions = _get_transitions(db, result)
     else:
         result = query.order_by(Ticket.key).all()
 
     return result
+
+
+def _get_transitions(db, ticket):
+    """Get the transitions for the ticket."""
+    return db.\
+        query(Transition).\
+        filter(
+            Transition.from_status_id == ticket.status_id,
+            Transition.workflow_id == ticket.workflow_id
+        ).\
+        all()
 
 
 def new(db, **kwargs):
@@ -187,7 +193,8 @@ def new(db, **kwargs):
 
 
 @permission_required('EDIT_TICKET')
-def update(db, actioning_user=None, project=None, orig_ticket=None, ticket=None):
+def update(db, actioning_user=None, project=None,
+           orig_ticket=None, ticket=None):
     """
     Update the given ticket in the database.
 

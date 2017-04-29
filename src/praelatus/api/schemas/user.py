@@ -13,7 +13,7 @@ class UserSchema(BaseSchema):
             'id': {'type': 'integer'},
             'username': {
                 'type': 'string',
-                'pattern': '[^ /\\\\@!#\\$%&*\\(\\)+=|\\{\\}\\[\\];:"\',.?`~"]+'
+                'pattern': '[^ /\\\\@!#\\$%&*\\(\\)+=|\\{\\}\\[\\];:"\',.?`~"]+'  # noqa
             },
             'email': {
                 'type': 'string',
@@ -37,7 +37,7 @@ class SignupSchema(BaseSchema):
         'properties': {
             'username': {
                 'type': 'string',
-                'pattern': '[^ /\\\\@!#\\$%&*\\(\\)+=|\\{\\}\\[\\];:"\',.?`~"]+'
+                'pattern': '[^ /\\\\@!#\\$%&*\\(\\)+=|\\{\\}\\[\\];:"\',.?`~"]+'  # noqa
             },
             'email': {
                 'type': 'string',

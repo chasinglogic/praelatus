@@ -52,7 +52,6 @@ def get(db, actioning_user=None, id=None, name=None, filter=None,
     return query.order_by(Status.name).all()
 
 
-
 @sys_admin_required
 def new(db, actioning_user=None, **kwargs):
     """
@@ -78,7 +77,6 @@ def new(db, actioning_user=None, **kwargs):
     return new_status
 
 
-
 @sys_admin_required
 def update(db, actioning_user=None, status=None):
     """
@@ -88,7 +86,6 @@ def update(db, actioning_user=None, status=None):
     """
     db.add(status)
     db.commit()
-
 
 
 @sys_admin_required

@@ -4,7 +4,6 @@ import json
 import falcon
 
 import praelatus.lib.tickets as tickets
-import praelatus.lib.projects as projects
 
 from praelatus.lib import session
 from praelatus.api.schemas import TicketSchema
@@ -178,4 +177,6 @@ class CommentResource():
             tickets.delete_comment(db, comment, actioning_user=user,
                                    project=ticket.project)
 
-            resp.body = json.dumps({'message': 'Successfully deleted comment.'})
+            resp.body = json.dumps({
+                'message': 'Successfully deleted comment.'
+            })

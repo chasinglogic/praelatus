@@ -188,12 +188,11 @@ class TokensResource():
 class AssignedResource():
     """Handlers for the /api/v1/users/{username}/assigned endpoint."""
 
-    # TODO documentation.
     def on_get(self, req, resp, username):
-        """"
-        Get all assigned tickets for username.
+        """"Get all assigned tickets for username.
 
         API Documentation:
+        https://doc.praelatus.io/API/Reference/#get-usersusernameassigned
         """
         user = req.context['user']
         with session() as db:
@@ -206,12 +205,11 @@ class AssignedResource():
 class ReportedResource():
     """Handlers for the /api/v1/users/{username}/reported endpoint."""
 
-    # TODO documentation.
     def on_get(self, req, resp, username):
-        """"
-        Get all reported tickets by username.
+        """"Get all reported tickets by username.
 
         API Documentation:
+        https://doc.praelatus.io/API/Reference/#get-usersusernamereported
         """
         user = req.context['user']
         with session() as db:

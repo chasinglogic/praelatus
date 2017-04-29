@@ -129,7 +129,6 @@ def new(db, **kwargs):
     return new_project
 
 
-
 @permission_required('ADMIN_PROJECT')
 def update(db, project=None, actioning_user=None):
     """
@@ -139,7 +138,6 @@ def update(db, project=None, actioning_user=None):
     """
     db.add(project)
     db.commit()
-
 
 
 @permission_required('ADMIN_PROJECT')

@@ -3,7 +3,6 @@
 import json
 import falcon
 
-import praelatus.lib.statuses as statuses
 import praelatus.lib.workflows as workflows
 
 from praelatus.lib import session

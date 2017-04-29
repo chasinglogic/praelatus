@@ -121,7 +121,6 @@ def new(db, actioning_user=None, **kwargs):
     return new_workflow
 
 
-
 @sys_admin_required
 def update(db, actioning_user=None, workflow=None):
     """
@@ -131,7 +130,6 @@ def update(db, actioning_user=None, workflow=None):
     """
     db.add(workflow)
     db.commit()
-
 
 
 @sys_admin_required

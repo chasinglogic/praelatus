@@ -49,7 +49,6 @@ def get(db, actioning_user=None, id=None, name=None, filter=None):
     return query.order_by(Role.name).all()
 
 
-
 @sys_admin_required
 def new(db, **kwargs):
     """
@@ -72,7 +71,6 @@ def new(db, **kwargs):
     return new_role
 
 
-
 @sys_admin_required
 def update(db, role=None, actioning_user=None):
     """
@@ -84,7 +82,6 @@ def update(db, role=None, actioning_user=None):
     db.commit()
 
 
-
 @sys_admin_required
 def delete(db, role=None, actioning_user=None):
     """
@@ -94,7 +91,6 @@ def delete(db, role=None, actioning_user=None):
     """
     db.delete(role)
     db.commit()
-
 
 
 @permission_required('ADMIN_PROJECT')

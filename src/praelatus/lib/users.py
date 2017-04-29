@@ -20,7 +20,6 @@ from praelatus.models import User
 from praelatus.models import DuplicateError
 
 
-
 def get(db, actioning_user=None, username=None, id=None, email=None,
         filter=None):
     """
@@ -50,7 +49,6 @@ def get(db, actioning_user=None, username=None, id=None, email=None,
     if any([username, id, email]):
         return query.first()
     return query.order_by(User.username).all()
-
 
 
 def new(db, **kwargs):
@@ -96,7 +94,6 @@ def new(db, **kwargs):
     return new_user
 
 
-
 def update(db, user, actioning_user=None):
     """
     Update the given user in the database.
@@ -110,7 +107,6 @@ def update(db, user, actioning_user=None):
 
     db.add(user)
     db.commit()
-
 
 
 def delete(db, user, actioning_user=None):
