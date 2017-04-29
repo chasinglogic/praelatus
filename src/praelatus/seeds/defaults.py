@@ -124,7 +124,8 @@ workflow = {
             {
                 'name': 'Create',
                 'to_status': {
-                    'id': 1
+                    'id': 1,
+                    'name': 'Backlog'
                 }
             }
         ],
@@ -132,7 +133,8 @@ workflow = {
             {
                 'name': 'In Progress',
                 'to_status': {
-                    'id': 2
+                    'id': 2,
+                    'name': 'In Progress'
                 },
                 'hooks': [],
             },
@@ -141,14 +143,16 @@ workflow = {
             {
                 'name': 'Done',
                 'to_status': {
-                    'id': 3
+                    'id': 3,
+                    'name': 'Done'
                 },
                 'hooks': [],
             },
             {
                 'name': 'Backlog',
                 'to_status': {
-                    'id': 1
+                    'id': 1,
+                    'name': 'Backlog'
                 },
                 'hooks': [],
             },
@@ -157,7 +161,8 @@ workflow = {
             {
                 'name': 'ReOpen',
                 'to_status': {
-                    'id': 1
+                    'id': 1,
+                    'name': 'Backlog'
                 },
                 'hooks': [],
             },
