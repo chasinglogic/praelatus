@@ -1,0 +1,97 @@
+#
+# Login
+#
+POST http://127.0.0.1:8080/api/v1/tokens
+Content-Type: application/json
+{
+	"username": "testadmin",
+	"password": "test"
+}
+#
+# Get ticket types
+#
+GET http://127.0.0.1:8080/api/v1/ticketTypes
+Authorization: Token ac4039b3-c378-431a-8e29-a63ecf73589d
+#
+#
+#
+GET http://127.0.0.1:8080/api/routes
+#
+#
+#
+GET http://127.0.0.1:8080/api/v1/workflows
+Authorization: Token ac4039b3-c378-431a-8e29-a63ecf73589d
+#
+# Create status
+#
+POST http://127.0.0.1:8080/api/v1/ticketTypes
+Authorization: Token ac4039b3-c378-431a-8e29-a63ecf73589d
+Content-Type: application/json
+{
+	"name": "Feature Request"
+}
+#
+#
+#
+POST http://127.0.0.1:8080/api/v1/workflows
+Authorization: Token ac4039b3-c378-431a-8e29-a63ecf73589d
+Content-Type: application/json
+{
+  "name": "Some New Workflow",
+  "description": "A simple workflow that fits most use cases.",
+  "transitions": {
+	"In Progress": [
+	  {
+		"id": 1,
+		"name": "Done",
+		"hooks": [],
+		"to_status": {
+		  "id": 3,
+		  "name": "Done"
+		}
+	  },
+	  {
+		"id": 2,
+		"name": "Backlog",
+		"hooks": [],
+		"to_status": {
+		  "id": 1,
+		  "name": "Backlog"
+		}
+	  }
+	],
+	"Done": [
+	  {
+		"id": 3,
+		"name": "ReOpen",
+		"hooks": [],
+		"to_status": {
+		  "id": 1,
+		  "name": "Backlog"
+		}
+	  }
+	],
+	"Backlog": [
+	  {
+		"id": 5,
+		"name": "In Progress",
+		"hooks": [],
+		"to_status": {
+		  "id": 2,
+		  "name": "In Progress"
+		}
+	  }
+	],
+	"Create": [
+	  {
+		"id": 4,
+		"name": "Create",
+		"hooks": [],
+		"to_status": {
+		  "id": 1,
+		  "name": "Backlog"
+		}
+	  }
+	]
+  }
+}
