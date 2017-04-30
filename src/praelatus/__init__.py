@@ -14,10 +14,5 @@ except ImportError:
     from psycopg2cffi import compat
     compat.register()
 
-from praelatus.api import create_app
-
 __version__ = '0.0.4'
 __api_version__ = 'v1'
-
-# Global app object for gunicorn
-api = create_app()

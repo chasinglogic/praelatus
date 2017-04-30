@@ -70,3 +70,7 @@ def create_app():
 
     app.add_error_handler(Exception, handler=handle_error)
     return app
+
+
+# Global app object for gunicorn
+application = create_app()
