@@ -7,6 +7,7 @@ import praelatus.lib.fields as fields
 
 from praelatus.lib import session
 from praelatus.api.schemas import FieldSchema
+from praelatus.models.fields import FieldOption
 
 
 class FieldsResource():
@@ -76,6 +77,11 @@ class FieldResource():
         with session() as db:
             db_res = fields.get(db, actioning_user=user, id=id)
             db_res.name = jsn['name']
+            db_res.data_type = jsn['data_type']
+            opts = jsn.get('options')
+            if db_res.data_type == 'OPT' and opts:
+                for o in opts:
+                    db_res.options.append(FieldOption(name=o))
             fields.update(db, actioning_user=user, field=db_res)
 
         resp.body = json.dumps({'message': 'Successfully update field.'})
