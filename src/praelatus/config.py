@@ -13,6 +13,7 @@ class Config:
     default_redis_db = 0
     default_port = '8080'
     default_data_dir = '/var/praelatus/data'
+    default_mq_server = 'amqp://guest@localhost'
 
     def __init__(self, **kwargs):
         """Build a new config."""
@@ -23,6 +24,7 @@ class Config:
         self.redis_db = int(kwargs.get('redis_db', self.default_redis_db))
         self.redis_password = kwargs.get('redis_password')
         self.data_dir = kwargs.get('data_dir')
+        self.mq_server = kwargs.get('mq_server', self.default_mq_server)
 
     def __repr__(self):
         """Return the str version of the internal dict."""
