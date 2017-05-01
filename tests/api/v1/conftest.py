@@ -2,12 +2,12 @@ import pytest
 import praelatus.lib.users as users
 from praelatus.lib import session
 import praelatus.lib.sessions as sessions
-from praelatus import api
+from praelatus.api import application
 
 
 @pytest.fixture
 def app():
-    return api
+    return application
 
 
 @pytest.fixture
