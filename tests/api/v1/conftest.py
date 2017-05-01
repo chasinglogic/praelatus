@@ -29,7 +29,6 @@ def db():
 
 @pytest.fixture
 def auth_headers(admin, headers):
-    token = sessions.gen_session_id()
-    sessions.set(token, admin)
-    headers['Authorization'] = 'Token ' + str(token)
+    token = sessions.gen_session_id(admin)
+    headers['Authorization'] = 'Token ' + token
     return headers
