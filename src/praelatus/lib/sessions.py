@@ -1,26 +1,20 @@
 import json
 import binascii
+import base64
 from itsdangerous import TimestampSigner
 
 
-def get(token):
+def get(signed_token):
     """Desearialize token into a user object."""
     print("Unsigning Token")
-    signed = serializer.unsign(token, max_age=28800)
-    print('signed', signed)
-    jsn = json.loads(signed, return_header=True)
-    print(jsn)
-    return jsn
-
-
-serializer = TimestampSigner(signer)
+    token = serializer.unsign(signed_token, max_age=28800)
+    return json.loads(token)
 
 
 def gen_session_id(user):
     """Generate a secure token."""
     jsn = json.dumps(user)
-    convertii = binascii.a2b_qp(jsn)
-    print('convertii', convertii)
-    maketoken = serializer.sign(convertii)
-    print('maketoken', maketoken)
-    return str(maketoken)
+    return serializer.sign(jsn)
+
+
+serializer = TimestampSigner('test')
