@@ -1,40 +1,26 @@
-"""Contains session management for Praelatus."""
-
-import redis
 import json
-from uuid import uuid4
-
-from praelatus.config import config
-
-
-global r
-r = redis.Redis(host=config.redis_host, db=config.redis_db,
-                port=config.redis_port, password=config.redis_password)
+import binascii
+from itsdangerous import TimestampSigner
 
 
-def get(key):
-    """Look in redis for session with key returns a User or None."""
-    jsn = r.get(key)
-    try:
-        jsn = jsn.decode('utf-8')
-        return json.loads(jsn)
-    except Exception as e:
-        return jsn
+def get(token):
+    """Desearialize token into a user object."""
+    print("Unsigning Token")
+    signed = serializer.unsign(token, max_age=28800)
+    print('signed', signed)
+    jsn = json.loads(signed, return_header=True)
+    print(jsn)
+    return jsn
 
 
-def set(key, val, expires=None):
-    """Store the user in redis at the given session key."""
-    if expires is not None:
-        r.set(key, json.dumps(val), ex=expires.seconds)
-        return
-    r.set(key, json.dumps(val))
+serializer = TimestampSigner(signer)
 
 
-def delete(key):
-    """Remove the value stored at key."""
-    r.delete(key)
-
-
-def gen_session_id():
+def gen_session_id(user):
     """Generate a secure token."""
-    return uuid4()
+    jsn = json.dumps(user)
+    convertii = binascii.a2b_qp(jsn)
+    print('convertii', convertii)
+    maketoken = serializer.sign(convertii)
+    print('maketoken', maketoken)
+    return str(maketoken)

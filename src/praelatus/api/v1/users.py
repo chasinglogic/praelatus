@@ -140,32 +140,15 @@ class TokensResource():
             resp.status = falcon.HTTP_401
             return
 
-        TokensResource.create_session(user, resp)
+        TokensResource.create_token(user, resp)
 
     @staticmethod
     def create_token(user, resp):
         """Create a session for user, set the resp body to the session."""
-        # Check if the user is already logged in
-        session_exists = sessions.get(user.username)
-
-        if session_exists:
-            token = session_exists
-        else:
-            token = str(sessions.gen_session_id())
-
-        # Cookies take a datetime.datetime
-        expires = datetime.now() + timedelta(hours=1)
-        # Set takes a timedelta in seconds
-        expires_seconds = expires - datetime.now()
-
-        # Tie the token to the user
-        sessions.set(token, user.clean_dict(), expires=expires_seconds)
-        # Tie the user to the token, used for checking if already
-        # logged in
-        sessions.set(user.username, token, expires=expires_seconds)
+        token = sessions.gen_session_id(user.clean_dict())
 
         # Set the session cookie on the response
-        resp.set_cookie('PRAE_SESSION', token, expires=expires)
+        resp.set_cookie('PRAE_SESSION', token)
 
         resp.status = falcon.HTTP_200
         resp.body = json.dumps({
