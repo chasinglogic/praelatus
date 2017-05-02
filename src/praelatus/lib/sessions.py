@@ -52,9 +52,9 @@ def gen_session_id(user):
 
 def get_secret_key():
     """Load the secret key if one exists else generate a new one."""
-    with file_store.get_file('session-key') as f:
-        if f:
-            return f.read()
+    f = file_store.get_file('session-key')
+    if f:
+        return f.read()
     key = generate_secret_key()
     file_store.save_file('session-key', key)
     return key

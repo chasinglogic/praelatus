@@ -14,7 +14,7 @@ from contextlib import contextmanager
 @contextmanager
 def get_file(filename):
     """
-    Get a file from praelatus' data directory.
+    Get the contents of filename and return them.
 
     Opens read only.
     """
@@ -22,11 +22,11 @@ def get_file(filename):
         os.mkdir(config.data_dir)
 
     try:
-        f = open(os.path.join(config.data_dir, filename), 'r')
-        yield f
-        f.close()
+        fp = os.path.join(config.data_dir, filename)
+        with open(fp, 'r') as f:
+            return f.read()
     except:
-        yield None
+        return None
 
 
 def save_file(filename, content):
