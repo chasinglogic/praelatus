@@ -93,3 +93,5 @@ ENV/
 
 # mkdocs documentation
 /site
+
+data/*

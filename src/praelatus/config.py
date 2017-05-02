@@ -12,7 +12,7 @@ class Config:
     default_redis_port = 6379
     default_redis_db = 0
     default_port = '8080'
-    default_data_dir = '/var/praelatus/data'
+    default_data_dir = './data'
 
     def __init__(self, **kwargs):
         """Build a new config."""
@@ -22,7 +22,7 @@ class Config:
         self.redis_port = int(kwargs.get('redis_port', self.default_redis_port))  # noqa
         self.redis_db = int(kwargs.get('redis_db', self.default_redis_db))
         self.redis_password = kwargs.get('redis_password')
-        self.data_dir = kwargs.get('data_dir')
+        self.data_dir = kwargs.get('data_dir', self.default_data_dir)
 
     def __repr__(self):
         """Return the str version of the internal dict."""
@@ -47,7 +47,8 @@ class Config:
         config['port'] = os.environ.get('PRAELATUS_PORT', self.default_port)
         config['redis_url'] = os.getenv('PRAELATUS_REDIS')
         config['redis_password'] = os.getenv('PRAELATUS_REDIS_PASS')
-        config['data_dir'] = os.getenv('PRAELATUS_DATA_DIRECTORY')
+        config['data_dir'] = os.getenv('PRAELATUS_DATA_DIRECTORY',
+                                       self.default_data_dir)
 
         return Config(**config)
 
