@@ -2,7 +2,6 @@
 
 import redis
 import json
-from uuid import uuid4
 
 from praelatus.config import config
 
@@ -16,9 +15,8 @@ def get(key):
     """Look in redis for session with key returns a User or None."""
     jsn = r.get(key)
     try:
-        jsn = jsn.decode('utf-8')
-        return json.loads(jsn)
-    except Exception as e:
+        return json.loads(jsn.decode('utf-8'))
+    except:
         return jsn
 
 
@@ -33,8 +31,3 @@ def set(key, val, expires=None):
 def delete(key):
     """Remove the value stored at key."""
     r.delete(key)
-
-
-def gen_session_id():
-    """Generate a secure token."""
-    return uuid4()
