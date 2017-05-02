@@ -10,7 +10,13 @@ class BasicMultiResource():
     """A basic resource class that can handle the modelNames endpoints."""
 
     def __init__(self, lib, schema, model_name=''):
-        """schema is the Schema class and lib is the module for this resource."""
+        """Set the lib module and json schema for this resource.
+
+        If model_name is not provided it will be inferred from the
+        module name of lib. This works for most models as the plural
+        is simply the model name + 's' the only exception being
+        statuses.
+        """
         self.schema = schema
         self.lib = lib
         if model_name == '':
@@ -20,8 +26,7 @@ class BasicMultiResource():
         self.model_name = model_name
 
     def on_post(self, req, resp):
-        """
-        Create a new model and return the new model object.
+        """Create a new model and return the new model object.
 
         You must be a system administrator to use this endpoint.
 
@@ -36,8 +41,7 @@ class BasicMultiResource():
             resp.body = db_res.to_json()
 
     def on_get(self, req, resp):
-        """
-        Get all of the correct model the current user has access to.
+        """Get all of the correct model the current user has access to.
 
         Accepts an optional query parameter 'filter' which can be used
         to search through available self.lib.
@@ -56,7 +60,13 @@ class BasicResource():
     """Handlers for the /api/v1/models/{id} endpoint."""
 
     def __init__(self, lib, schema, model_name=''):
-        """lib and schema should be appropriate for the model."""
+        """Set the lib module and json schema for this resource.
+
+        If model_name is not provided it will be inferred from the
+        module name of lib. This works for most models as the plural
+        is simply the model name + 's' the only exception being
+        statuses.
+        """
         self.lib = lib
         self.schema = schema
         if model_name == '':
@@ -66,11 +76,11 @@ class BasicResource():
         self.model_name = model_name
 
     def on_get(self, req, resp, id):
-        """
-        Get a single model by id.
+        """Get a single model by id.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-modelsid
+
         """
         user = req.context['user']
         with session() as db:
@@ -80,8 +90,7 @@ class BasicResource():
             resp.body = db_res.to_json()
 
     def on_put(self, req, resp, id):
-        """
-        Update the model indicated by id.
+        """Update the model indicated by id.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#put-modelsid
@@ -100,10 +109,10 @@ class BasicResource():
         })
 
     def on_delete(self, req, resp, id):
-        """
-        Update the model indicated by id.
+        """Update the model indicated by id.
 
-        You must have the ADMIN_TICKETTYPE permission to use this endpoint.
+        You must have the ADMIN_TICKETTYPE permission to use this
+        endpoint.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#put-modelsid
