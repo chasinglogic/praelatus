@@ -1,7 +1,9 @@
-"""An internal API for accessing and storing files.
+"""
+An internal API for accessing and storing files.
 
-This is so when we migrate to using S3 or supporting other forms of
-storage we don't have to rewrite everything."""
+This is so when we can transparently support using S3 or supporting
+other forms of storage we don't have to rewrite everything.
+"""
 
 import os
 
