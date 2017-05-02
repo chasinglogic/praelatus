@@ -7,14 +7,6 @@ import praelatus.lib.projects as projects
 import praelatus.lib.tickets as tickets
 
 from praelatus.lib import session
-from praelatus.api.v1.base import BaseMultiResource
-from praelatus.api.schemas import ProjectSchema
-
-
-class ProjectsResource(BaseMultiResource):
-    """Handlers for the /api/v1/projects endpoint."""
-    schema = ProjectSchema
-    lib = projects
 
 
 class ProjectResource():
