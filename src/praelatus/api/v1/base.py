@@ -4,13 +4,20 @@ import json
 import falcon
 
 from praelatus.lib import session
-from praelatus.api.schemas.base import BaseSchema
 
 
-class BaseMultiResource():
+class BasicMultiResource():
     """A basic resource class that can handle the modelNames endpoints."""
-    schema = BaseSchema
-    lib = None
+
+    def __init__(self, lib, schema, model_name=''):
+        """schema is the Schema class and lib is the module for this resource."""
+        self.schema = schema
+        self.lib = lib
+        if model_name == '':
+            module_name = lib.__name__.split('.')
+            plural_name = module_name[len(module_name) - 1]
+            model_name = plural_name[:len(plural_name) - 1]
+        self.model_name = model_name
 
     def on_post(self, req, resp):
         """
@@ -45,10 +52,18 @@ class BaseMultiResource():
             resp.body = json.dumps([p.clean_dict() for p in db_res])
 
 
-class BaseResource():
+class BasicResource():
     """Handlers for the /api/v1/models/{id} endpoint."""
-    model_name = 'base'
-    lib = None
+
+    def __init__(self, lib, schema, model_name=''):
+        """lib and schema should be appropriate for the model."""
+        self.lib = lib
+        self.schema = schema
+        if model_name == '':
+            module_name = lib.__name__.split('.')
+            plural_name = module_name[len(module_name) - 1]
+            model_name = plural_name[:len(plural_name) - 1]
+        self.model_name = model_name
 
     def on_get(self, req, resp, id):
         """
