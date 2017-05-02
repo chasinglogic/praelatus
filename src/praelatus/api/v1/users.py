@@ -3,9 +3,6 @@
 import falcon
 import json
 
-from datetime import datetime
-from datetime import timedelta
-
 import praelatus.lib.users as users
 import praelatus.lib.sessions as sessions
 import praelatus.lib.tickets as tickets
