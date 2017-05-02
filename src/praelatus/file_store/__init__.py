@@ -8,10 +8,8 @@ other forms of storage we don't have to rewrite everything.
 import os
 
 from praelatus.config import config
-from contextlib import contextmanager
 
 
-@contextmanager
 def get_file(filename):
     """
     Get the contents of filename and return them.
