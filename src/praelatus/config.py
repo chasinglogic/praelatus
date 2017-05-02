@@ -47,7 +47,8 @@ class Config:
         config['port'] = os.environ.get('PRAELATUS_PORT', self.default_port)
         config['redis_url'] = os.getenv('PRAELATUS_REDIS')
         config['redis_password'] = os.getenv('PRAELATUS_REDIS_PASS')
-        config['data_dir'] = os.getenv('PRAELATUS_DATA_DIRECTORY', self.default_data_dir)
+        config['data_dir'] = os.getenv('PRAELATUS_DATA_DIRECTORY',
+                                       self.default_data_dir)
 
         return Config(**config)
 
