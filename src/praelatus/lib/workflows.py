@@ -57,8 +57,7 @@ def get(db, actioning_user=None, id=None, name=None, filter=None,
 
 @sys_admin_required
 def new(db, actioning_user=None, **kwargs):
-    """
-    Create a new workflowe in the database then returns that workflowe.
+    """Create a new workflowe in the database then returns that workflowe.
 
     The kwargs are parsed such that if a json representation of a
     workflowe is provided as expanded kwargs it will be handled
@@ -68,8 +67,7 @@ def new(db, actioning_user=None, **kwargs):
     indicating which key was missing. Useful for returning HTTP 400
     errors.
 
-    Required Keyword Arguments:
-    name -- the workflow name
+    Required Keyword Arguments: name -- the workflow name
     """
     new_workflow = Workflow(
         name=kwargs['name'],
