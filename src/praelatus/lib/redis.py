@@ -29,9 +29,9 @@ def cached(fn):
         res = fn(*args, **kwargs)
         if type(res) is list:
             return res
-        elif getattr(res.__class__, 'key'):
+        elif getattr(res.__class__, 'key', None):
             r.set(res.key, res.to_json())
-        else:
+        elif res:
             r.set(res.id, res.to_json())
 
         return res
