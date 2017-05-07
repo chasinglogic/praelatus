@@ -2,12 +2,12 @@ import pytest
 import praelatus.lib.users as users
 from praelatus.lib import session
 import praelatus.lib.sessions as sessions
-from praelatus import api
+from praelatus.api import application
 
 
 @pytest.fixture
 def app():
-    return api
+    return application
 
 
 @pytest.fixture
@@ -29,7 +29,6 @@ def db():
 
 @pytest.fixture
 def auth_headers(admin, headers):
-    token = sessions.gen_session_id()
-    sessions.set(token, admin)
+    token = sessions.gen_session_id(admin)
     headers['Authorization'] = 'Token ' + str(token)
     return headers
