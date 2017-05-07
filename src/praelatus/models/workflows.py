@@ -113,3 +113,14 @@ class Hook(Base):
 
     transition_id = Column(Integer, ForeignKey('transitions.id'))
     transition = relationship('Transition', backref='hooks')
+
+    def clean_dict(self):
+        """Return a dictionary suitable for JSON encoding."""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'body': self.body,
+            'method': self.method,
+            'url': self.url
+        }
