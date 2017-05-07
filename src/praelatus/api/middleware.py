@@ -8,8 +8,7 @@ class ContentTypeMiddleware():
 
     def process_response(self, req, resp, resource, success):
         """Add Content-Type header when appropriate."""
-        if 'api' in req.uri:
-            resp.set_header('Content-Type', 'application/json')
+        resp.set_header('Content-Type', 'application/json')
 
 
 class AuthMiddleware():
