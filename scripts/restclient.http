@@ -15,7 +15,7 @@ Authorization: Token ac4039b3-c378-431a-8e29-a63ecf73589d
 #
 #
 #
-GET http://127.0.0.1:8080/api/v1/tickets
+GET http://127.0.0.1:8080/api/v1/tickets/TEST-1
 #
 #
 #
