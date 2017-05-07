@@ -23,7 +23,7 @@ def cached(fn):
         elif kwargs.get('key'):
             cached = r.get(kwargs['key'])
 
-        if cached:
+        if cached and kwargs.get('cached'):
             return json.loads(cached.decode('utf-8'))
 
         res = fn(*args, **kwargs)
