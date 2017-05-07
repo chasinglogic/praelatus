@@ -58,10 +58,12 @@ class TicketResource():
         """
         user = req.context['user']
         with session() as db:
-            db_res = tickets.get(db, actioning_user=user, key=ticket_key)
-            if db_res is None:
-                raise falcon.HTTPNotFound()
-            resp.body = db_res.to_json()
+            db_res = tickets.get(db, actioning_user=user, key=ticket_key,
+                                 cached=True)
+            if getattr(db_res.__class__, "to_json", None):
+                resp.body = db_res.to_json()
+                return
+            resp.body = json.dumps(db_res)
 
     def on_put(self, req, resp, ticket_key):
         """
