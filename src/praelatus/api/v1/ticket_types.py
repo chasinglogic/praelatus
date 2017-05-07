@@ -13,8 +13,7 @@ class TicketTypesResource():
     """Handlers for the /api/v1/ticketTypes endpoint."""
 
     def on_post(self, req, resp):
-        """
-        Create a new ticketType and return the new ticketType object.
+        """Create a new ticketType and return the new ticketType object.
 
         You must be a system administrator to use this endpoint.
 
@@ -29,8 +28,7 @@ class TicketTypesResource():
             resp.body = db_res.to_json()
 
     def on_get(self, req, resp):
-        """
-        Get all ticket_types the current user has access to.
+        """Get all ticket_types the current user has access to.
 
         Accepts an optional query parameter 'filter' which can be used
         to search through available ticket_types.
@@ -49,8 +47,7 @@ class TicketTypeResource():
     """Handlers for the /api/v1/ticketTypes/{id} endpoint."""
 
     def on_get(self, req, resp, id):
-        """
-        Get a single ticketType by id.
+        """Get a single ticketType by id.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-ticket_typesid
@@ -63,8 +60,7 @@ class TicketTypeResource():
             resp.body = db_res.to_json()
 
     def on_put(self, req, resp, id):
-        """
-        Update the ticketType indicated by id.
+        """Update the ticketType indicated by id.
 
         You must have the ADMIN_TICKETTYPE permission to use this endpoint.
 
@@ -81,8 +77,7 @@ class TicketTypeResource():
         resp.body = json.dumps({'message': 'Successfully update ticketType.'})
 
     def on_delete(self, req, resp, id):
-        """
-        Update the ticketType indicated by id.
+        """Update the ticketType indicated by id.
 
         You must have the ADMIN_TICKETTYPE permission to use this endpoint.
 

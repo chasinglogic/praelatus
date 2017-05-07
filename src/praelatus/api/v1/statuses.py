@@ -13,8 +13,7 @@ class StatusesResource():
     """Handlers for the /api/v1/statuses endpoint."""
 
     def on_post(self, req, resp):
-        """
-        Create a new status and return the new status object.
+        """Create a new status and return the new status object.
 
         You must be a system administrator to use this endpoint.
 
@@ -29,8 +28,7 @@ class StatusesResource():
             resp.body = db_res.to_json()
 
     def on_get(self, req, resp):
-        """
-        Get all statuses the current user has access to.
+        """Get all statuses the current user has access to.
 
         Accepts an optional query parameter 'filter' which can be used
         to search through available statuses.
@@ -49,8 +47,7 @@ class StatusResource():
     """Handlers for the /api/v1/statuses/{id} endpoint."""
 
     def on_get(self, req, resp, id):
-        """
-        Get a single status by id.
+        """Get a single status by id.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-statusesid
@@ -63,8 +60,7 @@ class StatusResource():
             resp.body = db_res.to_json()
 
     def on_put(self, req, resp, id):
-        """
-        Update the status indicated by id.
+        """Update the status indicated by id.
 
         You must have the ADMIN_TICKETTYPE permission to use this endpoint.
 
@@ -81,8 +77,7 @@ class StatusResource():
         resp.body = json.dumps({'message': 'Successfully update status.'})
 
     def on_delete(self, req, resp, id):
-        """
-        Update the status indicated by id.
+        """Update the status indicated by id.
 
         You must have the ADMIN_TICKETTYPE permission to use this endpoint.
 

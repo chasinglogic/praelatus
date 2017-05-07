@@ -1,5 +1,4 @@
-"""
-Contains functions for interacting with roles, and permission schemes.
+"""Contains functions for interacting with roles, and permission schemes.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -25,8 +24,7 @@ from praelatus.models import User
 
 
 def get(db, id=None, name=None, filter=None, actioning_user=None):
-    """
-    Get permission schemes from the database.
+    """Get permission schemes from the database.
 
     If the keyword arguments id or name are specified returns a single
     sqlalchemy result, otherwise returns all matching results.
@@ -62,8 +60,7 @@ def get(db, id=None, name=None, filter=None, actioning_user=None):
 
 
 def new(db, actioning_user=None, **kwargs):
-    """
-    Create a new permission scheme in the database then return it.
+    """Create a new permission scheme in the database then return it.
 
     The kwargs are parsed such that if a json representation of a
     permission scheme is provided as expanded kwargs it will be handled
@@ -106,8 +103,7 @@ def new(db, actioning_user=None, **kwargs):
 
 
 def update(db, permission_scheme=None, actioning_user=None):
-    """
-    Update the permission scheme in the database.
+    """Update the permission scheme in the database.
 
     permission_scheme must be a PermissionScheme class instance.
     """
@@ -120,8 +116,7 @@ def update(db, permission_scheme=None, actioning_user=None):
 
 
 def delete(db, permission_scheme=None, actioning_user=None):
-    """
-    Remove the permission scheme from the database.
+    """Remove the permission scheme from the database.
 
     permission_scheme must be a PermissionScheme class instance.
     """
@@ -218,8 +213,7 @@ def has_permission(db, permission_name, project, actioning_user):
 
 
 def add_permission_query(db, query, actioning_user, permission_name):
-    """
-    Add the requisite joins and filters to check for permission_name.
+    """Add the requisite joins and filters to check for permission_name.
 
     If the Project table is not already joined then this will not work.
     """

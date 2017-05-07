@@ -1,5 +1,4 @@
-"""
-Contains functions for interacting with users.
+"""Contains functions for interacting with users.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -93,8 +92,7 @@ def new(db, **kwargs):
 
 
 def update(db, user, actioning_user=None):
-    """
-    Update the given user in the database.
+    """Update the given user in the database.
 
     user must be a User class instance.
     """
@@ -108,8 +106,7 @@ def update(db, user, actioning_user=None):
 
 
 def delete(db, user, actioning_user=None):
-    """
-    Remove the given user from the database.
+    """Remove the given user from the database.
 
     user must be a User class instance.
     """
@@ -130,8 +127,7 @@ def gravatar(email):
 
 
 def check_pw(user, password):
-    """
-    Check user's password against password.
+    """Check user's password against password.
 
     Alias to bcrypt.checkpw.
     """

@@ -1,5 +1,4 @@
-"""
-Contains functions for interacting with statuses.
+"""Contains functions for interacting with statuses.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -19,8 +18,7 @@ from praelatus.lib.permissions import sys_admin_required
 
 def get(db, actioning_user=None, id=None, name=None, filter=None,
         preload_tickets=False):
-    """
-    Get statuses from the database.
+    """Get statuses from the database.
 
     If the keyword arguments id or name are specified returns a
     single sqlalchemy result, otherwise returns all matching results.
@@ -54,8 +52,7 @@ def get(db, actioning_user=None, id=None, name=None, filter=None,
 
 @sys_admin_required
 def new(db, actioning_user=None, **kwargs):
-    """
-    Create a new statuse in the database then returns that statuse.
+    """Create a new status in the database then returns that statuse.
 
     The kwargs are parsed such that if a json representation of a
     statuse is provided as expanded kwargs it will be handled
@@ -79,8 +76,7 @@ def new(db, actioning_user=None, **kwargs):
 
 @sys_admin_required
 def update(db, actioning_user=None, status=None):
-    """
-    Update the given statuse in the database.
+    """Update the given statuse in the database.
 
     statuse must be a Status class instance.
     """
@@ -90,8 +86,7 @@ def update(db, actioning_user=None, status=None):
 
 @sys_admin_required
 def delete(db, actioning_user=None, status=None):
-    """
-    Remove the given statuse from the database.
+    """Remove the given statuse from the database.
 
     statuse must be a Status class instance.
     """

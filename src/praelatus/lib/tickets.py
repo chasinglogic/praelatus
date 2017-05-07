@@ -1,5 +1,4 @@
-"""
-Contains functions for interacting with tickets.
+"""Contains functions for interacting with tickets.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -33,8 +32,7 @@ from praelatus.lib.redis import cached
 @cached
 def get(db, id=None, key=None, reporter=None, assignee=None, project_key=None,
         filter=None, actioning_user=None, preload_comments=False, cached=None):
-    """
-    Get tickets from the database.
+    """Get tickets from the database.
 
     If the keyword arguments id or key are specified returns a single
     sqlalchemy result, otherwise returns all matching results.
@@ -109,8 +107,7 @@ def _get_transitions(db, ticket):
 
 
 def new(db, **kwargs):
-    """
-    Create a new ticket in the database then return that ticket.
+    """Create a new ticket in the database then return that ticket.
 
     The kwargs are parsed such that if a json representation of a
     ticket is provided as expanded kwargs it will be handled
@@ -195,8 +192,7 @@ def new(db, **kwargs):
 @permission_required('EDIT_TICKET')
 def update(db, actioning_user=None, project=None,
            orig_ticket=None, ticket=None):
-    """
-    Update the given ticket in the database.
+    """Update the given ticket in the database.
 
     ticket must be a Ticket class instance or a JSON ticket object. If
     it is JSON then orig_ticket must be supplied which is the Ticket
@@ -251,8 +247,7 @@ def update(db, actioning_user=None, project=None,
 
 @permission_required('REMOVE_TICKET')
 def delete(db, actioning_user=None, project=None, ticket=None):
-    """
-    Remove the given ticket in the database.
+    """Remove the given ticket in the database.
 
     ticket must be a Ticket class instance.
     """
@@ -262,8 +257,7 @@ def delete(db, actioning_user=None, project=None, ticket=None):
 
 @permission_required('COMMENT_TICKET')
 def add_comment(db, actioning_user=None, project=None, **kwargs):
-    """
-    Add comment to if acitoning_user has permission.
+    """Add comment to if acitoning_user has permission.
 
     Required Keyword Arguments:
     actioning_user -- user who is making the comment
@@ -299,8 +293,7 @@ def get_comment(db, comment_id, actioning_user=None, project=None):
 
 
 def update_comment(db, comment, actioning_user=None, project=None):
-    """
-    Update the given comment.
+    """Update the given comment.
 
     comment must be an instance of the Comment class.
 
@@ -322,8 +315,7 @@ def update_comment(db, comment, actioning_user=None, project=None):
 
 
 def delete_comment(db, comment, actioning_user, project):
-    """
-    Delete the given comment.
+    """Delete the given comment.
 
     comment must be an instance of the Comment class.
 

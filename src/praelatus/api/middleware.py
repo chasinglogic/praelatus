@@ -15,8 +15,7 @@ class AuthMiddleware():
     """Checks for authentication info on the request."""
 
     def process_request(self, req, resp):
-        """
-        Parse out session token, set request context appropriately.
+        """Parse out session token, set request context appropriately.
 
         Will set req.context['session_id'] and req.context['user']
         even if no session information is set this prevents

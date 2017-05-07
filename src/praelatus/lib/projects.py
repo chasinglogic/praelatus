@@ -1,5 +1,4 @@
-"""
-Contains functions for interacting with projects.
+"""Contains functions for interacting with projects.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -26,8 +25,7 @@ from praelatus.models import DuplicateError
 
 
 def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
-    """
-    Get projects from the database.
+    """Get projects from the database.
 
     If the keyword arguments id, name, or key are specified returns a
     single sqlalchemy result, otherwise returns all matching results.
@@ -70,8 +68,7 @@ def get(db, key=None, id=None, name=None, filter=None, actioning_user=None):
 
 @sys_admin_required
 def new(db, **kwargs):
-    """
-    Create a new project in the database then return that project.
+    """Create a new project in the database then return that project.
 
     The kwargs are parsed such that if a json representation of a
     project is provided as expanded kwargs it will be handled
@@ -131,8 +128,7 @@ def new(db, **kwargs):
 
 @permission_required('ADMIN_PROJECT')
 def update(db, project=None, actioning_user=None):
-    """
-    Update the given project in the database.
+    """Update the given project in the database.
 
     project must be a Project class instance.
     """
@@ -142,8 +138,7 @@ def update(db, project=None, actioning_user=None):
 
 @permission_required('ADMIN_PROJECT')
 def delete(db, project=None, actioning_user=None):
-    """
-    Remove the given project from the database.
+    """Remove the given project from the database.
 
     project must be a Project class instance.
     """
