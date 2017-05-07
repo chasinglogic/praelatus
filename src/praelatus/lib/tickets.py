@@ -32,7 +32,7 @@ from praelatus.lib.redis import cached
 
 @cached
 def get(db, id=None, key=None, reporter=None, assignee=None, project_key=None,
-        filter=None, actioning_user=None, preload_comments=False):
+        filter=None, actioning_user=None, preload_comments=False, cached=None):
     """
     Get tickets from the database.
 
@@ -93,7 +93,6 @@ def get(db, id=None, key=None, reporter=None, assignee=None, project_key=None,
         result = query.first()
         if result:
             result.transitions = _get_transitions(db, result)
-        print('res', result)
         return result
     return query.order_by(Ticket.key).all()
 
