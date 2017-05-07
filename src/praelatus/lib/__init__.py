@@ -28,7 +28,8 @@ def session():
     session = Session()
     try:
         yield session
-    except:
+    except Exception as e:
+        print('Exception in database:', e)
         session.rollback()
         raise
     finally:
