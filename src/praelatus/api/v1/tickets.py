@@ -84,8 +84,7 @@ class TicketResource():
             if orig_tick is None:
                 raise falcon.HTTPNotFound()
             # Invalidate the cached version
-            if r.get(orig_tick.key):
-                r.delete(orig_tick.key)
+            r.delete(orig_tick.key)
             tickets.update(db, actioning_user=user,
                            project=orig_tick.project,
                            orig_ticket=orig_tick, ticket=jsn)
