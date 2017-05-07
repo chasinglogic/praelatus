@@ -27,8 +27,10 @@ from praelatus.lib.permissions import permission_required
 from praelatus.lib.permissions import add_permission_query
 from praelatus.lib.permissions import has_permission
 from praelatus.lib.permissions import is_system_admin
+from praelatus.lib.redis import cached
 
 
+@cached
 def get(db, id=None, key=None, reporter=None, assignee=None, project_key=None,
         filter=None, actioning_user=None, preload_comments=False):
     """
@@ -91,10 +93,9 @@ def get(db, id=None, key=None, reporter=None, assignee=None, project_key=None,
         result = query.first()
         if result:
             result.transitions = _get_transitions(db, result)
-    else:
-        result = query.order_by(Ticket.key).all()
-
-    return result
+        print('res', result)
+        return result
+    return query.order_by(Ticket.key).all()
 
 
 def _get_transitions(db, ticket):
