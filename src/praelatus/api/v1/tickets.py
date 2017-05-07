@@ -6,6 +6,7 @@ import falcon
 import praelatus.lib.tickets as tickets
 
 from praelatus.lib import session
+from praelatus.lib.redis import r
 from praelatus.api.schemas import TicketSchema
 from praelatus.api.schemas import CommentSchema
 
@@ -58,8 +59,11 @@ class TicketResource():
         """
         user = req.context['user']
         with session() as db:
-            db_res = tickets.get(db, actioning_user=user, key=ticket_key,
-                                 cached=True)
+            db_res = tickets.get(db, actioning_user=user,
+                                 key=ticket_key, cached=True)
+            if db_res is None:
+                raise falcon.HTTPNotFound()
+
             if getattr(db_res.__class__, "to_json", None):
                 resp.body = db_res.to_json()
                 return
@@ -79,6 +83,9 @@ class TicketResource():
             orig_tick = tickets.get(db, key=ticket_key)
             if orig_tick is None:
                 raise falcon.HTTPNotFound()
+            # Invalidate the cached version
+            if r.get(orig_tick.key):
+                r.delete(orig_tick.key)
             tickets.update(db, actioning_user=user,
                            project=orig_tick.project,
                            orig_ticket=orig_tick, ticket=jsn)
@@ -96,6 +103,7 @@ class TicketResource():
             tick = tickets.get(db, actioning_user=user, key=ticket_key)
             if tick is None:
                 raise falcon.HTTPNotFound()
+            r.delete(tick.key)
             tickets.delete(db, actioning_user=user,
                            project=tick.project, ticket=tick)
             resp.body = json.dumps({'message': 'Successfully deleted ticket.'})
