@@ -1,40 +1,41 @@
 """Contains session management for Praelatus."""
 
-import redis
 import json
-from uuid import uuid4
+import os
+import base64
 
+from datetime import datetime
+from datetime import timedelta
+from binascii import b2a_hex
+from itsdangerous import TimestampSigner
 from praelatus.config import config
 
 
-global r
-r = redis.Redis(host=config.redis_host, db=config.redis_db,
-                port=config.redis_port, password=config.redis_password)
+def get_secret_key():
+    with open(os.path.join(config.data_dir, 'secret-key'), 'a+') as f:
+        key = f.read()
+        if key and key != '':
+            return key
+        key = b2a_hex(os.urandom(64))
+        return key
 
 
-def get(key):
-    """Look in redis for session with key returns a User or None."""
-    jsn = r.get(key)
-    try:
-        jsn = jsn.decode('utf-8')
-        return json.loads(jsn)
-    except Exception as e:
-        return jsn
+s = TimestampSigner(get_secret_key())
 
 
-def set(key, val, expires=None):
-    """Store the user in redis at the given session key."""
-    if expires is not None:
-        r.set(key, json.dumps(val), ex=expires.seconds)
-        return
-    r.set(key, json.dumps(val))
+def get(token):
+    """Turn the token into the appropriate user."""
+    dec = base64.b64decode(token)
+    us = s.unsign(dec)
+    return json.loads(us.decode('utf-8'))
+
+# Cookies take a datetime.datetime
+expires = datetime.now() + timedelta(hours=1)
+# Set takes a timedelta in seconds
+expires_seconds = expires - datetime.now()
 
 
-def delete(key):
-    """Remove the value stored at key."""
-    r.delete(key)
-
-
-def gen_session_id():
+def gen_session_id(user):
     """Generate a secure token."""
-    return uuid4()
+    signed = s.sign(json.dumps(user))
+    return base64.b64encode(signed).decode('ascii')

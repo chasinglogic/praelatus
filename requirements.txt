@@ -18,3 +18,4 @@ redis==2.10.5
 jsonschema==2.6.0
 gevent==1.2.1
 celery==4.0.2
+itsdangerous==0.24
