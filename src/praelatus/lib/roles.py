@@ -1,5 +1,4 @@
-"""
-Contains functions for interacting with roles.
+"""Contains functions for interacting with roles.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -21,8 +20,7 @@ from praelatus.lib.permissions import sys_admin_required
 
 @sys_admin_required
 def get(db, actioning_user=None, id=None, name=None, filter=None):
-    """
-    Get roles from the database.
+    """Get roles from the database.
 
     If the keyword arguments id, or name are specified returns a
     single sqlalchemy result, otherwise returns all matching results.
@@ -51,8 +49,7 @@ def get(db, actioning_user=None, id=None, name=None, filter=None):
 
 @sys_admin_required
 def new(db, **kwargs):
-    """
-    Create a new role in the database then returns that role.
+    """Create a new role in the database then return that role.
 
     The kwargs are parsed such that if a json representation of a
     role is provided as expanded kwargs it will be handled
@@ -73,8 +70,7 @@ def new(db, **kwargs):
 
 @sys_admin_required
 def update(db, role=None, actioning_user=None):
-    """
-    Update the given role in the database.
+    """Update the given role in the database.
 
     role must be a Role class instance.
     """
@@ -84,8 +80,7 @@ def update(db, role=None, actioning_user=None):
 
 @sys_admin_required
 def delete(db, role=None, actioning_user=None):
-    """
-    Remove the given role from the database.
+    """Remove the given role from the database.
 
     role must be a Role class instance.
     """
@@ -95,8 +90,7 @@ def delete(db, role=None, actioning_user=None):
 
 @permission_required('ADMIN_PROJECT')
 def get_roles_for_project(db, project=None):
-    """
-    Get the UserRoles for the given project.
+    """Get the UserRoles for the given project.
 
     This function returns a ProjectRoles instance for the UserRoles retrieved
     for the project.

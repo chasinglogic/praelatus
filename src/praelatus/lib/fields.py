@@ -18,8 +18,7 @@ from sqlalchemy.orm import joinedload
 
 
 def get(db, actioning_user=None, id=None, name=None, filter=None):
-    """
-    Get fields from the database.
+    """Get fields from the database.
 
     If the keyword arguments id or name are specified returns a single
     sqlalchemy result, otherwise returns all matching results.
@@ -56,8 +55,7 @@ def valid_type(data_type):
 
 
 def new(db, **kwargs):
-    """
-    Create a new field in the database then returns that field.
+    """Create a new field in the database then returns that field.
 
     The kwargs are parsed such that if a json representation of a
     field is provided as expanded kwargs it will be handled
@@ -73,6 +71,7 @@ def new(db, **kwargs):
 
     Optional Keyword Arguments:
     options -- an array of json FieldOptions required if DATA_TYPE == 'OPT'
+
     """
     new_field = Field(
         name=kwargs['name'],
@@ -89,8 +88,7 @@ def new(db, **kwargs):
 
 
 def update(db, actioning_user=None, field=None):
-    """
-    Update the given field in the database.
+    """Update the given field in the database.
 
     field must be a Field class instance.
     """
@@ -100,8 +98,7 @@ def update(db, actioning_user=None, field=None):
 
 
 def delete(db, actioning_user=None, field=None):
-    """
-    Remove the given field from the database.
+    """Remove the given field from the database.
 
     field must be a Field class instance.
     """

@@ -1,5 +1,4 @@
-"""
-Contains functions for interacting with labels.
+"""Contains functions for interacting with labels.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -16,8 +15,7 @@ from sqlalchemy.orm import joinedload
 
 def get(db, id=None, name=None, filter=None,
         actioning_user=None, preload_tickets=False):
-    """
-    Get labels from the database.
+    """Get labels from the database.
 
     If the keyword arguments id or name are specified returns a
     single sqlalchemy result, otherwise returns all matching results.
@@ -50,8 +48,7 @@ def get(db, id=None, name=None, filter=None,
 
 
 def new(db, **kwargs):
-    """
-    Create a new label in the database then returns that label.
+    """Create a new label in the database then returns that label.
 
     The kwargs are parsed such that if a json representation of a
     label is provided as expanded kwargs it will be handled
@@ -74,8 +71,7 @@ def new(db, **kwargs):
 
 
 def update(db, actioning_user=None, label=None):
-    """
-    Update the given label in the database.
+    """Update the given label in the database.
 
     label must be a Label class instance.
     """
@@ -84,8 +80,7 @@ def update(db, actioning_user=None, label=None):
 
 
 def delete(db, actioning_user=None, label=None):
-    """
-    Remove the given label from the database.
+    """Remove the given label from the database.
 
     label must be a Label class instance.
     """

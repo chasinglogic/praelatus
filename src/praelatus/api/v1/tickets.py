@@ -6,6 +6,7 @@ import falcon
 import praelatus.lib.tickets as tickets
 
 from praelatus.lib import session
+from praelatus.lib.redis import r
 from praelatus.api.schemas import TicketSchema
 from praelatus.api.schemas import CommentSchema
 
@@ -14,8 +15,7 @@ class TicketsResource():
     """Handlers for /api/v1/tickets."""
 
     def on_post(self, req, resp):
-        """
-        Create a ticket and return the new ticket object.
+        """Create a ticket and return the new ticket object.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#post-tickets
@@ -29,8 +29,7 @@ class TicketsResource():
             resp.body = db_res.to_json()
 
     def on_get(self, req, resp):
-        """
-        Return all tickets the current user has access to.
+        """Return all tickets the current user has access to.
 
         Accepts the query parameter filter which searches through
         tickets on the instance. This will eventually be replaced with
@@ -50,22 +49,25 @@ class TicketResource():
     """Handlers for /api/v1/tickets/{ticket_key} endpoint."""
 
     def on_get(self, req, resp, ticket_key):
-        """
-        Retrieve a single ticket by ticket key.
+        """Retrieve a single ticket by ticket key.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-ticketsticket_key
         """
         user = req.context['user']
         with session() as db:
-            db_res = tickets.get(db, actioning_user=user, key=ticket_key)
+            db_res = tickets.get(db, actioning_user=user,
+                                 key=ticket_key, cached=True)
             if db_res is None:
                 raise falcon.HTTPNotFound()
-            resp.body = db_res.to_json()
+
+            if getattr(db_res.__class__, "to_json", None):
+                resp.body = db_res.to_json()
+                return
+            resp.body = json.dumps(db_res)
 
     def on_put(self, req, resp, ticket_key):
-        """
-        Update the ticket identified by ticket_key.
+        """Update the ticket identified by ticket_key.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-ticketsticket_key
@@ -77,14 +79,15 @@ class TicketResource():
             orig_tick = tickets.get(db, key=ticket_key)
             if orig_tick is None:
                 raise falcon.HTTPNotFound()
+            # Invalidate the cached version
+            r.delete(orig_tick.key)
             tickets.update(db, actioning_user=user,
                            project=orig_tick.project,
                            orig_ticket=orig_tick, ticket=jsn)
             resp.body = json.dumps({'message': 'Successfully updated ticket.'})
 
     def on_delete(self, req, resp, ticket_key):
-        """
-        Delete the ticket identified by ticket_key.
+        """Delete the ticket identified by ticket_key.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#delete-ticketsticket_key
@@ -94,6 +97,7 @@ class TicketResource():
             tick = tickets.get(db, actioning_user=user, key=ticket_key)
             if tick is None:
                 raise falcon.HTTPNotFound()
+            r.delete(tick.key)
             tickets.delete(db, actioning_user=user,
                            project=tick.project, ticket=tick)
             resp.body = json.dumps({'message': 'Successfully deleted ticket.'})
@@ -103,8 +107,7 @@ class CommentsResource():
     """Handlers for /api/v1/tickets/{ticket_key}/comments endpoint."""
 
     def on_get(self, req, resp, ticket_key):
-        """
-        Retrieve all comments for the ticket indentified by ticket_key.
+        """Retrieve all comments for the ticket indentified by ticket_key.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-ticket_keycomments
@@ -118,8 +121,7 @@ class CommentsResource():
             resp.body = json.dumps([x.clean_dict() for x in comments])
 
     def on_post(self, req, resp, ticket_key):
-        """
-        Create a new comment for the ticket identified by ticket_key.
+        """Create a new comment for the ticket identified by ticket_key.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#post-ticket_keycomments
@@ -141,8 +143,7 @@ class CommentResource():
     """Handlers for /api/v1/tickets/{ticket_key}/comments/{id} endpoint."""
 
     def on_put(self, req, resp, ticket_key, id):
-        """
-        Update the comment at ID for ticket_key.
+        """Update the comment at ID for ticket_key.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#put-ticket_keycommentsid
@@ -163,8 +164,7 @@ class CommentResource():
             })
 
     def on_delete(self, req, resp, ticket_key, id):
-        """
-        Delete the comment at ID for ticket_key.
+        """Delete the comment at ID for ticket_key.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#delete-ticket_keycommentsid

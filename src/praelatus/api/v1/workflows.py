@@ -13,8 +13,7 @@ class WorkflowsResource():
     """Handlers for the /api/v1/workflows endpoint."""
 
     def on_post(self, req, resp):
-        """
-        Create a new workflow and return the new workflow object.
+        """Create a new workflow and return the new workflow object.
 
         You must be a system administrator to use this endpoint.
 
@@ -29,8 +28,7 @@ class WorkflowsResource():
             resp.body = db_res.to_json()
 
     def on_get(self, req, resp):
-        """
-        Get all workflows the current user has access to.
+        """Get all workflows the current user has access to.
 
         Accepts an optional query parameter 'filter' which can be used
         to search through available workflows.
@@ -49,8 +47,7 @@ class WorkflowResource():
     """Handlers for the /api/v1/workflows/{id} endpoint."""
 
     def on_get(self, req, resp, id):
-        """
-        Get a single workflow by id.
+        """Get a single workflow by id.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-workflowsid
@@ -63,10 +60,10 @@ class WorkflowResource():
             resp.body = db_res.to_json()
 
     def on_put(self, req, resp, id):
-        """
-        Update the workflow indicated by id.
+        """Update the workflow indicated by id.
 
-        You must have the ADMIN_TICKETTYPE permission to use this endpoint.
+        You must have the ADMIN_TICKETTYPE permission to use this
+        endpoint.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#put-workflowsid
@@ -82,10 +79,10 @@ class WorkflowResource():
         resp.body = json.dumps({'message': 'Successfully update workflow.'})
 
     def on_delete(self, req, resp, id):
-        """
-        Update the workflow indicated by id.
+        """Update the workflow indicated by id.
 
-        You must have the ADMIN_TICKETTYPE permission to use this endpoint.
+        You must have the ADMIN_TICKETTYPE permission to use this
+        endpoint.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#put-workflowsid

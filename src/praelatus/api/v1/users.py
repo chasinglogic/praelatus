@@ -16,17 +16,15 @@ class UsersResource():
     """Handlers for the /api/v1/users endpoint."""
 
     def __init__(self, create_token):  # noqa: D400,D205
-        """
-        create_token should be a function which takes a user and a
-        resp then creates a token for that user and sends it to resp,
-        it is called after on_post to create a token for a user after
+        """create_token should be a function which takes a user and a resp
+        then creates a token for that user and sends it to resp, it is
+        called after on_post to create a token for a user after
         signup.
         """
         self.create_token = create_token
 
     def on_get(self, req, resp):
-        """
-        Return all users for the instance.
+        """Return all users for the instance.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-users
@@ -44,8 +42,7 @@ class UsersResource():
         resp.body = json.dumps(usrs)
 
     def on_post(self, req, resp):
-        """
-        Create a user then return that user with an auth token.
+        """Create a user then return that user with an auth token.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#post-users
@@ -61,8 +58,7 @@ class UserResource():
     """Handlers for /api/v1/users/{username} endpoint."""
 
     def on_get(self, req, resp, username):
-        """
-        Return single user by username or id.
+        """Return single user by username or id.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-usersusername
@@ -75,8 +71,7 @@ class UserResource():
             resp.body = db_res.to_json()
 
     def on_put(self, req, resp, username):
-        """
-        Update the user identified by username.
+        """Update the user identified by username.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#put-usersusername
@@ -98,8 +93,7 @@ class UserResource():
         resp.body = json.dumps({'message': 'Successfully updated user.'})
 
     def on_delete(self, req, resp, username):
-        """
-        Delete the user identified by username.
+        """Delete the user identified by username.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#put-usersusername
@@ -117,8 +111,7 @@ class TokensResource():
     """Handlers for /api/v1/tokens endpoint."""
 
     def on_post(self, req, resp):
-        """
-        Create a new session AKA "log in".
+        """Create a new session AKA "log in".
 
         API Documentation:
         https://doc.praelatus.io/API/Reference/#post-tokens

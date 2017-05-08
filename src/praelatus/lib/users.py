@@ -1,5 +1,4 @@
-"""
-Contains functions for interacting with users.
+"""Contains functions for interacting with users.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -22,11 +21,11 @@ from praelatus.models import DuplicateError
 
 def get(db, actioning_user=None, username=None, id=None, email=None,
         filter=None):
-    """
-    Get users from the database.
+    """Get users from the database.
 
-    If the keyword arguments id, username, or email are specified returns a
-    single sqlalchemy result, otherwise returns all matching results.
+    If the keyword arguments id, username, or email are specified
+    returns a single sqlalchemy result, otherwise returns all matching
+    results.
 
     Keyword Arguments:
     id -- the user's database id (default None)
@@ -52,12 +51,10 @@ def get(db, actioning_user=None, username=None, id=None, email=None,
 
 
 def new(db, **kwargs):
-    """
-    Create a new user in the database then returns that user.
+    """Create a new user in the database then returns that user.
 
-    The kwargs are parsed such that if a json representation of a
-    user is provided as expanded kwargs it will be handled
-    properly.
+    The kwargs are parsed such that if a json representation of a user
+    is provided as expanded kwargs it will be handled properly.
 
     If a required argument is not provided then it raises a KeyError
     indicating which key was missing. Useful for returning HTTP 400
@@ -95,8 +92,7 @@ def new(db, **kwargs):
 
 
 def update(db, user, actioning_user=None):
-    """
-    Update the given user in the database.
+    """Update the given user in the database.
 
     user must be a User class instance.
     """
@@ -110,8 +106,7 @@ def update(db, user, actioning_user=None):
 
 
 def delete(db, user, actioning_user=None):
-    """
-    Remove the given user from the database.
+    """Remove the given user from the database.
 
     user must be a User class instance.
     """
@@ -132,8 +127,7 @@ def gravatar(email):
 
 
 def check_pw(user, password):
-    """
-    Check user's password against password.
+    """Check user's password against password.
 
     Alias to bcrypt.checkpw.
     """

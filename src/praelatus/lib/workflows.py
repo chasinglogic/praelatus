@@ -1,5 +1,4 @@
-"""
-Contains functions for interacting with workflows.
+"""Contains functions for interacting with workflows.
 
 Anywhere a db is taken it is assumed to be a sqlalchemy session
 created by a SessionMaker instance.
@@ -22,8 +21,7 @@ import praelatus.lib.statuses as statuses
 
 def get(db, actioning_user=None, id=None, name=None, filter=None,
         preload_tickets=False):
-    """
-    Get workflows from the database.
+    """Get workflows from the database.
 
     If the keyword arguments id or name are specified returns a
     single sqlalchemy result, otherwise returns all matching results.
@@ -57,8 +55,7 @@ def get(db, actioning_user=None, id=None, name=None, filter=None,
 
 @sys_admin_required
 def new(db, actioning_user=None, **kwargs):
-    """
-    Create a new workflowe in the database then returns that workflowe.
+    """Create a new workflowe in the database then returns that workflowe.
 
     The kwargs are parsed such that if a json representation of a
     workflowe is provided as expanded kwargs it will be handled
@@ -68,8 +65,7 @@ def new(db, actioning_user=None, **kwargs):
     indicating which key was missing. Useful for returning HTTP 400
     errors.
 
-    Required Keyword Arguments:
-    name -- the workflow name
+    Required Keyword Arguments: name -- the workflow name
     """
     new_workflow = Workflow(
         name=kwargs['name'],
@@ -123,8 +119,7 @@ def new(db, actioning_user=None, **kwargs):
 
 @sys_admin_required
 def update(db, actioning_user=None, workflow=None):
-    """
-    Update the given workflowe in the database.
+    """Update the given workflowe in the database.
 
     workflowe must be a Workflow class instance.
     """
@@ -134,8 +129,7 @@ def update(db, actioning_user=None, workflow=None):
 
 @sys_admin_required
 def delete(db, actioning_user=None, workflow=None):
-    """
-    Remove the given workflowe from the database.
+    """Remove the given workflowe from the database.
 
     workflowe must be a Workflow class instance.
     """

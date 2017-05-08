@@ -14,8 +14,7 @@ class ProjectsResource():
     """Handlers for the /api/v1/projects endpoint."""
 
     def on_post(self, req, resp):
-        """
-        Create a new project and return the new project object.
+        """Create a new project and return the new project object.
 
         You must be a system administrator to use this endpoint.
 
@@ -30,8 +29,7 @@ class ProjectsResource():
             resp.body = db_res.to_json()
 
     def on_get(self, req, resp):
-        """
-        Get all projects the current user has access to.
+        """Get all projects the current user has access to.
 
         Accepts an optional query parameter 'filter' which can be used
         to search through available projects.
@@ -50,8 +48,7 @@ class ProjectResource():
     """Handlers for the /api/v1/projects/{key} endpoint."""
 
     def on_get(self, req, resp, key):
-        """
-        Get a single project by key.
+        """Get a single project by key.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-projectskey
@@ -64,8 +61,7 @@ class ProjectResource():
             resp.body = db_res.to_json()
 
     def on_put(self, req, resp, key):
-        """
-        Update the project indicated by key.
+        """Update the project indicated by key.
 
         You must have the ADMIN_PROJECT permission to use this endpoint.
 
@@ -88,8 +84,7 @@ class ProjectResource():
         resp.body = json.dumps({'message': 'Successfully update project.'})
 
     def on_delete(self, req, resp, key):
-        """
-        Update the project indicated by key.
+        """Update the project indicated by key.
 
         You must have the ADMIN_PROJECT permission to use this endpoint.
 
@@ -108,8 +103,7 @@ class ProjectTicketsResource():
     """Handlers for the /api/v1/projects/{key}/tickets endpoint."""
 
     def on_get(self, req, resp, key):
-        """
-        Get all tickets for the project indicated by key.
+        """Get all tickets for the project indicated by key.
 
         This does not except a filter parameter, otherwise is
         identical to GET /api/v1/tickets
