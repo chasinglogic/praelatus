@@ -45,7 +45,7 @@ class TicketsResource:
             resp.body = json.dumps([t.clean_dict() for t in db_res])
 
 
-class TicketResource():
+class TicketResource:
     """Handlers for /api/v1/tickets/{ticket_key} endpoint."""
 
     def on_get(self, req, resp, ticket_key):
@@ -103,7 +103,7 @@ class TicketResource():
             resp.body = json.dumps({'message': 'Successfully deleted ticket.'})
 
 
-class CommentsResource():
+class CommentsResource:
     """Handlers for /api/v1/tickets/{ticket_key}/comments endpoint."""
 
     def on_get(self, req, resp, ticket_key):
@@ -139,7 +139,7 @@ class CommentsResource():
             resp.body = comment.to_json()
 
 
-class CommentResource():
+class CommentResource:
     """Handlers for /api/v1/tickets/{ticket_key}/comments/{id} endpoint."""
 
     def on_put(self, req, resp, ticket_key, id):
