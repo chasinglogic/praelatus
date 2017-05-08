@@ -6,7 +6,7 @@ import falcon
 from praelatus.lib import session
 
 
-class BasicMultiResource():
+class BasicMultiResource:
     """A basic resource class that can handle the modelNames endpoints."""
 
     def __init__(self, lib, schema, model_name=''):
@@ -56,7 +56,7 @@ class BasicMultiResource():
             resp.body = json.dumps([p.clean_dict() for p in db_res])
 
 
-class BasicResource():
+class BasicResource:
     """Handlers for the /api/v1/models/{id} endpoint."""
 
     def __init__(self, lib, schema, model_name=''):

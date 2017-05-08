@@ -194,7 +194,7 @@ def has_permission(db, permission_name, project, actioning_user):
 
     if actioning_user is not None:
         # Check if they're an admin first it's faster this way.
-        is_admin = db.query(User.is_admin).filter(User.id == user_id)
+        is_admin = db.query(User.is_admin).filter(User.id == user_id).first()
         if is_admin:
             return True
 

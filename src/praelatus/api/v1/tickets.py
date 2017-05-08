@@ -11,7 +11,7 @@ from praelatus.api.schemas import TicketSchema
 from praelatus.api.schemas import CommentSchema
 
 
-class TicketsResource():
+class TicketsResource:
     """Handlers for /api/v1/tickets."""
 
     def on_post(self, req, resp):

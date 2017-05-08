@@ -11,23 +11,23 @@ import praelatus.lib.workflows as workflows
 
 from praelatus.lib import session
 from praelatus.models.fields import FieldOption
-from praelatus.api.schemas import LabelSchema
-from praelatus.api.schemas import WorkflowSchema
 from praelatus.api.schemas import StatusSchema
-from praelatus.api.schemas import ProjectSchema
-from praelatus.api.schemas import TicketTypeSchema
 from praelatus.api.schemas import FieldSchema
-from praelatus.api.v1.users import UsersResource
-from praelatus.api.v1.users import UserResource
-from praelatus.api.v1.users import TokensResource
-from praelatus.api.v1.users import ReportedResource
-from praelatus.api.v1.users import AssignedResource
-from praelatus.api.v1.tickets import TicketsResource
-from praelatus.api.v1.tickets import TicketResource
-from praelatus.api.v1.tickets import CommentsResource
+from praelatus.api.schemas import LabelSchema
+from praelatus.api.schemas import TicketTypeSchema
+from praelatus.api.schemas import ProjectSchema
+from praelatus.api.schemas import WorkflowSchema
 from praelatus.api.v1.tickets import CommentResource
+from praelatus.api.v1.tickets import CommentsResource
+from praelatus.api.v1.tickets import TicketResource
+from praelatus.api.v1.tickets import TicketsResource
 from praelatus.api.v1.projects import ProjectTicketsResource
 from praelatus.api.v1.projects import ProjectResource
+from praelatus.api.v1.users import AssignedResource
+from praelatus.api.v1.users import ReportedResource
+from praelatus.api.v1.users import TokensResource
+from praelatus.api.v1.users import UsersResource
+from praelatus.api.v1.users import UserResource
 from praelatus.api.v1.base import BasicMultiResource
 from praelatus.api.v1.base import BasicResource
 

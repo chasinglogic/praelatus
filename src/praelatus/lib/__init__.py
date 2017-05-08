@@ -29,7 +29,7 @@ def session():
     try:
         yield session
     except Exception as e:
-        print('Exception in database:', e)
+        print('Exception in database:', str(e))
         session.rollback()
         raise
     finally:

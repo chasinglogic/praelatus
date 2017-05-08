@@ -13,7 +13,7 @@ def test_get_filter(db):
     print(pjs)
     assert pjs is not None
     assert len(pjs) > 0
-    assert 'TEST' in pjs[0].key
+    assert ('TEST' in pjs[0].key or 'test' in pjs[0].name.lower())
 
 
 def test_get_filter_action(db, admin):
@@ -21,7 +21,7 @@ def test_get_filter_action(db, admin):
     print(pjs)
     assert pjs is not None
     assert len(pjs) > 0
-    assert 'TEST' in pjs[0].key
+    assert ('TEST' in pjs[0].key or 'test' in pjs[0].name.lower())
 
 
 def test_update(db):
