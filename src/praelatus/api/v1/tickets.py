@@ -14,7 +14,7 @@ from praelatus.api.schemas import CommentSchema
 class TicketsResource:
     """Handlers for /api/v1/tickets."""
 
-    def on_post(self, req, resp):
+    def on_post(self, req, res):
         """Create a ticket and return the new ticket object.
 
         API Documentation:
@@ -26,9 +26,9 @@ class TicketsResource:
             jsn['reporter'] = user
         with session() as db:
             db_res = tickets.new(db, actioning_user=user, **jsn)
-            resp.body = db_res.to_json()
+            res.body = db_res.to_json()
 
-    def on_get(self, req, resp):
+    def on_get(self, req, res):
         """Return all tickets the current user has access to.
 
         Accepts the query parameter filter which searches through
@@ -42,13 +42,13 @@ class TicketsResource:
         query = req.params.get('filter', '*')
         with session() as db:
             db_res = tickets.get(db, actioning_user=user, filter=query)
-            resp.body = json.dumps([t.clean_dict() for t in db_res])
+            res.body = json.dumps([t.clean_dict() for t in db_res])
 
 
 class TicketResource:
     """Handlers for /api/v1/tickets/{ticket_key} endpoint."""
 
-    def on_get(self, req, resp, ticket_key):
+    def on_get(self, req, res, ticket_key):
         """Retrieve a single ticket by ticket key.
 
         API Documentation:
@@ -62,11 +62,11 @@ class TicketResource:
                 raise falcon.HTTPNotFound()
 
             if getattr(db_res.__class__, "to_json", None):
-                resp.body = db_res.to_json()
+                res.body = db_res.to_json()
                 return
-            resp.body = json.dumps(db_res)
+            res.body = json.dumps(db_res)
 
-    def on_put(self, req, resp, ticket_key):
+    def on_put(self, req, res, ticket_key):
         """Update the ticket identified by ticket_key.
 
         API Documentation:
@@ -84,9 +84,9 @@ class TicketResource:
             tickets.update(db, actioning_user=user,
                            project=orig_tick.project,
                            orig_ticket=orig_tick, ticket=jsn)
-            resp.body = json.dumps({'message': 'Successfully updated ticket.'})
+            res.body = json.dumps({'message': 'Successfully updated ticket.'})
 
-    def on_delete(self, req, resp, ticket_key):
+    def on_delete(self, req, res, ticket_key):
         """Delete the ticket identified by ticket_key.
 
         API Documentation:
@@ -100,13 +100,13 @@ class TicketResource:
             r.delete(tick.key)
             tickets.delete(db, actioning_user=user,
                            project=tick.project, ticket=tick)
-            resp.body = json.dumps({'message': 'Successfully deleted ticket.'})
+            res.body = json.dumps({'message': 'Successfully deleted ticket.'})
 
 
 class CommentsResource:
     """Handlers for /api/v1/tickets/{ticket_key}/comments endpoint."""
 
-    def on_get(self, req, resp, ticket_key):
+    def on_get(self, req, res, ticket_key):
         """Retrieve all comments for the ticket indentified by ticket_key.
 
         API Documentation:
@@ -118,9 +118,9 @@ class CommentsResource:
             comments = tickets.get_comments(db, actioning_user=user,
                                             project=ticket.project,
                                             ticket_key=ticket_key)
-            resp.body = json.dumps([x.clean_dict() for x in comments])
+            res.body = json.dumps([x.clean_dict() for x in comments])
 
-    def on_post(self, req, resp, ticket_key):
+    def on_post(self, req, res, ticket_key):
         """Create a new comment for the ticket identified by ticket_key.
 
         API Documentation:
@@ -136,13 +136,13 @@ class CommentsResource:
                                           project=ticket.project,
                                           ticket_id=ticket.id,
                                           **jsn)
-            resp.body = comment.to_json()
+            res.body = comment.to_json()
 
 
 class CommentResource:
     """Handlers for /api/v1/tickets/{ticket_key}/comments/{id} endpoint."""
 
-    def on_put(self, req, resp, ticket_key, id):
+    def on_put(self, req, res, ticket_key, id):
         """Update the comment at ID for ticket_key.
 
         API Documentation:
@@ -159,11 +159,11 @@ class CommentResource:
             tickets.update_comment(db, comment, actioning_user=user,
                                    project=ticket.project)
 
-            resp.body = json.dumps({
+            res.body = json.dumps({
                 'message': 'Successfully updated comment.'
             })
 
-    def on_delete(self, req, resp, ticket_key, id):
+    def on_delete(self, req, res, ticket_key, id):
         """Delete the comment at ID for ticket_key.
 
         API Documentation:
@@ -177,6 +177,20 @@ class CommentResource:
             tickets.delete_comment(db, comment, actioning_user=user,
                                    project=ticket.project)
 
-            resp.body = json.dumps({
+            res.body = json.dumps({
                 'message': 'Successfully deleted comment.'
             })
+
+
+class TransitionResource:
+    """Handlers for /api/v1/tickets/{ticket_key}/transition."""
+
+    def on_post(self, req, res, ticket_key):
+        """Perform a transition on ticket indicated by ticket_key.
+
+        API Documentation:
+        https://docs.praelatus.io/API/Reference/#post-ticket_keytransition
+        """
+        user = req.context['user']
+        transition = req.get_param('name')
+        return
