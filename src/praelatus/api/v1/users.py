@@ -16,14 +16,14 @@ class UsersResource():
     """Handlers for the /api/v1/users endpoint."""
 
     def __init__(self, create_token):  # noqa: D400,D205
-        """create_token should be a function which takes a user and a resp
-        then creates a token for that user and sends it to resp, it is
+        """create_token should be a function which takes a user and a res
+        then creates a token for that user and sends it to res, it is
         called after on_post to create a token for a user after
         signup.
         """
         self.create_token = create_token
 
-    def on_get(self, req, resp):
+    def on_get(self, req, res):
         """Return all users for the instance.
 
         API Documentation:
@@ -39,9 +39,9 @@ class UsersResource():
         for u in db_res:
             usrs.append(u.clean_dict())
 
-        resp.body = json.dumps(usrs)
+        res.body = json.dumps(usrs)
 
-    def on_post(self, req, resp):
+    def on_post(self, req, res):
         """Create a user then return that user with an auth token.
 
         API Documentation:
@@ -51,13 +51,13 @@ class UsersResource():
         SignupSchema.validate(signup_req)
         with session() as db:
             db_u = users.new(db, **signup_req)
-            self.create_token(db_u, resp)
+            self.create_token(db_u, res)
 
 
 class UserResource():
     """Handlers for /api/v1/users/{username} endpoint."""
 
-    def on_get(self, req, resp, username):
+    def on_get(self, req, res, username):
         """Return single user by username or id.
 
         API Documentation:
@@ -68,9 +68,9 @@ class UserResource():
             db_res = users.get(db, username=username, actioning_user=user)
             if db_res is None:
                 raise falcon.HTTPNotFound()
-            resp.body = db_res.to_json()
+            res.body = db_res.to_json()
 
-    def on_put(self, req, resp, username):
+    def on_put(self, req, res, username):
         """Update the user identified by username.
 
         API Documentation:
@@ -90,9 +90,9 @@ class UserResource():
             new_u.is_active = jsn.get('is_active', True)
             new_u.is_admin = jsn.get('is_admin', False)
             users.update(db, new_u, actioning_user=user)
-        resp.body = json.dumps({'message': 'Successfully updated user.'})
+        res.body = json.dumps({'message': 'Successfully updated user.'})
 
-    def on_delete(self, req, resp, username):
+    def on_delete(self, req, res, username):
         """Delete the user identified by username.
 
         API Documentation:
@@ -104,13 +104,13 @@ class UserResource():
             if del_user is None:
                 raise falcon.HTTPNotFound()
             users.delete(db, del_user, actioning_user=user)
-        resp.body = json.dumps({'message': 'Successfully deleted user.'})
+        res.body = json.dumps({'message': 'Successfully deleted user.'})
 
 
 class TokensResource():
     """Handlers for /api/v1/tokens endpoint."""
 
-    def on_post(self, req, resp):
+    def on_post(self, req, res):
         """Create a new session AKA "log in".
 
         API Documentation:
@@ -120,34 +120,34 @@ class TokensResource():
         with session() as db:
             user = users.get(db, username=login['username'])
         if user is None:
-            resp.body = json.dumps({
+            res.body = json.dumps({
                 'message': 'no user with that username exists'
             })
-            resp.status = falcon.HTTP_404
+            res.status = falcon.HTTP_404
             return
 
         if not users.check_pw(user, login['password']):
-            resp.body = json.dumps({'message': 'invalid password'})
-            resp.status = falcon.HTTP_401
+            res.body = json.dumps({'message': 'invalid password'})
+            res.status = falcon.HTTP_401
             return
 
-        TokensResource.create_token(user, resp)
+        TokensResource.create_token(user, res)
 
     @staticmethod
-    def create_token(user, resp):
-        """Create a session for user, set the resp body to the session."""
+    def create_token(user, res):
+        """Create a session for user, set the res body to the session."""
         token = sessions.gen_session_id(user.clean_dict())
 
-        # Set the session cookie on the response
-        resp.set_cookie('PRAE_SESSION', token)
+        # Set the session cookie on the resonse
+        res.set_cookie('PRAE_SESSION', token)
 
-        resp.status = falcon.HTTP_200
-        resp.body = json.dumps({
+        res.status = falcon.HTTP_200
+        res.body = json.dumps({
             'token': token,
             'user': user.clean_dict()
         })
 
-    def on_delete(self, req, resp):
+    def on_delete(self, req, res):
         """
         Invalidate the current user's token AKA "log out".
 
@@ -161,7 +161,7 @@ class TokensResource():
 class AssignedResource():
     """Handlers for the /api/v1/users/{username}/assigned endpoint."""
 
-    def on_get(self, req, resp, username):
+    def on_get(self, req, res, username):
         """"Get all assigned tickets for username.
 
         API Documentation:
@@ -172,13 +172,13 @@ class AssignedResource():
             assignee = users.get(db, username=username)
             ticks = tickets.get(db, actioning_user=user,
                                 assignee=assignee.clean_dict())
-            resp.body = json.dumps([t.clean_dict() for t in ticks])
+            res.body = json.dumps([t.clean_dict() for t in ticks])
 
 
 class ReportedResource():
     """Handlers for the /api/v1/users/{username}/reported endpoint."""
 
-    def on_get(self, req, resp, username):
+    def on_get(self, req, res, username):
         """"Get all reported tickets by username.
 
         API Documentation:
@@ -189,4 +189,4 @@ class ReportedResource():
             reporter = users.get(db, username=username)
             ticks = tickets.get(db, actioning_user=user,
                                 reporter=reporter.clean_dict())
-            resp.body = json.dumps([t.clean_dict() for t in ticks])
+            res.body = json.dumps([t.clean_dict() for t in ticks])
