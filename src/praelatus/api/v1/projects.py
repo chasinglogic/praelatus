@@ -31,7 +31,7 @@ class ProjectResource:
     schema = ProjectSchema
     model_name = 'project'
 
-    def on_get(self, req, resp, key):
+    def on_get(self, req, res, key):
         """Get a single model by key.
 
         API Documentation:
@@ -43,9 +43,9 @@ class ProjectResource:
             db_res = self.lib.get(db, actioning_user=user, key=key)
             if db_res is None:
                 raise falcon.HTTPNotFound()
-            resp.body = db_res.to_json()
+            res.body = db_res.to_json()
 
-    def on_put(self, req, resp, key):
+    def on_put(self, req, res, key):
         """Update the model indicated by key.
 
         API Documentation:
@@ -60,11 +60,11 @@ class ProjectResource:
             kwa[self.model_name] = db_res
             self.lib.update(db, actioning_user=user, **kwa)
 
-        resp.body = json.dumps({
+        res.body = json.dumps({
             'message': 'Successfully updated %s.' % self.model_name
         })
 
-    def on_delete(self, req, resp, key):
+    def on_delete(self, req, res, key):
         """Update the model indicated by key.
 
         You must have the ADMIN_TICKETTYPE permission to use this
@@ -80,6 +80,6 @@ class ProjectResource:
             kwa[self.model_name] = db_res
             self.lib.delete(db, actioning_user=user, **kwa)
 
-        resp.body = json.dumps({
+        res.body = json.dumps({
             'message': 'Successfully deleted %s.' % self.model_name
         })

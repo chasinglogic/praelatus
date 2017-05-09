@@ -25,7 +25,7 @@ class BasicMultiResource:
             model_name = plural_name[:len(plural_name) - 1]
         self.model_name = model_name
 
-    def on_post(self, req, resp):
+    def on_post(self, req, res):
         """Create a new model and return the new model object.
 
         You must be a system administrator to use this endpoint.
@@ -38,9 +38,9 @@ class BasicMultiResource:
         self.schema.validate(jsn)
         with session() as db:
             db_res = self.lib.new(db, actioning_user=user, **jsn)
-            resp.body = db_res.to_json()
+            res.body = db_res.to_json()
 
-    def on_get(self, req, resp):
+    def on_get(self, req, res):
         """Get all of the correct model the current user has access to.
 
         Accepts an optional query parameter 'filter' which can be used
@@ -53,7 +53,7 @@ class BasicMultiResource:
         query = req.params.get('filter', '*')
         with session() as db:
             db_res = self.lib.get(db, actioning_user=user, filter=query)
-            resp.body = json.dumps([p.clean_dict() for p in db_res])
+            res.body = json.dumps([p.clean_dict() for p in db_res])
 
 
 class BasicResource:
@@ -75,7 +75,7 @@ class BasicResource:
             model_name = plural_name[:len(plural_name) - 1]
         self.model_name = model_name
 
-    def on_get(self, req, resp, id):
+    def on_get(self, req, res, id):
         """Get a single model by id.
 
         API Documentation:
@@ -87,9 +87,9 @@ class BasicResource:
             db_res = self.lib.get(db, actioning_user=user, id=id)
             if db_res is None:
                 raise falcon.HTTPNotFound()
-            resp.body = db_res.to_json()
+            res.body = db_res.to_json()
 
-    def on_put(self, req, resp, id):
+    def on_put(self, req, res, id):
         """Update the model indicated by id.
 
         API Documentation:
@@ -104,11 +104,11 @@ class BasicResource:
             kwa[self.model_name] = db_res
             self.lib.update(db, actioning_user=user, **kwa)
 
-        resp.body = json.dumps({
+        res.body = json.dumps({
             'message': 'Successfully updated %s.' % self.model_name
         })
 
-    def on_delete(self, req, resp, id):
+    def on_delete(self, req, res, id):
         """Update the model indicated by id.
 
         You must have the ADMIN_TICKETTYPE permission to use this
@@ -124,6 +124,6 @@ class BasicResource:
             kwa[self.model_name] = db_res
             self.lib.delete(db, actioning_user=user, **kwa)
 
-        resp.body = json.dumps({
+        res.body = json.dumps({
             'message': 'Successfully deleted %s.' % self.model_name
         })
