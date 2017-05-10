@@ -27,7 +27,7 @@ class TicketStore(Store):
     model = Ticket
 
     @cached
-    def get(self, db, uid=None, **kwargs):
+    def get(self, db, uid=None, actioning_user=None, **kwargs):
         """Get tickets from the database.
 
         If the keyword arguments id or key are specified returns a single
@@ -61,7 +61,7 @@ class TicketStore(Store):
             query = query.filter(Ticket.id == id)
 
         if uid is not None:
-            query = query.filter(Ticket.key == key)
+            query = query.filter(Ticket.key == uid)
 
         result = query.first()
         if result:
@@ -70,15 +70,12 @@ class TicketStore(Store):
 
     def _get_transitions(self, db, ticket):
         """Get the transitions for the ticket."""
-        return db.\
-            query(Transition).\
-            filter(
-                Transition.from_status_id == ticket.status_id,
-                Transition.workflow_id == ticket.workflow_id
-            ).\
-            all()
+        return db.query(Transition).filter(
+            Transition.from_status_id == ticket.status_id,
+            Transition.workflow_id == ticket.workflow_id
+        ).all()
 
-    def search(self, db, search=None, **kwargs):
+    def search(self, db, search=None, actioning_user=None, **kwargs):
         """Search through tickets.
 
         There are four optional keyword arguments available:
@@ -130,6 +127,7 @@ class TicketStore(Store):
 
         return query.order_by(Ticket.key).all()
 
+    @permission_required('CREATE_TICKET')
     def new(self, db, **kwargs):
         """Create a new ticket in the database then return that ticket.
 
@@ -163,7 +161,7 @@ class TicketStore(Store):
             reporter_id=kwargs['reporter']['id'],
             ticket_type_id=kwargs['ticket_type']['id'],
             project_id=kwargs['project']['id'],
-    )
+        )
 
         # Raw sql here is clearer and faster than using orm
         new_ticket.workflow_id = db.execute(
@@ -173,41 +171,105 @@ class TicketStore(Store):
             {"pid": new_ticket.project_id}).\
             first()[0]
 
-        new_ticket.status_id = db.query(Transition.to_status_id).filter(
-            Transition.workflow_id == new_ticket.workflow_id,
-            Transition.name == 'Create'
-        ).first()
-
-        count = db.query(Ticket.id).\
-                filter(Ticket.project_id == kwargs['project']['id']).count()
-        new_ticket.key = kwargs['project']['key'] + '-' + str(count + 1)
+        new_ticket.status_id = self.transition_status(db, new_ticket, 'Create')
+        new_ticket.key = self.get_next_ticket_key(db, kwargs['project'])
 
         assignee = kwargs.get('assignee')
         if assignee is not None:
             new_ticket.assignee_id = assignee['id']
 
         field_values = kwargs.get('fields', [])
+        new_ticket.fields = self.parse_field_values(db, field_values)
+        labels = kwargs.get('labels', [])
+        new_ticket.labels = self.parse_labels(db, labels)
+        db.add(new_ticket)
+        db.commit()
+        return new_ticket
+
+    def transition_ticket(self, db, ticket, transition_name):
+        """Perform transition on ticket indicated by transition_name."""
+        new_status_id = self.transition_status(db, ticket, transition_name)
+        if new_status_id is None:
+            raise KeyError('Not a valid transition.')
+        ticket.status_id = new_status_id
+        db.add(ticket)
+        db.commit()
+        return ticket
+
+    def transition_status(self, db, ticket, transition_name):
+        """Find the transition and return the new status_id for the ticket."""
+        query = db.query(Transition.to_status_id).filter(
+            Transition.workflow_id == ticket.workflow_id,
+            Transition.name == 'Create'
+        )
+
+        if transition_name != 'Create':
+            query = query.\
+                filter(Transition.from_status_id == ticket.status_id)
+        return query.first()
+
+    def get_next_ticket_key(self, db, project):
+        """Return the appropriate ticket key."""
+        count = db.query(Ticket.id).\
+            filter(Ticket.project_id == project['id']).count()
+        return '{}-{}'.format(project['key'], count + 1)
+
+    def update(self, db, actioning_user=None, project=None,
+               orig_ticket=None, ticket=None):
+        """Update the given ticket in the database.
+
+        ticket must be a Ticket class instance or a JSON ticket object. If
+        it is JSON then orig_ticket must be supplied which is the Ticket
+        class instance that's being updated.
+        """
+        if isinstance(ticket, Ticket):
+            db.add(ticket)
+            return
+
+        orig_ticket.summary = ticket['summary']
+        orig_ticket.description = ticket['description']
+        orig_ticket.reporter_id = ticket['reporter']['id']
+
+        if ticket.get('assignee') is not None:
+            orig_ticket.assignee_id = ticket['assignee']['id']
+
+        field_values = ticket.get('fields', [])
+        orig_ticket.fields = self.parse_field_values(db, field_values)
+
+        labels = ticket.get('labels', [])
+        if orig_ticket.labels != labels:
+            orig_ticket.labels = self.parse_labels(db, labels)
+
+        db.add(orig_ticket)
+        db.commit()
+
+    def parse_labels(self, db, labels):
+        """Convert JSON Labels to Label objects."""
+        new_labels = []
+        for l in labels:
+            lbl = db.query(Label).filter_by(name=l).first()
+            if lbl is None:
+                lbl = Label(name=l)
+                db.add(lbl)
+                db.commit()
+            new_labels.append(lbl)
+        return new_labels
+
+    def parse_field_values(self, db, field_values):
+        """Convert JSON Field Values to FieldValue objects."""
+        new_fields = []
         for f in field_values:
-            field = db.query(Field).filter_by(name=f['name']).first()
+            fv = db.query(FieldValue).filter_by(id=f.get('id', 0)).first()
+            if fv is None:
+                field = db.query(Field).filter_by(name=f['name']).first()
             if field is None:
                 raise KeyError('no field with name ' + f['name'] + ' found')
             fv = FieldValue(
                 field=field
             )
 
-            set_field_value(fv, f['value'])
-            new_ticket.fields.append(fv)
+            self.set_field_value(fv, f['value'])
             db.add(fv)
             db.commit()
-
-            labels = kwargs.get('labels', [])
-    for l in labels:
-        lbl = db.query(Label).filter_by(name=l).first()
-        if lbl is None:
-            lbl = Label(name=l)
-            db.add(lbl)
-            db.commit()
-        new_ticket.labels.append(lbl)
-
-    db.add(new_ticket)
-    db.commit()
+            new_fields.append(fv)
+        return new_fields
