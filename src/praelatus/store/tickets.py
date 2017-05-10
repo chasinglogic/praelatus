@@ -1,4 +1,4 @@
-"""Contains definition for the TicketStore and related classes."""
+"""Contains definition for the TicketStore."""
 
 from sqlalchemy import or_
 from iso8601 import parse_date
@@ -10,14 +10,11 @@ from praelatus.models import Label
 from praelatus.models import Field
 from praelatus.models import FieldValue
 from praelatus.models import Status
-from praelatus.models import Comment
 from praelatus.models import Project
 from praelatus.models import Transition
 from praelatus.models.fields import DataTypeError
 from praelatus.lib.permissions import permission_required
 from praelatus.lib.permissions import add_permission_query
-from praelatus.lib.permissions import has_permission
-from praelatus.lib.permissions import is_system_admin
 from praelatus.lib.redis import cached
 from praelatus.store import Store
 
@@ -214,29 +211,29 @@ class TicketStore(Store):
             filter(Ticket.project_id == project['id']).count()
         return '{}-{}'.format(project['key'], count + 1)
 
-    def update(self, db, actioning_user=None, project=None,
-               orig_ticket=None, ticket=None):
+    @permission_required('EDIT_TICKET')
+    def update(self, db, model=None, orig_ticket=None, **kwargs):
         """Update the given ticket in the database.
 
-        ticket must be a Ticket class instance or a JSON ticket object. If
+        model must be a Ticket class instance or a JSON ticket object. If
         it is JSON then orig_ticket must be supplied which is the Ticket
         class instance that's being updated.
         """
-        if isinstance(ticket, Ticket):
-            db.add(ticket)
+        if isinstance(model, Ticket):
+            db.add(model)
             return
 
-        orig_ticket.summary = ticket['summary']
-        orig_ticket.description = ticket['description']
-        orig_ticket.reporter_id = ticket['reporter']['id']
+        orig_ticket.summary = model['summary']
+        orig_ticket.description = model['description']
+        orig_ticket.reporter_id = model['reporter']['id']
 
-        if ticket.get('assignee') is not None:
-            orig_ticket.assignee_id = ticket['assignee']['id']
+        if model.get('assignee') is not None:
+            orig_ticket.assignee_id = model['assignee']['id']
 
-        field_values = ticket.get('fields', [])
+        field_values = model.get('fields', [])
         orig_ticket.fields = self.parse_field_values(db, field_values)
 
-        labels = ticket.get('labels', [])
+        labels = model.get('labels', [])
         if orig_ticket.labels != labels:
             orig_ticket.labels = self.parse_labels(db, labels)
 
@@ -273,3 +270,23 @@ class TicketStore(Store):
             db.commit()
             new_fields.append(fv)
         return new_fields
+
+    @permission_required('REMOVE_TICKET')
+    def delete(self, db, model=None, **kwargs):
+        """Remove the given ticket from the database."""
+        super(TicketStore, self).delete(db, model=model, **kwargs)
+
+    def set_field_value(self, field_value, val):
+        """Set appropriate field_value member based on type of val."""
+        if type(val) is int:
+            field_value.int_value = val
+        elif type(val) is float:
+            field_value.flt_value = val
+        elif type(val) is str and field_value.field.data_type == 'DATE':
+            field_value.date_value = parse_date(val)
+        elif type(val) is str and field_value.field.data_type == 'OPT':
+            field_value.opt_value = val
+        elif type(val) is str and field_value.field.data_type == 'STRING':
+            field_value.str_value = val
+        else:
+            raise DataTypeError('no valid data type found')
