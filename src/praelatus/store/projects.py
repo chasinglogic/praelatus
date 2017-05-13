@@ -44,9 +44,6 @@ class ProjectStore(Store):
         query = add_permission_query(db, query, actioning_user, 'VIEW_PROJECT')
         return query.order_by(Project.key).all()
 
-    @sys_admin_required
-    def new(self, db, **kwargs):
-
     @permission_required('ADMIN_PROJECT')
     def update(self, db, model=None, **kwargs):
         """Update the project in the database."""
