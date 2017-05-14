@@ -21,7 +21,6 @@ from praelatus.store import Store
 
 class TicketStore(Store):
     """Stores and retrieves tickets."""
-    model = Ticket
 
     @cached
     def get(self, db, uid=None, actioning_user=None, **kwargs):
@@ -53,7 +52,7 @@ class TicketStore(Store):
 
         query = add_permission_query(db, query, actioning_user, 'VIEW_PROJECT')
 
-        id = kwargs.pop('id')
+        id = kwargs.pop('id', None)
         if id is not None:
             query = query.filter(Ticket.id == id)
 
@@ -290,3 +289,6 @@ class TicketStore(Store):
             field_value.str_value = val
         else:
             raise DataTypeError('no valid data type found')
+
+
+store = TicketStore(Ticket)

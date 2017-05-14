@@ -7,13 +7,15 @@ from praelatus.models import Workflow
 from praelatus.models import Transition
 from praelatus.lib.permissions import sys_admin_required
 
-StatusStore = Store(Status)
+status_store = Store(Status)
 
 
 class WorkflowStore(Store):
     """Stores and retrieves workflows."""
-    model = Workflow
-    status_store = StatusStore
+
+    def __init__(self, model, status_store):
+        self.status_store = status_store
+        self.model = model
 
     @sys_admin_required
     def new(self, db, actioning_user=None, **kwargs):
@@ -69,3 +71,7 @@ class WorkflowStore(Store):
 
         db.commit()
         return new_workflow
+
+
+status_store = Store(Status)
+store = WorkflowStore(Workflow, status_store)

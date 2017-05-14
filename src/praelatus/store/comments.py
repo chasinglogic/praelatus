@@ -10,7 +10,6 @@ from praelatus.lib.permissions import has_permission
 
 class CommentStore(Store):
     """Stores and retrieves comments."""
-    model = Comment
 
     @permission_required('VIEW_PROJECT')
     def get(self, db, uid=None, **kwargs):
@@ -83,3 +82,6 @@ class CommentStore(Store):
             db.commit()
         else:
             raise PermissionError('permission denied')
+
+
+store = CommentStore(Comment)
