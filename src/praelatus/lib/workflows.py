@@ -153,26 +153,26 @@ def update_from_json(db, workflow, jsn, actioning_user=None):
                 name=from_status
             )
 
-            for tran in available_transisitions:
-                to_status = statuses.get(
+        for tran in available_transisitions:
+            to_status = statuses.get(
+                db,
+                actioning_user=actioning_user,
+                name=tran['to_status']['name']
+            )
+
+            if to_status is None:
+                to_status = statuses.new(
                     db,
                     actioning_user=actioning_user,
-                    name=tran['to_status']['name']
+                    **to_status
                 )
 
-                if to_status is None:
-                    to_status = statuses.new(
-                        db,
-                        actioning_user=actioning_user,
-                        **to_status
-                    )
-
-                hks = []
-                for h in tran.get('hooks', []):
-                    hook = db.query(Hook).\
-                        filter(Hook.id == h.get('id', 0))
-                    if hook is None:
-                        hook = Hook()
+            hks = []
+            for h in tran.get('hooks', []):
+                hook = db.query(Hook).\
+                       filter(Hook.id == h.get('id', 0))
+                if hook is None:
+                    hook = Hook()
                     hook.name = h['name']
                     hook.description = h.get('description')
                     hook.body = h.get('body')
@@ -180,16 +180,16 @@ def update_from_json(db, workflow, jsn, actioning_user=None):
                     hook.url = h.get('url')
                     hks.append(hook)
 
-                t = db.query(Transition).\
-                    filter(Transition.id == tran.get('id', 0))
-                if t is None:
-                    t = Transition()
-                t.name = tran['name']
-                t.from_status = from_status
-                t.to_status = to_status
-                t.hooks = hks
-                db.update(t)
-                new_transitions.append(t)
+            t = db.query(Transition).\
+                filter(Transition.id == tran.get('id', 0))
+            if t is None:
+                t = Transition()
+            t.name = tran['name']
+            t.from_status = from_status
+            t.to_status = to_status
+            t.hooks = hks
+            db.update(t)
+            new_transitions.append(t)
 
     workflow.transitions = new_transitions
     return workflow
