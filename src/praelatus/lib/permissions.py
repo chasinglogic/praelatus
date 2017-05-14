@@ -161,7 +161,7 @@ def permission_required(permission):
                 raise Exception('project is required to check permissions')
 
             actioning_user = kwargs.get('actioning_user')
-            db = args[0]
+            db = args[1]
 
             if has_permission(db, permission, project, actioning_user):
                 return fn(*args, **kwargs)
