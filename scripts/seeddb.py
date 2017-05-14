@@ -1,23 +1,28 @@
-"""Contains a function for seeding a database with test data."""
+#!/usr/bin/env python3
 
 from random import randint
 
-import praelatus.lib.users as usr
-import praelatus.lib.projects as prj
-import praelatus.lib.labels as lbls
-import praelatus.lib.roles as rls
-import praelatus.lib.fields as flds
-import praelatus.lib.tickets as tks
-import praelatus.lib.ticket_types as types
-import praelatus.lib.workflows as workflows
-import praelatus.lib.statuses as statuses
-import praelatus.lib.permissions as perm_schemes
-from praelatus.lib import session
+try:
+    import praelatus.lib.users as usr
+    import praelatus.lib.projects as prj
+    import praelatus.lib.labels as lbls
+    import praelatus.lib.roles as rls
+    import praelatus.lib.fields as flds
+    import praelatus.lib.tickets as tks
+    import praelatus.lib.ticket_types as types
+    import praelatus.lib.workflows as workflows
+    import praelatus.lib.statuses as statuses
+    import praelatus.lib.permissions as perm_schemes
+    from praelatus.lib import session
+except ImportError:
+    import sys
+    print('You need to install praelatus before running this script.')
+    sys.exit(1)
 
 
 def seed():
     """Seed the given db with test data."""
-    import praelatus.seeds.defaults as defaults
+    import praelatus.lib.defaults as defaults
 
     users = [
         {
