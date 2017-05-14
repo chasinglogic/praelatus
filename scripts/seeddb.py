@@ -31,9 +31,9 @@ with session() as db:
     for u in users:
         UserStore.new(db, **u)
 
-admin = UserStore.get(db, id=2)
-
 with session() as db:
+    admin = UserStore.get(db, username='testadmin')
+
     print('Seeding permissions schemes...')
     PermissionSchemeStore.new(db, actioning_user=admin,
                               **defaults.permission_scheme)
@@ -42,11 +42,11 @@ with session() as db:
     for s in defaults.statuses:
         StatusStore.new(db, actioning_user=admin, **s)
 
-with session() as db:
     print('Seeding workflows...')
     WorkflowStore.new(db, actioning_user=admin, **defaults.workflow)
 
 with session() as db:
+    admin = UserStore.get(db, username='testadmin')
     projects = [
         {
             'name': 'TEST Project',
@@ -67,6 +67,7 @@ with session() as db:
 
     print('Seeding projects...')
     for p in projects:
+        print('creating', p)
         ProjectStore.new(db, actioning_user=admin, **p)
 
     labels = [
@@ -113,7 +114,7 @@ with session() as db:
 
     print('Seeding fields...')
     for f in fields:
-        FieldStore.new(db, **f)
+        FieldStore.new(db, actioning_user=admin, **f)
 
     print('Seeding ticket types...')
     for t in defaults.ticket_types:
