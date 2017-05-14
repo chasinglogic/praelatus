@@ -5,18 +5,21 @@ from praelatus.api.schemas import *
 
 
 def test_stores(db, admin):
+    ticket_type = TicketTypeStore.get(db, name='Bug')
+    project = ProjectStore.get(db, uid='TEST')
+
     tests = [
         {
             'name': 'Ticket Store Test',
             'store': TicketStore,
-            'uid_params': 'TEST-2',
+            'schema': TicketSchema,
+            'uid_param': 'TEST-2',
             'new': {
                 'summary': 'json test',
                 'description': 'testing json serialization',
                 'ticket_type': ticket_type.clean_dict(),
                 'workflow_id': 1,
                 'project': project.clean_dict(),
-                'status': status.clean_dict(),
                 'reporter': admin,
                 'labels': ['internal', 'test'],
                 'fields': [
@@ -55,7 +58,7 @@ def test_stores(db, admin):
         res = store.get(db, uid=t['uid_param'],
                         actioning_user=admin)
         assert res is not None
-        t['schema'].validate(res)
+        t['schema'].validate(res.clean_dict())
 
         res = store.new(db, **t['new'])
         assert res is not None
