@@ -10,7 +10,6 @@ from praelatus.lib.permissions import sys_admin_required
 
 class PermissionSchemeStore(Store):
     """Stores and retrieves permission schemes."""
-    model = PermissionScheme
 
     @sys_admin_required
     def get(self, db, uid=None, name=None, **kwargs):
@@ -51,3 +50,6 @@ class PermissionSchemeStore(Store):
         db.commit()
 
         return new_scheme
+
+
+store = PermissionSchemeStore(PermissionScheme)

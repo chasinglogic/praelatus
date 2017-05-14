@@ -11,7 +11,6 @@ from praelatus.store.store import Store
 
 class ProjectStore(Store):
     """Stores and retrieves Projects."""
-    model = Project
 
     def get(self, db, uid=None, id=None, name=None,
             actioning_user=None, **kwargs):
@@ -55,3 +54,6 @@ class ProjectStore(Store):
         """Update the project in the database."""
         db.delete(model)
         db.commit()
+
+
+store = ProjectStore(Project)
