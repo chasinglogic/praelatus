@@ -23,111 +23,6 @@ from praelatus.models import UserRoles
 from praelatus.models import User
 
 
-def get(db, id=None, name=None, filter=None, actioning_user=None):
-    """Get permission schemes from the database.
-
-    If the keyword arguments id or name are specified returns a single
-    sqlalchemy result, otherwise returns all matching results.
-
-    Keyword Arguments:
-    actioning_user -- the user requesting the permission scheme
-    id -- database id
-    name -- the permission scheme name
-    filter -- a pattern to search through permission schemes with
-    """
-    if (actioning_user is None or
-       not is_system_admin(db, actioning_user)):
-        return None
-
-    query = db.query(PermissionScheme).\
-        options(joinedload('permissions'))
-
-    if id is not None:
-        query = query.filter(PermissionScheme.id == id)
-
-    if name is not None:
-        query = query.filter(PermissionScheme.name == name)
-
-    if filter is not None:
-        pattern = filter.replace('*', '%')
-        query = query.filter(
-            PermissionScheme.name.like(pattern)
-        )
-
-    if any([id, name]):
-        return query.first()
-    return query.order_by(PermissionScheme.name).all()
-
-
-def new(db, actioning_user=None, **kwargs):
-    """Create a new permission scheme in the database then return it.
-
-    The kwargs are parsed such that if a json representation of a
-    permission scheme is provided as expanded kwargs it will be handled
-    properly.
-
-    If a required argument is not provided then it raises a KeyError
-    indicating which key was missing. Useful for returning HTTP 400
-    errors.
-
-    Required Keyword Arguments:
-    namm -- the permission scheme name
-    description -- the permission scheme's description
-    actioning_user -- the User creating the permission scheme
-    """
-    if (actioning_user is None or
-       not is_system_admin(db, actioning_user)):
-        raise PermissionError('permission denied')
-
-    new_scheme = PermissionScheme(
-        name=kwargs['name'],
-        description=kwargs.get('description', '')
-    )
-
-    permissions = kwargs['permissions']
-    for role_name, perms in permissions.items():
-        role = db.query(Role).filter_by(name=role_name).first()
-        for perm in perms:
-            permission = db.query(Permission).filter_by(name=perm).first()
-            perm_scheme_perm = PermissionSchemePermissions(
-                role_id=role.id,
-                permission_id=permission.id
-            )
-
-            new_scheme.permissions.append(perm_scheme_perm)
-
-    db.add(new_scheme)
-    db.commit()
-
-    return new_scheme
-
-
-def update(db, permission_scheme=None, actioning_user=None):
-    """Update the permission scheme in the database.
-
-    permission_scheme must be a PermissionScheme class instance.
-    """
-    if (actioning_user is None or
-       not is_system_admin(db, actioning_user)):
-            raise PermissionError('permission denied')
-
-    db.add(permission_scheme)
-    db.commit()
-
-
-def delete(db, permission_scheme=None, actioning_user=None):
-    """Remove the permission scheme from the database.
-
-    permission_scheme must be a PermissionScheme class instance.
-    """
-    if (actioning_user is None or
-       not is_system_admin(db, actioning_user)):
-            raise PermissionError('permission denied')
-
-    db.delete(permission_scheme)
-    db.commit()
-
-
 def is_system_admin(db, user):
     """Check if user is a system administrator."""
     query = db.query(User)
@@ -142,9 +37,9 @@ def sys_admin_required(fn):
     """Check if actioning_user is a system administrator."""
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        actioning_user = kwargs.get('actioning_user')
+        actioning_user = kwargs.pop('actioning_user', None)
         if (actioning_user is None or
-           not is_system_admin(args[0], actioning_user)):
+           not is_system_admin(args[1], actioning_user)):
             raise PermissionError('you must be a system administrator')
 
         return fn(*args, **kwargs)
@@ -160,7 +55,7 @@ def permission_required(permission):
             if project is None:
                 raise Exception('project is required to check permissions')
 
-            actioning_user = kwargs.get('actioning_user')
+            actioning_user = kwargs.pop('actioning_user', None)
             db = args[1]
 
             if has_permission(db, permission, project, actioning_user):
