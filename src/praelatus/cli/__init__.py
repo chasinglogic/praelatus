@@ -4,7 +4,6 @@ import click
 from os.path import dirname
 from os.path import exists
 from os.path import join
-from praelatus.seeds import seed
 from praelatus.lib import session
 from praelatus.lib import clean_db
 
@@ -12,15 +11,6 @@ from praelatus.lib import clean_db
 @click.group()
 def cli():  # noqa: D103
     pass
-
-
-@cli.command()
-def seeddb():
-    """Seed the database with test data."""
-    print("Seeding the database with test data."
-          "This may take a minute...")
-    seed()
-    print("Seeding finished.")
 
 
 @cli.command()
