@@ -45,10 +45,13 @@ setup(
     name='praelatus',
     description='An Open Source bug tracking / ticketing system',
     version=__version__,
-    packages=find_packages(where='src'),
+    packages=[
+        'praelatus',
+        'migrations'
+    ],
     package_dir={'': 'src'},
     package_data={
-        '': '*.ini'
+        '': ['*.ini']
     },
     include_package_data=True,
     author="""
