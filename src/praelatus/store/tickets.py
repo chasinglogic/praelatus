@@ -274,7 +274,8 @@ class TicketStore(Store):
     @permission_required('REMOVE_TICKET')
     def delete(self, db, model=None, **kwargs):
         """Remove the given ticket from the database."""
-        super(TicketStore, self).delete(db, model=model, **kwargs)
+        db.delete(model)
+        db.commit()
 
     def set_field_value(self, field_value, val):
         """Set appropriate field_value member based on type of val."""
