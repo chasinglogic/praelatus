@@ -57,8 +57,6 @@ class CreateResource(BaseResource):
         self.schema.validate(jsn)
         with session() as db:
             db_res = self.store.new(db, actioning_user=user, **jsn)
-            print('db_res', db_res)
-            print('jsn', jsn)
             res.body = db_res.to_json()
 
 
