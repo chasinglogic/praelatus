@@ -55,8 +55,22 @@ class ProjectResource(BasicResource):
     def on_put(self, req, res, uid):
         """Update the project indicated by uid."""
         user = req.context['user']
+        jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
         with session() as db:
             db_res = self.store.get(db, actioning_user=user, uid=uid)
+            db_res.name = jsn['name']
+            db_res.key = jsn['key']
+            db_res.homepage = jsn.get('homepage', db_res.homepage)
+            db_res.icon_url = jsn.get('icon_url', db_res.icon_url)
+            db_res.repo = jsn.get('repo', db_res.repo)
+            scheme = jsn.get('permission_scheme')
+            if scheme is not None:
+                db_res.permission_scheme_id = scheme['id']
+
+            lead = jsn.get('lead')
+            if lead is not None:
+                db_res.lead_id = lead['id']
+
             self.store.update(db, model=db_res,
                               project=db_res, actioning_user=user)
         res.body = json.dumps({
