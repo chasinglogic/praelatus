@@ -1,6 +1,6 @@
 """Contains our custom middleware for Praelatus."""
 
-import praelatus.lib.sessions as sessions
+import praelatus.lib.tokens as tokens
 
 
 class ContentTypeMiddleware():
@@ -35,4 +35,4 @@ class AuthMiddleware():
             req.context['user'] = None
         else:
             req.context['session_id'] = token
-            req.context['user'] = sessions.get(token)
+            req.context['user'] = tokens.get(token)
