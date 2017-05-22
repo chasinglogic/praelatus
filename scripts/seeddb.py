@@ -67,7 +67,6 @@ with session() as db:
 
     print('Seeding projects...')
     for p in projects:
-        print('creating', p)
         ProjectStore.new(db, actioning_user=admin, **p)
 
     labels = [
@@ -149,8 +148,7 @@ with session() as db:
 
         TicketStore.new(db, **t)
 
-with session() as db:
-    tickets = tks.get(db, actioning_user=admin, filter='TEST*')
+    tickets = TicketStore.search(db, actioning_user=admin, search='TEST*')
     print('Seeding comments...')
     for t in tickets:
         for i in range(1, 10):
@@ -165,5 +163,5 @@ with session() as db:
                 'ticket_id': t.id
             }
 
-            tks.add_comment(db, actioning_user=comment['author'],
-                            project=t.project, **comment)
+            CommentStore.new(db, actioning_user=comment['author'],
+                             project=t.project, **comment)

@@ -36,7 +36,6 @@ def migrate():
     print('Migrating the database using Alembic...')
 
     migrations_dir = dirname(dirname(dirname(__file__))).replace(' ', '')
-    print(migrations_dir)
 
     alembicArgs = [
         'alembic',

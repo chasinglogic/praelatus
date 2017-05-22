@@ -101,7 +101,6 @@ def has_permission(db, permission_name, project, actioning_user):
         ),
     )
 
-    print('query', query)
     if query.first() is None:
         return False
     return True

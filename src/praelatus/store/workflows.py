@@ -31,7 +31,25 @@ class WorkflowStore(Store):
         db.add(new_workflow)
 
         transitions = kwargs.get('transitions', {})
-        for from_status_name, available_transitions in transitions.items():
+        new_workflow.transitions = self.make_transitions(db, transitions,
+                                                         actioning_user)
+        db.commit()
+        return new_workflow
+
+    def update_from_json(self, db, workflow, jsn, actioning_user=None):
+        """Update workflow using jsn as the new form."""
+        workflow.name = jsn['name']
+        workflow.description = jsn['description']
+
+        transitions = jsn.get('transitions', {})
+        workflow.transitions = self.make_transitions(db, transitions,
+                                                     actioning_user)
+        return workflow
+
+    def make_transitions(self, db, transitions, actioning_user):
+        """Turn JSON transitions into SQLAlchemy models."""
+        new_transitions = []
+        for from_status_name, available_transisitions in transitions.items():
             from_status = self.status_store.get(db, name=from_status_name)
             if from_status is None and from_status_name != "Create":
                 from_status = self.status_store.new(
@@ -40,37 +58,49 @@ class WorkflowStore(Store):
                     name=from_status
                 )
 
-            for tran in available_transitions:
+            for tran in available_transisitions:
                 to_status = self.status_store.get(
                     db,
+                    actioning_user=actioning_user,
                     name=tran['to_status']['name']
                 )
 
                 if to_status is None:
-                    to_status = self.status_store.new(db, **to_status)
+                    to_status = self.status_store.new(
+                        db,
+                        actioning_user=actioning_user,
+                        **to_status
+                    )
 
                 hks = []
                 for h in tran.get('hooks', []):
-                    hks.append(Hook(
-                        name=h['name'],
-                        description=h.get('description'),
-                        body=h.get('body'),
-                        method=h.get('method'),
-                        url=h.get('url')
-                    ))
+                    hook = db.query(Hook).\
+                        filter(Hook.id == h.get('id', 0))
+                    if hook is None:
+                        hook = Hook()
+                        hook.name = h['name']
+                        hook.description = h.get('description')
+                        hook.body = h.get('body')
+                        hook.method = h.get('method')
+                        hook.url = h.get('url')
+                        hks.append(hook)
 
-                new_tr = Transition(
-                    name=tran['name'],
-                    from_status=from_status,
-                    to_status=to_status,
-                    hooks=hks,
-                )
+                t = db.query(Transition).\
+                    filter(Transition.id == tran.get('id', 0)).\
+                    first()
+                if t is None:
+                    t = Transition()
+                t.name = tran['name']
+                t.from_status = from_status
+                t.to_status = to_status
+                t.hooks = hks
+                db.add(t)
+                db.commit()
+                new_transitions.append(t)
+        return new_transitions
 
-                db.add(new_tr)
-                new_workflow.transitions.append(new_tr)
 
-        db.commit()
-        return new_workflow
+
 
 
 status_store = Store(Status)

@@ -1,4 +1,4 @@
-"""Contains resources for interacting with self.lib."""
+"""Contains resources for interacting with self.store."""
 
 import json
 import falcon
@@ -6,24 +6,43 @@ import falcon
 from praelatus.lib import session
 
 
-class BasicMultiResource:
-    """A basic resource class that can handle the modelNames endpoints."""
+class BaseResource:
+    """A base class that just stores a schema and storage interface."""
 
-    def __init__(self, lib, schema, model_name=''):
-        """Set the lib module and json schema for this resource.
+    def __init__(self, store, schema):
+        """Set the store module and json schema for this resource.
 
         If model_name is not provided it will be inferred from the
-        module name of lib. This works for most models as the plural
+        module name of store. This works for most models as the plural
         is simply the model name + 's' the only exception being
         statuses.
         """
         self.schema = schema
-        self.lib = lib
-        if model_name == '':
-            module_name = lib.__name__.split('.')
-            plural_name = module_name[len(module_name) - 1]
-            model_name = plural_name[:len(plural_name) - 1]
-        self.model_name = model_name
+        self.store = store
+        self.model_name = store.__class__.__name__[:len("Store") * -1].lower()
+
+
+class SearchResource(BaseResource):
+    """A basic resource for providing a search enpoint."""
+
+    def on_get(self, req, res):
+        """Get all of the correct model the current user has access to.
+
+        Accepts an optional query parameter 'filter' which can be used
+        to search through available self.store.
+
+        API Documentation:
+        https://docs.praelatus.io/API/Reference/#post-models
+        """
+        user = req.context['user']
+        query = req.params.get('filter', '*')
+        with session() as db:
+            db_res = self.store.search(db, actioning_user=user, search=query)
+            res.body = json.dumps([p.clean_dict() for p in db_res])
+
+
+class CreateResource(BaseResource):
+    """A basic resource for providing a model creation endpoint."""
 
     def on_post(self, req, res):
         """Create a new model and return the new model object.
@@ -37,93 +56,71 @@ class BasicMultiResource:
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
         self.schema.validate(jsn)
         with session() as db:
-            db_res = self.lib.new(db, actioning_user=user, **jsn)
+            db_res = self.store.new(db, actioning_user=user, **jsn)
+            print('db_res', db_res)
+            print('jsn', jsn)
             res.body = db_res.to_json()
 
-    def on_get(self, req, res):
-        """Get all of the correct model the current user has access to.
 
-        Accepts an optional query parameter 'filter' which can be used
-        to search through available self.lib.
+class SingleResource(BaseResource):
+    """A basic resource for retrieving a single model."""
 
-        API Documentation:
-        https://docs.praelatus.io/API/Reference/#post-models
-        """
-        user = req.context['user']
-        query = req.params.get('filter', '*')
-        with session() as db:
-            db_res = self.lib.get(db, actioning_user=user, filter=query)
-            res.body = json.dumps([p.clean_dict() for p in db_res])
-
-
-class BasicResource:
-    """Handlers for the /api/v1/models/{id} endpoint."""
-
-    def __init__(self, lib, schema, model_name=''):
-        """Set the lib module and json schema for this resource.
-
-        If model_name is not provided it will be inferred from the
-        module name of lib. This works for most models as the plural
-        is simply the model name + 's' the only exception being
-        statuses.
-        """
-        self.lib = lib
-        self.schema = schema
-        if model_name == '':
-            module_name = lib.__name__.split('.')
-            plural_name = module_name[len(module_name) - 1]
-            model_name = plural_name[:len(plural_name) - 1]
-        self.model_name = model_name
-
-    def on_get(self, req, res, id):
-        """Get a single model by id.
+    def on_get(self, req, res, uid):
+        """Get a single model by uid.
 
         API Documentation:
-        https://docs.praelatus.io/API/Reference/#get-modelsid
-
+        https://docs.praelatus.io/API/Reference/#get-modelsuid
         """
         user = req.context['user']
         with session() as db:
-            db_res = self.lib.get(db, actioning_user=user, id=id)
+            db_res = self.store.get(db, actioning_user=user, uid=uid)
             if db_res is None:
                 raise falcon.HTTPNotFound()
             res.body = db_res.to_json()
 
-    def on_put(self, req, res, id):
-        """Update the model indicated by id.
+
+class UpdateResource(BaseResource):
+    """A basic resource for updating a single model."""
+
+    def on_put(self, req, res, uid):
+        """Update the model indicated by uid.
 
         API Documentation:
-        https://docs.praelatus.io/API/Reference/#put-modelsid
+        https://docs.praelatus.io/API/Reference/#put-modelsuid
         """
         user = req.context['user']
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
         with session() as db:
-            db_res = self.lib.get(db, actioning_user=user, id=id)
+            db_res = self.store.get(db, actioning_user=user, uid=uid)
             db_res.name = jsn['name']
-            kwa = {}
-            kwa[self.model_name] = db_res
-            self.lib.update(db, actioning_user=user, **kwa)
+            self.store.update(db, actioning_user=user, model=db_res)
 
         res.body = json.dumps({
             'message': 'Successfully updated %s.' % self.model_name
         })
 
-    def on_delete(self, req, res, id):
-        """Update the model indicated by id.
 
-        You must have the ADMIN_TICKETTYPE permission to use this
-        endpoint.
+class DeleteResource(BaseResource):
+    """A basic resource for deleting a single model."""
 
-        API Documentation:
-        https://docs.praelatus.io/API/Reference/#put-modelsid
-        """
+    def on_delete(self, req, res, uid):
+        """Delete the model indicated by uid."""
         user = req.context['user']
         with session() as db:
-            db_res = self.lib.get(db, actioning_user=user, id=id)
-            kwa = {}
-            kwa[self.model_name] = db_res
-            self.lib.delete(db, actioning_user=user, **kwa)
+            db_res = self.store.get(db, actioning_user=user, uid=uid)
+            print('deleting', db_res)
+            self.store.delete(db, model=db_res, actioning_user=user)
 
         res.body = json.dumps({
             'message': 'Successfully deleted %s.' % self.model_name
         })
+
+
+class BasicResource(SingleResource, UpdateResource, DeleteResource):
+    """Handlers for the /api/v1/models/{uid} endpoint."""
+    pass
+
+
+class BasicMultiResource(SearchResource, CreateResource):
+    """A basic resource class that can handle the modelNames endpoints."""
+    pass

@@ -98,6 +98,7 @@ def test_crud_comments(client, auth_headers):
                       headers=auth_headers,
                       body=jsn)
     assert resp.status == falcon.HTTP_200
+    assert resp.json['message'] == 'Successfully updated comment.'
     resp = client.get(url, headers=auth_headers)
     cmt = {}
     for c in resp.json:

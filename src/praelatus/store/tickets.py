@@ -52,12 +52,14 @@ class TicketStore(Store):
 
         query = add_permission_query(db, query, actioning_user, 'VIEW_PROJECT')
 
-        id = kwargs.pop('id', None)
-        if id is not None:
-            query = query.filter(Ticket.id == id)
+        uid = kwargs.pop('id', uid)
 
-        if uid is not None:
+        if type(uid) is int:
+            query = query.filter(Ticket.id == uid)
+        elif type(uid) is str:
             query = query.filter(Ticket.key == uid)
+        else:
+            return None
 
         result = query.first()
         if result:
@@ -96,30 +98,29 @@ class TicketStore(Store):
 
         query = add_permission_query(db, query, actioning_user, 'VIEW_PROJECT')
 
-        assignee = kwargs.pop('assignee')
-        reporter = kwargs.pop('reporter')
-        project_key = kwargs.pop('project_key')
+        assignee = kwargs.pop('assignee', None)
+        reporter = kwargs.pop('reporter', None)
+        project_key = kwargs.pop('project_key', None)
 
         if assignee is not None:
             query = query.filter(Ticket.assignee_id == assignee['id'])
-
-        if reporter is not None:
+        elif reporter is not None:
             query = query.filter(Ticket.reporter_id == reporter['id'])
-
-        if project_key is not None:
+        elif project_key is not None:
             query = query.filter(Project.key == project_key)
-
-        if search is not None:
+        elif search is not None:
             pattern = search.replace('*', '%')
             query = query.filter(
                 or_(
                     Ticket.key.like(pattern),
-                    Ticket.summary.like('%' + filter + '%'),
+                    Ticket.summary.like('%' + search + '%'),
                     Label.name.like(pattern),
                     User.username.like(pattern),
                     Status.name.like(pattern)
                 )
             )
+        else:
+            return None
 
         return query.order_by(Ticket.key).all()
 
@@ -258,11 +259,11 @@ class TicketStore(Store):
             fv = db.query(FieldValue).filter_by(id=f.get('id', 0)).first()
             if fv is None:
                 field = db.query(Field).filter_by(name=f['name']).first()
-            if field is None:
-                raise KeyError('no field with name ' + f['name'] + ' found')
-            fv = FieldValue(
-                field=field
-            )
+                if field is None:
+                    raise KeyError('no field with name %s found' % f['name'])
+                fv = FieldValue(
+                    field=field
+                )
 
             self.set_field_value(fv, f['value'])
             db.add(fv)

@@ -3,15 +3,13 @@
 import json
 import falcon
 
-import praelatus.lib.tickets as tickets
-
 from praelatus.lib import session
 from praelatus.lib.redis import r
-from praelatus.api.schemas import TicketSchema
-from praelatus.api.schemas import CommentSchema
+from praelatus.api.v1.base import BasicResource
+from praelatus.api.v1.base import BasicMultiResource
 
 
-class TicketsResource:
+class TicketsResource(BasicMultiResource):
     """Handlers for /api/v1/tickets."""
 
     def on_post(self, req, res):
@@ -25,27 +23,11 @@ class TicketsResource:
         if jsn.get('reporter') is None:
             jsn['reporter'] = user
         with session() as db:
-            db_res = tickets.new(db, actioning_user=user, **jsn)
+            db_res = self.store.new(db, actioning_user=user, **jsn)
             res.body = db_res.to_json()
 
-    def on_get(self, req, res):
-        """Return all tickets the current user has access to.
 
-        Accepts the query parameter filter which searches through
-        tickets on the instance. This will eventually be replaced with
-        a query language but for now supports simple text searching.
-
-        API Documentation:
-        https://docs.praelatus.io/API/Reference/#get-tickets
-        """
-        user = req.context['user']
-        query = req.params.get('filter', '*')
-        with session() as db:
-            db_res = tickets.get(db, actioning_user=user, filter=query)
-            res.body = json.dumps([t.clean_dict() for t in db_res])
-
-
-class TicketResource:
+class TicketResource(BasicResource):
     """Handlers for /api/v1/tickets/{ticket_key} endpoint."""
 
     def on_get(self, req, res, ticket_key):
@@ -56,8 +38,8 @@ class TicketResource:
         """
         user = req.context['user']
         with session() as db:
-            db_res = tickets.get(db, actioning_user=user,
-                                 key=ticket_key, cached=True)
+            db_res = self.store.get(db, actioning_user=user,
+                                    uid=ticket_key, cached=True)
             if db_res is None:
                 raise falcon.HTTPNotFound()
 
@@ -74,16 +56,16 @@ class TicketResource:
         """
         user = req.context['user']
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
-        TicketSchema.validate(jsn)
+        self.schema.validate(jsn)
         with session() as db:
-            orig_tick = tickets.get(db, key=ticket_key)
+            orig_tick = self.store.get(db, uid=ticket_key)
             if orig_tick is None:
                 raise falcon.HTTPNotFound()
             # Invalidate the cached version
             r.delete(orig_tick.key)
-            tickets.update(db, actioning_user=user,
-                           project=orig_tick.project,
-                           orig_ticket=orig_tick, ticket=jsn)
+            self.store.update(db, actioning_user=user,
+                              project=orig_tick.project,
+                              orig_ticket=orig_tick, model=jsn)
             res.body = json.dumps({'message': 'Successfully updated ticket.'})
 
     def on_delete(self, req, res, ticket_key):
@@ -94,17 +76,22 @@ class TicketResource:
         """
         user = req.context['user']
         with session() as db:
-            tick = tickets.get(db, actioning_user=user, key=ticket_key)
+            tick = self.store.get(db, actioning_user=user, uid=ticket_key)
             if tick is None:
                 raise falcon.HTTPNotFound()
             r.delete(tick.key)
-            tickets.delete(db, actioning_user=user,
-                           project=tick.project, ticket=tick)
+            self.store.delete(db, actioning_user=user,
+                              project=tick.project, model=tick)
             res.body = json.dumps({'message': 'Successfully deleted ticket.'})
 
 
-class CommentsResource:
+class CommentsResource(BasicMultiResource):
     """Handlers for /api/v1/tickets/{ticket_key}/comments endpoint."""
+
+    def __init__(self, store, schema, ticket_store):
+        """Add ticket_store to BasicMultiResource as required for comments."""
+        super(CommentsResource, self).__init__(store, schema)
+        self.ticket_store = ticket_store
 
     def on_get(self, req, res, ticket_key):
         """Retrieve all comments for the ticket indentified by ticket_key.
@@ -114,10 +101,11 @@ class CommentsResource:
         """
         user = req.context['user']
         with session() as db:
-            ticket = tickets.get(db, actioning_user=user, key=ticket_key)
-            comments = tickets.get_comments(db, actioning_user=user,
-                                            project=ticket.project,
-                                            ticket_key=ticket_key)
+            ticket = self.ticket_store.get(db, actioning_user=user,
+                                           uid=ticket_key)
+            comments = self.store.get_for_ticket(db, actioning_user=user,
+                                                 project=ticket.project,
+                                                 ticket_uid=ticket.id)
             res.body = json.dumps([x.clean_dict() for x in comments])
 
     def on_post(self, req, res, ticket_key):
@@ -129,18 +117,24 @@ class CommentsResource:
         user = req.context['user']
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
         jsn['author'] = user
-        CommentSchema.validate(jsn)
+        self.schema.validate(jsn)
         with session() as db:
-            ticket = tickets.get(db, actioning_user=user, key=ticket_key)
-            comment = tickets.add_comment(db, actioning_user=user,
-                                          project=ticket.project,
-                                          ticket_id=ticket.id,
-                                          **jsn)
+            ticket = self.ticket_store.get(db, actioning_user=user,
+                                           uid=ticket_key)
+            comment = self.store.new(db, actioning_user=user,
+                                     project=ticket.project,
+                                     ticket_id=ticket.id,
+                                     **jsn)
             res.body = comment.to_json()
 
 
-class CommentResource:
+class CommentResource(BasicResource):
     """Handlers for /api/v1/tickets/{ticket_key}/comments/{id} endpoint."""
+
+    def __init__(self, store, schema, ticket_store):
+        """Add ticket_store to BasicMultiResource as required for comments."""
+        super(CommentResource, self).__init__(store, schema)
+        self.ticket_store = ticket_store
 
     def on_put(self, req, res, ticket_key, id):
         """Update the comment at ID for ticket_key.
@@ -150,14 +144,15 @@ class CommentResource:
         """
         user = req.context['user']
         jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
-        CommentSchema.validate(jsn)
+        self.schema.validate(jsn)
         with session() as db:
-            ticket = tickets.get(db, actioning_user=user,
-                                 key=ticket_key)
-            comment = tickets.get_comment(db, int(id), project=ticket.project)
+            ticket = self.ticket_store.get(db, actioning_user=user,
+                                           uid=ticket_key)
+            comment = self.store.get(db, actioning_user=user,
+                                     uid=int(id), project=ticket.project)
             comment.body = jsn['body']
-            tickets.update_comment(db, comment, actioning_user=user,
-                                   project=ticket.project)
+            self.store.update(db, comment, actioning_user=user,
+                              project=ticket.project)
 
             res.body = json.dumps({
                 'message': 'Successfully updated comment.'
@@ -171,12 +166,11 @@ class CommentResource:
         """
         user = req.context['user']
         with session() as db:
-            ticket = tickets.get(db, actioning_user=user,
-                                 key=ticket_key)
-            comment = ticket.get_comment(db, int(id), project=ticket.project)
-            tickets.delete_comment(db, comment, actioning_user=user,
-                                   project=ticket.project)
-
+            ticket = self.ticket_store.get(db, actioning_user=user,
+                                           uid=ticket_key)
+            comment = self.store.get(db, uid=int(id), project=ticket.project)
+            self.store.delete(db, model=comment, actioning_user=user,
+                              project=ticket.project)
             res.body = json.dumps({
                 'message': 'Successfully deleted comment.'
             })

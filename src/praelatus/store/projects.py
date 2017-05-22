@@ -32,7 +32,9 @@ class ProjectStore(Store):
         query = db.query(Project)
         query = add_permission_query(db, query,
                                      actioning_user, 'VIEW_PROJECT')
-        if uid is not None:
+        if type(uid) is int:
+            query = query.filter(Project.id == uid)
+        elif type(uid) is str:
             query = query.filter(Project.key == uid)
         elif id is not None:
             query = query.filter(Project.id == id)
@@ -40,6 +42,7 @@ class ProjectStore(Store):
             query = query.filter(Project.name == name)
         else:
             return None
+
         return query.first()
 
     def search(self, db, search, actioning_user=None, **kwargs):
