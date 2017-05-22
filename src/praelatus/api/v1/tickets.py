@@ -105,7 +105,7 @@ class CommentsResource(BasicMultiResource):
                                            uid=ticket_key)
             comments = self.store.get_for_ticket(db, actioning_user=user,
                                                  project=ticket.project,
-                                                 ticket_uid=ticket.id)
+                                                 ticket_id=ticket.id)
             res.body = json.dumps([x.clean_dict() for x in comments])
 
     def on_post(self, req, res, ticket_key):
