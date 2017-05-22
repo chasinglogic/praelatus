@@ -47,7 +47,7 @@ class ProjectStore(Store):
 
     def search(self, db, search, actioning_user=None, **kwargs):
         """Search through projects and return all matches."""
-        pattern = filter.replace('*', '%')
+        pattern = search.replace('*', '%')
         query = db.query(Project).filter(
             or_(
                 Project.name.like(pattern),
