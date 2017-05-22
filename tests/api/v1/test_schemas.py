@@ -2,7 +2,7 @@ from praelatus.api.schemas import *  # noqa: F403
 
 import praelatus.lib.workflows as workflows
 import praelatus.lib.tickets as tickets
-import praelatus.lib.permissions as permissions
+from praelatus.store import PermissionSchemeStore
 
 
 def test_signup_schema():
@@ -36,5 +36,5 @@ def test_ticket_schema(db, admin):
 
 
 def test_permission_schema(db, admin):
-    scheme = permissions.get(db, actioning_user=admin, id=1)
+    scheme = PermissionSchemeStore.get(db, actioning_user=admin, uid=1)
     PermissionSchemeSchema.validate(scheme.clean_dict())

@@ -2,7 +2,6 @@
 
 import pytest
 from praelatus.lib import session
-from praelatus.seeds import seed
 import praelatus.lib.users as users
 
 @pytest.fixture(scope='module')
