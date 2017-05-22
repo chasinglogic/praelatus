@@ -27,7 +27,6 @@ class FieldStore(Store):
         Optional Keyword Arguments:
         options -- an array of json FieldOptions required if DATA_TYPE == 'OPT'
         """
-        print('Mkaing new field')
         new_field = Field(
             name=kwargs['name'],
             data_type=self.valid_type(kwargs['data_type'])
@@ -45,6 +44,7 @@ class FieldStore(Store):
 
         db.add(new_field)
         db.commit()
+
         return new_field
 
     @staticmethod

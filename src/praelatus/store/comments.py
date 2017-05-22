@@ -3,6 +3,7 @@
 from praelatus.store import Store
 from praelatus.models import Comment
 from praelatus.models import Ticket
+from praelatus.models.permissions import PermissionError
 from praelatus.lib.permissions import permission_required
 from praelatus.lib.permissions import is_system_admin
 from praelatus.lib.permissions import has_permission

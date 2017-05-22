@@ -19,11 +19,14 @@ class UserStore(Store):
         """Get a single user, db is a SQL Alchemy session."""
         query = db.query(self.model)
 
-        if uid is not None:
+        if type(uid) is int:
             query = query.filter(self.model.id == uid)
-
-        if username is not None:
+        elif type(uid) is str:
+            query = query.filter(self.model.username == uid)
+        elif username is not None:
             query = query.filter(self.model.username == username)
+        else:
+            return None
 
         return query.first()
 
@@ -76,35 +79,35 @@ class UserStore(Store):
         try:
             db.add(new_user)
             db.commit()
-        except IntegrityError as e:
+        except IntegrityError:
             raise DuplicateError('That username is already taken.')
 
         return new_user
 
-    def update(self, db, user, actioning_user=None):
+    def update(self, db, model=None, actioning_user=None):
         """Update the given user in the database.
 
         user must be a User class instance.
         """
         if (actioning_user is None or
-            (actioning_user.get('id', 0) != user.id and
+            (actioning_user.get('id', 0) != model.id and
              not actioning_user.is_admin)):
             raise PermissionError('permission denied')
 
-        db.add(user)
+        db.add(model)
         db.commit()
 
-    def delete(db, user, actioning_user=None):
+    def delete(self, db, model=None, actioning_user=None):
         """Remove the given user from the database.
 
         user must be a User class instance.
         """
         if (actioning_user is None or
-            (actioning_user.get('id', 0) != user.id and
+            (actioning_user.get('id', 0) != model.id and
              not actioning_user.is_admin)):
             raise PermissionError('permission denied')
 
-        db.delete(user)
+        db.delete(model)
         db.commit()
 
     def gravatar(self, email):

@@ -17,5 +17,7 @@ class LabelStore(Store):
         db.add(new_label)
         db.commit()
 
+        return new_label
+
 
 store = LabelStore(Label)

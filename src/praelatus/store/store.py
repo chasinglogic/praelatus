@@ -39,6 +39,7 @@ class Store:
         new_model = self.model(**kwargs)
         db.add(new_model)
         db.commit()
+        return new_model
 
     @sys_admin_required
     def update(self, db, model=None, **kwargs):
