@@ -48,14 +48,13 @@ setup(
         'praelatus',
         'migrations'
     ],
+    package_dir={'': 'src'},
     package_data={
-        '': ['*.ini']
+        'migrations': ['*']
     },
     include_package_data=True,
-    author="""
-Mathew Robinson <mrobinson@praelatus.io>
-Mark Chandler <mchandler@praelatus.io>
-    """,
+    author="""Mathew Robinson and many others.""",
+    author_email="team@praelatus.io",
     url='https://prealatus.io',
     download_url='https://github.com/praelatus/praelatus/releases',
     install_requires=get_requirements(),

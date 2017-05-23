@@ -18,6 +18,7 @@ from praelatus.store import StatusStore
 from praelatus.store import CommentStore
 from praelatus.store import UserStore
 
+from praelatus.api.schemas import PermissionSchemeSchema
 from praelatus.api.schemas import CommentSchema
 from praelatus.api.schemas import TicketSchema
 from praelatus.api.schemas import StatusSchema
@@ -27,6 +28,7 @@ from praelatus.api.schemas import LabelSchema
 from praelatus.api.schemas import TicketTypeSchema
 from praelatus.api.schemas import ProjectSchema
 from praelatus.api.schemas import WorkflowSchema
+from praelatus.api.schemas import RoleSchema
 
 from praelatus.api.v1.tickets import CommentResource
 from praelatus.api.v1.tickets import CommentsResource
@@ -147,8 +149,8 @@ class AssignedResource(BaseResource):
         with session() as db:
             assignee = self.user_store.get(db, uid=uid)
             ticks = self.store.search(db, actioning_user=user,
-                                      assignee=assignee.clean_dict())
-            res.body = json.dumps([t.clean_dict() for t in ticks])
+                                      assignee=assignee.jsonify())
+            res.body = json.dumps([t.jsonify() for t in ticks])
 
 
 class ReportedResource(BaseResource):
@@ -169,8 +171,8 @@ class ReportedResource(BaseResource):
         with session() as db:
             reporter = self.user_store.get(db, uid=uid)
             ticks = self.store.search(db, actioning_user=user,
-                                      reporter=reporter.clean_dict())
-            res.body = json.dumps([t.clean_dict() for t in ticks])
+                                      reporter=reporter.jsonify())
+            res.body = json.dumps([t.jsonify() for t in ticks])
 
 
 class ProjectTicketsResource(BaseResource):
@@ -186,7 +188,7 @@ class ProjectTicketsResource(BaseResource):
         with session() as db:
             db_res = self.store.search(db, actioning_user=user,
                                        project_key=uid)
-            res.body = json.dumps([t.clean_dict() for t in db_res])
+            res.body = json.dumps([t.jsonify() for t in db_res])
 
 
 class WorkflowResource(BasicResource):
@@ -292,3 +294,15 @@ def add_v1_routes(app, prefix='/api/v1/'):
                   BasicMultiResource(WorkflowStore, WorkflowSchema))
     app.add_route(prefix + 'workflows/{uid}',
                   WorkflowResource(WorkflowStore, WorkflowSchema))
+
+    # Roles
+    app.add_route(prefix + 'roles',
+                  BasicMultiResource(RoleStore, RoleSchema))
+    app.add_route(prefix + 'roles/{uid}',
+                  BasicMultiResource(RoleStore, RoleSchema))
+
+    # Permission Schemes
+    app.add_route(prefix + 'permissionSchemes',
+                  BasicMultiResource(PermissionSchemeStore, PermissionSchemeSchema))
+    app.add_route(prefix + 'permissionSchemes/{uid}',
+                  BasicMultiResource(PermissionSchemeStore, PermissionSchemeSchema))

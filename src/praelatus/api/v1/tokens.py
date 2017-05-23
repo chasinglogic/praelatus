@@ -38,7 +38,7 @@ class TokensResource(BaseResource):
     @staticmethod
     def create_token(user, res):
         """Create a session for user, set the res body to the session."""
-        token = tokens.gen_session_id(user.clean_dict())
+        token = tokens.gen_session_id(user.jsonify())
 
         # Set the session cookie on the resonse
         res.set_cookie('PRAE_SESSION', token)
@@ -46,5 +46,5 @@ class TokensResource(BaseResource):
         res.status = falcon.HTTP_200
         res.body = json.dumps({
             'token': token,
-            'user': user.clean_dict()
+            'user': user.jsonify()
         })

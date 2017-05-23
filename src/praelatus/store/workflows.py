@@ -1,4 +1,13 @@
-"""Contains definition for the WorkflowStore."""
+"""Contains definition for the WorkflowStore.
+
+Anywhere a db is taken it is assumed to be a sqlalchemy session
+created by a SessionMaker instance.
+
+Anywhere actioning_user is a keyword argument, this is the user
+performing the call and the permissions of the provided user will be
+checked before committing the action. None is equivalent to an
+Anonymous user.
+"""
 
 from praelatus.store import Store
 from praelatus.models import Hook
@@ -14,6 +23,7 @@ class WorkflowStore(Store):
     """Stores and retrieves workflows."""
 
     def __init__(self, model, status_store):
+        """Extend constructo with status_store, a Status Store interface."""
         self.status_store = status_store
         self.model = model
 
@@ -98,9 +108,6 @@ class WorkflowStore(Store):
                 db.commit()
                 new_transitions.append(t)
         return new_transitions
-
-
-
 
 
 status_store = Store(Status)
