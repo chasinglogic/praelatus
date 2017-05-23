@@ -12,3 +12,4 @@ from praelatus.api.schemas.ticket import TicketTypeSchema
 from praelatus.api.schemas.ticket import FieldSchema
 from praelatus.api.schemas.project import ProjectSchema
 from praelatus.api.schemas.permission import PermissionSchemeSchema
+from praelatus.api.schemas.permission import RoleSchema
