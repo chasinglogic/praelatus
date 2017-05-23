@@ -1,4 +1,13 @@
-"""Contains definition for the LabelStore class."""
+"""Contains definition for the LabelStore class.
+
+Anywhere a db is taken it is assumed to be a sqlalchemy session
+created by a SessionMaker instance.
+
+Anywhere actioning_user is a keyword argument, this is the user
+performing the call and the permissions of the provided user will be
+checked before committing the action. None is equivalent to an
+Anonymous user.
+"""
 
 from praelatus.models import Label
 from praelatus.store.store import Store
