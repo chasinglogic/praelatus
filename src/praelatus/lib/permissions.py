@@ -11,7 +11,6 @@ Anonymous user.
 
 from functools import wraps
 from sqlalchemy import or_
-from sqlalchemy.orm import joinedload
 
 from praelatus.models import PermissionScheme
 from praelatus.models import Role
