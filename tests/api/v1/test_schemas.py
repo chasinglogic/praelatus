@@ -16,7 +16,7 @@ def test_signup_schema():
 
 def test_workflow_schema(db, admin):
     workflow = WorkflowStore.get(db, actioning_user=admin, name='Default Workflow')
-    WorkflowSchema.validate(workflow.clean_dict())
+    WorkflowSchema.validate(workflow.jsonify())
 
 
 def test_ticket_schema(db, admin):
@@ -32,9 +32,9 @@ def test_ticket_schema(db, admin):
     """
     tick = TicketStore.get(db, actioning_user=admin, uid='TEST-10',
                            preload_comments=True)
-    TicketSchema.validate(tick.clean_dict())
+    TicketSchema.validate(tick.jsonify())
 
 
 def test_permission_schema(db, admin):
     scheme = PermissionSchemeStore.get(db, actioning_user=admin, uid=1)
-    PermissionSchemeSchema.validate(scheme.clean_dict())
+    PermissionSchemeSchema.validate(scheme.jsonify())

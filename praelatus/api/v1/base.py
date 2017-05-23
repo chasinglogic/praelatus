@@ -38,7 +38,7 @@ class SearchResource(BaseResource):
         query = req.params.get('filter', '*')
         with session() as db:
             db_res = self.store.search(db, actioning_user=user, search=query)
-            res.body = json.dumps([p.clean_dict() for p in db_res])
+            res.body = json.dumps([p.jsonify() for p in db_res])
 
 
 class CreateResource(BaseResource):

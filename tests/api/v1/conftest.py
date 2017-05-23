@@ -18,7 +18,7 @@ def headers():
 @pytest.fixture(scope='module')
 def admin():
     with session() as db:
-        return UserStore.get(db, username='testadmin').clean_dict()
+        return UserStore.get(db, username='testadmin').jsonify()
 
 
 @pytest.fixture

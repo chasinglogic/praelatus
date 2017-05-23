@@ -14,7 +14,7 @@ class BaseModel:
         """A basic repr method that can be inherited."""
         return "%s(id=%s)" % (self.__class__.__name__, self.id)
 
-    def clean_dict(self):
+    def jsonify(self):
         """
         Return a dictionary of the obj with metadata removed.
 
@@ -28,7 +28,7 @@ class BaseModel:
     def to_json(self):
         """A basic to_json method that works for 90% of the models."""
         # jsonify our dict using the stdlib
-        return json.dumps(self.clean_dict())
+        return json.dumps(self.jsonify())
 
     @classmethod
     def from_json(cls, jsn):

@@ -149,8 +149,8 @@ class AssignedResource(BaseResource):
         with session() as db:
             assignee = self.user_store.get(db, uid=uid)
             ticks = self.store.search(db, actioning_user=user,
-                                      assignee=assignee.clean_dict())
-            res.body = json.dumps([t.clean_dict() for t in ticks])
+                                      assignee=assignee.jsonify())
+            res.body = json.dumps([t.jsonify() for t in ticks])
 
 
 class ReportedResource(BaseResource):
@@ -171,8 +171,8 @@ class ReportedResource(BaseResource):
         with session() as db:
             reporter = self.user_store.get(db, uid=uid)
             ticks = self.store.search(db, actioning_user=user,
-                                      reporter=reporter.clean_dict())
-            res.body = json.dumps([t.clean_dict() for t in ticks])
+                                      reporter=reporter.jsonify())
+            res.body = json.dumps([t.jsonify() for t in ticks])
 
 
 class ProjectTicketsResource(BaseResource):
@@ -188,7 +188,7 @@ class ProjectTicketsResource(BaseResource):
         with session() as db:
             db_res = self.store.search(db, actioning_user=user,
                                        project_key=uid)
-            res.body = json.dumps([t.clean_dict() for t in db_res])
+            res.body = json.dumps([t.jsonify() for t in db_res])
 
 
 class WorkflowResource(BasicResource):

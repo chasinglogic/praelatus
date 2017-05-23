@@ -108,7 +108,7 @@ class CommentsResource(BasicMultiResource):
             comments = self.store.get_for_ticket(db, actioning_user=user,
                                                  project=ticket.project,
                                                  ticket_id=ticket.id)
-            res.body = json.dumps([x.clean_dict() for x in comments])
+            res.body = json.dumps([x.jsonify() for x in comments])
 
     def on_post(self, req, res, ticket_key):
         """Create a new comment for the ticket identified by ticket_key.
@@ -196,7 +196,7 @@ class TransitionResource(BaseResource):
                                   actioning_user=user,
                                   ticket=ticket)
             resp = {
-                'ticket': ticket.clean_dict(),
+                'ticket': ticket.jsonify(),
                 'jobs': [
                     {
                         'name': 'web_hooks',

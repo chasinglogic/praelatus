@@ -19,8 +19,8 @@ class User(Base):
     is_admin = Column(Boolean)
     is_active = Column(Boolean)
 
-    def clean_dict(self):
-        """Call BaseModel clean_dict but remove password."""
+    def jsonify(self):
+        """Call BaseModel jsonify but remove password."""
         return {
             'id': self.id,
             'username': self.username,
