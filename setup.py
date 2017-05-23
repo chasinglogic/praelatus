@@ -2,10 +2,9 @@
 import os
 import re
 from setuptools import setup
-from setuptools import find_packages
 
 praelatusfile = os.path.join(os.path.dirname(__file__),
-                             'src', 'praelatus', '__init__.py')
+                             'praelatus', '__init__.py')
 
 # Thanks to SQLAlchemy:
 # https://github.com/zzzeek/sqlalchemy/blob/master/setup.py#L104
@@ -49,7 +48,6 @@ setup(
         'praelatus',
         'migrations'
     ],
-    package_dir={'': 'src'},
     package_data={
         '': ['*.ini']
     },
