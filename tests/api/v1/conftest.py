@@ -1,5 +1,5 @@
 import pytest
-import praelatus.lib.users as users
+from praelatus.store import UserStore
 from praelatus.lib import session
 import praelatus.lib.tokens as tokens
 from praelatus.api import application
@@ -18,7 +18,7 @@ def headers():
 @pytest.fixture(scope='module')
 def admin():
     with session() as db:
-        return users.get(db, username='testadmin').clean_dict()
+        return UserStore.get(db, username='testadmin').clean_dict()
 
 
 @pytest.fixture
