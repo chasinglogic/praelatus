@@ -168,7 +168,7 @@ class TicketStore(Store):
             {"pid": new_ticket.project_id}).\
             first()[0]
 
-        new_ticket.status_id = self.transition_status(db, new_ticket, 'Create')
+        new_ticket.status_id = self._get_transition(db, new_ticket, 'Create')
         new_ticket.key = self.get_next_ticket_key(db, kwargs['project'])
 
         assignee = kwargs.get('assignee')
@@ -183,17 +183,18 @@ class TicketStore(Store):
         db.commit()
         return new_ticket
 
+    @permission_required('TRANSITION_TICKET')
     def transition_ticket(self, db, ticket, transition_name):
         """Perform transition on ticket indicated by transition_name."""
-        new_status_id = self.transition_status(db, ticket, transition_name)
-        if new_status_id is None:
+        transition = self._get_transition(db, ticket, transition_name)
+        if transition is None:
             raise KeyError('Not a valid transition.')
-        ticket.status_id = new_status_id
+        ticket.status_id = transition.to_status_id
         db.add(ticket)
         db.commit()
-        return ticket
+        return (transition, ticket)
 
-    def transition_status(self, db, ticket, transition_name):
+    def _get_transition(self, db, ticket, transition_name):
         """Find the transition and return the new status_id for the ticket."""
         query = db.query(Transition.to_status_id).filter(
             Transition.workflow_id == ticket.workflow_id,
