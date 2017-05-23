@@ -17,9 +17,9 @@ def test_stores(db, admin):
             'new': {
                 'summary': 'json test',
                 'description': 'testing json serialization',
-                'ticket_type': ticket_type.clean_dict(),
+                'ticket_type': ticket_type.jsonify(),
                 'workflow_id': 1,
-                'project': project.clean_dict(),
+                'project': project.jsonify(),
                 'reporter': admin,
                 'labels': ['internal', 'test'],
                 'fields': [
@@ -58,7 +58,11 @@ def test_stores(db, admin):
         res = store.get(db, uid=t['uid_param'],
                         actioning_user=admin)
         assert res is not None
+<<<<<<< HEAD
         t['schema'].validate(res.clean_dict())
+=======
+        t['schema'].validate(res.jsonify())
+>>>>>>> d758982b6f5915e4b86021e058f666bab2dd0a03
 
         res = store.new(db, **t['new'])
         assert res is not None

@@ -2,12 +2,12 @@
 
 import pytest
 from praelatus.lib import session
-import praelatus.lib.users as users
+from praelatus.store import UserStore
 
 @pytest.fixture(scope='module')
 def admin():
     with session() as db:
-        return users.get(db, username='testadmin').clean_dict()
+        return UserStore.get(db, username='testadmin').jsonify()
 
 
 @pytest.fixture(scope='module')
