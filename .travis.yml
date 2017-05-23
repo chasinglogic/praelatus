@@ -17,5 +17,5 @@ script:
   - flake8 --exclude=src/migrations --config=./tox.ini src/
   - praelatus cleandb --yes
   - praelatus migrate
-  - praelatus seeddb
+  - python scripts/seeddb.py
   - pytest -vv --cov-report term-missing --cov-config .coveragerc --cov=praelatus tests/
