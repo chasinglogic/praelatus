@@ -77,7 +77,7 @@ def testdb():
 @click.option("--isadmin", default=False, help="Admin priviledges")
 def create_user(username, passwd, fullname, email, isadmin):
     """Create a new user in the database."""
-    import praelatus.lib.users as users
+    from praelatus.store import UserStore
 
     nu_user = {
         'username': username,
@@ -88,4 +88,4 @@ def create_user(username, passwd, fullname, email, isadmin):
     }
 
     with session() as db:
-        users.new(db, **nu_user)
+        UserStore.new(db, **nu_user)
