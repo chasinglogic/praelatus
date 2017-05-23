@@ -5,8 +5,10 @@ import falcon
 
 from praelatus.lib import session
 from praelatus.lib.redis import r
+from praelatus.tasks import fire_web_hooks
 from praelatus.api.v1.base import BasicResource
 from praelatus.api.v1.base import BasicMultiResource
+from praelatus.api.v1.base import BaseResource
 
 
 class TicketsResource(BasicMultiResource):
@@ -176,15 +178,31 @@ class CommentResource(BasicResource):
             })
 
 
-class TransitionResource:
-    """Handlers for /api/v1/tickets/{ticket_key}/transition."""
+class TransitionResource(BaseResource):
+    """Handlers for /api/v1/tickets/{ticket_key}/transition/{transition_name}."""
 
-    def on_post(self, req, res, ticket_key):
+    def on_post(self, req, res, ticket_key, transition_name):
         """Perform a transition on ticket indicated by ticket_key.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#post-ticket_keytransition
         """
         user = req.context['user']
-        transition = req.get_param('name')
-        return
+        with session() as db:
+            ticket = self.store.get(db, actioning_user=user,
+                                    uid=ticket_key)
+            (ticket, transition) = self.store.\
+                transition_ticket(db,
+                                  actioning_user=user,
+                                  ticket=ticket)
+            resp = {
+                'ticket': ticket.clean_dict(),
+                'jobs': [
+                    {
+                        'name': 'web_hooks',
+                        'id': fire_web_hooks.delay(transition.hooks, ticket)
+                    }
+                ]
+            }
+
+            res.body = json.dumps(resp)
