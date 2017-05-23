@@ -5,7 +5,7 @@ import falcon
 
 from praelatus.lib import session
 from praelatus.lib.redis import r
-from praelatus.tasks import fire_web_hooks
+from praelatus.events import fire_web_hooks
 from praelatus.api.v1.base import BasicResource
 from praelatus.api.v1.base import BasicMultiResource
 from praelatus.api.v1.base import BaseResource

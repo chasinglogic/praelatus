@@ -3,7 +3,7 @@
 import requests
 import jinja2
 
-from praelatus.tasks.app import app
+from praelatus.events.app import app
 
 
 @app.task
