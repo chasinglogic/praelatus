@@ -2,10 +2,10 @@
 
 import json
 import falcon
+import praelatus.events as events
 
 from praelatus.lib import session
 from praelatus.lib.redis import r
-from praelatus.events import fire_web_hooks
 from praelatus.api.v1.base import BasicResource
 from praelatus.api.v1.base import BasicMultiResource
 from praelatus.api.v1.base import BaseResource
@@ -127,6 +127,8 @@ class CommentsResource(BasicMultiResource):
                                      project=ticket.project,
                                      ticket_id=ticket.id,
                                      **jsn)
+            event = events.Event(user, ticket, comment=comment)
+            events.send_event(event)
             res.body = comment.to_json()
 
 
@@ -195,14 +197,6 @@ class TransitionResource(BaseResource):
                 transition_ticket(db,
                                   actioning_user=user,
                                   ticket=ticket)
-            resp = {
-                'ticket': ticket.jsonify(),
-                'jobs': [
-                    {
-                        'name': 'web_hooks',
-                        'id': fire_web_hooks.delay(transition.hooks, ticket)
-                    }
-                ]
-            }
-
-            res.body = json.dumps(resp)
+            event = events.Event(user, ticket, transition=transition)
+            events.send_event(event)
+            res.body = json.dumps(ticket.jsonify())
