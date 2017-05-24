@@ -27,6 +27,7 @@ transition_template = Template("""
 {{ transition.to_status.name }}
 """)
 
+
 def send_email(recipients, event):
     """Sends an email using the desired template"""
     subject = 'default'
