@@ -1,4 +1,4 @@
 """Holds the Celery app object and tasks for Praelatus."""
 # flake8: noqa
-from praelatus.events.app import app
-from praelatus.events.web_hooks import fire_web_hooks
+from praelatus.events.event import Event
+from praelatus.events.event import send_event
