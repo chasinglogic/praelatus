@@ -38,20 +38,24 @@ class EventManager():
     instance of the Event class.
     """
 
-    def register_listener(self, filter_, listener):
+    def __init__(self, filters_and_listeners=[]):
+        """Optionally accept a list of filters with listeners."""
+        self.listeners = filters_and_listeners
+
+    def register_listener(self, cond, listener):
         """Register listener with event manager.
 
-        When filter_ is true call listener. filter_ is often an anonymous
+        When cond is true call listener. cond is often an anonymous
         function. For example:
 
         lambda x: x.event_type == EventType.COMMENT_ADDED
 
         When send_event is called the EventManager's internal list of listeners
-        will be filtered for listeners whose filter_ is true and then execute
+        will be filtered for listeners whose cond is true and then execute
         those listeners.
         """
         self.listeners.append({
-            'filter': filter_,
+            'filter': cond,
             'listener': listener
         })
 
@@ -62,4 +66,4 @@ class EventManager():
         """
         matched = filter(lambda x: x['filter'](event), self.listeners)
         for m in matched:
-            m(event)
+            m['listener'].delay(event)
