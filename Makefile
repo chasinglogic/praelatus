@@ -1,15 +1,14 @@
 PIP="pip"
 
+install:
+	python setup.py install
+
+build:
+	python setup.py sdist bdist_wheel
+
 .PHONY = clean
 clean:
 	rm -rf build
 	rm -rf dist
-	shopt -s globstar
 	rm -rf **/__pycache__
-
-
-build:
-	python setup.py bdist_wheel
-
-install:
-	python setup.py install
+	rm -rf **/*.egg-info
