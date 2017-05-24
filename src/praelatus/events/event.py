@@ -2,9 +2,6 @@
 
 import enum
 
-from praelatus.events.web_hooks import send_web_hooks
-from praelatus.events.notications import send_email
-
 
 class EventType(enum.Enum):
     """Available event types in Praelatus."""

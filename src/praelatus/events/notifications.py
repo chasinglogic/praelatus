@@ -4,8 +4,8 @@ from jinja2 import Template
 from pkg_resources import resource_string
 from pkg_resources import resource_exists
 from email.mime.text import MIMEText
-from praelatus.models.events import EventType
-from praelatus.models.events import Event
+from praelatus.events.event import EventType
+from praelatus.events.event import Event
 from praelatus.models import *
 
 
