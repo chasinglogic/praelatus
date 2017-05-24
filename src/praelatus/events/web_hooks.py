@@ -3,10 +3,9 @@
 import requests
 import jinja2
 
-from celery.utils.log import get_task_logger
-
 from praelatus.events.app import app
 
+from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
 
 
