@@ -58,11 +58,7 @@ def test_stores(db, admin):
         res = store.get(db, uid=t['uid_param'],
                         actioning_user=admin)
         assert res is not None
-<<<<<<< HEAD
-        t['schema'].validate(res.clean_dict())
-=======
         t['schema'].validate(res.jsonify())
->>>>>>> d758982b6f5915e4b86021e058f666bab2dd0a03
 
         res = store.new(db, **t['new'])
         assert res is not None
