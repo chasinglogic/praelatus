@@ -1,20 +1,17 @@
 language: python
 python:
+  - "3.4"
   - "3.5"
   - "3.6"
 services:
   - postgres
   - redis
+  - rabbitmq
 env:
   - PRAELATUS_DB=postgres://postgres:postgres@localhost:5432/prae_dev
 before_script:
   - psql -c 'create database prae_dev;' -U postgres
 install:
   - pip install -r test_requirements.txt
-  - python setup.py install
 script:
-  - flake8 --exclude=src/migrations --config=./tox.ini src/
-  - praelatus cleandb --yes
-  - praelatus migrate
-  - python scripts/seeddb.py
-  - pytest -vv --cov-report term-missing --cov-config .coveragerc --cov=praelatus tests/
+  - tox
