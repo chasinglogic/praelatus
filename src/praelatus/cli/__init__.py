@@ -1,8 +1,6 @@
 """Contains the CLI functions for Praelatus."""
 
 import click
-from os.path import dirname
-from os.path import exists
 from os.path import join
 from praelatus.lib import session
 from praelatus.lib import clean_db
