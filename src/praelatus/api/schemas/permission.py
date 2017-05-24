@@ -1,4 +1,4 @@
-"""Defines schema for workflow objects and related objects."""
+"""Defines schema for permission schemes and related objects."""
 
 from praelatus.api.schemas.base import BaseSchema
 
@@ -21,3 +21,8 @@ class PermissionSchemeSchema(BaseSchema):
             },
         }
     }
+
+
+class RoleSchema(BaseSchema):
+    """Used for validation of role objects."""
+    pass

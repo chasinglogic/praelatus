@@ -1,10 +1,7 @@
 """Contains the CLI functions for Praelatus."""
 
 import click
-from os.path import dirname
-from os.path import exists
 from os.path import join
-from praelatus.seeds import seed
 from praelatus.lib import session
 from praelatus.lib import clean_db
 
@@ -12,15 +9,6 @@ from praelatus.lib import clean_db
 @click.group()
 def cli():  # noqa: D103
     pass
-
-
-@cli.command()
-def seeddb():
-    """Seed the database with test data."""
-    print("Seeding the database with test data."
-          "This may take a minute...")
-    seed()
-    print("Seeding finished.")
 
 
 @cli.command()
@@ -42,25 +30,22 @@ def cleandb(yes):
 def migrate():
     """Migrate the database up to the latest version."""
     import subprocess
+    import pkg_resources
 
     print('Migrating the database using Alembic...')
 
-    migrations_dir = dirname(dirname(dirname(__file__))).replace(' ', '')
-    print(migrations_dir)
+    migrations_dir = pkg_resources.resource_filename('praelatus', 'migrations')
 
     alembicArgs = [
         'alembic',
         '-c',
-        '%s' % join(migrations_dir, 'migrations', 'alembic.ini'),
+        join(migrations_dir, 'alembic.ini'),
         'upgrade',
         'head'
     ]
 
-    if not exists(migrations_dir):
-        print('failed to find migrations,', migrations_dir)
-        return
-
-    alembic = subprocess.Popen(alembicArgs, cwd=migrations_dir)
+    alembic = subprocess.Popen(alembicArgs,
+                               cwd=pkg_resources.resource_filename('praelatus', ''))
     stdout, stderr = alembic.communicate()
     if stderr is not None:
         print(stderr)
@@ -88,7 +73,7 @@ def testdb():
 @click.option("--isadmin", default=False, help="Admin priviledges")
 def create_user(username, passwd, fullname, email, isadmin):
     """Create a new user in the database."""
-    import praelatus.lib.users as users
+    from praelatus.store import UserStore
 
     nu_user = {
         'username': username,
@@ -99,4 +84,23 @@ def create_user(username, passwd, fullname, email, isadmin):
     }
 
     with session() as db:
-        users.new(db, **nu_user)
+        UserStore.new(db, **nu_user)
+
+
+@cli.command()
+def serve():
+    """Run praelatus using gunicorn and gevent.
+
+    Not recommended for production. Please see https://doc.praelatus.io for
+    production deployment options.
+    """
+    import os
+    import subprocess
+    import multiprocessing
+
+    print("Starting praelatus...")
+    host = os.getenv("PRAELATUS_HOST", "127.0.0.1")
+    port = os.getenv("PRAELATUS_PORT", "8080")
+    subprocess.call(["gunicorn", "-b", "%s:%s" % (host, port),
+                     "-w", str(multiprocessing.cpu_count() + 1),
+                     "-k", "gevent", "praelatus.api"])

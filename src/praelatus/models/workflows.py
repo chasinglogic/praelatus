@@ -35,8 +35,8 @@ class Workflow(Base):
                             secondary=workflows_projects,
                             back_populates='workflows')
 
-    def clean_dict(self):
-        """Override BaseModel clean_dict."""
+    def jsonify(self):
+        """Override BaseModel jsonify."""
         jsn = {
             'id': self.id,
             'name': self.name,
@@ -53,7 +53,7 @@ class Workflow(Base):
                 from_status = tr.from_status.name
 
             ts = transitions.get(from_status, [])
-            ts.append(tr.clean_dict())
+            ts.append(tr.jsonify())
 
             transitions[from_status] = ts
 
@@ -89,13 +89,13 @@ class Transition(Base):
     from_status_id = Column(Integer, ForeignKey('statuses.id'))
     from_status = relationship('Status', foreign_keys=from_status_id)
 
-    def clean_dict(self):
-        """Override BaseModel clean_dict."""
-        jsn = super(Transition, self).clean_dict()
-        jsn['to_status'] = self.to_status.clean_dict()
+    def jsonify(self):
+        """Override BaseModel jsonify."""
+        jsn = super(Transition, self).jsonify()
+        jsn['to_status'] = self.to_status.jsonify()
         jsn['hooks'] = []
         for h in self.hooks:
-            jsn['hooks'].append(h.clean_dict())
+            jsn['hooks'].append(h.jsonify())
         jsn.pop('from_status', None)
         return jsn
 
@@ -114,7 +114,7 @@ class Hook(Base):
     transition_id = Column(Integer, ForeignKey('transitions.id'))
     transition = relationship('Transition', backref='hooks')
 
-    def clean_dict(self):
+    def jsonify(self):
         """Return a dictionary suitable for JSON encoding."""
         return {
             'id': self.id,

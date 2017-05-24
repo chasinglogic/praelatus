@@ -2,7 +2,6 @@
 import os
 import re
 from setuptools import setup
-from setuptools import find_packages
 
 praelatusfile = os.path.join(os.path.dirname(__file__),
                              'src', 'praelatus', '__init__.py')
@@ -47,17 +46,15 @@ setup(
     version=__version__,
     packages=[
         'praelatus',
-        'migrations'
     ],
     package_dir={'': 'src'},
     package_data={
-        '': ['*.ini']
+        'praelatus': ['templates/*',
+                      'migrations/*']
     },
     include_package_data=True,
-    author="""
-Mathew Robinson <mrobinson@praelatus.io>
-Mark Chandler <mchandler@praelatus.io>
-    """,
+    author="""Mathew Robinson and many others.""",
+    author_email="team@praelatus.io",
     url='https://prealatus.io',
     download_url='https://github.com/praelatus/praelatus/releases',
     install_requires=get_requirements(),

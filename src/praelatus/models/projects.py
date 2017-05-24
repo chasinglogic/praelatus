@@ -32,8 +32,8 @@ class Project(Base):
     workflows = relationship('Workflow', back_populates='projects',
                              secondary='workflows_projects')
 
-    def clean_dict(self):
-        """Override BaseModel clean_dict."""
+    def jsonify(self):
+        """Override BaseModel jsonify."""
         return {
             'id': self.id,
             'key': self.key,
@@ -41,7 +41,7 @@ class Project(Base):
             'homepage': self.homepage,
             'icon_url': self.icon_url,
             'repo': self.repo,
-            'lead': self.lead.clean_dict(),
+            'lead': self.lead.jsonify(),
             'created_date': str(self.created_date)
         }
 
@@ -71,7 +71,7 @@ class ProjectRoles(BaseModel):
         members = self.roles.get(role_name, [])
         self.roles[role_name] = members.append(user)
 
-    def clean_dict(self):
+    def jsonify(self):
         """Make ProjectRoles satisfy the BaseModel if it's included."""
         return self.roles
 
