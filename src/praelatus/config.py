@@ -15,6 +15,8 @@ class Config:
     default_data_dir = './data'
     default_data_dir = './data/'
     default_mq_server = 'amqp://guest@localhost'
+    default_smtp_server = 'localhost'
+    default_email_address = 'praelatus@localhost'
 
     def __init__(self, **kwargs):
         """Build a new config."""
@@ -28,6 +30,8 @@ class Config:
         if not os.path.exists(self.data_dir):
             os.mkdir(self.data_dir)
         self.mq_server = kwargs.get('mq_server', self.default_mq_server)
+        self.smtp_server = kwargs.get('smtp_server', self.default_smtp_server)
+        self.email_address = kwargs.get('email_address', self.default_email_address)
 
     def __repr__(self):
         """Return the str version of the internal dict."""
