@@ -22,5 +22,5 @@ def send_web_hooks(hooks, ticket):
         r = requests.Request(h['method'], h['url'], data=b)
         with requests.Session() as s:
             res = s.send(r)
-            logger.info("[WEBHOOKS] %s: %s StatusCode: %d Response: %s" %
+            logger.info("%s: %s StatusCode: %d Response: %s" %
                         (h['method'], h['url'], res.status_code, res.text))
