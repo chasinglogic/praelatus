@@ -46,12 +46,11 @@ setup(
     version=__version__,
     packages=[
         'praelatus',
-        'migrations'
     ],
     package_dir={'': 'src'},
     package_data={
-        'migrations': ['*'],
-        'praelatus': ['templates/*']
+        'praelatus': ['templates/*',
+                      'migrations/*']
     },
     include_package_data=True,
     author="""Mathew Robinson and many others.""",
