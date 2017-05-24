@@ -32,24 +32,22 @@ def cleandb(yes):
 def migrate():
     """Migrate the database up to the latest version."""
     import subprocess
+    import pkg_resources
 
     print('Migrating the database using Alembic...')
 
-    migrations_dir = dirname(dirname(dirname(__file__))).replace(' ', '')
+    migrations_dir = pkg_resources.resource_filename('praelatus', 'migrations')
 
     alembicArgs = [
         'alembic',
         '-c',
-        '%s' % join(migrations_dir, 'migrations', 'alembic.ini'),
+        join(migrations_dir, 'alembic.ini'),
         'upgrade',
         'head'
     ]
 
-    if not exists(migrations_dir):
-        print('failed to find migrations,', migrations_dir)
-        return
-
-    alembic = subprocess.Popen(alembicArgs, cwd=migrations_dir)
+    alembic = subprocess.Popen(alembicArgs,
+                               cwd=pkg_resources.resource_filename('praelatus', ''))
     stdout, stderr = alembic.communicate()
     if stderr is not None:
         print(stderr)
