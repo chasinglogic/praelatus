@@ -4,7 +4,7 @@ import re
 from setuptools import setup
 
 praelatusfile = os.path.join(os.path.dirname(__file__),
-                             'praelatus', '__init__.py')
+                             'src', 'praelatus', '__init__.py')
 
 # Thanks to SQLAlchemy:
 # https://github.com/zzzeek/sqlalchemy/blob/master/setup.py#L104
@@ -50,7 +50,8 @@ setup(
     ],
     package_dir={'': 'src'},
     package_data={
-        'migrations': ['*']
+        'migrations': ['*'],
+        'praelatus': ['templates/*']
     },
     include_package_data=True,
     author="""Mathew Robinson and many others.""",
