@@ -89,3 +89,22 @@ def create_user(username, passwd, fullname, email, isadmin):
 
     with session() as db:
         UserStore.new(db, **nu_user)
+
+
+@cli.command()
+def serve():
+    """Run praelatus using gunicorn and gevent.
+
+    Not recommended for production. Please see https://doc.praelatus.io for
+    production deployment options.
+    """
+    import os
+    import subprocess
+    import multiprocessing
+
+    print("Starting praelatus...")
+    host = os.getenv("PRAELATUS_HOST", "127.0.0.1")
+    port = os.getenv("PRAELATUS_PORT", "8080")
+    subprocess.call(["gunicorn", "-b", "%s:%s" % (host, port),
+                     "-w", str(multiprocessing.cpu_count() + 1),
+                     "-k", "gevent", "praelatus.api"])
