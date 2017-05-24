@@ -31,14 +31,35 @@ class Event:
         self.ticket = ticket
 
 
-# TODO send to websocket listeners
-# TODO pull recipients from the database
-def send_event(event):
-    """Send event to all appropriate listeners.
+class EventManager():
+    """Manages listeners for events.
 
-    event should be an instance of the Event class.
+    A listener is any function which takes a single argument event which is an
+    instance of the Event class.
     """
-    if event.event_type == EventType.TRANSITION:
-        web_hooks = filter(lambda x: x, event.transition.hooks)
-        send_web_hooks.delay(web_hooks, event.ticket)
-    send_email([], event)
+
+    def register_listener(self, filter_, listener):
+        """Register listener with event manager.
+
+        When filter_ is true call listener. filter_ is often an anonymous
+        function. For example:
+
+        lambda x: x.event_type == EventType.COMMENT_ADDED
+
+        When send_event is called the EventManager's internal list of listeners
+        will be filtered for listeners whose filter_ is true and then execute
+        those listeners.
+        """
+        self.listeners.append({
+            'filter': filter_,
+            'listener': listener
+        })
+
+    def send_event(self, event):
+        """Send event to all appropriate listeners.
+
+        event should be an instance of the Event class.
+        """
+        matched = filter(lambda x: x['filter'](event), self.listeners)
+        for m in matched:
+            m(event)
