@@ -2,6 +2,9 @@
 
 import enum
 
+from praelatus.events.web_hooks import send_web_hooks
+from praelatus.events.notications import send_email
+
 
 class EventType(enum.Enum):
     """Available event types in Praelatus."""
@@ -29,3 +32,16 @@ class Event:
 
         self.user = user
         self.ticket = ticket
+
+
+# TODO send to websocket listeners
+# TODO pull recipients from the database
+def send_event(event):
+    """Send event to all appropriate listeners.
+
+    event should be an instance of the Event class.
+    """
+    if event.event_type == EventType.TRANSITION:
+        web_hooks = filter(lambda x: x, event.transition.hooks)
+        send_web_hooks.delay(web_hooks, event.ticket)
+    send_email([], event)
