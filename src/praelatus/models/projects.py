@@ -18,6 +18,7 @@ class Project(Base):
     created_date = Column(DateTime, default=datetime.now())
     name = Column(String, unique=True)
     key = Column(String, unique=True)
+    description = Column(String)
     homepage = Column(String)
     icon_url = Column(String)
     repo = Column(String)
@@ -38,6 +39,7 @@ class Project(Base):
             'id': self.id,
             'key': self.key,
             'name': self.name,
+            'description': self.description,
             'homepage': self.homepage,
             'icon_url': self.icon_url,
             'repo': self.repo,
