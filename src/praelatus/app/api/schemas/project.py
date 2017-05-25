@@ -14,7 +14,7 @@ class ProjectSchema(BaseSchema):
             'repo': {'type': ['string', 'null']},
             'homepage': {'type': ['string', 'null']},
             'icon_url': {'type': ['string', 'null']},
-            'description': {'type': 'string'},
+            'description': {'type': ['string', 'null']},
             'key': {'type': 'string'},
             'lead': UserSchema.schema
         },
