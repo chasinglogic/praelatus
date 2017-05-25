@@ -6,6 +6,10 @@ import falcon
 from praelatus.models import DuplicateError
 from praelatus.models.permissions import PermissionError
 
+# Fix python 3.4 to 3.5 compatibility
+if not hasattr(json, 'JSONDecodeError'):
+    json.JSONDecodeError = ValueError
+
 
 def handle_error(ex, req, resp, params):
     """Send error message back with appropriate status code."""

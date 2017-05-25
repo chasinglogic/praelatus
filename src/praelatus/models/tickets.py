@@ -54,27 +54,27 @@ class Ticket(Base):
     fields = relationship('FieldValue', backref='field_values',
                           lazy='joined')
 
-    def clean_dict(self):
-        """Override BaseModel clean_dict."""
+    def jsonify(self):
+        """Override BaseModel jsonify."""
         jsn = {
             'id': self.id,
             'key': self.key,
             'summary': self.summary,
             'description': self.description,
-            'ticket_type': self.ticket_type.clean_dict(),
-            'status': self.status.clean_dict(),
-            'project': self.project.clean_dict(),
-            'reporter': self.reporter.clean_dict(),
+            'ticket_type': self.ticket_type.jsonify(),
+            'status': self.status.jsonify(),
+            'project': self.project.jsonify(),
+            'reporter': self.reporter.jsonify(),
             'workflow_id': self.workflow_id,
             'created_date': str(self.created_date),
             'updated_date': str(self.updated_date),
-            'transitions': [x.clean_dict() for x in self.transitions],
-            'fields': [x.clean_dict() for x in self.fields],
+            'transitions': [x.jsonify() for x in self.transitions],
+            'fields': [x.jsonify() for x in self.fields],
             'labels': [x.name for x in self.labels]
         }
 
         if self.assignee and isinstance(self.assignee, Base):
-            jsn['assignee'] = self.assignee.clean_dict()
+            jsn['assignee'] = self.assignee.jsonify()
 
         return jsn
 
@@ -95,11 +95,11 @@ class Comment(Base):
 
     ticket_id = Column(Integer, ForeignKey('tickets.id'))
 
-    def clean_dict(self):
-        """Override BaseModel clean_dict."""
+    def jsonify(self):
+        """Override BaseModel jsonify."""
         return {
             'id': self.id,
-            'author': self.author.clean_dict(),
+            'author': self.author.jsonify(),
             'ticket_key': self.ticket.key,
             'updated_date': str(self.updated_date),
             'created_date': str(self.created_date),

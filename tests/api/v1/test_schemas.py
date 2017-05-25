@@ -1,8 +1,8 @@
 from praelatus.api.schemas import *  # noqa: F403
 
-import praelatus.lib.workflows as workflows
-import praelatus.lib.tickets as tickets
-import praelatus.lib.permissions as permissions
+from praelatus.store import PermissionSchemeStore
+from praelatus.store import TicketStore
+from praelatus.store import WorkflowStore
 
 
 def test_signup_schema():
@@ -15,8 +15,8 @@ def test_signup_schema():
 
 
 def test_workflow_schema(db, admin):
-    workflow = workflows.get(db, actioning_user=admin, name='Default Workflow')
-    WorkflowSchema.validate(workflow.clean_dict())
+    workflow = WorkflowStore.get(db, actioning_user=admin, name='Default Workflow')
+    WorkflowSchema.validate(workflow.jsonify())
 
 
 def test_ticket_schema(db, admin):
@@ -30,11 +30,11 @@ def test_ticket_schema(db, admin):
     TicketTypeSchema
     ProjectSchema
     """
-    tick = tickets.get(db, actioning_user=admin, key='TEST-10',
-                       preload_comments=True)
-    TicketSchema.validate(tick.clean_dict())
+    tick = TicketStore.get(db, actioning_user=admin, uid='TEST-10',
+                           preload_comments=True)
+    TicketSchema.validate(tick.jsonify())
 
 
 def test_permission_schema(db, admin):
-    scheme = permissions.get(db, actioning_user=admin, id=1)
-    PermissionSchemeSchema.validate(scheme.clean_dict())
+    scheme = PermissionSchemeStore.get(db, actioning_user=admin, uid=1)
+    PermissionSchemeSchema.validate(scheme.jsonify())

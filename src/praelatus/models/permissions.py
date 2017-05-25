@@ -19,8 +19,8 @@ class PermissionScheme(Base):
     name = Column(String)
     description = Column(String)
 
-    def clean_dict(self):
-        """Override clean_dict from BaseModel."""
+    def jsonify(self):
+        """Override jsonify from BaseModel."""
         jsn = {
             'id': self.id,
             'name': self.name,

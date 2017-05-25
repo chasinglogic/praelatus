@@ -60,8 +60,8 @@ class Field(Base):
     options = relationship('FieldOption', secondary=field_options,
                            lazy='subquery')
 
-    def clean_dict(self):
-        """Override BaseModel clean_dict."""
+    def jsonify(self):
+        """Override BaseModel jsonify."""
         jsn = {
             'id': self.id,
             'name': self.name,
@@ -102,8 +102,8 @@ class FieldValue(Base):
     flt_value = Column(Float)
     date_value = Column(DateTime)
 
-    def clean_dict(self):
-        """Override BaseModel clean_dict."""
+    def jsonify(self):
+        """Override BaseModel jsonify."""
         # Jsn['Value'] = the appropriate value, based on field data type.
         jsn = {
             'id': self.id,
