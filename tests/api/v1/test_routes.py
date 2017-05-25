@@ -1,5 +1,5 @@
 import falcon
-from praelatus.api.schemas import *
+from praelatus.app.api.schemas import *
 
 
 def test_create_and_read_endpoints(client, auth_headers):

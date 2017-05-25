@@ -5,7 +5,7 @@ import json
 
 import praelatus.lib.tokens as tokens
 
-from praelatus.api.v1.base import BaseResource
+from praelatus.app.api.v1.base import BaseResource
 from praelatus.lib import session
 
 

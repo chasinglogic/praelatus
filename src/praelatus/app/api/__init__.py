@@ -9,10 +9,10 @@ import json
 
 from inspect import getdoc
 
-from praelatus.api.v1 import add_v1_routes
-from praelatus.api.errors import handle_error
-from praelatus.api.middleware import AuthMiddleware
-from praelatus.api.middleware import ContentTypeMiddleware
+from praelatus.app.api.v1 import add_v1_routes
+from praelatus.app.api.errors import handle_error
+from praelatus.app.api.middleware import AuthMiddleware
+from praelatus.app.api.middleware import ContentTypeMiddleware
 
 
 class RoutesResource():

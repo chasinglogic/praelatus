@@ -103,4 +103,4 @@ def serve():
     port = os.getenv("PRAELATUS_PORT", "8080")
     subprocess.call(["gunicorn", "-b", "%s:%s" % (host, port),
                      "-w", str(multiprocessing.cpu_count() + 1),
-                     "-k", "gevent", "praelatus.api"])
+                     "-k", "gevent", "praelatus.app.api"])

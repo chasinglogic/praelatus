@@ -1,6 +1,6 @@
 """Contains schemas for users and related objects."""
 
-from praelatus.api.schemas.base import BaseSchema
+from praelatus.app.api.schemas.base import BaseSchema
 
 
 class UserSchema(BaseSchema):

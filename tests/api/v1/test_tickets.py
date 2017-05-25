@@ -1,6 +1,6 @@
 import falcon
-from praelatus.api.schemas import TicketSchema
-from praelatus.api.schemas import CommentSchema
+from praelatus.app.api.schemas import TicketSchema
+from praelatus.app.api.schemas import CommentSchema
 
 
 def test_get_all_tickets(client, auth_headers):

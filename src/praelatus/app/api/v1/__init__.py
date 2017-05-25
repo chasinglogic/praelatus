@@ -18,26 +18,26 @@ from praelatus.store import StatusStore
 from praelatus.store import CommentStore
 from praelatus.store import UserStore
 
-from praelatus.api.schemas import PermissionSchemeSchema
-from praelatus.api.schemas import CommentSchema
-from praelatus.api.schemas import TicketSchema
-from praelatus.api.schemas import StatusSchema
-from praelatus.api.schemas import UserSchema
-from praelatus.api.schemas import FieldSchema
-from praelatus.api.schemas import LabelSchema
-from praelatus.api.schemas import TicketTypeSchema
-from praelatus.api.schemas import ProjectSchema
-from praelatus.api.schemas import WorkflowSchema
-from praelatus.api.schemas import RoleSchema
+from praelatus.app.api.schemas import PermissionSchemeSchema
+from praelatus.app.api.schemas import CommentSchema
+from praelatus.app.api.schemas import TicketSchema
+from praelatus.app.api.schemas import StatusSchema
+from praelatus.app.api.schemas import UserSchema
+from praelatus.app.api.schemas import FieldSchema
+from praelatus.app.api.schemas import LabelSchema
+from praelatus.app.api.schemas import TicketTypeSchema
+from praelatus.app.api.schemas import ProjectSchema
+from praelatus.app.api.schemas import WorkflowSchema
+from praelatus.app.api.schemas import RoleSchema
 
-from praelatus.api.v1.tickets import CommentResource
-from praelatus.api.v1.tickets import CommentsResource
-from praelatus.api.v1.tickets import TicketResource
-from praelatus.api.v1.tickets import TicketsResource
-from praelatus.api.v1.tokens import TokensResource
-from praelatus.api.v1.base import BasicMultiResource
-from praelatus.api.v1.base import BasicResource
-from praelatus.api.v1.base import BaseResource
+from praelatus.app.api.v1.tickets import CommentResource
+from praelatus.app.api.v1.tickets import CommentsResource
+from praelatus.app.api.v1.tickets import TicketResource
+from praelatus.app.api.v1.tickets import TicketsResource
+from praelatus.app.api.v1.tokens import TokensResource
+from praelatus.app.api.v1.base import BasicMultiResource
+from praelatus.app.api.v1.base import BasicResource
+from praelatus.app.api.v1.base import BaseResource
 
 
 class ProjectResource(BasicResource):

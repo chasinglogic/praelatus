@@ -1,4 +1,4 @@
-from praelatus.api.schemas import *  # noqa: F403
+from praelatus.app.api.schemas import *  # noqa: F403
 
 from praelatus.store import PermissionSchemeStore
 from praelatus.store import TicketStore

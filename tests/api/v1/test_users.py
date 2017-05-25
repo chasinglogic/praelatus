@@ -1,5 +1,5 @@
 import falcon
-from praelatus.api.schemas import UserSchema
+from praelatus.app.api.schemas import UserSchema
 
 
 def test_crud_user_endpoints(client, headers):

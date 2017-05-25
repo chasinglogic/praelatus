@@ -1,10 +1,10 @@
 """Defines schema for ticket objects and related objects."""
 
-from praelatus.api.schemas.base import BaseSchema
-from praelatus.api.schemas.user import UserSchema
-from praelatus.api.schemas.project import ProjectSchema
-from praelatus.api.schemas.workflow import TransitionSchema
-from praelatus.api.schemas.workflow import StatusSchema
+from praelatus.app.api.schemas.base import BaseSchema
+from praelatus.app.api.schemas.user import UserSchema
+from praelatus.app.api.schemas.project import ProjectSchema
+from praelatus.app.api.schemas.workflow import TransitionSchema
+from praelatus.app.api.schemas.workflow import StatusSchema
 
 
 class LabelSchema(BaseSchema):

@@ -6,9 +6,9 @@ import praelatus.events as events
 
 from praelatus.lib import session
 from praelatus.lib.redis import r
-from praelatus.api.v1.base import BasicResource
-from praelatus.api.v1.base import BasicMultiResource
-from praelatus.api.v1.base import BaseResource
+from praelatus.app.api.v1.base import BasicResource
+from praelatus.app.api.v1.base import BasicMultiResource
+from praelatus.app.api.v1.base import BaseResource
 
 
 class TicketsResource(BasicMultiResource):

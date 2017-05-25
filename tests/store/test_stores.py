@@ -1,7 +1,7 @@
 import datetime
 
 from praelatus.store import *
-from praelatus.api.schemas import *
+from praelatus.app.api.schemas import *
 
 
 def test_stores(db, admin):

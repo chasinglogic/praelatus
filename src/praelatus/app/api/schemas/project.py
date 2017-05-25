@@ -1,7 +1,7 @@
 """Defines schema for project objects."""
 
-from praelatus.api.schemas.base import BaseSchema
-from praelatus.api.schemas.user import UserSchema
+from praelatus.app.api.schemas.base import BaseSchema
+from praelatus.app.api.schemas.user import UserSchema
 
 
 class ProjectSchema(BaseSchema):

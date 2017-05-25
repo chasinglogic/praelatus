@@ -1,6 +1,6 @@
 """Defines schema for workflow objects and related objects."""
 
-from praelatus.api.schemas.base import BaseSchema
+from praelatus.app.api.schemas.base import BaseSchema
 
 
 class StatusSchema(BaseSchema):

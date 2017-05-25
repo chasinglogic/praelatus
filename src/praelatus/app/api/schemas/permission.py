@@ -1,6 +1,6 @@
 """Defines schema for permission schemes and related objects."""
 
-from praelatus.api.schemas.base import BaseSchema
+from praelatus.app.api.schemas.base import BaseSchema
 
 
 class PermissionSchemeSchema(BaseSchema):

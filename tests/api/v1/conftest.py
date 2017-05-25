@@ -2,7 +2,7 @@ import pytest
 from praelatus.store import UserStore
 from praelatus.lib import session
 import praelatus.lib.tokens as tokens
-from praelatus.api import application
+from praelatus.app.api import application
 
 
 @pytest.fixture
