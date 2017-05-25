@@ -10,5 +10,6 @@ build:
 clean:
 	rm -rf build
 	rm -rf dist
-	rm -rf **/__pycache__
-	rm -rf **/*.egg-info
+	rm -rf src/*.egg-info
+	rm -rf src/praelatus/**/__pycache__
+	rm -rf src/praelatus/migrations/versions/__pycache__
