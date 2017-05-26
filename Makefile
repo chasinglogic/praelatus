@@ -1,10 +1,19 @@
+PYTHON="python"
 PIP="pip"
 
 install:
-	python setup.py install
+	$(PYTHON) setup.py install
+
+.ONESHELL:
+dev:
+	cd src/
+	PYTHONPATH=${PWD}:${PYTHONPATH} gunicorn -k gevent --reload praelatus.app
 
 build:
-	python setup.py sdist bdist_wheel
+	$(PYTHON) setup.py sdist bdist_wheel
+
+venv:
+	$(PYTHON) -m venv venv
 
 .PHONY = clean
 clean:

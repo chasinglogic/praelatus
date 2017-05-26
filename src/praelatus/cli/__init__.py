@@ -2,7 +2,7 @@
 
 import click
 from os.path import join
-from praelatus.lib import session
+from praelatus.lib import connection
 from praelatus.lib import clean_db
 
 
@@ -57,7 +57,7 @@ def migrate():
 @cli.command()
 def testdb():
     """Test connection to the database."""
-    session()
+    connection()
     print('Database connection succeeded!')
 
 
@@ -83,7 +83,7 @@ def create_user(username, passwd, fullname, email, isadmin):
         'is_admin': isadmin,
     }
 
-    with session() as db:
+    with connection() as db:
         UserStore.new(db, **nu_user)
 
 

@@ -1,6 +1,5 @@
 """Entry point for gunicorn"""
 
-from praelatus.app.app import create_app
+from praelatus.app.app import app
 
-
-application = create_app()
+application = app

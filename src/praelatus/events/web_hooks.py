@@ -19,7 +19,7 @@ def send_web_hooks(hooks, ticket):
     for h in hooks:
         b = jinja2.Template(h['body']).render(**ticket)
         r = requests.Request(h['method'], h['url'], data=b)
-        with requests.Session() as s:
+        with requests.Connection() as s:
             res = s.send(r)
             logger.info("%s: %s StatusCode: %d Response: %s" %
                         (h['method'], h['url'], res.status_code, res.text))

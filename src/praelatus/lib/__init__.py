@@ -23,17 +23,17 @@ Session = sessionmaker(bind=engine)
 
 
 @contextmanager
-def session():
+def connection():
     """Return a session to for the database will connect if not connected."""
-    session = Session()
+    connection = Session()
     try:
-        yield session
+        yield connection
     except Exception as e:
         print('Exception in database:', str(e))
-        session.rollback()
+        connection.rollback()
         raise
     finally:
-        session.close()
+        connection.close()
 
 
 def clean_db():

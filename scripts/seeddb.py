@@ -3,7 +3,7 @@ from random import randint
 try:
     import praelatus.lib.defaults as defaults
     from praelatus.store import *
-    from praelatus.lib import session
+    from praelatus.lib import connection
 except ImportError as e:
     import sys
     print(e)
@@ -27,11 +27,11 @@ users = [
 ]
 
 print('Seeding users...')
-with session() as db:
+with connection() as db:
     for u in users:
         UserStore.new(db, **u)
 
-with session() as db:
+with connection() as db:
     admin = UserStore.get(db, username='testadmin')
 
     print('Seeding permissions schemes...')
@@ -45,7 +45,7 @@ with session() as db:
     print('Seeding workflows...')
     WorkflowStore.new(db, actioning_user=admin, **defaults.workflow)
 
-with session() as db:
+with connection() as db:
     admin = UserStore.get(db, username='testadmin')
     projects = [
         {

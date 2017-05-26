@@ -1,12 +1,14 @@
 """Contains resources for interacting with self.store."""
 
-import json
-import falcon
+from flask.views import MethodView
+from flask import jsonify
+from flask import request
+from flask import g
 
-from praelatus.lib import session
+from praelatus.lib import connection
 
 
-class BaseResource:
+class BaseResource(MethodView):
     """A base class that just stores a schema and storage interface."""
 
     def __init__(self, store, schema):
@@ -25,7 +27,7 @@ class BaseResource:
 class SearchResource(BaseResource):
     """A basic resource for providing a search enpoint."""
 
-    def on_get(self, req, res):
+    def get(self):
         """Get all of the correct model the current user has access to.
 
         Accepts an optional query parameter 'filter' which can be used
@@ -34,17 +36,16 @@ class SearchResource(BaseResource):
         API Documentation:
         https://docs.praelatus.io/API/Reference/#post-models
         """
-        user = req.context['user']
-        query = req.params.get('filter', '*')
-        with session() as db:
-            db_res = self.store.search(db, actioning_user=user, search=query)
-            res.body = json.dumps([p.jsonify() for p in db_res])
+        query = request.args.get('filter', '*')
+        with connection() as db:
+            db_res = self.store.search(db, actioning_user=g.user, search=query)
+            return jsonify([p.jsonify() for p in db_res])
 
 
 class CreateResource(BaseResource):
     """A basic resource for providing a model creation endpoint."""
 
-    def on_post(self, req, res):
+    def post(self):
         """Create a new model and return the new model object.
 
         You must be a system administrator to use this endpoint.
@@ -52,48 +53,45 @@ class CreateResource(BaseResource):
         API Documentation:
         https://docs.praelatus.io/API/Reference/#post-models
         """
-        user = req.context['user']
-        jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
+        jsn = request.get_json()
         self.schema.validate(jsn)
-        with session() as db:
-            db_res = self.store.new(db, actioning_user=user, **jsn)
-            res.body = db_res.to_json()
+        with connection() as db:
+            db_res = self.store.new(db, actioning_user=g.user, **jsn)
+            return jsonify(db_res.jsonify())
 
 
 class SingleResource(BaseResource):
     """A basic resource for retrieving a single model."""
 
-    def on_get(self, req, res, uid):
+    def get(self, uid):
         """Get a single model by uid.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#get-modelsuid
         """
-        user = req.context['user']
-        with session() as db:
-            db_res = self.store.get(db, actioning_user=user, uid=uid)
+        with connection() as db:
+            db_res = self.store.get(db, actioning_user=g.user, uid=uid)
             if db_res is None:
                 raise falcon.HTTPNotFound()
-            res.body = db_res.to_json()
+            return jsonify(db_res.jsonify())
 
 
 class UpdateResource(BaseResource):
     """A basic resource for updating a single model."""
 
-    def on_put(self, req, res, uid):
+    def put(self, uid):
         """Update the model indicated by uid.
 
         API Documentation:
         https://docs.praelatus.io/API/Reference/#put-modelsuid
         """
-        user = req.context['user']
-        jsn = json.loads(req.bounded_stream.read().decode('utf-8'))
-        with session() as db:
-            db_res = self.store.get(db, actioning_user=user, uid=uid)
+        jsn = request.get_json()
+        with connection() as db:
+            db_res = self.store.get(db, actioning_user=g.user, uid=uid)
             db_res.name = jsn['name']
-            self.store.update(db, actioning_user=user, model=db_res)
+            self.store.update(db, actioning_user=g.user, model=db_res)
 
-        res.body = json.dumps({
+        return jsonify({
             'message': 'Successfully updated %s.' % self.model_name
         })
 
@@ -101,15 +99,14 @@ class UpdateResource(BaseResource):
 class DeleteResource(BaseResource):
     """A basic resource for deleting a single model."""
 
-    def on_delete(self, req, res, uid):
+    def delete(self, uid):
         """Delete the model indicated by uid."""
-        user = req.context['user']
-        with session() as db:
-            db_res = self.store.get(db, actioning_user=user, uid=uid)
+        with connection() as db:
+            db_res = self.store.get(db, actioning_user=g.user, uid=uid)
             print('deleting', db_res)
-            self.store.delete(db, model=db_res, actioning_user=user)
+            self.store.delete(db, model=db_res, actioning_user=g.user)
 
-        res.body = json.dumps({
+        return jsonify({
             'message': 'Successfully deleted %s.' % self.model_name
         })
 
