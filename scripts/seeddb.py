@@ -154,10 +154,14 @@ with connection() as db:
         for i in range(1, 10):
             comment = {
                 'body': """This is the %d th comment
-                # Yo Dawg
-                **I** *heard* you
-                > like markdown
-                so I put markdown in your comment""" % i,
+
+# Yo Dawg
+
+**I** *heard* you
+
+> like markdown
+
+so I put markdown in your comment""" % i,
                 'author': assignees[randint(1, 2)],
                 'ticket_key': t.key,
                 'ticket_id': t.id
