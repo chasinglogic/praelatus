@@ -41,9 +41,8 @@ Authorization: Token eyJpZCI6IDIsICJwcm9maWxlX3BpYyI6ICJodHRwczovL2dyYXZhdGFyLmN
 #
 #
 #
-GET http://127.0.0.1:8000/api/v1/tickets/TEST-2
+GET http://127.0.0.1:8000/api/v1/tickets?limit=100
 Content-Type: application/json
-Authorization: Token eyJpZCI6IDIsICJwcm9maWxlX3BpYyI6ICJodHRwczovL2dyYXZhdGFyLmNvbS9hdmF0YXIvNTU1MDJmNDBkYzhiN2M3Njk4ODBiMTA4NzRhYmM5ZDAiLCAiaXNfYWRtaW4iOiB0cnVlLCAiaXNfYWN0aXZlIjogdHJ1ZSwgImZ1bGxfbmFtZSI6ICJUZXN0IFRlc3RlcnNvbiIsICJ1c2VybmFtZSI6ICJ0ZXN0YWRtaW4iLCAiZW1haWwiOiAidGVzdEBleGFtcGxlLmNvbSJ9LkRBcWNvQS5RV1F6Ml9Yd2lrMV9NX0ZjQi1XQWd6cUNXek0=
 #
 #
 #
