@@ -1,4 +1,5 @@
-import falcon
+import json
+
 from praelatus.app.api.schemas import UserSchema
 
 
@@ -11,8 +12,8 @@ def test_crud_user_endpoints(client, headers):
         'email': 'new@praelatus.io'
     }
 
-    resp = client.post('/api/v1/users', new_user, headers=headers)
-    assert resp.status == falcon.HTTP_200
+    resp = client.post('/api/v1/users', data=json.dumps(new_user), headers=headers)
+    assert resp.status_code == 200
     assert resp.json['token'] is not None
     UserSchema.validate(resp.json['user'])
     new_user = resp.json['user']
@@ -23,15 +24,15 @@ def test_crud_user_endpoints(client, headers):
         'password': 'supersecure'
     }
 
-    resp = client.post('/api/v1/tokens', login, headers=headers)
-    assert resp.status == falcon.HTTP_200
+    resp = client.post('/api/v1/tokens', data=json.dumps(login), headers=headers)
+    assert resp.status_code == 200
     assert resp.json['token'] is not None
     token = resp.json['token']
     UserSchema.validate(resp.json['user'])
 
     # Get the new user
     resp = client.get('/api/v1/users/some_new_user', headers=headers)
-    assert resp.status == falcon.HTTP_200
+    assert resp.status_code == 200
     UserSchema.validate(resp.json)
 
     auth_headers = headers
@@ -39,7 +40,7 @@ def test_crud_user_endpoints(client, headers):
 
     # Update the new user
     new_user['username'] = 'delete_me'
-    resp = client.put('/api/v1/users/some_new_user', new_user,
+    resp = client.put('/api/v1/users/some_new_user', data=json.dumps(new_user),
                       headers=auth_headers)
     assert resp.json['message'] == 'Successfully updated user.'
 
@@ -50,27 +51,27 @@ def test_crud_user_endpoints(client, headers):
 
 def test_get_all_users(client, headers):
     resp = client.get('/api/v1/users', headers=headers)
-    assert resp.status == falcon.HTTP_200
+    assert resp.status_code == 200
     assert len(resp.json) > 0
 
 
 def test_get_filter(client, headers):
     resp = client.get('/api/v1/users?filter=testadmin', headers=headers)
-    assert resp.status == falcon.HTTP_200
+    assert resp.status_code == 200
     assert len(resp.json) == 1
 
 
 def test_404(client, headers):
     resp = client.get('/api/v1/users/marypoppins', headers=headers)
-    assert resp.status == falcon.HTTP_404
+    assert resp.status_code == 404
 
     login = {'username': 'marypoppins', 'password': 'spoonful'}
-    resp = client.post('/api/v1/tokens', login, headers=headers)
-    assert resp.status == falcon.HTTP_404
+    resp = client.post('/api/v1/tokens', data=json.dumps(login), headers=headers)
+    assert resp.status_code == 404
 
 
 def test_failed_login(client, headers):
     login = {'username': 'testuser', 'password': 'wrong'}
-    resp = client.post('/api/v1/tokens', login, headers=headers)
-    assert resp.status == falcon.HTTP_401
+    resp = client.post('/api/v1/tokens', data=json.dumps(login), headers=headers)
+    assert resp.status_code == 401
     assert resp.json['message'] == 'invalid password'

@@ -1,8 +1,8 @@
 """Contains the API Resources for API V1."""
 
+from werkzeug.exceptions import NotFound
 from flask import jsonify
 from flask import request
-from flask import abort
 from flask import g
 
 from praelatus.lib import connection
@@ -47,7 +47,6 @@ class ProjectResource(BasicResource):
 
     def delete(self, uid):
         """Delete the project indicated by uid."""
-
         with connection() as db:
             db_res = self.store.get(db, actioning_user=g.user, uid=uid)
             self.store.delete(db, model=db_res,
@@ -64,7 +63,7 @@ class ProjectResource(BasicResource):
             db_res.name = jsn['name']
             db_res.key = jsn['key']
             db_res.homepage = jsn.get('homepage', db_res.homepage)
-            db_res.icurl = jsn.get('icurl', db_res.icurl)
+            db_res.icurl = jsn.get('icon_url', db_res.icon_url)
             db_res.repo = jsn.get('repo', db_res.repo)
             scheme = jsn.get('permissischeme')
             if scheme is not None:
@@ -120,7 +119,7 @@ class UserResource(BasicResource):
         with connection() as db:
             new_u = self.store.get(db, uid=uid)
             if new_u is None:
-                abort(404)
+                raise NotFound()
             new_u.username = jsn['username']
             new_u.email = jsn['email']
             new_u.profile_pic = jsn['profile_pic']

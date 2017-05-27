@@ -9,8 +9,11 @@ checked before committing the action. None is equivalent to an
 Anonymous user.
 """
 
+from sqlalchemy.exc import IntegrityError
+
 from praelatus.store import Store
 from praelatus.models import Field
+from praelatus.models import DuplicateError
 from praelatus.models.fields import FieldOption
 from praelatus.models.fields import DATA_TYPES
 from praelatus.lib.permissions import sys_admin_required
@@ -53,8 +56,11 @@ class FieldStore(Store):
             else:
                 new_field.options.append(FieldOption(name=o))
 
-        db.add(new_field)
-        db.commit()
+        try:
+            db.add(new_field)
+            db.commit()
+        except IntegrityError:
+            raise DuplicateError('field with that name already exists')
 
         return new_field
 

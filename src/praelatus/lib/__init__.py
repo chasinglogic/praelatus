@@ -9,11 +9,14 @@ Any function which has the kwarg 'actioning_user' is considered an
 the function and they default to None or "Anonymous"
 """
 
-from praelatus.config import config
+import sys
+import traceback
+
 from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from praelatus.config import config
 
 global engine
 engine = create_engine(config.db_url)
@@ -29,9 +32,10 @@ def connection():
     try:
         yield connection
     except Exception as e:
-        print('Exception in database:', str(e))
+        _, _, stack = sys.exc_info()
+        traceback.format_tb(stack)
         connection.rollback()
-        raise
+        raise e
     finally:
         connection.close()
 

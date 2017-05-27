@@ -1,44 +1,76 @@
 #
 # Login
 #
-POST http://127.0.0.1:8080/api/v1/tokens
+POST http://127.0.0.1:8000/api/v1/tokens
 Content-Type: application/json
 {
 	"username": "testadmin",
 	"password": "test"
 }
 #
+#
+#
+PUT http://127.0.0.1:8000/api/v1/projects/TEST
+Content-Type: application/json
+Authorization: Token eyJpZCI6IDIsICJwcm9maWxlX3BpYyI6ICJodHRwczovL2dyYXZhdGFyLmNvbS9hdmF0YXIvNTU1MDJmNDBkYzhiN2M3Njk4ODBiMTA4NzRhYmM5ZDAiLCAiaXNfYWRtaW4iOiB0cnVlLCAiaXNfYWN0aXZlIjogdHJ1ZSwgImZ1bGxfbmFtZSI6ICJUZXN0IFRlc3RlcnNvbiIsICJ1c2VybmFtZSI6ICJ0ZXN0YWRtaW4iLCAiZW1haWwiOiAidGVzdEBleGFtcGxlLmNvbSJ9LkRBcWNvQS5RV1F6Ml9Yd2lrMV9NX0ZjQi1XQWd6cUNXek0=
+{
+  "created_date": "2017-05-27 01:07:58.985606",
+  "description": null,
+  "homepage": null,
+  "icon_url": null,
+  "id": 1,
+  "key": "TEST",
+  "lead": {
+    "email": "test@example.com",
+    "full_name": "Test Testerson II",
+    "id": 3,
+    "is_active": true,
+    "is_admin": false,
+    "profile_pic": "https://gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0",
+    "username": "testuser"
+  },
+  "name": "TEST Project update",
+  "repo": null
+}
+#
 # Get ticket types
 #
-GET http://127.0.0.1:8080/api/v1/ticketTypes
-Authorization: Token ac4039b3-c378-431a-8e29-a63ecf73589d
-#
-#
-#
-GET http://127.0.0.1:8080/api/v1/tickets/TEST-2
-#
-#
-#
-GET http://127.0.0.1:8080/api/v1/tickets
-#
-#
-#
-GET http://127.0.0.1:8080/api/v1/workflows
-Authorization: Token ac4039b3-c378-431a-8e29-a63ecf73589d
-#
-# Create status
-#
-POST http://127.0.0.1:8080/api/v1/ticketTypes
-Authorization: Token ac4039b3-c378-431a-8e29-a63ecf73589d
+GET http://127.0.0.1:8000/api/v1/ticketTypes
 Content-Type: application/json
+Authorization: Token eyJpZCI6IDIsICJwcm9maWxlX3BpYyI6ICJodHRwczovL2dyYXZhdGFyLmNvbS9hdmF0YXIvNTU1MDJmNDBkYzhiN2M3Njk4ODBiMTA4NzRhYmM5ZDAiLCAiaXNfYWRtaW4iOiB0cnVlLCAiaXNfYWN0aXZlIjogdHJ1ZSwgImZ1bGxfbmFtZSI6ICJUZXN0IFRlc3RlcnNvbiIsICJ1c2VybmFtZSI6ICJ0ZXN0YWRtaW4iLCAiZW1haWwiOiAidGVzdEBleGFtcGxlLmNvbSJ9LkRBcWNvQS5RV1F6Ml9Yd2lrMV9NX0ZjQi1XQWd6cUNXek0=
+#
+#
+#
+GET http://127.0.0.1:8000/api/v1/tickets/TEST-2
+Content-Type: application/json
+Authorization: Token eyJpZCI6IDIsICJwcm9maWxlX3BpYyI6ICJodHRwczovL2dyYXZhdGFyLmNvbS9hdmF0YXIvNTU1MDJmNDBkYzhiN2M3Njk4ODBiMTA4NzRhYmM5ZDAiLCAiaXNfYWRtaW4iOiB0cnVlLCAiaXNfYWN0aXZlIjogdHJ1ZSwgImZ1bGxfbmFtZSI6ICJUZXN0IFRlc3RlcnNvbiIsICJ1c2VybmFtZSI6ICJ0ZXN0YWRtaW4iLCAiZW1haWwiOiAidGVzdEBleGFtcGxlLmNvbSJ9LkRBcWNvQS5RV1F6Ml9Yd2lrMV9NX0ZjQi1XQWd6cUNXek0=
+#
+#
+#
+POST http://127.0.0.1:8000/api/v1/fields
+Content-Type: application/json
+Authorization: Token eyJpZCI6IDIsICJwcm9maWxlX3BpYyI6ICJodHRwczovL2dyYXZhdGFyLmNvbS9hdmF0YXIvNTU1MDJmNDBkYzhiN2M3Njk4ODBiMTA4NzRhYmM5ZDAiLCAiaXNfYWRtaW4iOiB0cnVlLCAiaXNfYWN0aXZlIjogdHJ1ZSwgImZ1bGxfbmFtZSI6ICJUZXN0IFRlc3RlcnNvbiIsICJ1c2VybmFtZSI6ICJ0ZXN0YWRtaW4iLCAiZW1haWwiOiAidGVzdEBleGFtcGxlLmNvbSJ9LkRBcWNvQS5RV1F6Ml9Yd2lrMV9NX0ZjQi1XQWd6cUNXek0=
 {
-	"name": "Feature Request"
+    "name": "test-update-api",
+    "data_type": "STRING"
 }
 #
 #
 #
-POST http://127.0.0.1:8080/api/v1/workflows
-Authorization: Token ac4039b3-c378-431a-8e29-a63ecf73589d
+GET http://127.0.0.1:8000/api/v1/workflows
+Content-Type: application/json
+Authorization: Token eyJpZCI6IDIsICJwcm9maWxlX3BpYyI6ICJodHRwczovL2dyYXZhdGFyLmNvbS9hdmF0YXIvNTU1MDJmNDBkYzhiN2M3Njk4ODBiMTA4NzRhYmM5ZDAiLCAiaXNfYWRtaW4iOiB0cnVlLCAiaXNfYWN0aXZlIjogdHJ1ZSwgImZ1bGxfbmFtZSI6ICJUZXN0IFRlc3RlcnNvbiIsICJ1c2VybmFtZSI6ICJ0ZXN0YWRtaW4iLCAiZW1haWwiOiAidGVzdEBleGFtcGxlLmNvbSJ9LkRBcWNvQS5RV1F6Ml9Yd2lrMV9NX0ZjQi1XQWd6cUNXek0=
+#
+# Create status
+#
+GET http://127.0.0.1:8000/api/v1/fields/8
+Authorization: Token eyJpZCI6IDIsICJwcm9maWxlX3BpYyI6ICJodHRwczovL2dyYXZhdGFyLmNvbS9hdmF0YXIvNTU1MDJmNDBkYzhiN2M3Njk4ODBiMTA4NzRhYmM5ZDAiLCAiaXNfYWRtaW4iOiB0cnVlLCAiaXNfYWN0aXZlIjogdHJ1ZSwgImZ1bGxfbmFtZSI6ICJUZXN0IFRlc3RlcnNvbiIsICJ1c2VybmFtZSI6ICJ0ZXN0YWRtaW4iLCAiZW1haWwiOiAidGVzdEBleGFtcGxlLmNvbSJ9LkRBcWNvQS5RV1F6Ml9Yd2lrMV9NX0ZjQi1XQWd6cUNXek0=
+Content-Type: application/json
+#
+#
+#
+POST http://127.0.0.1:8000/api/v1/workflows
+Authorization: Token eyJpZCI6IDIsICJwcm9maWxlX3BpYyI6ICJodHRwczovL2dyYXZhdGFyLmNvbS9hdmF0YXIvNTU1MDJmNDBkYzhiN2M3Njk4ODBiMTA4NzRhYmM5ZDAiLCAiaXNfYWRtaW4iOiB0cnVlLCAiaXNfYWN0aXZlIjogdHJ1ZSwgImZ1bGxfbmFtZSI6ICJUZXN0IFRlc3RlcnNvbiIsICJ1c2VybmFtZSI6ICJ0ZXN0YWRtaW4iLCAiZW1haWwiOiAidGVzdEBleGFtcGxlLmNvbSJ9LkRBcWNvQS5RV1F6Ml9Yd2lrMV9NX0ZjQi1XQWd6cUNXek0=
 Content-Type: application/json
 {
   "name": "Some New Workflow",

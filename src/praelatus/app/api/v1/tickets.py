@@ -2,9 +2,9 @@
 
 import praelatus.events as events
 
+from werkzeug.exceptions import NotFound
 from flask import jsonify
 from flask import request
-from flask import abort
 from flask import g
 
 from praelatus.lib import connection
@@ -44,7 +44,7 @@ class TicketResource(BasicResource):
             db_res = self.store.get(db, actioning_user=g.user,
                                     uid=ticket_key, cached=True)
             if db_res is None:
-                abort(404)
+                raise NotFound()
 
             if getattr(db_res.__class__, "to_json", None):
                 return db_res.to_json()
@@ -62,7 +62,7 @@ class TicketResource(BasicResource):
         with connection() as db:
             orig_tick = self.store.get(db, uid=ticket_key)
             if orig_tick is None:
-                abort(404)
+                raise NotFound()
             # Invalidate the cached version
             r.delete(orig_tick.key)
             self.store.update(db, actioning_user=g.user,
@@ -79,7 +79,7 @@ class TicketResource(BasicResource):
         with connection() as db:
             tick = self.store.get(db, actioning_user=g.user, uid=ticket_key)
             if tick is None:
-                abort(404)
+                raise NotFound()
             r.delete(tick.key)
             self.store.delete(db, actioning_user=g.user,
                               project=tick.project, model=tick)

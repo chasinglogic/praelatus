@@ -1,4 +1,5 @@
-import falcon
+import json
+
 from praelatus.app.api.schemas import *
 
 
@@ -129,11 +130,8 @@ def test_create_and_read_endpoints(client, auth_headers):
 
     for t in tests:
         print('Testing', t['method'], t['url'])
-        resp = client.fake_request(t['url'], method=t['method'],
-                                   headers=auth_headers, body=t.get('body'))
-        print(resp.status_code)
-        print(resp.json)
-        print(resp.body)
+        resp = client.open(t['url'], method=t['method'],
+                           headers=auth_headers, data=json.dumps(t.get('body')))
         schema = t.get('schema')
         if schema:
             schema.validate(resp.json)
@@ -231,15 +229,18 @@ def test_update_endpoints(client, auth_headers):
 
     for t in tests:
         print('Testing update', t['url'])
+        print('body', t['create']['body'])
         resp = client.post(t['create']['url'],
                            headers=auth_headers,
-                           body=t['create']['body'])
+                           data=json.dumps(t['create']['body']))
+        print('heads', auth_headers)
+        print('resp', resp.__dict__)
         jsn = resp.json
         jsn[t['field']] = t['new']
         resp = client.put(t['url'] + str(jsn[t.get('select', 'id')]),
                           headers=auth_headers,
-                          body=jsn)
-        assert resp.status == falcon.HTTP_200
+                          data=json.dumps(jsn))
+        assert resp.status_code == 200
         resp = client.get(t['url'] + str(jsn[t.get('select', 'id')]),
                           headers=auth_headers)
         assert resp.json[t['field']] == t['new']
@@ -316,11 +317,13 @@ def test_delete_endpoints(client, auth_headers):
         print('Testing delete', t['url'])
         resp = client.post(t['create']['url'],
                            headers=auth_headers,
-                           body=t['create']['body'])
+                           data=json.dumps(t['create']['body']))
+        print('resp', resp.__dict__)
         jsn = resp.json
+        print('jsn', jsn)
         resp = client.delete(t['url'] + str(jsn[t.get('field', 'id')]),
                              headers=auth_headers)
-        assert resp.status == falcon.HTTP_200
+        assert resp.status_code == 200
         resp = client.get(t['url'] + str(jsn[t.get('field', 'id')]),
                           headers=auth_headers)
-        assert resp.status == falcon.HTTP_404
+        assert resp.status_code == 404

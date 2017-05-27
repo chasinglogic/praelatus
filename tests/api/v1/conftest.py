@@ -1,8 +1,8 @@
 import pytest
 from praelatus.store import UserStore
-from praelatus.lib import session
+from praelatus.lib import connection
 import praelatus.lib.tokens as tokens
-from praelatus.app.api import application
+from praelatus.app import application
 
 
 @pytest.fixture
@@ -17,13 +17,13 @@ def headers():
 
 @pytest.fixture(scope='module')
 def admin():
-    with session() as db:
+    with connection() as db:
         return UserStore.get(db, username='testadmin').jsonify()
 
 
 @pytest.fixture
 def db():
-    with session() as db:
+    with connection() as db:
         yield db
 
 

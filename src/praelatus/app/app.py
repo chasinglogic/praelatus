@@ -3,28 +3,40 @@
 import flask
 import time
 import logging
+import json
+import jsonschema
 
 import praelatus.lib.tokens as tokens
 
-from flask import g
+from werkzeug.exceptions import HTTPException
+from flask import jsonify
 from flask import request
+from flask import g
 
-from praelatus.app.api import add_api_routes
+from praelatus.models import DuplicateError
+from praelatus.models.permissions import PermissionError
+from praelatus.app.api.blueprint import api
+
+# Fix python 3.4 to 3.5 compatibility
+if not hasattr(json, 'JSONDecodeError'):
+    json.JSONDecodeError = ValueError
 
 app = flask.Flask('praelatus')
-add_api_routes(app)
+app.register_blueprint(api)
 
 
 @app.before_request
 def start_time():
+    """Set start time for request."""
     g.start = time.time()
 
 
 @app.after_request
 def log_resp_time(response):
-    logging.info('[%s] %d %s %d' %
-                 (request.method, response.status_code,
-                  request.path, g.start - time.time()))
+    """Log out the response time and status."""
+    logging.debug('[%s] %d %s %d' %
+                  (request.method, response.status_code,
+                   request.path, g.start - time.time()))
     return response
 
 
@@ -51,3 +63,59 @@ def auth():
     else:
         g.session_id = token
         g.user = tokens.get(token)
+
+
+@app.errorhandler(Exception)
+@app.errorhandler(404)
+@app.errorhandler(405)
+@app.errorhandler(400)
+def handle_error(ex):
+    """Handle errors accordingly."""
+    print(ex)
+    if request.path.startswith('/api'):
+        return handle_api_error(ex)
+    else:
+        raise ex
+
+
+def handle_api_error(ex):
+    """Send error message back with appropriate status code."""
+    status = 500
+    body = {
+        'type': ex.__class__.__name__,
+        'message': str(ex)
+    }
+
+    if (
+            isinstance(ex, KeyError) or
+            isinstance(ex, json.JSONDecodeError) or
+            isinstance(ex, jsonschema.ValidationError)
+    ):
+        status = 400
+    elif isinstance(ex, DuplicateError):
+        status = 409
+    elif isinstance(ex, PermissionError):
+        status = 403
+    elif isinstance(ex, HTTPException):
+        status = ex.code
+        body['message'] = __get_message(ex.code)
+
+    resp = jsonify(body)
+    resp.status_code = status
+    resp.headers['Content-Type'] = 'application/json'
+    return resp
+
+
+def __get_message(code):
+    """Return the appropriate JSON body for the given status code."""
+    if code == 404:
+        return 'not found'
+    elif code == 401:
+        return 'unauthorized'
+    elif code == 403:
+        return 'forbidden'
+    elif code == 405:
+        return 'method not allowed'
+    elif code == 400:
+        return 'bad request'
+    return 'unknown error'

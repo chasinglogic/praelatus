@@ -1,32 +1,33 @@
-import falcon
+import json
+
 from praelatus.app.api.schemas import TicketSchema
 from praelatus.app.api.schemas import CommentSchema
 
 
 def test_get_all_tickets(client, auth_headers):
     resp = client.get('/api/v1/tickets', headers=auth_headers)
-    assert resp.status == falcon.HTTP_200
+    assert resp.status_code == 200
     assert len(resp.json) > 1
     assert resp.json[0]['key'] is not None
 
     resp = client.get('/api/v1/tickets?filter=testadmin', headers=auth_headers)
-    assert resp.status == falcon.HTTP_200
+    assert resp.status_code == 200
     assert len(resp.json) > 1
     assert resp.json[0]['key'] is not None
 
     resp = client.get('/api/v1/projects/TEST/tickets', headers=auth_headers)
-    assert resp.status == falcon.HTTP_200
+    assert resp.status_code == 200
     assert len(resp.json) > 1
     assert resp.json[0]['key'] is not None
 
     resp = client.get('/api/v1/users/testadmin/assigned', headers=auth_headers)
-    assert resp.status == falcon.HTTP_200
+    assert resp.status_code == 200
     assert len(resp.json) > 1
     assert resp.json[0]['key'] is not None
     assert resp.json[0]['assignee']['username'] == 'testadmin'
 
     resp = client.get('/api/v1/users/testadmin/reported', headers=auth_headers)
-    assert resp.status == falcon.HTTP_200
+    assert resp.status_code == 200
     assert len(resp.json) > 1
     assert resp.json[0]['key'] is not None
     assert resp.json[0]['reporter']['username'] == 'testadmin'
@@ -52,8 +53,8 @@ def test_crud_ticket_endpoints(client, auth_headers):
         }
     }
 
-    resp = client.post('/api/v1/tickets', new_ticket, headers=auth_headers)
-    assert resp.status == falcon.HTTP_200
+    resp = client.post('/api/v1/tickets', data=json.dumps(new_ticket), headers=auth_headers)
+    assert resp.status_code == 200
     assert resp.json is not None
     assert resp.json['summary'] == new_ticket['summary']
 
@@ -62,42 +63,42 @@ def test_crud_ticket_endpoints(client, auth_headers):
     jsn['fields'][0]['value'] = 10
     jsn['labels'].append('updated')
 
-    resp = client.put('/api/v1/tickets/' + jsn['key'], jsn,
+    resp = client.put('/api/v1/tickets/' + jsn['key'], data=json.dumps(jsn),
                       headers=auth_headers)
-    assert resp.status == falcon.HTTP_200
+    assert resp.status_code == 200
     assert resp.json is not None
     assert resp.json['message'] == 'Successfully updated ticket.'
 
     resp = client.get('/api/v1/tickets/' + jsn['key'], headers=auth_headers)
-    assert resp.status == falcon.HTTP_200
+    assert resp.status_code == 200
     assert resp.json is not None
     assert resp.json['fields'][0]['value'] == 10
     assert 'updated' in resp.json['labels']
 
     resp = client.delete('/api/v1/tickets/' + jsn['key'], headers=auth_headers)
-    assert resp.status == falcon.HTTP_200
+    assert resp.status_code == 200
     assert resp.json is not None
     assert resp.json['message'] == 'Successfully deleted ticket.'
 
     resp = client.get('/api/v1/tickets/' + jsn['key'], headers=auth_headers)
-    assert resp.status == falcon.HTTP_404
+    assert resp.status_code == 404
 
 
 def test_crud_comments(client, auth_headers):
     new = 'updated-api'
     url = '/api/v1/tickets/TEST-5/comments'
     resp = client.post(url, headers=auth_headers,
-                       body={
+                       data=json.dumps({
                            'author': {'id': 2},
                            'body': 'test-crud-api'
-                       })
+                       }))
     CommentSchema.validate(resp.json)
     jsn = resp.json
     jsn['body'] = new
     resp = client.put(url + '/' + str(jsn['id']),
                       headers=auth_headers,
-                      body=jsn)
-    assert resp.status == falcon.HTTP_200
+                      data=json.dumps(jsn))
+    assert resp.status_code == 200
     assert resp.json['message'] == 'Successfully updated comment.'
     resp = client.get(url, headers=auth_headers)
     cmt = {}
