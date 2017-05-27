@@ -1,0 +1,56 @@
+/* Praelatus Global CSS */
+
+.bg-praelatus {
+    background-color: #703D6F;
+}
+
+.navbar {
+    margin-bottom: 1rem;
+}
+
+.user-stub img {
+    max-height: 24px;
+    max-width: 24px;
+}
+
+.user-stub {
+    max-height: 24px;
+}
+
+.ticket-separator {
+    border-bottom: 1px solid #ddd;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.author {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.comment {
+    background-color: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+}
+
+.author {
+    border-top: 1px solid #ddd;
+}
+
+/* Bootstrap Overrides */
+
+.nav-link:hover {
+    background-color: #995197;
+}
+
+.disabled:hover {
+    background-color: #703D6F !important;
+}
+
+.nav-link {
+    color: white !important;
+}
