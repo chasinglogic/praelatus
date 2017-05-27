@@ -32,7 +32,9 @@ celery: docker
 .ONESHELL:
 run:
 	cd src/
-	PYTHONPATH=${PWD}:${PYTHONPATH} gunicorn -k gevent --reload praelatus.app
+	export FLASK_APP="praelatus.app"
+	export FLASK_DEBUG=1
+	PYTHONPATH=${PWD}:${PYTHONPATH} flask run -p 8000
 
 dev: install docker celery migrate seed run
 
