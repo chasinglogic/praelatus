@@ -54,10 +54,13 @@ class Config:
         config = {}
         config['db_url'] = os.environ.get('PRAELATUS_DB', self.default_db)
         config['port'] = os.environ.get('PRAELATUS_PORT', self.default_port)
-        config['redis_url'] = os.getenv('PRAELATUS_REDIS')
+        config['redis_url'] = os.getenv('PRAELATUS_REDIS', self.default_redis_host)
+        config['redis_port'] = os.getenv('PRAELATUS_REDIS_PORT', self.default_redis_port)
         config['redis_password'] = os.getenv('PRAELATUS_REDIS_PASS')
         config['data_dir'] = os.getenv('PRAELATUS_DATA_DIRECTORY',
                                        self.default_data_dir)
+        config['mq_server'] = os.getenv('PRAELATUS_MQ_SERVER',
+                                        self.default_mq_server)
 
         return Config(**config)
 
