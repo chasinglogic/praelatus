@@ -7,31 +7,18 @@ import os
 class Config:
     """Contains all global app configuration and defaults."""
 
-    default_db = 'postgres://postgres:postgres@localhost:5432/prae_dev'
-    default_redis_host = 'localhost'
-    default_redis_port = 6379
-    default_redis_db = 0
-    default_port = '8080'
-    default_data_dir = './data'
-    default_data_dir = './data/'
-    default_mq_server = 'amqp://guest@localhost'
-    default_smtp_server = 'localhost'
-    default_email_address = 'praelatus@localhost'
-
-    def __init__(self, **kwargs):
-        """Build a new config."""
-        self.db_url = kwargs.get('db_url', self.default_db)
-        self.port = kwargs.get('port', self.default_port)
-        self.redis_host = kwargs.get('redis_url', self.default_redis_host)
-        self.redis_port = int(kwargs.get('redis_port', self.default_redis_port))  # noqa
-        self.redis_db = int(kwargs.get('redis_db', self.default_redis_db))
-        self.redis_password = kwargs.get('redis_password')
-        self.data_dir = kwargs.get('data_dir', self.default_data_dir)
-        if not os.path.exists(self.data_dir):
-            os.mkdir(self.data_dir)
-        self.mq_server = kwargs.get('mq_server', self.default_mq_server)
-        self.smtp_server = kwargs.get('smtp_server', self.default_smtp_server)
-        self.email_address = kwargs.get('email_address', self.default_email_address)
+    db = 'postgres://postgres:postgres@localhost:5432/prae_dev'
+    redis_host = 'localhost'
+    redis_port = 6379
+    redis_db = 0
+    port = '8080'
+    data_dir = './data'
+    data_dir = './data/'
+    mq_server = 'amqp://guest@localhost'
+    smtp_server = 'localhost'
+    smtp_password = None
+    email_address = 'praelatus@localhost'
+    instance_name = 'Praelatus, An Open Source Bug Tracker and Ticketing System'
 
     def __repr__(self):
         """Return the str version of the internal dict."""
@@ -43,26 +30,31 @@ class Config:
 
     def load(self):
         """Create a new Config based on the config file or environment variables."""  # noqa: E501
+        c = Config()
+
         if os.path.exists('/etc/praelatus/config.json'):
             config = json.loads('/etc/praelatus/config.json')
-            return Config(**config)
+            c.__dict__ = config
+            return c
 
         if os.path.exists('./config.json'):
             config = json.loads('./config.json')
-            return Config(**config)
+            c.__dict__ = config
+            return c
 
-        config = {}
-        config['db_url'] = os.environ.get('PRAELATUS_DB', self.default_db)
-        config['port'] = os.environ.get('PRAELATUS_PORT', self.default_port)
-        config['redis_url'] = os.getenv('PRAELATUS_REDIS', self.default_redis_host)
-        config['redis_port'] = os.getenv('PRAELATUS_REDIS_PORT', self.default_redis_port)
-        config['redis_password'] = os.getenv('PRAELATUS_REDIS_PASS')
-        config['data_dir'] = os.getenv('PRAELATUS_DATA_DIRECTORY',
-                                       self.default_data_dir)
-        config['mq_server'] = os.getenv('PRAELATUS_MQ_SERVER',
-                                        self.default_mq_server)
+        c.db = os.environ.get('PRAELATUS_DB', c.db)
+        c.port = os.environ.get('PRAELATUS_PORT', c.port)
+        c.redis_host = os.getenv('PRAELATUS_REDIS', c.redis_host)
+        c.redis_port = os.getenv('PRAELATUS_REDIS_PORT', c.redis_port)
+        c.redis_password = os.getenv('PRAELATUS_REDIS_PASS')
+        c.data_dir = os.getenv('PRAELATUS_DATA_DIRECTORY', c.data_dir)
+        c.mq_server = os.getenv('PRAELATUS_MQ_SERVER', c.mq_server)
+        c.instance_name = os.getenv('PRAELATUS_INSTANCE_NAME', c.instance_name)
+        c.email_address = os.getenv('PRAELATUS_EMAIL_ADDRESS', c.email_address)
+        c.smtp_server = os.getenv('PRAELATUS_SMTP_SERVER', c.smtp_server)
+        c.smtp_password = os.getenv('PRAELATUS_SMTP_PASSWORD', c.smtp_password)
 
-        return Config(**config)
+        return c
 
 
 global config
