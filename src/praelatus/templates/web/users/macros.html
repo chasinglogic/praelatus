@@ -1,0 +1,6 @@
+{% macro user_stub(user) %}
+<div class="user-stub">
+    <img src="{{ user.profile_pic }}" alt="profile picture" />
+    <a href="/users/{{ user.username }}">{{ user.full_name }}</a>
+</div>
+{% endmacro %}

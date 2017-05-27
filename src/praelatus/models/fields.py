@@ -102,28 +102,33 @@ class FieldValue(Base):
     flt_value = Column(Float)
     date_value = Column(DateTime)
 
+    @property
+    def value(self):
+        if self.field.data_type == 'OPT':
+            return self.opt_value
+        elif self.field.data_type == 'STRING':
+            return self.str_value
+        elif self.field.data_type == 'FLOAT':
+            return self.flt_value
+        elif self.field.data_type == 'DATE':
+            return str(self.date_value)
+        elif self.field.data_type == 'INT':
+            return self.int_value
+
     def jsonify(self):
         """Override BaseModel jsonify."""
         # Jsn['Value'] = the appropriate value, based on field data type.
         jsn = {
             'id': self.id,
             'name': self.field.name,
-            'data_type': self.field.data_type
+            'data_type': self.field.data_type,
+            'value': self.value
         }
 
         if self.field.data_type == 'OPT':
-            jsn['value'] = self.opt_value
             jsn['options'] = []
             for opt in self.field.options:
                 jsn['options'].append(opt.name)
-        elif self.field.data_type == 'STRING':
-            jsn['value'] = self.str_value
-        elif self.field.data_type == 'FLOAT':
-            jsn['value'] = self.flt_value
-        elif self.field.data_type == 'DATE':
-            jsn['value'] = str(self.date_value)
-        elif self.field.data_type == 'INT':
-            jsn['value'] = self.int_value
 
         return jsn
 

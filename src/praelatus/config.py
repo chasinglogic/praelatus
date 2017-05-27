@@ -1,7 +1,8 @@
 """Contains all of the configuration for Praelatus."""
 
-import json
 import os
+import json
+import logging
 
 
 class Config:
@@ -22,11 +23,24 @@ class Config:
 
     def __repr__(self):
         """Return the str version of the internal dict."""
-        return str(self.__dict__)
+        return json.dumps(self.__dict__, sort_keys=True, indent=4)
 
     def to_json(self):
         """Serialize the config to json."""
         return json.dumps(self.__dict__)
+
+    @staticmethod
+    def get_log_level(lvl):
+        """Return the appropriate log level based on string name."""
+        if lvl.upper() == 'DEBUG':
+            return logging.DEBUG
+        elif lvl.upper() == 'WARN' or lvl == 'WARNING':
+            return logging.WARNING
+        elif lvl.upper() == 'ERROR':
+            return logging.ERROR
+        elif lvl.upper() == 'CRITICAL':
+            return logging.CRITICAL
+        return logging.INFO
 
     def load(self):
         """Create a new Config based on the config file or environment variables."""  # noqa: E501
@@ -53,6 +67,7 @@ class Config:
         c.email_address = os.getenv('PRAELATUS_EMAIL_ADDRESS', c.email_address)
         c.smtp_server = os.getenv('PRAELATUS_SMTP_SERVER', c.smtp_server)
         c.smtp_password = os.getenv('PRAELATUS_SMTP_PASSWORD', c.smtp_password)
+        c.log_level = c.get_log_level(os.getenv('PRAELATUS_LOG_LEVEL'))
 
         return c
 

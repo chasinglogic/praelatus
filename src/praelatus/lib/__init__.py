@@ -19,7 +19,7 @@ from sqlalchemy.orm import sessionmaker
 from praelatus.config import config
 
 global engine
-engine = create_engine(config.db_url)
+engine = create_engine(config.db)
 
 global Session
 Session = sessionmaker(bind=engine)

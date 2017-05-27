@@ -81,9 +81,15 @@ class BasicMultiResource(BaseResource):
         https://docs.praelatus.io/API/Reference/#post-models
         """
         query = request.args.get('filter', '*')
+        start = int(request.args.get('start', '0'))
+        limit = int(request.args.get('limit', '50'))
         with connection() as db:
-            db_res = self.store.search(db, actioning_user=g.user, search=query)
-            return jsonify([p.jsonify() for p in db_res])
+            db_res = self.store.search(db, actioning_user=g.user, search=query,
+                                       limit=limit, offset=start)
+            return jsonify({
+                'start': start,
+                'results': [p.jsonify() for p in db_res]
+            })
 
     def post(self):
         """Create a new model and return the new model object.

@@ -82,7 +82,8 @@ class TicketStore(Store):
             Transition.workflow_id == ticket.workflow_id
         ).all()
 
-    def search(self, db, search=None, actioning_user=None, **kwargs):
+    def search(self, db, search=None, actioning_user=None,
+               limit=50, offset=0, **kwargs):
         """Search through tickets.
 
         There are four optional keyword arguments available:
@@ -131,7 +132,8 @@ class TicketStore(Store):
         else:
             return None
 
-        return query.order_by(Ticket.key).all()
+        return query.order_by(Ticket.key).\
+            limit(limit).offset(offset).all()
 
     @permission_required('CREATE_TICKET')
     def new(self, db, **kwargs):

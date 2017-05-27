@@ -1,42 +1,59 @@
 """The global flask app object."""
 
+import markdown
 import flask
-import time
-import logging
 import json
 import jsonschema
+import sys
 
 import praelatus.lib.tokens as tokens
 
+from jinja2 import Markup
+from logging import StreamHandler
+from logging import Formatter
 from werkzeug.exceptions import HTTPException
 from flask import jsonify
 from flask import request
 from flask import g
 
 from praelatus.models import DuplicateError
+from praelatus.lib.tokens import get_secret_key
 from praelatus.models.permissions import PermissionError
-from praelatus.app.api.blueprint import api
+from praelatus.config import config
+from praelatus.app.api import api
+from praelatus.app.ui import ui
+
+
+# Configure logging
+fmt = Formatter('[%(asctime)s] [PRAE] [%(levelname)s] %(message)s')
+stdo = StreamHandler(sys.stdout)
+stdo.setFormatter(fmt)
 
 # Fix python 3.4 to 3.5 compatibility
 if not hasattr(json, 'JSONDecodeError'):
     json.JSONDecodeError = ValueError
 
 app = flask.Flask('praelatus')
+app.secret_key = get_secret_key()
 app.register_blueprint(api)
+app.register_blueprint(ui)
 
 
-@app.before_request
-def start_time():
-    """Set start time for request."""
-    g.start = time.time()
+# Add markdown filter to templates.
+md = markdown.Markdown()
+app.jinja_env.filters['markdown'] = lambda text: Markup(md.convert(text))
+
+loggers = [app.logger]
+for l in loggers:
+    l.addHandler(stdo)
+    l.setLevel(config.log_level)
 
 
 @app.after_request
 def log_resp_time(response):
     """Log out the response time and status."""
-    logging.debug('[%s] %d %s %d' %
-                  (request.method, response.status_code,
-                   request.path, g.start - time.time()))
+    app.logger.debug('[%s] %d %s' %
+                     (request.method, response.status_code, request.path))
     return response
 
 

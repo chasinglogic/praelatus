@@ -12,14 +12,6 @@ if not hasattr(json, 'JSONDecodeError'):
 
 api = Blueprint('api', __name__)
 
-
-@api.after_request
-def set_content_type(response):
-    """Set Content-Type header."""
-    response.headers['Content-Type'] = 'application/json'
-    return response
-
-
 # Register /api/v1/ routes.
 add_v1_routes(api)
 

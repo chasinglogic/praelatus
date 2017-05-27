@@ -26,7 +26,7 @@ target_metadata = Base.metadata
 def get_url():
     """Get the database url using the baked in Praelatus method."""
     from praelatus.config import config as app_config
-    return app_config.db_url
+    return app_config.db
 
 
 def run_migrations_offline():

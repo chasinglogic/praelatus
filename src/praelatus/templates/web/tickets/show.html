@@ -1,0 +1,52 @@
+{% extends 'web/layout.html' %}
+
+{% block content %}
+<div class="ticket">
+    <h4>
+        <small>
+            <a href="/{{ ticket.project.key }}">
+                {{ ticket.project.name }}
+            </a>
+            / {{ ticket.key }}
+        </small>
+    </h4>
+    <h3 class="">
+        {{ ticket.summary }}
+    </h3>
+
+    <h4 class="ticket-separator">Description</h4>
+    <div class="container">
+        {{ ticket.description | markdown }}
+    </div>
+
+    <h4 class="ticket-separator">Fields</h4>
+    <div class="container ticket-card">
+        {% for f in ticket.fields %}
+        <div class="row">
+            <div class="col-md-6"><b>{{ f.field.name }}</b></div>
+            <div class="col-md-6">{{ f.value }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h4 class="ticket-separator">Comments</h4>
+    <div class="card-block comments">
+        {% from 'web/users/macros.html' import user_stub %}
+        {% for c in ticket.comments %}
+        <div class="comment">
+            <div class="container">
+                {{ c.body | markdown }}
+            </div>
+            <div class="container author">
+                <div style="display: inline-block">
+                    {{ user_stub(c.author) }}
+                </div>
+                <span style="display: inline-block">
+                    commented on <span>{{ c.created_date.strftime('%Y-%m-%d %-I:%M %p') }}</span>
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
