@@ -50,7 +50,8 @@ setup(
     package_dir={'': 'src'},
     package_data={
         'praelatus': ['templates/*',
-                      'migrations/*']
+                      'migrations/*',
+                      'static/*']
     },
     include_package_data=True,
     author="""Mathew Robinson and many others.""",
