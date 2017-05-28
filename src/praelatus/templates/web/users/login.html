@@ -1,32 +1,21 @@
 {% extends 'web/layout.html' %}
 
-{% block content %}
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">
-            <span class="text-center">
-                Login
+{% block body %}
+<div class="container-fluid d-flex justify-content-center align-items-center"
+     style="background-color: #703D6F; height: 100%;">
+    <div class="login-container">
+        <a href="/">
+            <img src="/static/img/name.svg" />
+        </a>
+        <div class="form-container"
+             style="background-color: white; border-radius: 5px">
+            {% if flash %}
+            <span class="text-alert">
+                {{ flash }}
             </span>
-        </h3>
-        {{ flash }}
-    </div>
-    <div class="card-block">
-        <form method="POST" action="/login">
-            {{ form.csrf_token }}
-            <div class="form-group">
-                <label for="username">
-                    Username
-                </label>
-                {{ form.username(id="username", class="form-control") }}
-            </div>
-            <div class="form-group">
-                <label for="password">
-                    Password
-                </label>
-                {{ form.password(id="password", class="form-control") }}
-            </div>
-            <input class="btn btn-primary" type="submit" value="Login" />
-        </form>
+            {% endif %}
+            {% include 'web/users/login_form.html' %}
+        </div>
     </div>
 </div>
 {% endblock %}
