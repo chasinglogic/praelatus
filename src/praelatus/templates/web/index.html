@@ -1,5 +1,35 @@
 {% extends "web/layout.html" %}
 
+{% macro help_text() %}
+<h3>Welcome to Praelatus!</h3>
+<p>
+    Praelatus is an Open Source bug tracking and ticketing system.
+    If you're new to Praelatus and are wondering how to get started
+    you can view our <a href="https://doc.praelatus.io/">User Guide</a>.
+    Otherwise just login / sign up and get cracking!
+</p>
+{% endmacro %}
+
 {% block content %}
-<h1>Welcome!</h1>
+{% if user %}
+    {% include 'web/dashboard.html' %}
+{% else %}
+<div class="d-flex justify-content-center align-items-center">
+<div class="row hidden-sm-down">
+    <div class="col-md-6">
+        {{ help_text() }}
+    </div>
+    <div class="col-md-6">
+        {% include 'web/users/login_form.html' %}
+    </div>
+</div>
+<div class="row hidden-md-up">
+    <div class="col-sm-6">
+        {% include 'web/users/login_form.html' %}
+    </div>
+    <div class="col-sm-6">
+        {{ help_text() }}
+    </div>
+</div>
+{% endif %}
 {% endblock %}
