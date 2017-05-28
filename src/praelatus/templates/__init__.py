@@ -1,6 +1,6 @@
 """Functions for loading templates."""
 
-from flask import g
+from flask import session
 from flask import render_template as flask_render_template
 from praelatus.config import config
 from praelatus import __version__
@@ -20,5 +20,5 @@ def load_template(tmpl_name):
 def render_template(tmpl_name, **kwargs):
     """A wrapper for flask render_template that adds some of our always available variables."""
     return flask_render_template(tmpl_name, config=config,
-                                 user=g.user, prae_version=__version__,
+                                 user=session.get('user'), prae_version=__version__,
                                  **kwargs)

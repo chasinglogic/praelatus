@@ -1,10 +1,10 @@
 """The global flask app object."""
 
 import markdown
-import flask
 import json
 import jsonschema
 import sys
+import itsdangerous
 
 import praelatus.lib.tokens as tokens
 
@@ -12,6 +12,9 @@ from jinja2 import Markup
 from logging import StreamHandler
 from logging import Formatter
 from werkzeug.exceptions import HTTPException
+from flask import url_for
+from flask import Flask
+from flask import redirect
 from flask import jsonify
 from flask import request
 from flask import g
@@ -33,7 +36,7 @@ stdo.setFormatter(fmt)
 if not hasattr(json, 'JSONDecodeError'):
     json.JSONDecodeError = ValueError
 
-app = flask.Flask('praelatus')
+app = Flask('praelatus')
 app.secret_key = get_secret_key()
 app.register_blueprint(api)
 app.register_blueprint(ui)
@@ -57,31 +60,6 @@ def log_resp_time(response):
     return response
 
 
-@app.before_request
-def auth():
-    """Parse out session token, set request context appropriately.
-
-    Will set g.session_id and g.user
-    even if no session information is set this prevents
-    erroneous KeyErrors
-    """
-    token = request.headers.get('Authorization')
-
-    if token is None:
-        token = request.cookies.get('PRAE_SESSION')
-    elif token.startswith('Bearer '):
-        token = token[len('Bearer '):]
-    elif token.startswith('Token '):
-        token = token[len('Token '):]
-
-    if token is None:
-        g.session_id = None
-        g.user = None
-    else:
-        g.session_id = token
-        g.user = tokens.get(token)
-
-
 @app.errorhandler(Exception)
 @app.errorhandler(404)
 @app.errorhandler(405)
@@ -91,6 +69,14 @@ def handle_error(ex):
     print(ex)
     if request.path.startswith('/api'):
         return handle_api_error(ex)
+    else:
+        return handle_ui_error(ex)
+
+
+def handle_ui_error(ex):
+    """Handle errors appropriately in the UI."""
+    if isinstance(ex, itsdangerous.BadTimeSignature):
+        return redirect(url_for('login'))
     else:
         raise ex
 
