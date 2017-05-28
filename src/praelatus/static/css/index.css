@@ -41,9 +41,16 @@
     border-top: 1px solid #ddd;
 }
 
+.login-form {
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 1rem;
+}
+
 /* Bootstrap Overrides */
 
-.nav-link:hover {
+.navbar .nav-link:hover {
     background-color: #995197;
 }
 
@@ -51,6 +58,61 @@
     background-color: #703D6F !important;
 }
 
-.nav-link {
+.content {
+    min-height: 100%;
+}
+
+.navbar .nav-link {
     color: white !important;
+}
+
+.nav-tabs .nav-item {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-color: none;
+}
+
+.login-container {
+    max-width: 500px;
+}
+
+.login-container .form-container {
+    width: 80%;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+#loginRegister {
+    width: 100%;
+}
+
+.login-container img {
+    width: 100%;
+}
+
+.nav-tabs .nav-link.active {
+    border: none;
+    border-bottom: 2px solid #703D6F
+}
+
+.login-tabs {
+    width: 100%;
+    border-bottom: none;
+    border-top: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+}
+
+.login-tabs .nav-item {
+    width: 50%;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.login-tabs .nav-item .nav-link {
+    color: black;
+}
+
+.login-tabs .nav-item.active {
 }
