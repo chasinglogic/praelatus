@@ -1,4 +1,14 @@
 <div class="form-wrapper">
+    {% if flash %}
+    <div class="alert
+      {% if alert_type %}
+        alert-{{ alert_type }}
+      {% else %}
+        alert-warning
+      {% endif %}" role="alert">
+        {{ flash }}
+    </div>
+    {% endif %}
     <form method="{% if method %}{{ method }}{% else %}POST{% endif %}"
           action="{% if action %}{{ action }}{% else %}/login{% endif %}">
         {{ form.hidden_tag() }}
