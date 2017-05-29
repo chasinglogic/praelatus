@@ -11,9 +11,6 @@
 {% endmacro %}
 
 {% block content %}
-{% if user %}
-    {% include 'web/dashboard.html' %}
-{% else %}
 <div class="d-flex justify-content-center align-items-center">
 <div class="row hidden-sm-down">
     <div class="col-md-6">
@@ -31,5 +28,4 @@
         {{ help_text() }}
     </div>
 </div>
-{% endif %}
 {% endblock %}
