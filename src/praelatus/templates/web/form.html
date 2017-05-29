@@ -1,0 +1,16 @@
+<div class="form-wrapper">
+    <form method="{% if method %}{{ method }}{% else %}POST{% endif %}"
+          action="{% if action %}{{ action }}{% else %}/login{% endif %}">
+        {{ form.hidden_tag() }}
+        {% for field in form if field.widget.input_type != 'hidden' %}
+        <div class="form-group">
+            <label for="{{ field.name }}">
+                {{ field.name | humanize }}
+            </label>
+            {{ field(id="{{ field.label }}", class="form-control") }}
+        </div>
+        {% endfor %}
+        <input class="btn btn-success form-control" type="submit"
+               value="{{ submit_value }}" />
+    </form>
+</div>
