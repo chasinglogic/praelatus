@@ -13,14 +13,25 @@ from praelatus.templates import render_template
 from praelatus.models import DuplicateError
 from praelatus.app.ui.forms.login import LoginForm
 from praelatus.app.ui.forms.login import RegisterForm
+from praelatus.app.ui.helpers import auth_required
 
 ui = Blueprint('ui', __name__)
 
 
 @ui.route('/')
 def index():
+    if session.get('user'):
+        return redirect('/dashboard')
     return render_template('web/index.html', form=RegisterForm(),
                            submit_value='Sign Up')
+
+
+@ui.route('/dashboard')
+@auth_required
+def dashboard():
+    with connection() as db:
+        user = UserStore.get(db, uid=session['user']['username'])
+        return render_template('web/dashboard.html', user=user)
 
 
 @ui.route('/<string:project_key>/<string:ticket_key>')
@@ -35,38 +46,39 @@ def show_ticket(project_key, ticket_key):
 @ui.route('/login', methods=('GET', 'POST'))
 def login():
     login_form = LoginForm()
+    flash = None
     if login_form.validate_on_submit():
         with connection() as db:
             user = UserStore.get(db, uid=login_form.username.data)
             if user is None:
-                return render_template('web/users/login.html',
-                                       flash='No user with that username.')
-            if UserStore.check_pw(user, login_form.password.data):
+                flash = 'No user with that username.'
+            elif UserStore.check_pw(user, login_form.password.data):
                 session['user'] = user.jsonify()
-                return redirect('/')
-            return render_template('web/users/login.html', flash='Invalid Password')
+                return redirect('/dashboard')
+            flash = 'Invalid password.'
     return render_template('web/users/login.html',
-                           form=login_form, submit_value='Log In')
+                           flash=flash,
+                           form=login_form,
+                           submit_value='Log In')
 
 
 @ui.route('/register', methods=('GET', 'POST'))
 def register():
     register_form = RegisterForm()
+    flash = None
     if register_form.validate_on_submit():
         try:
             with connection() as db:
                 user = UserStore.new(db, **register_form.data)
-            if UserStore.check_pw(user, register_form.password.data):
                 session['user'] = user.jsonify()
-                return redirect('/')
+                # TODO: make a new user screen
+                return redirect('/dashboard')
         except DuplicateError:
-            return render_template('web/users/login.html',
-                                   flash='',
-                                   form=register_form,
-                                   submit_value='Sign Up')
+            flash = 'That username already taken.'
     return render_template('web/users/login.html',
-                           form=register_form, submit_value='Sign Up')
-
+                           flash=flash,
+                           form=register_form,
+                           submit_value='Sign Up')
 
 
 @ui.route('/logout')
