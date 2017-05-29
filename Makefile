@@ -1,8 +1,14 @@
-PYTHON="python"
+PYTHON="python3"
 PIP="pip"
 
 install:
-	$(PYTHON) setup.py install
+	$(PIP) install -r requirements.txt
+
+migrate:
+	alembic -c alembic.ini upgrade head
+
+seed:
+	python scripts/seeddb.py
 
 docker_stop:
 	sudo docker stop prae_postgres
@@ -14,14 +20,10 @@ docker_clean: docker_stop
 	sudo docker rm prae_rabbitmq
 	sudo docker rm prae_redis
 
-migrate: install
-	praelatus migrate
-
-seed: migrate
-	python scripts/seeddb.py
-
 # Make it clean every time, otherwise step "fails"
-docker: docker_clean
+docker_restart: docker_clean docker
+
+docker:
 	sudo docker run --name prae_postgres -d -e POSTGRES_DB=prae_dev -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres
 	sudo docker run --name prae_rabbitmq -d -p 5672:5672 rabbitmq
 	sudo docker run --name prae_redis -d -p 6379:6379 redis
@@ -36,10 +38,7 @@ run:
 	export FLASK_DEBUG=1
 	PYTHONPATH=${PWD}:${PYTHONPATH} flask run -p 8000
 
-dev: install docker celery migrate seed run
-
-build:
-	$(PYTHON) setup.py sdist bdist_wheel
+setup_dev: install docker celery migrate seed
 
 venv:
 	$(PYTHON) -m venv venv
