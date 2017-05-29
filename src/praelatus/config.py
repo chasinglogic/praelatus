@@ -63,6 +63,8 @@ class Config:
         c.redis_port = os.getenv('PRAELATUS_REDIS_PORT', c.redis_port)
         c.redis_password = os.getenv('PRAELATUS_REDIS_PASS')
         c.data_dir = os.getenv('PRAELATUS_DATA_DIRECTORY', c.data_dir)
+        if not os.path.exists(c.data_dir):
+            os.mkdir(c.data_dir)
         c.mq_server = os.getenv('PRAELATUS_MQ_SERVER', c.mq_server)
         c.instance_name = os.getenv('PRAELATUS_INSTANCE_NAME', c.instance_name)
         c.email_address = os.getenv('PRAELATUS_EMAIL_ADDRESS', c.email_address)
