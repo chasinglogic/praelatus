@@ -12,7 +12,8 @@
     {% endblock %}
 </head>
 
-<body>
+<!-- Use body style to apply styling to the body element. -->
+<body {% block bodystyle %}{% endblock %}>
     <!-- Use body when you need to overwrite everything
          otherwise, use content. -->
     {% block body %}
@@ -63,7 +64,7 @@
                     </a>
                 </li>
                 <!-- Space out the buttons -->
-                <li class="nav-item disabled">
+                <li class="nav-item disabled hidden-sm-down">
                     <a class="nav-link" href="#">/</a>
                 </li>
                 <li class="nav-item">
