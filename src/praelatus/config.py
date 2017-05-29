@@ -20,6 +20,7 @@ class Config:
     smtp_password = None
     email_address = 'praelatus@localhost'
     instance_name = 'Praelatus, An Open Source Bug Tracker and Ticketing System'
+    log_level = 'INFO'
 
     def __repr__(self):
         """Return the str version of the internal dict."""
@@ -67,7 +68,7 @@ class Config:
         c.email_address = os.getenv('PRAELATUS_EMAIL_ADDRESS', c.email_address)
         c.smtp_server = os.getenv('PRAELATUS_SMTP_SERVER', c.smtp_server)
         c.smtp_password = os.getenv('PRAELATUS_SMTP_PASSWORD', c.smtp_password)
-        c.log_level = c.get_log_level(os.getenv('PRAELATUS_LOG_LEVEL'))
+        c.log_level = c.get_log_level(os.getenv('PRAELATUS_LOG_LEVEL', c.log_level))
 
         return c
 
