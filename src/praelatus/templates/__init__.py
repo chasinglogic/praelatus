@@ -20,5 +20,6 @@ def load_template(tmpl_name):
 def render_template(tmpl_name, **kwargs):
     """A wrapper for flask render_template that adds some of our always available variables."""
     return flask_render_template(tmpl_name, config=config,
-                                 user=session.get('user'), prae_version=__version__,
+                                 user=session.get('user'),
+                                 prae_version=__version__,
                                  **kwargs)
