@@ -10,6 +10,7 @@ from praelatus.store import UserStore
 from praelatus.store import TicketStore
 from praelatus.store import ProjectStore
 from praelatus.templates import render_template
+from praelatus.models import DuplicateError
 from praelatus.app.ui.forms.login import LoginForm
 from praelatus.app.ui.forms.login import RegisterForm
 
@@ -60,7 +61,7 @@ def register():
                 return redirect('/')
         except DuplicateError:
             return render_template('web/users/login.html',
-                                   flash=''
+                                   flash='',
                                    form=register_form,
                                    submit_value='Sign Up')
     return render_template('web/users/login.html',
