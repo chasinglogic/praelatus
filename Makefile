@@ -33,10 +33,9 @@ celery: docker
 
 .ONESHELL:
 run:
-	cd src/
 	export FLASK_APP="praelatus.app"
 	export FLASK_DEBUG=1
-	PYTHONPATH=${PWD}:${PYTHONPATH} flask run -p 8000
+	PYTHONPATH=${PWD}/src:${PYTHONPATH} flask run -p 8000
 
 setup_dev: install docker celery migrate seed
 
