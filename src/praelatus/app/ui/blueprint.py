@@ -11,13 +11,15 @@ from praelatus.store import TicketStore
 from praelatus.store import ProjectStore
 from praelatus.templates import render_template
 from praelatus.app.ui.forms.login import LoginForm
+from praelatus.app.ui.forms.login import RegisterForm
 
 ui = Blueprint('ui', __name__)
 
 
 @ui.route('/')
 def index():
-    return render_template('web/index.html', login_form=LoginForm())
+    return render_template('web/index.html', form=RegisterForm(),
+                           submit_value='Sign Up')
 
 
 @ui.route('/<string:project_key>/<string:ticket_key>')
@@ -43,8 +45,27 @@ def login():
                 return redirect('/')
             return render_template('web/users/login.html', flash='Invalid Password')
     return render_template('web/users/login.html',
-                           login_form=login_form,
-                           register_form=None)
+                           form=login_form, submit_value='Log In')
+
+
+@ui.route('/register', methods=('GET', 'POST'))
+def register():
+    register_form = RegisterForm()
+    if register_form.validate_on_submit():
+        with connection() as db:
+            user = UserStore.get(db, uid=register_form.username.data)
+            if user is None:
+                return render_template('web/users/login.html',
+                                       form=register_form, submit_value='Sign Up',
+                                       flash='No user with that username.')
+            if UserStore.check_pw(user, register_form.password.data):
+                session['user'] = user.jsonify()
+                return redirect('/')
+            return render_template('web/users/login.html',
+                           form=register_form, submit_value='Sign Up')
+    return render_template('web/users/login.html',
+                           form=register_form, submit_value='Sign Up')
+
 
 
 @ui.route('/logout')
