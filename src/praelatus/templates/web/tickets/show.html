@@ -1,4 +1,9 @@
 {% extends 'web/layout.html' %}
+<!-- style="background-color: #fbf8ef" -->
+
+{% block bodystyle %}
+style="background-color: #f4e9d3"
+{% endblock %}
 
 {% block content %}
 <div class="ticket">
@@ -10,26 +15,45 @@
             / {{ ticket.key }}
         </small>
     </h4>
-    <h3 class="">
+    <h1 class="">
         {{ ticket.summary }}
-    </h3>
+    </h1>
 
-    <h4 class="ticket-separator">Description</h4>
-    <div class="container">
-        {{ ticket.description | markdown }}
-    </div>
+    <ul id="ticketData" class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab"
+               href="#description" role="tab">
+                Description
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab"
+               href="#fields" role="tab">
+                Fields
+            </a>
+        </li>
+    </ul>
 
-    <h4 class="ticket-separator">Fields</h4>
-    <div class="container ticket-card">
-        {% for f in ticket.fields %}
-        <div class="row">
-            <div class="col-md-6"><b>{{ f.field.name }}</b></div>
-            <div class="col-md-6">{{ f.value }}</div>
+    <div class="tab-content">
+        <div id="description" class="tab-pane show active" role="tabpanel">
+            {{ ticket.description | markdown }}
         </div>
-        {% endfor %}
+        <div id="fields" class="tab-pane" role="tabpanel">
+            {% for f in ticket.fields %}
+            <div class="row">
+                <div class="col-md-6"><b>{{ f.field.name }}</b></div>
+                <div class="col-md-6">{{ f.value }}</div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 
-    <h4 class="ticket-separator">Comments</h4>
+    <script>
+     $('#loginRegister a[href="#register"]').tab('show');
+     $('#loginRegister a[href="#login"]').tab('show');
+    </script>
+
+    <h1 class="ticket-separator text-center">Comments</h1>
     <div class="card-block comments">
         {% from 'web/users/macros.html' import user_stub %}
         {% for c in ticket.comments %}
