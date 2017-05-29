@@ -48,12 +48,6 @@ setup(
         'praelatus',
     ],
     package_dir={'': 'src'},
-    package_data={
-        'praelatus': ['templates/*',
-                      'migrations/*',
-                      'static/*']
-    },
-    include_package_data=True,
     author="""Mathew Robinson and many others.""",
     author_email="team@praelatus.io",
     url='https://prealatus.io',
