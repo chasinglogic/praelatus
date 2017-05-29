@@ -8,3 +8,11 @@ class LoginForm(FlaskForm):
     """Used for validating the login form."""
     username = StringField('username', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
+
+
+class RegisterForm(FlaskForm):
+    """Used for validating the login form."""
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired()])
+    full_name = StringField('Full Name', validators=[DataRequired()])
