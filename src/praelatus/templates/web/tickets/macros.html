@@ -1,0 +1,22 @@
+{% macro ticket_table(tickets) %}
+  <table>
+    <tr>
+      <th>
+        Key
+      </th>
+      <th>
+        Summary
+      </th>
+    </tr>
+    {% for t in tickets %}
+    <tr>
+      <td>
+        {{ t.key }}
+      </td>
+      <td>
+        {{ t.summary }}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endmacro %}
