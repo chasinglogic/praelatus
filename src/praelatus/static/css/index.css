@@ -18,7 +18,7 @@
 }
 
 .ticket-separator {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid black;
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
@@ -32,7 +32,7 @@
     background-color: white;
     box-shadow: 0 1px 4px rgba(0,0,0,.04);
     border: 1px solid #ddd;
-    border-radius: 3px;
+    border-radius: 10px;
     margin-bottom: 1rem;
     padding: 1rem;
 }
@@ -67,52 +67,57 @@
 }
 
 .nav-tabs .nav-item {
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    border-color: none;
+    border-bottom-color: #ddd;
+    background-color: #ddd;
 }
+
+.nav-tabs .nav-item.active {
+    border-bottom: none;
+    background-color: #fafafa;
+}
+
+.nav-tabs .nav-item, .nav-tabs .nav-item .active {
+    border-radius: 10px 10px 0 0;
+    margin-right: 2px;
+}
+
+.tab-content {
+    border-radius: 0 10px 10px 10px;
+}
+
+.tab-content {
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    padding-top: 2.5rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+    background-color: white;
+}
+
+.form-container {
+    padding: 2rem;
+}
+
+.comment {
+    background-color: #FEFDFB;
+    box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+#fields .row {
+    margin-bottom: 1rem;
+}
+
+.nav-tabs .nav-item a {
+    color: black;
+}
+
+/* Login Page Specific */
 
 .login-container {
-    max-width: 500px;
-}
-
-.login-container .form-container {
-    width: 80%;
-    margin-right: auto;
-    margin-left: auto;
-}
-
-#loginRegister {
-    width: 100%;
+    max-width: 400px;
 }
 
 .login-container img {
     width: 100%;
-}
-
-.nav-tabs .nav-link.active {
-    border: none;
-    border-bottom: 2px solid #703D6F
-}
-
-.login-tabs {
-    width: 100%;
-    border-bottom: none;
-    border-top: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-    border-left: 1px solid #ddd;
-}
-
-.login-tabs .nav-item {
-    width: 50%;
-    text-align: center;
-    font-size: 1.2rem;
-}
-
-.login-tabs .nav-item .nav-link {
-    color: black;
-}
-
-.login-tabs .nav-item.active {
 }
