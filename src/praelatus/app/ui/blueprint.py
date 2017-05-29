@@ -52,17 +52,17 @@ def login():
 def register():
     register_form = RegisterForm()
     if register_form.validate_on_submit():
-        with connection() as db:
-            user = UserStore.get(db, uid=register_form.username.data)
-            if user is None:
-                return render_template('web/users/login.html',
-                                       form=register_form, submit_value='Sign Up',
-                                       flash='No user with that username.')
+        try:
+            with connection() as db:
+                user = UserStore.new(db, **register_form.data)
             if UserStore.check_pw(user, register_form.password.data):
                 session['user'] = user.jsonify()
                 return redirect('/')
+        except DuplicateError:
             return render_template('web/users/login.html',
-                           form=register_form, submit_value='Sign Up')
+                                   flash=''
+                                   form=register_form,
+                                   submit_value='Sign Up')
     return render_template('web/users/login.html',
                            form=register_form, submit_value='Sign Up')
 
