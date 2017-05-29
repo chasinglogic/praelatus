@@ -46,6 +46,15 @@ app.register_blueprint(ui)
 md = markdown.Markdown()
 app.jinja_env.filters['markdown'] = lambda text: Markup(md.convert(text))
 
+
+# Fix bad names.
+def humanize(text):
+    """Take snake_case string and make it human readable."""
+    return ' '.join([s.capitalize() for s in text.split('_')])
+
+
+app.jinja_env.filters['humanize'] = humanize
+
 loggers = [app.logger]
 for l in loggers:
     l.addHandler(stdo)
