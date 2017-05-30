@@ -35,7 +35,7 @@ celery: docker
 run:
 	export FLASK_APP="praelatus.app"
 	export FLASK_DEBUG=1
-	PYTHONPATH=${PWD}/src:${PYTHONPATH} flask run -p 8000
+	PYTHONPATH=${PWD}:${PYTHONPATH} flask run -p 8000
 
 setup_dev: install docker celery migrate seed
 
@@ -46,6 +46,6 @@ venv:
 clean:
 	rm -rf build
 	rm -rf dist
-	rm -rf src/*.egg-info
-	rm -rf src/praelatus/**/__pycache__
-	rm -rf src/praelatus/migrations/versions/__pycache__
+	rm -rf *.egg-info
+	rm -rf praelatus/**/__pycache__
+	rm -rf praelatus/migrations/versions/__pycache__
