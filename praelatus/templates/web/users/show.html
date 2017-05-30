@@ -1,0 +1,6 @@
+{% extends 'web/layout.html' %} {% block content %}
+<div class="user-profile d-flex justify-content-center">
+  {% from 'web/users/macros.html' import user_profile %}
+  {{ user_profile(user) }}
+</div>
+{% endblock %}

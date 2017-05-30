@@ -4,8 +4,26 @@
     background-color: #703D6F;
 }
 
+.summary {
+    background-color: white;
+    border-radius: 10px;
+    padding: 1rem;
+    border: 1px solid #ddd;
+}
+
 .navbar {
     margin-bottom: 1rem;
+}
+
+.user-profile {
+  vertical-align: middle;
+}
+
+.user-profile .img-thumbnail {
+  height: 123px;
+}
+
+.user-profile .card {
 }
 
 .user-stub img {

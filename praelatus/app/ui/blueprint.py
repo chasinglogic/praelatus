@@ -23,7 +23,7 @@ def index():
     if session.get('user'):
         return redirect('/dashboard')
     return render_template('web/index.html', form=RegisterForm(),
-                           submit_value='Sign Up')
+                           action='/register', submit_value='Sign Up')
 
 
 @ui.route('/dashboard')
@@ -77,6 +77,7 @@ def register():
             flash = 'That username already taken.'
     return render_template('web/users/login.html',
                            flash=flash,
+                           action='/register',
                            form=register_form,
                            submit_value='Sign Up')
 
@@ -94,3 +95,13 @@ def project_search():
         projects = ProjectStore.search(db, search=search,
                                        actioning_user=session.get('user'))
         return render_template('web/projects/search.html', projects=projects)
+
+
+@ui.route('/users/<username>')
+def show_user(username):
+    with connection() as db:
+        user = UserStore.get(db, uid=username)
+        if user:
+            return render_template('web/users/show.html', user=user)
+        return render_template('web/404.html',
+                               message='No user with that username exists.')
