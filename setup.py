@@ -4,7 +4,7 @@ import re
 from setuptools import setup
 
 praelatusfile = os.path.join(os.path.dirname(__file__),
-                             'src', 'praelatus', '__init__.py')
+                             'praelatus', '__init__.py')
 
 # Thanks to SQLAlchemy:
 # https://github.com/zzzeek/sqlalchemy/blob/master/setup.py#L104
@@ -47,7 +47,6 @@ setup(
     packages=[
         'praelatus',
     ],
-    package_dir={'': 'src'},
     author="""Mathew Robinson and many others.""",
     author_email="team@praelatus.io",
     url='https://prealatus.io',

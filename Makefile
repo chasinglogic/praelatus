@@ -1,5 +1,6 @@
 PYTHON="python3"
 PIP="pip"
+export PYTHONPATH=${PWD}
 
 install:
 	$(PIP) install -r requirements.txt
@@ -31,11 +32,8 @@ docker:
 celery: docker
 	celery -A praelatus.events.app worker --loglevel=debug &
 
-.ONESHELL:
 run:
-	export FLASK_APP="praelatus.app"
-	export FLASK_DEBUG=1
-	PYTHONPATH=${PWD}:${PYTHONPATH} flask run -p 8000
+	FLASK_APP="praelatus.app" FLASK_DEBUG=1 PYTHONPATH=${PWD}:${PYTHONPATH} flask run -p 8000
 
 setup_dev: install docker celery migrate seed
 
