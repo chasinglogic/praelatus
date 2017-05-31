@@ -1,76 +1,75 @@
 {% extends 'web/layout.html' %}
 <!-- style="background-color: #fbf8ef" -->
 
-{% block bodystyle %}
-style="background-color: #f4e9d3"
-{% endblock %}
-
 {% block content %}
 <div class="ticket">
-    <h4>
-        <small>
-            <a href="/{{ ticket.project.key }}">
-                {{ ticket.project.name }}
-            </a>
-            / {{ ticket.key }}
-        </small>
-    </h4>
-    <h1 class="summary">
-        {{ ticket.summary }}
-    </h1>
+  <h4>
+    <small>
+      <a href="/{{ ticket.project.key }}">
+        {{ ticket.project.name }}
+      </a>
+      / {{ ticket.key }}
+    </small>
+  </h4>
+  <h1 class="summary">
+    {{ ticket.summary }}
+  </h1>
 
-    <ul id="ticketData" class="nav nav-tabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab"
-               href="#description" role="tab">
-                Description
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-toggle="tab"
-               href="#fields" role="tab">
-                Fields
-            </a>
-        </li>
-    </ul>
+  <h1 class="ticket-separator"></h1>
+  <div class="row">
+    <div class="col-md-9 comments">
+      {% from 'web/users/macros.html' import user_stub %}
+      <div class="comment card">
+        <h3 class="card-header">Description</h3>
+        <div class="card-block">
+          {{ ticket.description | markdown }}
+        </div>
+      </div>
 
-    <div class="tab-content">
-        <div id="description" class="tab-pane show active" role="tabpanel">
-            {{ ticket.description | markdown }}
+      {% for c in ticket.comments %}
+      <div class="comment card">
+        <div class="card-block">
+          {{ c.body | markdown }}
         </div>
-        <div id="fields" class="tab-pane" role="tabpanel">
-            {% for f in ticket.fields %}
-            <div class="row">
-                <div class="col-md-6"><b>{{ f.field.name }}</b></div>
-                <div class="col-md-6">{{ f.value }}</div>
-            </div>
-            {% endfor %}
+        <div class="card-header author">
+          <div style="display: inline-block">
+            {{ user_stub(c.author) }}
+          </div>
+          <span style="display: inline-block">
+            commented on <span>{{ c.created_date.strftime('%Y-%m-%d %-I:%M %p') }}</span>
+          </span>
         </div>
+      </div>
+      {% endfor %}
     </div>
 
-    <script>
-     $('#loginRegister a[href="#register"]').tab('show');
-     $('#loginRegister a[href="#login"]').tab('show');
-    </script>
-
-    <h1 class="ticket-separator text-center">Comments</h1>
-    <div class="card-block comments">
-        {% from 'web/users/macros.html' import user_stub %}
-        {% for c in ticket.comments %}
-        <div class="comment">
-            <div class="container">
-                {{ c.body | markdown }}
-            </div>
-            <div class="container author">
-                <div style="display: inline-block">
-                    {{ user_stub(c.author) }}
-                </div>
-                <span style="display: inline-block">
-                    commented on <span>{{ c.created_date.strftime('%Y-%m-%d %-I:%M %p') }}</span>
-                </span>
-            </div>
+    <div class="col-md-3">
+      <div class="card">
+        <h3 class="card-header">Fields</h3>
+        <div class="card-block">
+          <p class="card-text">
+            <b>Reporter:</b>
+            {{ user_stub(ticket.reporter) }}
+          </p>
         </div>
-        {% endfor %}
+        <div class="card-block">
+          <p class="card-text">
+            <b>Assignee:</b>
+            {% if ticket.assignee %}
+              {{ user_stub(ticket.reporter) }}
+            {% endif %}
+          </p>
+        </div>
+        <div class="card-block">
+          {% for f in ticket.fields %}
+          <div class="d-flex-inline">
+            <b>{{ f.field.name }}:</b>
+            <p>{{ f.value }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
