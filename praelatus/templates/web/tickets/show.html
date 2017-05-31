@@ -1,5 +1,9 @@
 {% extends 'web/layout.html' %}
-<!-- style="background-color: #fbf8ef" -->
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/ticket.css">
+<!-- <script src="/static/js/ticket.js"></script> -->
+{% endblock %}
 
 {% block content %}
 <div class="ticket">
@@ -44,7 +48,7 @@
     </div>
 
     <div class="col-md-3">
-      <div class="card">
+      <div class="card fields">
         <h3 class="card-header">Fields</h3>
         <div class="card-block">
           <p class="card-text">
