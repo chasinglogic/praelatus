@@ -1,0 +1,45 @@
+.navbar {
+  margin-bottom: 1rem;
+}
+
+.navbar .nav-link:hover {
+  background-color: #995197;
+}
+
+.disabled:hover {
+  background-color: #703D6F !important;
+}
+
+.navbar .nav-link {
+  color: white !important;
+}
+
+.nav-tabs .nav-item {
+  border-bottom-color: #ddd;
+  background-color: #ddd;
+}
+
+.nav-tabs .nav-item.active {
+  border-bottom: none;
+  background-color: #fafafa;
+}
+
+.nav-tabs .nav-item, .nav-tabs .nav-item .active {
+  border-radius: 5px 5px 0 0;
+  margin-right: 2px;
+}
+
+.tab-content {
+  border-radius: 0 5px 5px 5px;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  padding-top: 2.5rem;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+  background-color: white;
+}
+
+.nav-tabs .nav-item a {
+  color: black;
+}
