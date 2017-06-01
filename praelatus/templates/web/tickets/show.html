@@ -1,12 +1,13 @@
 {% extends 'web/layout.html' %}
 
 {% block head %}
-<link rel="stylesheet" href="/static/css/ticket.css">
+<link rel="stylesheet" href="/static/css/tickets.css">
+<link rel="stylesheet" href="/static/css/users.css">
 <!-- <script src="/static/js/ticket.js"></script> -->
 {% endblock %}
 
 {% block content %}
-<div class="ticket">
+<div>
   <h4>
     <small>
       <a href="/{{ ticket.project.key }}">
@@ -15,15 +16,15 @@
       / {{ ticket.key }}
     </small>
   </h4>
-  <h1 class="summary">
+  <h1 class="element border shadow">
     {{ ticket.summary }}
   </h1>
 
-  <h1 class="ticket-separator"></h1>
+  <div class="separator"></div>
   <div class="row">
     <div class="col-md-9 comments">
       {% from 'web/users/macros.html' import user_stub %}
-      <div class="comment card">
+      <div class="card shadow m-bottom">
         <h3 class="card-header">Description</h3>
         <div class="card-block">
           {{ ticket.description | markdown }}
@@ -31,7 +32,7 @@
       </div>
 
       {% for c in ticket.comments %}
-      <div class="comment card">
+      <div class="shadow m-bottom card">
         <div class="card-block">
           {{ c.body | markdown }}
         </div>
@@ -48,22 +49,40 @@
     </div>
 
     <div class="col-md-3">
-      <div class="card fields">
-        <h3 class="card-header">Fields</h3>
+      <div class="card shadow m-bottom">
+        <h4 class="card-header">Details</h4>
         <div class="card-block">
+          <b>Ticket Type:</b>
           <p class="card-text">
-            <b>Reporter:</b>
+            {{ ticket.ticket_type.name }}
+          </p>
+
+          {% if ticket.labels %} 
+          <b>Labels:</b>
+          {% for l in ticket.labels %}
+          <span class="badge badge-pill badge-default">{{ l.name }}</span>
+          {% endfor %}
+          {% endif %}
+          <b>Reporter:</b>
+          <p class="card-text">
             {{ user_stub(ticket.reporter) }}
           </p>
-        </div>
-        <div class="card-block">
+
+          <b>Assignee:</b>
           <p class="card-text">
-            <b>Assignee:</b>
             {% if ticket.assignee %}
-              {{ user_stub(ticket.reporter) }}
+             {{ user_stub(ticket.reporter) }}
             {% endif %}
           </p>
+
+          <b>Created:</b>
+          <p class="card-text">
+          {{ ticket.created_date.strftime('%Y-%m-%d %-I:%M %p') }}
+          </p>
         </div>
+      </div>
+      <div class="card shadow">
+        <h4 class="card-header fields">Fields</h4>
         <div class="card-block">
           {% for f in ticket.fields %}
           <div class="d-flex-inline">
