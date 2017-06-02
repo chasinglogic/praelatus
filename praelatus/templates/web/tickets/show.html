@@ -57,7 +57,7 @@
             {{ ticket.ticket_type.name }}
           </p>
 
-          {% if ticket.labels %} 
+          {% if ticket.labels %}
           <b>Labels:</b>
           {% for l in ticket.labels %}
           <span class="badge badge-pill badge-default">{{ l.name }}</span>

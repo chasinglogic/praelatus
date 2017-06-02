@@ -1,0 +1,20 @@
+.tickets {
+  max-height: 600px;
+  overflow: hidden;
+}
+
+.tickets .row .col-md-3 {
+  max-height: 90%;
+  overflow-y: scroll;
+}
+
+.ticket-stub {
+  background-color: white;
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.ticket-stub:hover {
+  color: white;
+  background-color: #995197;
+}

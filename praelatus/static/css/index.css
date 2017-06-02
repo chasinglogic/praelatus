@@ -54,7 +54,7 @@ body {
 /* Layout */
 
 .content {
-  min-height: 100%;
+  min-height: 85%;
 }
 
 .search-bar, .search-bar input {

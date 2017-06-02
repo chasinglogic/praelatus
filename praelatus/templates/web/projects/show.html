@@ -1,5 +1,28 @@
 {% extends 'web/layout.html' %}
 
-{% block content %}
+{% block head %}
+<link rel="stylesheet" href="/static/css/users.css" />
+<link rel="stylesheet" href="/static/css/projects.css" />
+{% endblock %}
 
+{% block content %}
+<h1>{{ project.name }}</h1>
+{% from 'web/users/macros.html' import user_stub %}
+<p><b>Lead:</b> {{ user_stub(project.lead) }}</p>
+
+<div class="tickets">
+  <div class="row">
+    <div class="col-md-3">
+      {% for t in project.tickets %}
+      <div class="ticket-stub" value="{{ t.key }}">
+        {{ t.key }}
+      </div>
+      {% endfor %}
+    </div>
+    <div id="preview" class="col-md-9">
+      <ticket-preview v-bind:ticket="currentTicket"></ticket-preview>
+    </div>
+  </div>
+</div>
+<script src="/static/js/projects.js"></script>
 {% endblock %}

@@ -13,3 +13,9 @@ function getParameterByName(name) {
     var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
+
+
+var ticketPreview = {
+  props: ['ticket'],
+  template: '<h1>{{ ticket.key }}</h1>',
+};

@@ -105,3 +105,14 @@ def show_user(username):
             return render_template('web/users/show.html', user=user)
         return render_template('web/404.html',
                                message='No user with that username exists.')
+
+@ui.route('/<key>')
+def show_project(key):
+    with connection() as db:
+        project = ProjectStore.get(db, uid=key,
+                                   actioning_user=session.get('user'))
+        if project:
+            return render_template('web/projects/show.html', project=project)
+
+        return render_template('web/404.html',
+                               message='No project with that key was found.')

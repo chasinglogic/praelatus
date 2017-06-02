@@ -30,7 +30,9 @@
                 {% from 'web/users/macros.html' import user_stub %}
                 {% for p in projects %}
                 <tr>
-                    <td>{{ p.name }}</td>
+                    <td>
+                        <a href="/{{ p.key }}">{{ p.name }}</a>
+                    </td>
                     <td>{{ p.key }}</td>
                     <td>{{ user_stub(p.lead) }}</td>
                     <td>{{ p.homepage }}</td>

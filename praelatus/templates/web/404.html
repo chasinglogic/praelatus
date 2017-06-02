@@ -1,0 +1,9 @@
+{% extends 'web/layout.html' %}
+
+{% block content %}
+<h1>Not Found 404</h1>
+{% if message %}
+<h3>{{ message }}</h3>
+{% endif %}
+<a href="/">Return Home</a>
+{% endblock %}

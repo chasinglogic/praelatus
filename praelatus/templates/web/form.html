@@ -1,4 +1,4 @@
-<div class="form-wrapper">
+<div class="element">
     {% if flash %}
     <div class="alert
       {% if alert_type %}
@@ -10,7 +10,7 @@
     </div>
     {% endif %}
     <form method="{% if method %}{{ method }}{% else %}POST{% endif %}"
-          action="{% if action %}{{ action }}{% else %}/login{% endif %}">
+          action="{{ action }}">
         {{ form.hidden_tag() }}
         {% for field in form if field.widget.input_type != 'hidden' %}
         <div class="form-group">

@@ -1,31 +1,18 @@
 {% extends "web/layout.html" %}
 
-{% macro help_text() %}
-<h3>Welcome to Praelatus!</h3>
-<p>
-    Praelatus is an Open Source bug tracking and ticketing system.
-    If you're new to Praelatus and are wondering how to get started
-    you can view our <a href="https://doc.praelatus.io/">User Guide</a>.
-    Otherwise just sign in / sign up and get cracking!
-</p>
-{% endmacro %}
-
 {% block content %}
-<div class="d-flex justify-content-center align-items-center">
-<div class="row hidden-sm-down">
-    <div class="col-md-6">
-        {{ help_text() }}
+<div class="row">
+    <div class="col-md-6 element">
+        <h3>Welcome to Praelatus!</h3>
+        <p>
+        Praelatus is an Open Source bug tracking and ticketing system.
+        If you're new to Praelatus and are wondering how to get started
+        you can view our <a href="https://doc.praelatus.io/">User Guide</a>.
+        Otherwise just sign in / sign up and get cracking!
+        </p>
     </div>
     <div class="col-md-6">
         {% include 'web/form.html' %}
-    </div>
-</div>
-<div class="row hidden-md-up">
-    <div class="col-sm-6">
-        {% include 'web/form.html' %}
-    </div>
-    <div class="col-sm-6">
-        {{ help_text() }}
     </div>
 </div>
 {% endblock %}
