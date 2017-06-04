@@ -14,6 +14,10 @@ class BaseModel:
         """A basic repr method that can be inherited."""
         return "%s(id=%s)" % (self.__class__.__name__, self.id)
 
+    def get(self, attr):
+        """Works like dict .get."""
+        return getattr(self, attr)
+
     def jsonify(self):
         """
         Return a dictionary of the obj with metadata removed.

@@ -1,5 +1,6 @@
 .navbar {
-  margin-bottom: 1rem;
+  padding: 0 16px;
+  margin: 0 0 1rem 0;
 }
 
 .navbar .nav-link:hover {
@@ -42,4 +43,13 @@
 
 .nav-tabs .nav-item a {
   color: black;
+}
+
+.btn-primary {
+    margin: 5px;
+    padding: .25em 1em;
+}
+
+#userMenu1 {
+    padding: .3em .25em 0em .25em;
 }

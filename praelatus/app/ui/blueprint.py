@@ -8,12 +8,14 @@ from flask import Blueprint
 from praelatus.lib import connection
 from praelatus.store import UserStore
 from praelatus.store import TicketStore
+from praelatus.store import TicketTypeStore
 from praelatus.store import ProjectStore
 from praelatus.templates import render_template
 from praelatus.models import DuplicateError
-from praelatus.app.ui.forms.login import LoginForm
-from praelatus.app.ui.forms.login import RegisterForm
+from praelatus.app.ui.forms import LoginForm
+from praelatus.app.ui.forms import RegisterForm
 from praelatus.app.ui.helpers import auth_required
+from praelatus.app.ui.forms import CreateTicketForm
 
 ui = Blueprint('ui', __name__)
 
@@ -116,3 +118,26 @@ def show_project(key):
 
         return render_template('web/404.html',
                                message='No project with that key was found.')
+
+@ui.route('/tickets/create', methods=('GET', 'POST'))
+def create_ticket():
+    form = CreateTicketForm()
+    if form.validate_on_submit():
+        user = session.get('user')
+        with connection() as db:
+            new_ticket = form.data
+            project = ProjectStore.get(db, uid=new_ticket.pop('project_name'), actioning_user=user)
+            ticket_type = TicketTypeStore.get(db, name=new_ticket.pop('ticket_type'))
+            new_ticket['ticket_type'] = ticket_type
+            new_ticket['project'] = project
+            if user is None:
+                new_ticket['reporter'] = UserStore.get(db, uid='anonymous').jsonify()
+            else:
+                new_ticket['reporter'] = user
+            print(new_ticket)
+            ticket = TicketStore.new(db, actioning_user=user, **new_ticket)
+            return redirect('/%s/%s' % (project.key, ticket.key))
+    return render_template('web/tickets/create.html',
+                           form=form,
+                           action='/tickets/create',
+                           submit_value='Create Ticket')

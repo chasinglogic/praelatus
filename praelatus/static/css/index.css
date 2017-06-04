@@ -47,8 +47,8 @@ body {
 /* Make an empty div a separator line */
 .separator {
   border-bottom: 1px solid black;
-  margin-bottom: 1rem;
-  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 /* Layout */

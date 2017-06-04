@@ -1,0 +1,20 @@
+{% extends 'web/layout.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid d-flex justify-content-center align-items-center"
+     style="background-color: #703D6F; height: 100%;">
+    <div class="login-container">
+        <a href="/">
+            <img src="/static/img/name.svg" />
+        </a>
+        <div class="form-container"
+             style="background-color: white; border-radius: 5px">
+            {% include 'web/form.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}

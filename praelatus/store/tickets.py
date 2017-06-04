@@ -166,9 +166,9 @@ class TicketStore(Store):
         new_ticket = Ticket(
             summary=kwargs['summary'],
             description=kwargs['description'],
-            reporter_id=kwargs['reporter']['id'],
-            ticket_type_id=kwargs['ticket_type']['id'],
-            project_id=kwargs['project']['id'],
+            reporter_id=kwargs['reporter'].get('id'),
+            ticket_type_id=kwargs['ticket_type'].get('id'),
+            project_id=kwargs['project'].get('id'),
         )
 
         # Raw sql here is clearer and faster than using orm
@@ -220,8 +220,8 @@ class TicketStore(Store):
     def get_next_ticket_key(self, db, project):
         """Return the appropriate ticket key."""
         count = db.query(Ticket.id).\
-            filter(Ticket.project_id == project['id']).count()
-        return '{}-{}'.format(project['key'], count + 1)
+            filter(Ticket.project_id == project.get('id')).count()
+        return '{}-{}'.format(project.get('key'), count + 1)
 
     @permission_required('EDIT_TICKET')
     def update(self, db, model=None, orig_ticket=None, **kwargs):
