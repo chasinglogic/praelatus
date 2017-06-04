@@ -53,3 +53,14 @@
 #userMenu1 {
     padding: .3em .25em 0em .25em;
 }
+
+.my-sm-0 {
+    margin-bottom: 0 !important;
+    margin-top: 1rem !important;
+}
+
+@media only screen and (max-width: 500px) {
+    .my-2 {
+        width: 100%;
+    }
+}
