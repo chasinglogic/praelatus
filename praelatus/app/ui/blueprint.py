@@ -93,7 +93,9 @@ def logout():
 @ui.route('/projects/search')
 def project_search():
     with connection() as db:
-        search = request.args.get('filter', '*')
+        search = request.args.get('filter')
+        if search == '' or search is None:
+            search = '*'
         projects = ProjectStore.search(db, search=search,
                                        actioning_user=session.get('user'))
         return render_template('web/projects/search.html', projects=projects)
@@ -119,25 +121,21 @@ def show_project(key):
         return render_template('web/404.html',
                                message='No project with that key was found.')
 
-@ui.route('/tickets/create', methods=('GET', 'POST'))
-def create_ticket():
-    form = CreateTicketForm()
-    if form.validate_on_submit():
+@ui.route('/tickets/<project_key>/create', methods=('GET', 'POST'))
+def create_ticket(project_key):
+    with connection() as db:
         user = session.get('user')
-        with connection() as db:
-            new_ticket = form.data
-            project = ProjectStore.get(db, uid=new_ticket.pop('project_name'), actioning_user=user)
-            ticket_type = TicketTypeStore.get(db, name=new_ticket.pop('ticket_type'))
+        project = ProjectStore.get(db, actioning_user=user,
+                                   uid=project_key)
+        if request.method == 'POST':
+            new_ticket = request.args
+            ticket_type = TicketTypeStore.get(db, name='Bug')
             new_ticket['ticket_type'] = ticket_type
             new_ticket['project'] = project
             if user is None:
                 new_ticket['reporter'] = UserStore.get(db, uid='anonymous').jsonify()
             else:
                 new_ticket['reporter'] = user
-            print(new_ticket)
-            ticket = TicketStore.new(db, actioning_user=user, **new_ticket)
+                ticket = TicketStore.new(db, actioning_user=user, **new_ticket)
             return redirect('/%s/%s' % (project.key, ticket.key))
-    return render_template('web/tickets/create.html',
-                           form=form,
-                           action='/tickets/create',
-                           submit_value='Create Ticket')
+        return render_template('web/tickets/create.html', project=project)

@@ -1,0 +1,22 @@
+version: '2'
+services:
+  praelatus:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/opt/praelatus
+    command: /bin/bash /opt/praelatus/scripts/docker-dev.sh
+    environment:
+      - PRAELATUS_DB=postgres://postgres:postgres@postgres:5432/prae_dev
+      - PRAELATUS_REDIS=redis
+      - PRAELATUS_MQ_SERVER=guest@rabbitmq
+      - FLASK_APP=praelatus.app
+      - FLASK_DEBUG=1
+  redis:
+    image: "redis:alpine"
+  postgres:
+    image: "postgres:9-alpine"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=prae_dev

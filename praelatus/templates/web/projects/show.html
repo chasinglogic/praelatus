@@ -1,4 +1,5 @@
 {% extends 'web/layout.html' %}
+{% from 'web/users/macros.html' import user_stub %}
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/users.css" />
@@ -6,23 +7,70 @@
 {% endblock %}
 
 {% block content %}
-<h1>{{ project.name }}</h1>
-{% from 'web/users/macros.html' import user_stub %}
-<p><b>Lead:</b> {{ user_stub(project.lead) }}</p>
+<div class="card shadow m-bottom">
+    <div class="card-header">
+        <h1>
+            {{ project.name }}
+        </h1>
+    </div>
+    <div class="card-block">
+        {% if project.description %}
+            {{ project.description | markdown }}
+        {% endif %}
 
-<div class="tickets">
-  <div class="row">
-    <div class="col-md-3">
-      {% for t in project.tickets %}
-      <div class="ticket-stub" value="{{ t.key }}">
-        {{ t.key }}
-      </div>
-      {% endfor %}
+        <p>
+            <b>Lead:</b> {{ user_stub(project.lead) }}
+        </p>
+
+        {% if project.repo %}
+        <p>
+            <b>Repo:</b>
+            <a href="{{ project.repo }}">{{ project.repo }}</a>
+        </p>
+        {% endif %}
+
+        {% if project.homepage %}
+        <p>
+            <b>Homepage:</b>
+            <a href="{{ project.homepage }}">{{ project.homepage }}</a>
+        </p>
+        {% endif %}
+
     </div>
-    <div id="preview" class="col-md-9">
-      <ticket-preview v-bind:ticket="currentTicket"></ticket-preview>
-    </div>
-  </div>
 </div>
-<script src="/static/js/projects.js"></script>
+
+{% if project.tickets %}
+<div class="card shadow">
+    <div class="card-header" >
+        <h1>Open Tickets</h1>
+    </div>
+    <div id="project-tickets" class="card-block">
+        <div class="row">
+            <div id="ticket-list" class="col-md-3">
+                {% for t in project.tickets %}
+                <div class="ticket-stub" id="{{ t.key }}"
+                     onclick="loadPreview(this)">
+                    <b>{{ t.key }}</b>
+                    <p>{{ t.summary }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="preview" class="col-md-9">
+                {% raw %}
+                <a v-bind:href="url" class="btn btn-primary form-control">Click for Detail</a>
+                <h3 class="separator">{{ summary }}</h3>
+                <div v-html="description"></div>
+                {% endraw %}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/js/projects/projects.js"></script>
+{% else %}
+<div class="card shadow" >
+    <div class="card-header" >
+        <h1>No Open Tickets!</h1>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
