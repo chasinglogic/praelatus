@@ -70,9 +70,11 @@
 
           <b>Assignee:</b>
           <p class="card-text">
-            {% if ticket.assignee %}
+          {% if ticket.assignee %}
              {{ user_stub(ticket.reporter) }}
-            {% endif %}
+          {% else %}
+              Unassigned
+          {% endif %}
           </p>
 
           <b>Created:</b>

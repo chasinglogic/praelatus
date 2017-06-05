@@ -57,8 +57,11 @@
             </div>
             <div id="preview" class="col-md-9">
                 {% raw %}
-                <a v-bind:href="url" class="btn btn-primary form-control">Click for Detail</a>
-                <h3 class="separator">{{ summary }}</h3>
+                <h1 class="separator">
+                    {{ summary }}
+
+                    <a v-bind:href="url" class="btn btn-primary pull-right">Detail</a>
+                </h1>
                 <div v-html="description"></div>
                 {% endraw %}
             </div>
