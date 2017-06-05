@@ -113,9 +113,9 @@ class TicketStore(Store):
         project_key = kwargs.pop('project_key', None)
 
         if assignee is not None:
-            query = query.filter(Ticket.assignee_id == assignee['id'])
+            query = query.filter(Ticket.assignee_id == assignee.get('id'))
         elif reporter is not None:
-            query = query.filter(Ticket.reporter_id == reporter['id'])
+            query = query.filter(Ticket.reporter_id == reporter.get('id'))
         elif project_key is not None:
             query = query.filter(Project.key == project_key)
         elif search is not None:

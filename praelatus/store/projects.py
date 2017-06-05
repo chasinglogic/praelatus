@@ -9,6 +9,8 @@ checked before committing the action. None is equivalent to an
 Anonymous user.
 """
 
+import warnings
+
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 
@@ -46,6 +48,7 @@ class ProjectStore(Store):
         elif type(uid) is str:
             query = query.filter(Project.key == uid)
         elif id is not None:
+            warnings.warn('id will be removed soon')
             query = query.filter(Project.id == id)
         elif name is not None:
             query = query.filter(Project.name == name)
@@ -124,7 +127,7 @@ class ProjectStore(Store):
         try:
             db.add(new_project)
             db.commit()
-        except IntegrityError as e:
+        except IntegrityError:
             raise DuplicateError('That project key or name is already taken.')
         return new_project
 

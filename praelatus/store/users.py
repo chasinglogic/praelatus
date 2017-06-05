@@ -11,6 +11,7 @@ Anonymous user.
 
 import bcrypt
 import hashlib
+import warnings
 
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
@@ -33,6 +34,7 @@ class UserStore(Store):
         elif type(uid) is str:
             query = query.filter(self.model.username == uid)
         elif username is not None:
+            warnings.warn('username will be removed in a future version')
             query = query.filter(self.model.username == username)
         else:
             return None
