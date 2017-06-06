@@ -12,4 +12,4 @@ ENV PYTHONPATH /opt/praelatus
 
 EXPOSE 8000
 
-CMD ["celery", "multi", "start", "-A" "praelatus.events", "&&", "gunicorn", "-k", "gevent", "--reload", "-b", "0.0.0.0:8000", "praelatus.app"]
+CMD ["gunicorn", "-k", "gevent", "--config", "/opt/praelatus/docker/gunicorn.conf", "praelatus.app"]
