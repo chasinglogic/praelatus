@@ -15,6 +15,7 @@ from praelatus.models import DuplicateError
 from praelatus.app.ui.forms import LoginForm
 from praelatus.app.ui.forms import RegisterForm
 from praelatus.app.ui.helpers import auth_required
+from praelatus.app.ui.helpers import admin_required
 from praelatus.app.ui.forms import CreateTicketForm
 
 ui = Blueprint('ui', __name__)
@@ -139,3 +140,9 @@ def create_ticket(project_key):
                 ticket = TicketStore.new(db, actioning_user=user, **new_ticket)
             return redirect('/%s/%s' % (project.key, ticket.key))
         return render_template('web/tickets/create.html', project=project)
+
+
+@ui.route('/admin/system')
+@admin_required
+def admin():
+    return render_template('web/admin/sys_info.html')

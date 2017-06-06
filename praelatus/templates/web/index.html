@@ -1,18 +1,20 @@
 {% extends "web/layout.html" %}
 
-{% block content %}
-<div class="row">
-    <div class="col-md-6 element">
-        <h3>Welcome to Praelatus!</h3>
-        <p>
-        Praelatus is an Open Source bug tracking and ticketing system.
-        If you're new to Praelatus and are wondering how to get started
-        you can view our <a href="https://doc.praelatus.io/">User Guide</a>.
-        Otherwise just sign in / sign up and get cracking!
-        </p>
-    </div>
-    <div class="col-md-6">
-        {% include 'web/form.html' %}
+{% block container %}
+<div class="container" >
+    <div class="row">
+        <div class="col-md-6 element">
+            <h3>Welcome to Praelatus!</h3>
+            <p>
+                Praelatus is an Open Source bug tracking and ticketing system.
+                If you're new to Praelatus and are wondering how to get started
+                you can view our <a href="https://doc.praelatus.io/">User Guide</a>.
+                Otherwise just sign in / sign up and get cracking!
+            </p>
+        </div>
+        <div class="col-md-6">
+            {% include 'web/form.html' %}
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -61,3 +61,33 @@ body {
 .search-bar, .search-bar input {
   width: 100%
 }
+
+
+.sidebar {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    position: fixed;
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-right: 1px solid #eee;
+}
+
+.praelatus-nav-link {
+    color: #703D6F;
+}
+
+.praelatus-nav-link.active {
+    background-color: #703D6F !important;
+    color: white !important;
+}
+
+.dash-header {
+    border-bottom: 1px solid black;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}

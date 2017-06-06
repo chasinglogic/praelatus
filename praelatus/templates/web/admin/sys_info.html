@@ -1,0 +1,23 @@
+{% extends 'web/layout.html' %}
+
+{% block navbar %}
+{% include 'web/admin/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+<h1 class="dash-header">System Information</h1>
+
+<table class="table table-responsive element" >
+    <tr>
+        <th>Key</th>
+        <th>Value</th>
+    </tr>
+    {% for k in config.__dict__.items() %}
+    <tr>
+        <td>{{ k.0 }}</td>
+        <td>{{ k.1 }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

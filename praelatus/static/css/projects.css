@@ -28,8 +28,23 @@
 .ticket-stub:hover, .ticket-stub.active {
   color: white;
   background-color: #995197;
+  cursor: pointer;
 }
 
 .ticket-stub p {
     margin-bottom: 0;
+}
+
+.project-header > * {
+    vertical-align: middle;
+    margin-bottom: 0;
+}
+
+.project-icon {
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-align: center;
 }

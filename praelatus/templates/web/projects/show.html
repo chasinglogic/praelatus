@@ -6,10 +6,15 @@
 <link rel="stylesheet" href="/static/css/projects.css" />
 {% endblock %}
 
+{% from 'web/projects/macros.html' import project_icon %}
+
 {% block content %}
 <div class="card shadow m-bottom">
-    <div class="card-header">
-        <h1>
+    <div class="card-header project-header">
+        <div class="d-inline-block" >
+        {{ project_icon(project) }}
+        </div>
+        <h1 class="d-inline-block">
             {{ project.name }}
         </h1>
     </div>
