@@ -1,15 +1,14 @@
 """Manage authentication tokens serialization and deserialization."""
 
-import json
 import base64
-
+import json
 import os
-
-from datetime import datetime
-from datetime import timedelta
 from binascii import b2a_hex
-from praelatus.config import config
+from datetime import datetime, timedelta
+
 from itsdangerous import TimestampSigner
+
+from praelatus.config import config
 
 
 def get_secret_key():

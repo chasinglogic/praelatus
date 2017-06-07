@@ -1,17 +1,11 @@
 """Defines the Ticket, Comment, Label, TickeType, and Status models."""
 
 from datetime import datetime
-from sqlalchemy import Column
-from sqlalchemy import DateTime
-from sqlalchemy import String
-from sqlalchemy import Table
-from sqlalchemy import Text
-from sqlalchemy import Integer
-from sqlalchemy import ForeignKey
-
-from sqlalchemy.orm import relationship
 
 from praelatus.models.base import Base
+from sqlalchemy import (Column, DateTime, ForeignKey, Integer, String, Table,
+                        Text)
+from sqlalchemy.orm import relationship
 
 
 class Ticket(Base):

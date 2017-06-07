@@ -9,17 +9,15 @@ checked before committing the action. None is equivalent to an
 Anonymous user.
 """
 
-import bcrypt
 import hashlib
 import warnings
 
+import bcrypt
+from praelatus.lib.permissions import PermissionError
+from praelatus.models import DuplicateError, User
+from praelatus.store.store import Store
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
-
-from praelatus.lib.permissions import PermissionError
-from praelatus.models import User
-from praelatus.models import DuplicateError
-from praelatus.store.store import Store
 
 
 class UserStore(Store):

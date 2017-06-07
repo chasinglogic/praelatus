@@ -1,12 +1,10 @@
 """Contains definition for the CommentStore."""
 
-from praelatus.store import Store
-from praelatus.models import Comment
-from praelatus.models import Ticket
+from praelatus.lib.permissions import (has_permission, is_system_admin,
+                                       permission_required)
+from praelatus.models import Comment, Ticket
 from praelatus.models.permissions import PermissionError
-from praelatus.lib.permissions import permission_required
-from praelatus.lib.permissions import is_system_admin
-from praelatus.lib.permissions import has_permission
+from praelatus.store import Store
 
 
 class CommentStore(Store):

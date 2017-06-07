@@ -1,12 +1,11 @@
 """Send notifications across various formats."""
 
 import smtplib
-
 from email.mime.text import MIMEText
+
+from praelatus.config import config
 from praelatus.events.event import EventType
 from praelatus.templates import load_template
-from praelatus.config import config
-
 
 templates = {
     'html': {

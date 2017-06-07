@@ -1,8 +1,8 @@
 """Contains all of the configuration for Praelatus."""
 
-import os
 import json
 import logging
+import os
 
 
 class Config:

@@ -1,11 +1,9 @@
 """Contains definition for the PermissionSchemeStore."""
 
-from praelatus.store import Store
-from praelatus.models import Role
-from praelatus.models import Permission
-from praelatus.models import PermissionScheme
-from praelatus.models import PermissionSchemePermissions
 from praelatus.lib.permissions import sys_admin_required
+from praelatus.models import (Permission, PermissionScheme,
+                              PermissionSchemePermissions, Role)
+from praelatus.store import Store
 
 
 class PermissionSchemeStore(Store):

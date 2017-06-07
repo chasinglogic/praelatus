@@ -1,10 +1,8 @@
 """Contains the resources for the /api/v1/users endpoints."""
 
-from flask import jsonify
-from flask import request
+from flask import jsonify, request
 
 import praelatus.lib.tokens as tokens
-
 from praelatus.app.api.v1.base import BaseResource
 from praelatus.lib import connection
 

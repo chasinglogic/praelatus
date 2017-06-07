@@ -1,11 +1,10 @@
 """Contains session management for Praelatus."""
 
-import redis
 import json
-
 from functools import wraps
-from praelatus.config import config
 
+import redis
+from praelatus.config import config
 
 global r
 r = redis.Redis(host=config.redis_host, db=config.redis_db,

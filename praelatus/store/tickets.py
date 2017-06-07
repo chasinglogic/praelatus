@@ -9,23 +9,16 @@ checked before committing the action. None is equivalent to an
 Anonymous user.
 """
 
-from sqlalchemy import or_
 from iso8601 import parse_date
-from sqlalchemy.orm import joinedload
 
-from praelatus.models import Ticket
-from praelatus.models import User
-from praelatus.models import Label
-from praelatus.models import Field
-from praelatus.models import FieldValue
-from praelatus.models import Status
-from praelatus.models import Project
-from praelatus.models import Transition
-from praelatus.models.fields import DataTypeError
-from praelatus.lib.permissions import permission_required
-from praelatus.lib.permissions import add_permission_query
+from praelatus.lib.permissions import add_permission_query, permission_required
 from praelatus.lib.redis import cached
+from praelatus.models import (Field, FieldValue, Label, Project, Status,
+                              Ticket, Transition, User)
+from praelatus.models.fields import DataTypeError
 from praelatus.store import Store
+from sqlalchemy import or_
+from sqlalchemy.orm import joinedload
 
 
 class TicketStore(Store):

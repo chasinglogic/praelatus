@@ -1,16 +1,9 @@
 """Contains definitions for Workflow and related models."""
 
-from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy import Text
-from sqlalchemy import ForeignKey
-from sqlalchemy import Table
-from sqlalchemy import UniqueConstraint
-from sqlalchemy.orm import relationship
-
 from praelatus.models.base import Base
-
+from sqlalchemy import (Column, ForeignKey, Integer, String, Table, Text,
+                        UniqueConstraint)
+from sqlalchemy.orm import relationship
 
 # A table that for now is just used for a 1-1 relationship see issue
 # #100 for why this was created. We will eventually support "workflow"

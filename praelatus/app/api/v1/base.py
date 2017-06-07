@@ -1,10 +1,8 @@
 """Contains resources for interacting with self.store."""
 
-from werkzeug.exceptions import NotFound
+from flask import g, jsonify, request
 from flask.views import MethodView
-from flask import jsonify
-from flask import request
-from flask import g
+from werkzeug.exceptions import NotFound
 
 from praelatus.lib import connection
 

@@ -9,12 +9,9 @@ checked before committing the action. None is equivalent to an
 Anonymous user.
 """
 
-from praelatus.store import Store
-from praelatus.models import Hook
-from praelatus.models import Status
-from praelatus.models import Workflow
-from praelatus.models import Transition
 from praelatus.lib.permissions import sys_admin_required
+from praelatus.models import Hook, Status, Transition, Workflow
+from praelatus.store import Store
 
 status_store = Store(Status)
 

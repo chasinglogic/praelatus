@@ -10,16 +10,12 @@ Anonymous user.
 """
 
 from functools import wraps
-from sqlalchemy import or_
 
-from praelatus.models import PermissionScheme
-from praelatus.models import Role
-from praelatus.models import Project
-from praelatus.models import PermissionSchemePermissions
-from praelatus.models import Permission
+from praelatus.models import (Permission, PermissionScheme,
+                              PermissionSchemePermissions, Project, Role, User,
+                              UserRoles)
 from praelatus.models.permissions import PermissionError
-from praelatus.models import UserRoles
-from praelatus.models import User
+from sqlalchemy import or_
 
 
 def is_system_admin(db, user):

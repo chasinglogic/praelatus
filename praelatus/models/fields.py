@@ -1,17 +1,11 @@
 """Contains definitions for the Field and related models."""
 
-from sqlalchemy import Column
-from sqlalchemy import DateTime
-from sqlalchemy import String
-from sqlalchemy import Table
-from sqlalchemy import Integer
-from sqlalchemy import Float
-from sqlalchemy import ForeignKey
-from sqlalchemy import UniqueConstraint
-from sqlalchemy.orm import relationship
 from enum import Enum
 
 from praelatus.models.base import Base
+from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
+                        Table, UniqueConstraint)
+from sqlalchemy.orm import relationship
 
 
 class DATA_TYPES(Enum):

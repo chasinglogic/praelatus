@@ -1,10 +1,10 @@
 """Various helpers and decorators for use in the UI of the app."""
 
-from flask import url_for
-from flask import redirect
-from flask import session
-from praelatus.templates import render_template
 from functools import wraps
+
+from flask import redirect, session, url_for
+
+from praelatus.templates import render_template
 
 
 def auth_required(fn):

@@ -1,6 +1,7 @@
 """Contains the Base model which all models inherit from."""
 
 import json
+
 from sqlalchemy.ext.declarative import declarative_base
 
 

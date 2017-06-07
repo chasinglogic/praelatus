@@ -1,31 +1,23 @@
 """The global flask app object."""
 
-import markdown
 import json
-import jsonschema
 import sys
+from logging import Formatter, StreamHandler
+
 import itsdangerous
-
-import praelatus.lib.tokens as tokens
-
+import markdown
+from flask import Flask, g, jsonify, redirect, request, url_for
 from jinja2 import Markup
-from logging import StreamHandler
-from logging import Formatter
 from werkzeug.exceptions import HTTPException
-from flask import url_for
-from flask import Flask
-from flask import redirect
-from flask import jsonify
-from flask import request
-from flask import g
 
-from praelatus.models import DuplicateError
-from praelatus.lib.tokens import get_secret_key
-from praelatus.models.permissions import PermissionError
-from praelatus.config import config
+import jsonschema
+import praelatus.lib.tokens as tokens
 from praelatus.app.api import api
 from praelatus.app.ui import ui
-
+from praelatus.config import config
+from praelatus.lib.tokens import get_secret_key
+from praelatus.models import DuplicateError
+from praelatus.models.permissions import PermissionError
 
 # Configure logging
 fmt = Formatter('[%(asctime)s] [PRAE] [%(levelname)s] %(message)s')

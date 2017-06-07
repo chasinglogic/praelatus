@@ -1,11 +1,11 @@
 """Execute hooks on a transition."""
 
-import requests
 import jinja2
-
-from praelatus.events.app import app
+import requests
 
 from celery.utils.log import get_task_logger
+from praelatus.events.app import app
+
 logger = get_task_logger(__name__)
 
 

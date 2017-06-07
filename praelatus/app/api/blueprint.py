@@ -1,13 +1,11 @@
 """Blueprint for the api endpoints."""
 
 import json
+
 import itsdangerous
+from flask import Blueprint, g, request
+
 import praelatus.lib.tokens as tokens
-
-from flask import Blueprint
-from flask import request
-from flask import g
-
 from praelatus.app.api.v1 import add_v1_routes
 
 # Fix python 3.4 to 3.5 compatibility

@@ -1,17 +1,13 @@
 """Contains resources for interacting with tickets."""
 
-import praelatus.events as events
-
+from flask import g, jsonify, request
 from werkzeug.exceptions import NotFound
-from flask import jsonify
-from flask import request
-from flask import g
 
+import praelatus.events as events
+from praelatus.app.api.v1.base import (BaseResource, BasicMultiResource,
+                                       BasicResource)
 from praelatus.lib import connection
 from praelatus.lib.redis import r
-from praelatus.app.api.v1.base import BasicResource
-from praelatus.app.api.v1.base import BasicMultiResource
-from praelatus.app.api.v1.base import BaseResource
 
 
 class TicketsResource(BasicMultiResource):

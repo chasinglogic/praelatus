@@ -11,19 +11,13 @@ Anonymous user.
 
 import warnings
 
-from sqlalchemy import or_
-from sqlalchemy.exc import IntegrityError
-
-from praelatus.models import Project
-from praelatus.models import User
-from praelatus.models import UserRoles
-from praelatus.models import DuplicateError
-from praelatus.models import Role
-from praelatus.lib.permissions import sys_admin_required
-from praelatus.lib.permissions import permission_required
-from praelatus.lib.permissions import add_permission_query
+from praelatus.lib.permissions import (add_permission_query,
+                                       permission_required, sys_admin_required)
+from praelatus.models import DuplicateError, Project, Role, User, UserRoles
 from praelatus.store.store import Store
 from praelatus.store.workflows import store as workflow_store
+from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 
 
 class ProjectStore(Store):
