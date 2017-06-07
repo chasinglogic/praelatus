@@ -101,10 +101,10 @@
 
 
  function {{ unique_id }}LoadPreview(tickEle) {
-     console.log($('.{{ unique_id }}-ticket-stub.active'))
-     console.log(tickEle)
      $('.{{ unique_id }}-ticket-stub.active').removeClass('active');
      $(tickEle).addClass('active');
+
+     {{ unique_id }}_preview.summary = 'Loading....';
 
      fetch('/api/v1/tickets/'+tickEle.id)
          .then(function(res) {
@@ -120,4 +120,11 @@
 
  {{ unique_id }}LoadPreview(defaultTicket);
 </script>
+{% endmacro %}
+
+
+{% macro status_pill(status) %}
+<div class="badge badge-pill badge-success">
+    {{ status.name }}
+</div>
 {% endmacro %}

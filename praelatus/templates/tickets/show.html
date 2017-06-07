@@ -6,6 +6,35 @@
 <!-- <script src="/static/js/ticket.js"></script> -->
 {% endblock %}
 
+{% block sidebar %}
+
+<p class="sidebar-header">
+    <b>Available Transitions</b>
+</p>
+
+<ul class="nav nav-pills flex-column">
+    {% for tr in ticket.transitions %}
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link" href="#">
+            {{ tr.name }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+
+<p class="sidebar-header" >
+    <b>Quick Actions</b>
+</p>
+
+<ul class="nav nav-pills flex-column">
+    <li class="nav-item" >
+        <a class="nav-link praelatus-nav-link"  href="#comment-form" >
+            Add Comment
+        </a>
+    </li>
+</ul>
+{% endblock %}
+
 {% block content %}
 <div>
   <h4>
@@ -52,12 +81,31 @@
               </div>
           </div>
           {% endfor %}
+          <div id="comment-form"  class="card-block element shadow" >
+              <form class="form comment-form"
+                    method="POST"
+                    action="/{{ ticket.project.key }}/{{ ticket.key }}/comment" >
+                  <div class="form-group">
+                      <label for="comment" class="sr-only">Comment</label>
+                      <textarea id="comment" rows="5"
+                                class="form-control"></textarea>
+                  </div>
+                  <input class="form-control btn btn-success"
+                         type="submit" value="Add Comment" />
+              </form>
+          </div>
       </div>
 
       <div class="col-md-3 col-sm-12">
           <div class="card shadow m-bottom">
               <h4 class="card-header">Details</h4>
               <div class="card-block">
+                  <b>Status:</b>
+                  <p class="card-text">
+                      {% from 'tickets/macros.html' import status_pill %}
+                      {{ status_pill(ticket.status) }}
+                  </p>
+
                   <b>Ticket Type:</b>
                   <p class="card-text">
                       {{ ticket.ticket_type.name }}

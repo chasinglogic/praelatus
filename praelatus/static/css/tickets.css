@@ -14,3 +14,8 @@
     text-align: center;
     border-radius: 50%;
 }
+
+
+.comment-form .form-group textarea {
+    width: 100%;
+}
