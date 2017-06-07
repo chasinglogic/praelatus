@@ -1,4 +1,4 @@
-{% extends 'web/layout.html' %}
+{% extends 'layout.html' %}
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/users.css"
@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="user-profile d-flex justify-content-center">
-  {% from 'web/users/macros.html' import user_profile %}
+  {% from 'users/macros.html' import user_profile %}
   {{ user_profile(user) }}
 </div>
 {% endblock %}

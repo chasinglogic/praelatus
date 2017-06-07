@@ -24,6 +24,6 @@ def admin_required(fn):
         if user and user.get('is_admin'):
             return fn(*args, **kwargs)
         else:
-            return render_template('web/404.html',
+            return render_template('404.html',
                                    message='You must be an Admin to access that screen.')
     return wrapper

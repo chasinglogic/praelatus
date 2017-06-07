@@ -1,12 +1,12 @@
-{% extends 'web/layout.html' %}
-{% from 'web/users/macros.html' import user_stub %}
+{% extends 'layout.html' %}
+{% from 'users/macros.html' import user_stub %}
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/users.css" />
 <link rel="stylesheet" href="/static/css/projects.css" />
 {% endblock %}
 
-{% from 'web/projects/macros.html' import project_icon %}
+{% from 'projects/macros.html' import project_icon %}
 
 {% block content %}
 <div class="card shadow m-bottom">

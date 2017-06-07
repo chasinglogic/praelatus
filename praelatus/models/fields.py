@@ -98,6 +98,7 @@ class FieldValue(Base):
 
     @property
     def value(self):
+        """Return the value of this FieldValue based on data type."""
         if self.field.data_type == 'OPT':
             return self.opt_value
         elif self.field.data_type == 'STRING':

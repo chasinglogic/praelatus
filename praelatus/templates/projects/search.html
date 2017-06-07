@@ -1,4 +1,4 @@
-{% extends 'web/layout.html' %}
+{% extends 'layout.html' %}
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/users.css" />
@@ -27,7 +27,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% from 'web/users/macros.html' import user_stub %}
+                {% from 'users/macros.html' import user_stub %}
                 {% for p in projects %}
                 <tr>
                     <td>

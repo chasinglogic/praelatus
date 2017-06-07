@@ -1,4 +1,4 @@
-{% extends 'web/layout.html' %}
+{% extends 'layout.html' %}
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/tickets.css">
@@ -10,7 +10,7 @@
 <div>
   <h4>
     <small>
-        {% from 'web/projects/macros.html' import project_icon %}
+        {% from 'projects/macros.html' import project_icon %}
         <div class="d-inline-block align-middle" >
             {{ project_icon(ticket.project) }}
         </div>
@@ -29,7 +29,7 @@
   <div class="separator"></div>
   <div class="row">
       <div class="col-md-9 col-sm-12 comments">
-          {% from 'web/users/macros.html' import user_stub %}
+          {% from 'users/macros.html' import user_stub %}
           <div class="card shadow m-bottom">
               <h3 class="card-header">Description</h3>
               <div class="card-block">

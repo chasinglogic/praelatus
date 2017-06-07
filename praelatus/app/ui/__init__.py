@@ -1,7 +1,9 @@
 """Rexport ui."""
 
 # flake8: noqa
-import praelatus.app.ui.projects
+from praelatus.app.ui.blueprint import ui
+
+import praelatus.app.ui.users
 import praelatus.app.ui.projects
 import praelatus.app.ui.tickets
-from praelatus.app.ui.blueprint import ui
+import praelatus.app.ui.admin

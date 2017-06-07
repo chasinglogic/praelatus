@@ -1,9 +1,10 @@
 """All ui handlers which deal with Users and Sessions."""
 
-from flask import redirect, session
+from flask import redirect, session, request
 
 from praelatus.app.ui.blueprint import ui
 from praelatus.app.ui.forms import LoginForm, RegisterForm
+from praelatus.app.ui.helpers import auth_required
 from praelatus.lib import connection
 from praelatus.models import DuplicateError
 from praelatus.store import UserStore
@@ -22,9 +23,9 @@ def create_session():
                 flash = 'No user with that username.'
             elif UserStore.check_pw(user, login_form.password.data):
                 session['user'] = user.jsonify()
-                return redirect('/dashboard')
+                return redirect(request.args.get('destination', '/dashboard'))
             flash = 'Invalid password.'
-    return render_template('web/users/login.html',
+    return render_template('users/login.html',
                            flash=flash,
                            form=login_form,
                            submit_value='Log In')
@@ -51,7 +52,7 @@ def create_user():
                 return redirect('/dashboard')
         except DuplicateError:
             flash = 'That username already taken.'
-    return render_template('web/users/login.html',
+    return render_template('users/login.html',
                            flash=flash,
                            action='/register',
                            form=register_form,
@@ -60,9 +61,19 @@ def create_user():
 
 @ui.route('/users/<username>')
 def show_user(username):
+    """Show a user's profile page."""
     with connection() as db:
         user = UserStore.get(db, uid=username)
         if user:
-            return render_template('web/users/show.html', user=user)
-        return render_template('web/404.html',
+            return render_template('users/show.html', user=user)
+        return render_template('404.html',
                                message='No user with that username exists.')
+
+
+@ui.route('/dashboard')
+@auth_required
+def dashboard():
+    """Show the logged in user's dashboard."""
+    with connection() as db:
+        user = UserStore.get(db, uid=session['user']['username'])
+        return render_template('dashboard.html', user=user)
