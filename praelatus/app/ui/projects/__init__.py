@@ -27,7 +27,7 @@ def show_project(key):
         project = ProjectStore.get(db, uid=key,
                                    actioning_user=session.get('user'))
         if project:
-            return render_template('web/projects/show.html', project=project)
+            return render_template('projects/show.html', project=project)
 
         return render_template('404.html',
                                message='No project with that key was found.')

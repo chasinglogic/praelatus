@@ -12,7 +12,7 @@ from praelatus.templates import render_template
 
 
 @ui.route('/login', methods=('GET', 'POST'))
-def create_session():
+def login():
     """Create a session for the User."""
     login_form = LoginForm()
     flash = None
@@ -32,14 +32,14 @@ def create_session():
 
 
 @ui.route('/logout')
-def delete_session():
+def logout():
     """Delete the users session."""
     session.pop('user', None)
     return redirect('/')
 
 
 @ui.route('/register', methods=('GET', 'POST'))
-def create_user():
+def register():
     """Create a new user."""
     register_form = RegisterForm()
     flash = None
@@ -76,4 +76,4 @@ def dashboard():
     """Show the logged in user's dashboard."""
     with connection() as db:
         user = UserStore.get(db, uid=session['user']['username'])
-        return render_template('dashboard.html', user=user)
+        return render_template('dashboard/index.html', user=user)

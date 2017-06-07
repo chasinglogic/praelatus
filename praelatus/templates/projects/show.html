@@ -45,35 +45,15 @@
 </div>
 
 {% if project.tickets %}
+{% from 'tickets/macros.html' import tickets_preview %}
 <div class="card shadow">
     <div class="card-header" >
         <h1>Open Tickets</h1>
     </div>
-    <div id="project-tickets" class="card-block">
-        <div class="row">
-            <div id="ticket-list" class="col-md-3">
-                {% for t in project.tickets %}
-                <div class="ticket-stub" id="{{ t.key }}"
-                     onclick="loadPreview(this)">
-                    <b>{{ t.key }}</b>
-                    <p>{{ t.summary }}</p>
-                </div>
-                {% endfor %}
-            </div>
-            <div id="preview" class="col-md-9">
-                {% raw %}
-                <h1 class="separator">
-                    {{ summary }}
-
-                    <a v-bind:href="url" class="btn btn-primary pull-right">Detail</a>
-                </h1>
-                <div v-html="description"></div>
-                {% endraw %}
-            </div>
-        </div>
+    <div id="tickets" class="card-block">
+        {{ tickets_preview(project.tickets) }}
     </div>
 </div>
-<script src="/static/js/projects/projects.js"></script>
 {% else %}
 <div class="card shadow" >
     <div class="card-header" >

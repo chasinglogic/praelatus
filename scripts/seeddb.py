@@ -127,30 +127,30 @@ try:
                 'summary': 'This is ticket #%d' % i,
                 'description': """# Utque erant et edentem suoque nox fertur
 
-    ## Tegi aurum inridet flumine auras natas vulnus
+## Tegi aurum inridet flumine auras natas vulnus
 
-    Lorem markdownum misit sudor, sine eodem libratum munus aristis tutos, hac.
-    Longe mens vultus iurgia Iovem difficilis suus; ut erat mollis robore terga ei
-    perque! Quae quos sacrorum custodit quaecumque harena fallis et modo hinc
-    [recessu](http://venerat.com/), superorum Peleus, temptamenta. **Pudore** Sparte
-    lentisciferumque nataque inpulsos et ille novat haec sollicitare Plura, levis
-    vellet valuit, summo dum lutea viso. Solebat lintea ingentibus capillis dicta
-    Paridis seque quoquam [poposcit in](http://per.net/) Tempe vivacem.
+Lorem markdownum misit sudor, sine eodem libratum munus aristis tutos, hac.
+Longe mens vultus iurgia Iovem difficilis suus; ut erat mollis robore terga ei
+perque! Quae quos sacrorum custodit quaecumque harena fallis et modo hinc
+[recessu](http://venerat.com/), superorum Peleus, temptamenta. **Pudore** Sparte
+lentisciferumque nataque inpulsos et ille novat haec sollicitare Plura, levis
+vellet valuit, summo dum lutea viso. Solebat lintea ingentibus capillis dicta
+Paridis seque quoquam [poposcit in](http://per.net/) Tempe vivacem.
 
-    1. Nate nulli
-    2. Coniunx hausi nunc Quirini Othrys
-    3. Caede nascuntur ubera congreditur vincula ubi regis
-    4. Spatium pectore amplexus ferunt ille instat cultores
+1. Nate nulli
+2. Coniunx hausi nunc Quirini Othrys
+3. Caede nascuntur ubera congreditur vincula ubi regis
+4. Spatium pectore amplexus ferunt ille instat cultores
 
-    Illo dolores voluit Achaemenias unde theatris paventem secum ineamus minacia
-    retro. Duplicataque siste suo recessit; opes albus moribunda referentem animam
-    nulloque domini et laborent hac?
+Illo dolores voluit Achaemenias unde theatris paventem secum ineamus minacia
+retro. Duplicataque siste suo recessit; opes albus moribunda referentem animam
+nulloque domini et laborent hac?
 
-    ## Senecta finita
+## Senecta finita
 
-    Iovi nec aperire mihi mira respondit, qui exit vulnere aeterno dixerunt dat
-    corpus? Erit terrae, avidas; sola plenum, cauda edax et referre. Quater posuere:
-    facit mihi primaque remanet parte, eundo.""",
+Iovi nec aperire mihi mira respondit, qui exit vulnere aeterno dixerunt dat
+corpus? Erit terrae, avidas; sola plenum, cauda edax et referre. Quater posuere:
+facit mihi primaque remanet parte, eundo.""",
                 'workflow_id': 1,
                 'reporter': assignees[randint(1, 2)],
                 'assignee': assignees[randint(0, 2)],

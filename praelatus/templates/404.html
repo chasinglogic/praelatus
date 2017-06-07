@@ -1,9 +1,15 @@
 {% extends 'layout.html' %}
 
-{% block content %}
-<h1>Not Found 404</h1>
-{% if message %}
-<h3>{{ message }}</h3>
-{% endif %}
-<a href="/">Return Home</a>
+{% block container %}
+<div class="text-center container element">
+    {% if message %}
+    <h1>{{ message }}</h1>
+    {% else %}
+    <h1>Not Found 404</h1>
+    {% endif %}
+    <a href="/">
+        <i class="fa fa-home" aria-hidden="true"></i>
+        Return Home
+    </a>
+</div>
 {% endblock %}
