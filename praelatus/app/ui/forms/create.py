@@ -14,4 +14,3 @@ class CreateProjectForm(FlaskForm):
     """Used for validating the create project form."""
     name = StringField('Name', validates=[DataRequired()])
     description = TextAreaField('Name', validates=[DataRequired()])
-    description = TextAreaField('Name', validates=[DataRequired()])
