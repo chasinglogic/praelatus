@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/users.css" />
+{% endblock %}
+
+{% block body %}
+<style>
+ body {
+     padding-top: 0;
+ }
+</style>
+
+<div class="container-fluid d-flex justify-content-center align-items-center"
+     style="background-color: #703D6F; height: 100%;">
+    <div class="login-container">
+        <a href="/">
+            <img src="/static/img/name.svg" />
+        </a>
+        <div class="form-container"
+             style="background-color: white; border-radius: 5px">
+            {% include 'form.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}

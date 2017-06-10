@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+
+{% block sidebar %}
+{% include 'admin/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<h1 class="dash-header">System Information</h1>
+
+<div class="element" >
+    <table class="table table-hover element" >
+        <tbody>
+            <tr>
+                <th>Instance Name</th>
+                <td>{{ config.instance_name }}</td>
+            </tr>
+            <tr>
+                <th>System Email Address</th>
+                <td>{{ config.email_address }}</td>
+            </tr>
+            <tr>
+                <th>Database</th>
+                <td>{{ config.db }}</td>
+            </tr>
+            <tr>
+                <th>Port</th>
+                <td>{{ config.port }}</td>
+            </tr>
+            <tr>
+                <th>Redis Connection</th>
+                <td>{{ config.redis_host}}:{{ config.redis_port }}</td>
+            </tr>
+            <tr>
+                <th>Data Directory</th>
+                <td>{{ config.data_dir }}</td>
+            </tr>
+            <tr>
+                <th>Messaging Queue Server</th>
+                <td>{{ config.mq_server }}</td>
+            </tr>
+            <tr>
+                <th>SMTP Server</th>
+                <td>{{ config.smtp_server }}</td>
+            </tr>
+            <tr>
+                <th>Log Level</th>
+                <td>{{ config.log_level }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

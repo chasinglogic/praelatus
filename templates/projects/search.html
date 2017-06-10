@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/users.css" />
+{% endblock %}
+
+{% block content %}
+<div class="element">
+    <form class="d-flex-inline flex-nowrap" action="/projects/search">
+        <label class="sr-only" for="search">Search</label>
+        <input type="text" id="search" name="filter"
+               class="form-control mr-sm-2" placeholder="Search" />
+        <button type="submit" class="btn btn-outline-praelatus my-2 my-sm-0">
+            Search
+        </button>
+    </form>
+
+    <div>
+        <table id="searchResults" class="table table-bordered">
+            <thead class="thead-default">
+                <tr>
+                    <th>Name</th>
+                    <th>Key</th>
+                    <th>Lead</th>
+                    <th>Homepage</th>
+                    <th>Repo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% from 'users/macros.html' import user_stub %}
+                {% for p in projects %}
+                <tr>
+                    <td>
+                        <a href="/{{ p.key }}">{{ p.name }}</a>
+                    </td>
+                    <td>{{ p.key }}</td>
+                    <td>{{ user_stub(p.lead) }}</td>
+                    <td>{{ p.homepage }}</td>
+                    <td>{{ p.repo }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

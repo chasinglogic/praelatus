@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+
+{% from 'tickets/macros.html' import ticket_table %}
+{% from 'tickets/macros.html' import tickets_preview %}
+
+{% block sidebar %}
+<ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link active" href="#assigned"
+           role="pill" data-toggle="pill">
+            Assigned
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link" href="#reported"
+           role="pill"  data-toggle="pill">
+            Reported
+        </a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+
+<div class="tab-content">
+    <div class="tab-pane active" id="assigned" role="tabpanel">
+        <div class="card shadow">
+            <div class="card-header" >
+                <h3>Assigned Tickets</h3>
+            </div>
+            <div class="card-block" >
+                {{ tickets_preview(user.assigned_tickets, 'assigned') }}
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane" id="reported" role="tabpanel">
+        <div class="card shadow">
+            <div class="card-header">
+                <h3>Reported Tickets</h3>
+            </div>
+            <div class="card-block" >
+                {{ tickets_preview(user.reported_tickets, 'reported') }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+ $('#dashnav a').click(function (e) {
+     e.preventDefault();
+     $(this).tab('show');
+ });
+</script>
+
+{% endblock %}
