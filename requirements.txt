@@ -1,0 +1,14 @@
+amqp==2.1.4
+billiard==3.5.0.2
+celery==4.0.2
+django-guardian==1.4.8
+gevent==1.2.1
+greenlet==0.4.12
+gunicorn==19.7.1
+kombu==4.0.2
+Markdown==2.6.8
+pkg-resources==0.0.0
+psycopg2==2.7.1
+pytz==2017.2
+six==1.10.0
+vine==1.1.3

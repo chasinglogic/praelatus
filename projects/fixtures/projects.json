@@ -1,0 +1,20 @@
+[
+    {
+        "model": "projects.project",
+        "pk": 1,
+        "fields": {
+            "name": "TEST Project",
+            "key": "TEST",
+            "lead": 1
+        }
+    },
+    {
+        "model": "projects.project",
+        "pk": 1,
+        "fields": {
+            "name": "TEST Project",
+            "key": "TEST",
+            "lead": 1
+        }
+    },
+]

@@ -1,0 +1,29 @@
+.user-profile .img-thumbnail {
+  height: 123px;
+}
+
+.user-stub {
+  max-height: 24px;
+}
+
+.user-stub img {
+  max-height: 24px;
+  max-width: 24px;
+}
+
+/* Login and Registration */
+
+.login-form {
+  border-right: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  padding: 1rem;
+}
+
+.login-container {
+  max-width: 400px;
+}
+
+.login-container img {
+  width: 100%;
+}

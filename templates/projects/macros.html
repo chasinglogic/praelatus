@@ -1,0 +1,7 @@
+{% macro project_icon(project) %}
+{% if project.icon_url %}
+<img src="{{ project.icon_url }}" class="project-icon btn-praelatus" />
+{% else %}
+<div class="project-icon btn-praelatus">{{ project.key[0] }}</div>
+{% endif %}
+{% endmacro %}

@@ -1,0 +1,26 @@
+<div class="element">
+    {% if flash %}
+    <div class="alert
+      {% if alert_type %}
+        alert-{{ alert_type }}
+      {% else %}
+        alert-warning
+      {% endif %}" role="alert">
+        {{ flash }}
+    </div>
+    {% endif %}
+    <form method="{% if method %}{{ method }}{% else %}POST{% endif %}"
+          action="{{ action }}">
+        {{ form.hidden_tag() }}
+        {% for field in form if field.widget.input_type != 'hidden' %}
+        <div class="form-group">
+            <label for="{{ field.name }}">
+                {{ field.name | humanize }}
+            </label>
+            {{ field(id="{{ field.label }}", class="form-control") }}
+        </div>
+        {% endfor %}
+        <input class="btn btn-success form-control" type="submit"
+               value="{{ submit_value }}" />
+    </form>
+</div>
