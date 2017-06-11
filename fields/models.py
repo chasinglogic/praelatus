@@ -12,6 +12,16 @@ class DataTypes(Enum):
     DATE = 'DATE'
     OPTION = 'OPTION'
 
+    @classmethod
+    def values(cls):
+        return [
+            cls.STRING.value,
+            cls.INTEGER.value,
+            cls.OPTION.value,
+            cls.DATE.value,
+            cls.FLOAT.value
+        ]
+
     def __repr__(self):
         """Call self.__str__."""
         return self.__str__
@@ -19,7 +29,8 @@ class DataTypes(Enum):
     def __str__(self):
         """Return a string friendly printing of the DATA_TYPES."""
         return "[ %s, %s, %s, %s, %s ]" %\
-            (self.FLOAT, self.STRING, self.INT, self.DATE, self.OPT)
+            (self.FLOAT.value, self.STRING.value, self.INT.value,
+             self.DATE.value, self.OPT)
 
 
 class FieldOption(models.Model):

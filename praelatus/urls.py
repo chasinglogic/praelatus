@@ -15,9 +15,23 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    # Django builtins
+    url(r'^logout/', auth_views.logout, name='logout'),
+    url(r'^login/', auth_views.login, name='login'),
     url(r'^admin/', admin.site.urls),
-    url(r'^projects/', include('projects.urls')),
-    url(r'^tickets/', include('tickets.urls'))
+
+    # App Routes
+    url(r'^projects/', include('projects.urls', namespace='projects')),
+    url(r'^tickets/', include('tickets.urls', namespace='tickets')),
+
+    # API Routes
+    url(r'^api/auth/', include('rest_framework.urls', namespace='drf')),
+    url(r'^api/tickets', include('tickets.api', namespace='tickets_api')),
+    url(r'^api/projects', include('projects.api', namespace='projects_api')),
+    url(r'^api/fields', include('fields.api', namespace='fields_api')),
+    url(r'^api/labels', include('labels.urls', namespace='labels_api')),
+    url(r'^api/workflows', include('workflows.api', namespace='workflows_api')),
 ]

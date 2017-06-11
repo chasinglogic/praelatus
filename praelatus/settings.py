@@ -18,6 +18,7 @@ __all__ = ['celery_app']
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+APPEND_SLASH = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # TODO: Generate this randomly
@@ -28,15 +29,23 @@ DEBUG = bool(os.getenv('PRAELATUS_DEBUG', 'False'))
 
 ALLOWED_HOSTS = []
 
-
-# Application definition
 INSTALLED_APPS = [
     # Row level security
     'guardian',
+    # Filtering of models
+    'django_filters',
+    # REST API
+    'rest_framework',
+
+    # Praelatus
     'projects.apps.ProjectsConfig',
     'workflows.apps.WorkflowsConfig',
     'tickets.apps.TicketsConfig',
+    'labels.apps.LabelsConfig',
     'fields.apps.FieldsConfig',
+    'preferences.apps.PreferencesConfig',
+
+    # Django
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,14 +55,16 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+MIDDLEWARE_CLASSES = MIDDLEWARE
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
@@ -78,8 +89,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'praelatus.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+### DATABASE
 
 DATABASES = {
     'default': {
@@ -97,8 +107,7 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
+### AUTHENTICATION
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -114,6 +123,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTH_PROFILE_MODULE = 'preferences.UserProfile'
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+)
 
 
 # Internationalization
@@ -134,13 +149,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS= [
+    os.path.join(BASE_DIR, 'static')
+]
 
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'guardian.backends.ObjectPermissionBackend',
-)
-
+### CACHING
 
 CACHES = {
     "default": {
@@ -153,5 +167,17 @@ CACHES = {
     }
 }
 
+### CELERY
+
 CELERY_BROKER_URL = os.getenv('PRAELATUS_MQ_SERVER', CACHES['default']['LOCATION'])
 CELERY_RESULT_BACKEND = 'rpc://'
+
+### REST
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}

@@ -20,6 +20,6 @@ class Transition(models.Model):
     """A transition from one status to another."""
 
     name = models.CharField(max_length=255, default='Create')
-    workflow = models.ForeignKey(Workflow)
+    workflow = models.ForeignKey(Workflow, related_name='transitions')
     to_status = models.ForeignKey(Status, related_name='+')
     from_status = models.ForeignKey(Status, related_name='+', null=True)

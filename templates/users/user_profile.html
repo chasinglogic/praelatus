@@ -1,8 +1,8 @@
-<img src="{{ user.profile_pic }}" class="d-inline-block img-thumbnail rounded" />
+<img src="{{ user.preferences.profile_pic }}" class="d-inline-block img-thumbnail rounded" />
 <div class="card d-inline-block">
   <div class="card-block">
     <h4 class="card-title">{{ user.username }}</h4>
-    <h6 class="card-subtitle mb-2 text-muted">{{ user.full_name }}</h6>
+    <h6 class="card-subtitle mb-2 text-muted">{{ user.get_full_name }}</h6>
     <p class="card-text"><b>Email:</b> {{ user.email }}</p>
   </div>
 </div>

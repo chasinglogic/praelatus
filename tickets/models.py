@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from projects.models import Project
+from labels.models import Label
 from workflows.models import Workflow, Status
 from django.db import models
 
@@ -22,6 +23,7 @@ class Ticket(models.Model):
     ticket_type = models.ForeignKey(TicketType)
     status = models.ForeignKey(Status, default=1)
     workflow = models.ForeignKey(Workflow, default=1)
+    labels = models.ManyToManyField(Label)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

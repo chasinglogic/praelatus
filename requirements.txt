@@ -2,7 +2,8 @@ amqp==2.1.4
 billiard==3.5.0.2
 celery==4.0.2
 django-guardian==1.4.8
-django==1.9.13
+django
+django_redis
 gevent==1.2.1
 greenlet==0.4.12
 gunicorn==19.7.1

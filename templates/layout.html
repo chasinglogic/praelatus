@@ -1,5 +1,6 @@
 <head>
     <title>{{ config.instance_name }}</title>
+
     <!-- favicon -->
     <link rel="shortcut icon" href="/static/favicon.ico">
 
@@ -59,19 +60,18 @@
                     <a class="btn btn-primary"
                        href="/tickets/create">Create</a>
                 </li>
-                {% with current_user=request.session.get('user') %}
-                {% if current_user %}
+                {% if user.is_authenticated %}
                 <li class="nav-item dropdown btn-group">
                     <a class="dropdown-toggle nav-link"
                        id="userMenu1"
                        data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                        <img width="30" height="30" src="{{ current_user.profile_pic }}">
+                        <img width="30" height="30" src="{{ user.preferences.profile_pic }}">
                     </a>
                     <div class="dropdown-menu dropdown-menu-right"
                          aria-labelledby="userMenu1">
-                        {% if current_user.is_admin %}
-                        <a class="dropdown-item" href="/admin/system">
+                        {% if user.is_superuser %}
+                        <a class="dropdown-item" href="/admin/">
                             System Administration
                         </a>
                         {% endif %}
@@ -97,7 +97,6 @@
                     </a>
                 </li>
                 {% endif %}
-                {% endwith %}
             </ul>
         </div>
     </nav>
