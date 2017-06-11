@@ -1,9 +1,9 @@
 {% extends 'layout.html' %}
+{% load markdown %}
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/tickets.css">
 <link rel="stylesheet" href="/static/css/users.css">
-<!-- <script src="/static/js/ticket.js"></script> -->
 {% endblock %}
 
 {% block sidebar %}
@@ -13,7 +13,7 @@
 </p>
 
 <ul class="nav nav-pills flex-column">
-    {% for tr in ticket.transitions %}
+    {% for tr in transitions %}
     <li class="nav-item">
         <a class="nav-link praelatus-nav-link" href="#">
             {{ tr.name }}
@@ -39,9 +39,8 @@
 <div>
   <h4>
     <small>
-        {% from 'projects/macros.html' import project_icon %}
         <div class="d-inline-block align-middle" >
-            {{ project_icon(ticket.project) }}
+            {% include 'projects/project_icon.html' with project=ticket.project %}
         </div>
         <span class="d-inline-block align-middle" >
             <a href="/{{ ticket.project.key }}">
@@ -58,25 +57,24 @@
   <div class="separator"></div>
   <div class="row">
       <div class="col-md-9 col-sm-12 comments">
-          {% from 'users/macros.html' import user_stub %}
           <div class="card shadow m-bottom">
               <h3 class="card-header">Description</h3>
               <div class="card-block">
-                  {{ ticket.description | markdown }}
+                  {{ ticket.description | markdown | safe }}
               </div>
           </div>
 
-          {% for c in ticket.comments %}
+          {% for c in comments %}
           <div class="shadow m-bottom card">
               <div class="card-block">
-                  {{ c.body | markdown }}
+                  {{ c.body | markdown | safe }}
               </div>
               <div class="card-header author">
                   <div style="display: inline-block">
-                      {{ user_stub(c.author) }}
+                      {% include 'users/user_stub.html' with user=c.author) }}
                   </div>
                   <span style="display: inline-block">
-                      commented on <span>{{ c.created_date.strftime('%Y-%m-%d %-I:%M %p') }}</span>
+                      commented on <span>{{ c.created_date | date:'%Y-%m-%d %-I:%M %p' }}</span>
                   </span>
               </div>
           </div>
@@ -102,8 +100,7 @@
               <div class="card-block">
                   <b>Status:</b>
                   <p class="card-text">
-                      {% from 'tickets/macros.html' import status_pill %}
-                      {{ status_pill(ticket.status) }}
+                      {% include 'statuses/status_pill.html' with status=ticket.status %}
                   </p>
 
                   <b>Ticket Type:</b>
@@ -113,19 +110,19 @@
 
                   {% if ticket.labels %}
                   <b>Labels:</b>
-                  {% for l in ticket.labels %}
+                  {% for l in labels %}
                   <span class="badge badge-pill badge-default">{{ l.name }}</span>
                   {% endfor %}
                   {% endif %}
                   <b>Reporter:</b>
                   <p class="card-text">
-                      {{ user_stub(ticket.reporter) }}
+                      {% include 'users/user_stub.html' with user=ticket.reporter %}
                   </p>
 
                   <b>Assignee:</b>
                   <p class="card-text">
                       {% if ticket.assignee %}
-                      {{ user_stub(ticket.reporter) }}
+                      {% include 'users/user_stub.html' with user=ticket.reporter %}
                       {% else %}
                       Unassigned
                       {% endif %}
@@ -133,14 +130,14 @@
 
                   <b>Created:</b>
                   <p class="card-text">
-                      {{ ticket.created_date.strftime('%Y-%m-%d %-I:%M %p') }}
+                      {{ ticket.created_date| date:'%Y-%m-%d %-I:%M %p' }}
                   </p>
               </div>
           </div>
           <div class="card shadow">
               <h4 class="card-header fields">Fields</h4>
               <div class="card-block">
-                  {% for f in ticket.fields %}
+                  {% for f in fields %}
                   <div class="d-flex-inline">
                       <b>{{ f.field.name }}:</b>
                       <p>{{ f.value }}</p>

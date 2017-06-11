@@ -27,14 +27,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% from 'users/macros.html' import user_stub %}
                 {% for p in projects %}
                 <tr>
                     <td>
-                        <a href="/{{ p.key }}">{{ p.name }}</a>
+                        <a href="/projects/{{ p.key }}">{{ p.name }}</a>
                     </td>
                     <td>{{ p.key }}</td>
-                    <td>{{ user_stub(p.lead) }}</td>
+                    <td>{% include 'users/user_stub.html' with user=p.lead %}</td>
                     <td>{{ p.homepage }}</td>
                     <td>{{ p.repo }}</td>
                 </tr>

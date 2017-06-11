@@ -19,21 +19,19 @@ __all__ = ['celery_app']
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
+# TODO: Generate this randomly
 SECRET_KEY = '!$4psc7!-5kzqb30upz66)cg*u3p5$ud!th-30&dkw66k^@6ix'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.getenv('PRAELATUS_DEBUG', 'False'))
 
 ALLOWED_HOSTS = []
 
 
 # Application definition
-
 INSTALLED_APPS = [
+    # Row level security
     'guardian',
     'projects.apps.ProjectsConfig',
     'workflows.apps.WorkflowsConfig',
@@ -56,6 +54,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 ROOT_URLCONF = 'praelatus.urls'
 
@@ -83,8 +83,16 @@ WSGI_APPLICATION = 'praelatus.wsgi.application'
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('PRAELATUS_DB_NAME', 'praelatus'),
+        'USER': os.getenv('PRAELATUS_DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('PRAELATUS_DB_PASS', 'postgres'),
+        'HOST': os.getenv('PRAELATUS_DB_HOST', '127.0.0.1'),
+        'PORT': os.getenv('PRAELATUS_DB_PORT', '5432')
+    },
+    'sqlite': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': './db.sqlite3',
     }
 }
 
@@ -132,3 +140,18 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend',
 )
+
+
+CACHES = {
+    "default": {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.getenv('PRAELATUS_REDIS', 'redis://127.0.0.1:6379/1'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient'
+        },
+        'KEY_PREFIX': 'example'
+    }
+}
+
+CELERY_BROKER_URL = os.getenv('PRAELATUS_MQ_SERVER', CACHES['default']['LOCATION'])
+CELERY_RESULT_BACKEND = 'rpc://'

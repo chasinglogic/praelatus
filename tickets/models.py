@@ -16,7 +16,7 @@ class Ticket(models.Model):
     key = models.CharField(max_length=255)
     summary = models.CharField(max_length=140)
     description = models.TextField()
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, related_name='content')
     reporter = models.ForeignKey(User, related_name='reported')
     assignee = models.ForeignKey(User, related_name='assigned')
     ticket_type = models.ForeignKey(TicketType)

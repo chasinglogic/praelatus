@@ -59,6 +59,7 @@
                     <a class="btn btn-primary"
                        href="/tickets/create">Create</a>
                 </li>
+                {% with current_user=request.session.get('user') %}
                 {% if current_user %}
                 <li class="nav-item dropdown btn-group">
                     <a class="dropdown-toggle nav-link"
@@ -96,6 +97,7 @@
                     </a>
                 </li>
                 {% endif %}
+                {% endwith %}
             </ul>
         </div>
     </nav>

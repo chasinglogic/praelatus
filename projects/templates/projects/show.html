@@ -1,1 +1,60 @@
-<h1>Replace this!</h1>
+{% extends 'layout.html' %}
+{% load markdown %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/users.css" />
+<link rel="stylesheet" href="/static/css/projects.css" />
+{% endblock %}
+
+{% block content %}
+<div class="card shadow m-bottom">
+    <div class="card-header project-header">
+        <div class="d-inline-block" >
+        </div>
+        <h1 class="d-inline-block">
+            {{ project.name }}
+        </h1>
+    </div>
+    <div class="card-block">
+        {% if project.description %}
+            {{ project.description | markdown | safe }}
+        {% endif %}
+
+        <p>
+            <b>Lead:</b> {% include 'users/user_stub.html' with user=project.lead %}
+        </p>
+
+        {% if project.repo %}
+        <p>
+            <b>Repo:</b>
+            <a href="{{ project.repo }}">{{ project.repo }}</a>
+        </p>
+        {% endif %}
+
+        {% if project.homepage %}
+        <p>
+            <b>Homepage:</b>
+            <a href="{{ project.homepage }}">{{ project.homepage }}</a>
+        </p>
+        {% endif %}
+
+    </div>
+</div>
+
+{% if content %}
+<div class="card shadow">
+    <div class="card-header" >
+        <h1>Open Tickets</h1>
+    </div>
+    <div id="tickets" class="card-block">
+        {% include 'tickets/preview.html' with tickets=content unique_id=project.key %}
+    </div>
+</div>
+{% else %}
+<div class="card shadow" >
+    <div class="card-header" >
+        <h1>No Open Tickets!</h1>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

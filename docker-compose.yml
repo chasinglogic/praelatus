@@ -6,16 +6,16 @@ services:
       - "8000:8000"
     volumes:
       - .:/opt/praelatus
-    command: /bin/bash /opt/praelatus/scripts/docker-dev.sh
+    command: /bin/bash /opt/praelatus/docker/docker-dev.sh
     depends_on:
-      - postgres
-      - redis
+      - "postgres"
+      - "redis"
     environment:
-      - PRAELATUS_DB=postgres://postgres:postgres@postgres:5432/prae_dev
-      - PRAELATUS_REDIS=redis
+      - PRAELATUS_DB_HOST=postgres
+      - PRAELATUS_DB_NAME=prae_dev
+      - PRAELATUS_REDIS=redis://redis:6379/1
       - PRAELATUS_MQ_SERVER=amqp://guest@rabbitmq
-      - FLASK_APP=praelatus.app
-      - FLASK_DEBUG=1
+      - PRAELATUS_DEBUG=True
   redis:
     image: "redis:alpine"
   postgres:
