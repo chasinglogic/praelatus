@@ -1,8 +1,5 @@
 {% extends 'layout.html' %}
 
-{% from 'tickets/macros.html' import ticket_table %}
-{% from 'tickets/macros.html' import tickets_preview %}
-
 {% block sidebar %}
 <ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
     <li class="nav-item">
@@ -29,7 +26,7 @@
                 <h3>Assigned Tickets</h3>
             </div>
             <div class="card-block" >
-                {{ tickets_preview(user.assigned_tickets, 'assigned') }}
+                {% include 'tickets/preview.html' with tickets=user.assigned.all unique_id='assigned' %}
             </div>
         </div>
     </div>
@@ -39,7 +36,7 @@
                 <h3>Reported Tickets</h3>
             </div>
             <div class="card-block" >
-                {{ tickets_preview(user.reported_tickets, 'reported') }}
+                {% include 'tickets/preview.html' with tickets=user.reported.all unique_id='reported' %}
             </div>
         </div>
     </div>

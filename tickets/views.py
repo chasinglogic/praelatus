@@ -55,3 +55,8 @@ def show(request, key=''):
         return render(request, '404.html',
                       {'message': 'No ticket with that key found.'})
     return render(request, 'tickets/show.html', {'ticket': t[0]})
+
+
+
+def dashboard(request):
+    return render(request, 'dashboard/index.html')

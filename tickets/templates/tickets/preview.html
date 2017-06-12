@@ -89,7 +89,7 @@
              {{ unique_id }}_preview.key = jsn.key;
              {{ unique_id }}_preview.summary = jsn.summary;
              {{ unique_id }}_preview.description = converter.makeHtml(jsn.description);
-             {{ unique_id }}_preview.url = '/'+jsn.key.split('-')[0]+'/'+jsn.key;
+             {{ unique_id }}_preview.url = '/tickets/' + jsn.key;
          })
  }
 
