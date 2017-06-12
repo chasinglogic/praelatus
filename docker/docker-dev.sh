@@ -5,7 +5,7 @@ until python manage.py migrate; do
     sleep 2
 done
 
-python manage.py loaddata fixtures.json &
+python manage.py seeddb &
 
 echo "Starting praelatus..."
 python manage.py runserver 0.0.0.0:8000
