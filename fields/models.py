@@ -81,6 +81,8 @@ class FieldValue(models.Model):
 
     @property
     def options(self):
+        if len(self.field.options.all()) == 0:
+            return None
         return self.field.options
 
     @property

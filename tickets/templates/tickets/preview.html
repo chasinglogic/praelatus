@@ -81,7 +81,7 @@
 
      {{ unique_id }}_preview.summary = 'Loading....';
 
-     fetch('/api/v1/tickets/'+tickEle.id)
+     fetch('/api/tickets/'+tickEle.id)
          .then(function(res) {
              return res.json();
          })
