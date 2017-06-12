@@ -6,13 +6,23 @@
 
 {% block content %}
 <div class="element">
+    <form method="get" action="/projects/search" class="d-flex-inline flex-nowrap">
+        <div class="form-group">
+            <div class="input-group">
+                <input type="text" id="search" name="filter"
+                       class="form-control" placeholder="Search for..." />
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-outline-praelatus my-2 my-sm-0">
+                        Search
+                    </button>
+                </span>
+            </div>
+        </div>
+    </form>
+
     <form class="d-flex-inline flex-nowrap" action="/projects/search">
-        <label class="sr-only" for="search">Search</label>
-        <input type="text" id="search" name="filter"
-               class="form-control mr-sm-2" placeholder="Search" />
-        <button type="submit" class="btn btn-outline-praelatus my-2 my-sm-0">
-            Search
-        </button>
+
+
     </form>
 
     <div>
