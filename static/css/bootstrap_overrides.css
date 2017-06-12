@@ -42,3 +42,21 @@
     border-radius: 0px;
     text-align: center;
 }
+
+#searchBtnDesktop {
+    border-radius: .25rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+#searchBtnMobile {
+    display: none;
+}
+
+@media (max-width:575px) {
+    #searchBtnDesktop {
+        display:none;
+    }
+    #searchBtnMobile {
+        display:inline-block;
+    }
+}
