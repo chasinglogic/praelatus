@@ -1,6 +1,10 @@
 from enum import Enum
-from tickets.models import Ticket
+
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+
+from tickets.models import Ticket
 
 
 class DataTypes(Enum):
@@ -14,13 +18,7 @@ class DataTypes(Enum):
 
     @classmethod
     def values(cls):
-        return [
-            cls.STRING.value,
-            cls.INTEGER.value,
-            cls.OPTION.value,
-            cls.DATE.value,
-            cls.FLOAT.value
-        ]
+        return [x.value for x in cls]
 
     def __repr__(self):
         """Call self.__str__."""
@@ -31,6 +29,11 @@ class DataTypes(Enum):
         return "[ %s, %s, %s, %s, %s ]" %\
             (self.FLOAT.value, self.STRING.value, self.INT.value,
              self.DATE.value, self.OPT)
+
+
+class InvalidDataTypeException(Exception):
+    """Raised when a failed is saved with an invalid data type."""
+    pass
 
 
 class FieldOption(models.Model):
@@ -46,6 +49,15 @@ class Field(models.Model):
     data_type = models.CharField(max_length=10)
     options = models.ManyToManyField(FieldOption)
 
+    def is_valid_data_type(self):
+        return self.data_type in DataTypes.values()
+
+
+@receiver(pre_save, sender=Field)
+def verify_field_data_type(sender, **kwargs):
+    if not kwargs['instance'].is_valid_data_type():
+        raise InvalidDataTypeException()
+
 
 class FieldValue(models.Model):
     """An instance of a field with it's value on a ticket."""
@@ -53,11 +65,23 @@ class FieldValue(models.Model):
     field = models.ForeignKey(Field)
     ticket = models.ForeignKey(Ticket, related_name='fields')
 
-    int_value = models.IntegerField()
-    str_value = models.CharField(max_length=255)
-    opt_value = models.CharField(max_length=255)
-    flt_value = models.FloatField()
-    date_value = models.DateTimeField()
+    int_value = models.IntegerField(null=True)
+    str_value = models.CharField(max_length=255, null=True)
+    opt_value = models.CharField(max_length=255, null=True)
+    flt_value = models.FloatField(null=True)
+    date_value = models.DateTimeField(null=True)
+
+    @property
+    def name(self):
+        return self.field.name
+
+    @property
+    def data_type(self):
+        return self.field.data_type
+
+    @property
+    def options(self):
+        return self.field.options
 
     @property
     def value(self):
@@ -69,7 +93,7 @@ class FieldValue(models.Model):
         elif self.field.data_type == DataTypes.FLOAT.value:
             return self.flt_value
         elif self.field.data_type == DataTypes.DATE.value:
-            return str(self.date_value)
+            return self.date_value
         elif self.field.data_type == DataTypes.INTEGER.value:
             return self.int_value
         else:

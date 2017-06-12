@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from tickets.models import Ticket, Comment, TicketType
 from projects.models import Project
+from fields.models import *
 from workflows.models import *
 from random import randint
 
@@ -17,6 +18,24 @@ users = [admin, user]
 p = Project(name='Dummy Project', lead=admin, key='TEST')
 
 p.save()
+
+high = FieldOption(name='High')
+medium = FieldOption(name='Medium')
+low = FieldOption(name='Low')
+
+high.save()
+medium.save()
+low.save()
+
+priorities = [high, medium, low]
+
+story_points = Field(name='Story Points', data_type='INTEGER')
+priority = Field(name='Priority', data_type='OPTION')
+priority.save()
+priority.options = priorities
+
+story_points.save()
+priority.save()
 
 backlog = Status(name='Backlog')
 in_progress = Status(name='In Progress')
@@ -49,8 +68,8 @@ feature.save()
 ticket_types = [bug, feature, epic]
 
 for i in range(25):
-    t = Ticket(key=p.key+'-'+str(i+1),
-               summary='This is ticket #'+str(i+1),
+    t = Ticket(key=p.key + '-' + str(i + 1),
+               summary='This is ticket #' + str(i + 1),
                reporter=users[randint(0, 1)],
                assignee=users[randint(0, 1)],
                ticket_type=ticket_types[randint(0, 2)],
@@ -86,6 +105,18 @@ corpus? Erit terrae, avidas; sola plenum, cauda edax et referre. Quater posuere:
 facit mihi primaque remanet parte, eundo.
 """)
     t.save()
+
+    fvs = [
+        FieldValue(field=story_points, int_value=randint(1, 20),
+                   ticket=t),
+        FieldValue(field=priority, opt_value=priorities[randint(0, 2)].name,
+                   ticket=t)
+    ]
+
+    for fv in fvs:
+        fv.save()
+
+
 
 
 t = Ticket.objects.get(key='TEST-1')

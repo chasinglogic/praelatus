@@ -31,12 +31,13 @@ class FieldSerializer(serializers.ModelSerializer):
 class FieldValueSerializer(serializers.ModelSerializer):
     """Serialize a field to JSON."""
     options = FieldOptionSerializer
-    field = FieldSerializer
 
     class Meta:
         model = FieldValue
         fields = (
-            'field',
+            'id',
+            'name',
+            'data_type',
             'options',
             'value'
         )

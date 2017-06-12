@@ -6,10 +6,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
-class Preferences(models.Model):
-    """A users preferences."""
+class Profile(models.Model):
+    """A users profile."""
 
-    user = models.OneToOneField(User, related_name='preferences')
+    user = models.OneToOneField(User, related_name='profile')
     avatar = models.CharField(max_length=255)
     gravatar = models.CharField(max_length=255)
 
@@ -21,15 +21,15 @@ class Preferences(models.Model):
 
 
 @receiver(post_save, sender=User)
-def create_user_preferences(sender, instance, created, **kwargs):
+def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        preferences = Preferences.objects.create(user=instance)
+        profile = Profile.objects.create(user=instance)
         md5 = hashlib.md5()
         md5.update(instance.email.encode('utf-8'))
-        preferences.gravatar = 'https://gravatar.com/avatar/' + md5.hexdigest()
-        preferences.save()
+        profile.gravatar = 'https://gravatar.com/avatar/' + md5.hexdigest()
+        profile.save()
 
 
 @receiver(post_save, sender=User)
-def save_user_preferences(sender, instance, **kwargs):
-    instance.preferences.save()
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()

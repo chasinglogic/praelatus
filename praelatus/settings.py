@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'tickets.apps.TicketsConfig',
     'labels.apps.LabelsConfig',
     'fields.apps.FieldsConfig',
-    'preferences.apps.PreferencesConfig',
+    'profiles.apps.ProfilesConfig',
 
     # Django
     'django.contrib.admin',
@@ -64,7 +64,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-MIDDLEWARE_CLASSES = MIDDLEWARE
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
@@ -89,7 +88,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'praelatus.wsgi.application'
 
 
-### DATABASE
+# DATABASE
 
 DATABASES = {
     'default': {
@@ -100,14 +99,17 @@ DATABASES = {
         'HOST': os.getenv('PRAELATUS_DB_HOST', '127.0.0.1'),
         'PORT': os.getenv('PRAELATUS_DB_PORT', '5432')
     },
-    'sqlite': {
+}
+
+if os.getenv('PRAELATUS_USE_SQLITE'):
+    print('Using SQLITE database, this is not recommended for production!')
+    DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': './db.sqlite3',
     }
-}
 
 
-### AUTHENTICATION
+# AUTHENTICATION
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -124,7 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_PROFILE_MODULE = 'preferences.UserProfile'
+AUTH_PROFILE_MODULE = 'profiles.Profile'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend',
@@ -149,12 +151,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS= [
+STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
 
-### CACHING
+# CACHING
 
 CACHES = {
     "default": {
@@ -167,12 +169,12 @@ CACHES = {
     }
 }
 
-### CELERY
+# CELERY
 
 CELERY_BROKER_URL = os.getenv('PRAELATUS_MQ_SERVER', CACHES['default']['LOCATION'])
 CELERY_RESULT_BACKEND = 'rpc://'
 
-### REST
+# REST
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

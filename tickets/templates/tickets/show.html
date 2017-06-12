@@ -13,7 +13,7 @@
 </p>
 
 <ul class="nav nav-pills flex-column">
-    {% for tr in transitions %}
+    {% for tr in ticket.transitions %}
     <li class="nav-item">
         <a class="nav-link praelatus-nav-link" href="#">
             {{ tr.name }}
@@ -43,7 +43,7 @@
             {% include 'projects/project_icon.html' with project=ticket.project %}
         </div>
         <span class="d-inline-block align-middle" >
-            <a href="/{{ ticket.project.key }}">
+            <a href="/projects/{{ ticket.project.key }}">
                 {{ ticket.project.name }}
             </a>
             / {{ ticket.key }}
@@ -64,17 +64,17 @@
               </div>
           </div>
 
-          {% for c in comments %}
+          {% for c in ticket.comments.all %}
           <div class="shadow m-bottom card">
               <div class="card-block">
                   {{ c.body | markdown | safe }}
               </div>
               <div class="card-header author">
                   <div style="display: inline-block">
-                      {% include 'users/user_stub.html' with user=c.author) }}
+                      {% include 'users/user_stub.html' with user=c.author %}
                   </div>
                   <span style="display: inline-block">
-                      commented on <span>{{ c.created_date | date:'%Y-%m-%d %-I:%M %p' }}</span>
+                      commented on <span>{{ c.updated_at | date:'Y-m-d h:i A' }}</span>
                   </span>
               </div>
           </div>
@@ -108,11 +108,18 @@
                       {{ ticket.ticket_type.name }}
                   </p>
 
-                  {% if ticket.labels %}
-                  <b>Labels:</b>
-                  {% for l in labels %}
-                  <span class="badge badge-pill badge-default">{{ l.name }}</span>
+                  {% if ticket.labels.all %}
+                  <b>Labels:</b><br />
+                  <p class="card-text" >
+                  {% for l in ticket.labels.all %}
+                      <span class="badge badge-pill badge-default"
+                            {% if l.bg_color %}
+                            style="background-color: {{ l.bg_color }}"
+                            {% endif %}>
+                      {{ l.name }}
+                  </span>
                   {% endfor %}
+                  </p>
                   {% endif %}
                   <b>Reporter:</b>
                   <p class="card-text">
@@ -130,21 +137,32 @@
 
                   <b>Created:</b>
                   <p class="card-text">
-                      {{ ticket.created_date| date:'%Y-%m-%d %-I:%M %p' }}
+                      {{ ticket.created_at | date:'Y-m-d h:i A' }}
+                  </p>
+
+                  <b>Updated:</b>
+                  <p class="card-text">
+                      {{ ticket.updated_at | date:'Y-m-d h:i A' }}
                   </p>
               </div>
           </div>
+          {% if ticket.fields.all %}
           <div class="card shadow">
               <h4 class="card-header fields">Fields</h4>
               <div class="card-block">
-                  {% for f in fields %}
+                  {% for f in ticket.fields.all %}
                   <div class="d-flex-inline">
-                      <b>{{ f.field.name }}:</b>
+                      <b>{{ f.name }}:</b>
+                      {% if f.data_type == 'DATE' %}
+                      <p>{{ f.value | date:'Y-m-d h:i A' }}</p>
+                      {% else %}
                       <p>{{ f.value }}</p>
+                      {% endif %}
                   </div>
                   {% endfor %}
               </div>
           </div>
+          {% endif %}
       </div>
   </div>
 </div>

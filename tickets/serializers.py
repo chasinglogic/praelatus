@@ -21,8 +21,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class TicketTypeSerializer(serializers.ModelSerializer):
-    """Serialize a ticket type to JSON."""
-
     class Meta:
         model = TicketType
         fields = (
@@ -32,7 +30,6 @@ class TicketTypeSerializer(serializers.ModelSerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
-    """Serialize a ticket to JSON."""
     labels = LabelSerializer(many=True)
     fields = FieldValueSerializer(many=True)
     assignee = UserSerializer()
