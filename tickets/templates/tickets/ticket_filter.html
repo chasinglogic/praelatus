@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<script>
+
+</script>
+
+<div class="element">
+    <form id="searchForm"  action="" method="get">
+        <input type="text" class="form-control" />
+        <input class="btn btn-outline-praelatus"  onclick="search()" value="Search"/>
+    </form>
+    <table class="table">
+        <tr>
+            <th>Key</th>
+            <th>Summary</th>
+        </tr>
+        {% for obj in filter.qs %}
+        <tr>
+            <td>
+                <a href="/tickets/{{ obj.key }}">
+                    {{ obj.key }}
+                </a>
+            </td>
+            <td>{{ obj.summary}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
