@@ -43,6 +43,7 @@ class TicketSerializer(serializers.ModelSerializer):
         model = Ticket
         fields = (
             'id',
+            'key',
             'updated_at',
             'created_at',
             'summary',
