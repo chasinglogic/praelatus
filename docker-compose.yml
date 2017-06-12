@@ -1,0 +1,34 @@
+version: '2'
+services:
+  praelatus:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/opt/praelatus
+    command: /bin/bash /opt/praelatus/docker/docker-dev.sh
+    depends_on:
+      - "postgres"
+      - "redis"
+    environment:
+      - PRAELATUS_DB_HOST=postgres
+      - PRAELATUS_DB_NAME=prae_dev
+      - PRAELATUS_REDIS=redis://redis:6379/1
+      - PRAELATUS_MQ_SERVER=amqp://guest@rabbitmq
+      - PRAELATUS_DEBUG=True
+  redis:
+    image: "redis:alpine"
+  postgres:
+    image: "postgres:9-alpine"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=prae_dev
+  rabbitmq:
+    image: "rabbitmq:alpine"
+  celery:
+    build: .
+    command: celery worker -l info -A praelatus.events.app
+    volumes:
+      - .:/opt/praelatus
+    environment:
+      - PRAELATUS_MQ_SERVER=amqp://guest@rabbitmq

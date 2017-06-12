@@ -1,6 +1,0 @@
-[run]
-omit =
-     *seeds/*
-     *cli/*
-     *migrations/*
-     *templates/*
