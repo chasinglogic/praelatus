@@ -1,3 +1,5 @@
-<div style="background-color: {{ status.color|default:"#ddd" }}">
+<link rel="stylesheet"  href="/static/css/workflows.css" />
+
+<div class="status state-{{ status.state }}">
     {{ status.name }}
 </div>
