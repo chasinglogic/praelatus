@@ -1,30 +1,37 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/users.css" />
+{% endblock %}
 
 {% block content %}
-<script>
-
-</script>
-
 <div class="element">
-    <form id="searchForm"  action="" method="get">
-        <input type="text" class="form-control" />
-        <input class="btn btn-outline-praelatus"  onclick="search()" value="Search"/>
+    <form method="get" action="/projects/search" class="d-flex-inline flex-nowrap">
+        {% include 'helpers/search_bar.html' %}
     </form>
-    <table class="table">
-        <tr>
-            <th>Key</th>
-            <th>Summary</th>
-        </tr>
-        {% for obj in filter.qs %}
-        <tr>
-            <td>
-                <a href="/tickets/{{ obj.key }}">
-                    {{ obj.key }}
-                </a>
-            </td>
-            <td>{{ obj.summary}}</td>
-        </tr>
-        {% endfor %}
-    </table>
+
+    <div>
+        <table id="searchResults" class="table table-bordered">
+            <thead class="thead-default">
+                <tr>
+                    <th>Key</th>
+                    <th>Reporter</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in object_list %}
+                <tr>
+                    <td>
+                        <a href="/tickets/{{ t.key }}">{{ t.key}}</a>
+                    </td>
+                    <td>{% include 'users/user_stub.html' with user=t.reporter %}</td>
+                    <td>{{ t.summary }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
+
 {% endblock %}
