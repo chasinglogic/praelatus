@@ -1,7 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.http import Http404
 
 from rest_framework import generics
 
+from workflows.tasks import fire_hooks
+from workflows.models import Transition
 from .models import Comment, Ticket, TicketType
 from .serializers import (CommentSerializer, TicketSerializer,
                           TicketTypeSerializer)
@@ -46,12 +49,40 @@ def show(request, key=''):
     """Show a single Ticket."""
     t = Ticket.objects.\
         filter(key=key).\
+        prefetch_related('ticket_type').\
+        prefetch_related('status').\
         prefetch_related('labels').\
         prefetch_related('fields').\
         prefetch_related('comments').\
         all()
 
     if len(t) == 0:
-        return render(request, '404.html',
-                      {'message': 'No ticket with that key found.'})
+        raise Http404('No ticket with that key found.')
     return render(request, 'tickets/show.html', {'ticket': t[0]})
+
+
+def dashboard(request):
+    return render(request, 'dashboard/index.html')
+
+
+def transition(request, key=''):
+    t = Ticket.objects.\
+        filter(key=key).\
+        prefetch_related('status').\
+        all()
+    if len(t) == 0:
+        raise Http404('No ticket with that key found.')
+
+    tk = t[0]
+    tr = Transition.objects.get(name=request.GET['name'],
+                                from_status=tk.status,
+                                workflow=tk.workflow)
+    if tr is None:
+        raise Http404('Not a valid transition for this ticket.')
+
+    tk.status = tr.to_status
+    tk.save()
+
+    fire_hooks(tr, t)
+
+    return redirect('/tickets/' + t.key)

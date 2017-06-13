@@ -1,0 +1,108 @@
+<form onsubmit="event.preventDefault(); filterFunc(this);" class="d-flex-inline flex-nowrap">
+    <div class="form-group">
+        <div class="input-group">
+            <input type="text" id="search" name="filter"
+                   class="form-control" placeholder="Search for..." />
+            <span class="input-group-btn hidden-sm-down search-button">
+                <button type="submit" class="btn btn-outline-praelatus search-button">
+                    Search
+                </button>
+            </span>
+            <span class="input-group-btn hidden-md-up search-button">
+                <button type="submit"
+                        class="btn search-button btn-outline-praelatus">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                </button>
+            </span>
+        </div>
+    </div>
+</form>
+
+<script>
+ function parser(s) {
+     return {
+         body: s,
+         length: s.length,
+         index: 0;
+
+         has_next: function(this) {
+             return this.index - 1 < this.length;
+         }
+
+         next: function(this) {
+             if (this.has_next()) {
+                 // Skip whitespace
+                 for (c === ' ') {
+                     this.index += 1;
+                     let c = this.body[this.index];
+                 }
+
+                 let c = this.body[this.index];
+                 this.index += 1;
+                 return c;
+             } else {
+                 return null;
+             }
+         }
+
+         endquote: function(this) {
+             let val = '';
+
+             for(let c = this.next()) {
+                 val += c;
+                 if (c === '"') {
+                     break
+                 }
+             }
+
+             return val;
+         }
+
+         term: function(this) {
+             let token = '';
+
+             for (let c = this.next()) {
+
+                 if (this.body[this.index] == ' ') {
+                     continue
+                 }
+                 else if (this.body[this.index] != '=') {
+                     token += this.body[this.index];
+                 }
+                 else if (this.body[this.index] == '"') {
+                     token +=
+                 }
+                 else {
+                     console.log('UNKNOWN', query[i]);
+                 }
+
+                 this.index += 1;
+
+             }
+
+             return token;
+         }
+     };
+ }
+
+ function filterFunc(e) {
+     console.log(e.search.value);
+
+     if (e.search.value.indexOf('=') === -1) {
+         window.location.search = '?key='+e.search.value;
+     } else {
+         let terms = {}
+         let parser = parser(e.search.value);
+
+         for (parser.next()) {
+             terms[parser.term()] = parser.term();
+         }
+
+         console.log('terms', terms);
+     }
+
+     return false;
+ }
+
+ console.log('loaded');
+</script>

@@ -37,6 +37,7 @@ class Status(models.Model):
         """Indicate if this is a completed status."""
         return self.state == State.DONE.value
 
+
 class Transition(models.Model):
     """A transition from one status to another."""
     name = models.CharField(max_length=255, default='Create')
@@ -51,3 +52,4 @@ class WebHook(models.Model):
     url = models.TextField()
     method = models.CharField(max_length=10)
     body = models.TextField()
+    transition = models.ForeignKey(Transition, related_name='web_hooks')

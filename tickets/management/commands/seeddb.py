@@ -45,9 +45,9 @@ class Command(BaseCommand):
         story_points.save()
         priority.save()
 
-        backlog = Status(name='Backlog')
-        in_progress = Status(name='In Progress')
-        done = Status(name='Done')
+        backlog = Status(name='Backlog', state='TODO')
+        in_progress = Status(name='In Progress', state='IN_PROGRESS')
+        done = Status(name='Done', state='DONE')
 
         backlog.save()
         in_progress.save()

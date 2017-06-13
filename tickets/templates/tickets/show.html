@@ -15,7 +15,8 @@
 <ul class="nav nav-pills flex-column">
     {% for tr in ticket.transitions %}
     <li class="nav-item">
-        <a class="nav-link praelatus-nav-link" href="#">
+        <a class="nav-link praelatus-nav-link"
+           href="/tickets/{{ ticket.key }}/transition?name={{ tr.name }}">
             {{ tr.name }}
         </a>
     </li>

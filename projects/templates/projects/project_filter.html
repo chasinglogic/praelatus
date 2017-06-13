@@ -6,30 +6,7 @@
 
 {% block content %}
 <div class="element">
-    <form method="get" action="/projects/search" class="d-flex-inline flex-nowrap">
-        <div class="form-group">
-            <div class="input-group">
-                <input type="text" id="search" name="filter"
-                       class="form-control" placeholder="Search for..." />
-                   <span class="input-group-btn">
-                       <button type="submit" class="btn btn-outline-praelatus" id="searchBtnDesktop">
-                           Search
-                       </button>
-                   </span>
-                   <span class="input-group-btn">
-                        <button type="submit" class="btn btn-outline-praelatus" id="searchBtnMobile">
-                           <i class="fa fa-search" aria-hidden="true"></i>
-                        </button>
-                   </span>
-
-            </div>
-        </div>
-    </form>
-
-    <form class="d-flex-inline flex-nowrap" action="/projects/search">
-
-
-    </form>
+    {% include 'helpers/search_bar.html' %}
 
     <div>
         <table id="searchResults" class="table table-bordered">
@@ -43,7 +20,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for p in projects %}
+                {% for p in object_list %}
                 <tr>
                     <td>
                         <a href="/projects/{{ p.key }}">{{ p.name }}</a>
