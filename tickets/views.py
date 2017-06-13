@@ -1,11 +1,13 @@
-from django.shortcuts import render, redirect
 from django.http import Http404
+from django.shortcuts import redirect, render
 
+from fields.models import Field, FieldValue
+from projects.models import Project
 from rest_framework import generics
-
-from workflows.tasks import fire_hooks
 from workflows.models import Transition
-from .models import Comment, Ticket, TicketType
+from workflows.tasks import fire_hooks
+
+from .models import Comment, FieldScheme, Ticket, TicketType
 from .serializers import (CommentSerializer, TicketSerializer,
                           TicketTypeSerializer)
 
@@ -61,6 +63,63 @@ def show(request, key=''):
     return render(request, 'tickets/show.html', {'ticket': t[0]})
 
 
+def create(request, project_key='', ticket_type=''):
+    if not request.user.is_authenticated():
+        return redirect('/login?next=' + request.path)
+
+    if request.method == 'POST':
+        proj = Project.objects.get(key=project_key)
+        ttype = TicketType.objects.get(name=ticket_type)
+
+        workflows = proj.workflow_schemes.filter(ticket_type=ttype).all()
+        if len(workflows) == 0:
+            # Get the default workflow
+            workflow = proj.workflow_schemes.\
+                       filter(ticket_type=None).all()[0].workflow
+        else:
+            workflow = workflows[0].workflow
+
+        create = workflow.transitions.filter(name='Create').all()[0]
+
+        t = Ticket(
+            key=project_key + '-' + str(proj.content.count() + 1),
+            summary=request.POST['summary'],
+            project=proj,
+            reporter=request.user,
+            ticket_type=ttype,
+            status=create.to_status,
+            workflow=workflow,
+            description=request.POST['description']
+        )
+
+        t.save()
+
+        fields = [f for f in request.POST.keys()
+                  if f not in ['labels', 'summary', 'description',
+                               'csrfmiddlewaretoken']]
+
+        for f in fields:
+            field = Field.objects.get(name=f)
+            value = FieldValue(field=field, content_object=t)
+            value.set_value(request.POST[f])
+            value.save()
+
+        return redirect('/tickets/' + t.key)
+
+    fs = FieldScheme.objects.\
+        filter(project__key=project_key,
+               ticket_type__name=ticket_type).\
+        all()
+
+    if len(fs) == 0:
+        fs = FieldScheme.objects.\
+            filter(project__key=project_key,
+                   ticket_type=None).\
+            all()
+
+    return render(request, 'tickets/create.html', {'fs': fs[0]})
+
+
 def dashboard(request):
     return render(request, 'dashboard/index.html')
 
@@ -83,6 +142,6 @@ def transition(request, key=''):
     tk.status = tr.to_status
     tk.save()
 
-    fire_hooks(tr, t)
+    fire_hooks(tr, tk)
 
-    return redirect('/tickets/' + t.key)
+    return redirect('/tickets/' + tk.key)

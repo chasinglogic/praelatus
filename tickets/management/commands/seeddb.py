@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 from fields.models import *
 from projects.models import Project
-from tickets.models import Comment, Ticket, TicketType
+from tickets.models import *
 from workflows.models import *
 
 
@@ -75,6 +75,28 @@ class Command(BaseCommand):
 
         ticket_types = [bug, feature, epic]
 
+
+        fs = FieldScheme(name='Bug Field Scheme', project=p, ticket_type=bug)
+        fs.save()
+
+        FieldSchemeField(field=priority, scheme=fs).save()
+
+        fs = FieldScheme(name='Epic Field Scheme', project=p, ticket_type=epic)
+        fs.save()
+
+        FieldSchemeField(field=priority, scheme=fs).save()
+
+        fs = FieldScheme(name='Feature Field Scheme', project=p, ticket_type=feature)
+        fs.save()
+
+        FieldSchemeField(field=priority, scheme=fs).save()
+        FieldSchemeField(field=story_points, scheme=fs).save()
+
+        ws = WorkflowScheme(name='Default Workflow Scheme', project=p,
+                            ticket_type=None, workflow=w)
+        ws.save()
+
+
         for i in range(25):
             t = Ticket(key=p.key + '-' + str(i + 1),
                        summary='This is ticket #' + str(i + 1),
@@ -116,9 +138,9 @@ facit mihi primaque remanet parte, eundo.
 
             fvs = [
                 FieldValue(field=story_points, int_value=randint(1, 20),
-                           ticket=t),
+                           content_object=t),
                 FieldValue(field=priority, opt_value=priorities[randint(0, 2)].name,
-                           ticket=t)
+                           content_object=t)
             ]
 
             for fv in fvs:

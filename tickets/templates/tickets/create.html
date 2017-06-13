@@ -1,31 +1,38 @@
 {% extends 'layout.html' %}
 
 {% block head %}
-
+<link rel="stylesheet" href="/static/css/tickets/tickets.css" />
 {% endblock %}
 
-{% block content %}
-<div class="card" >
-    <div class="card-header" >
-        <h1 class="text-center">Create A Ticket</h1>
-    </div>
-    <div class="card-block" >
-        <form method="POST" action="/tickets/{{ project.key }}/create">
-            <div class="form-group" >
-                <label for="summary">
-                    Summary
-                </label>
-                <input id="summary" class="form-control" type="text" ></input>
-            </div>
-            <div class="form-group" >
-                <label for="description">
-                    Description
-                </label>
-                <textarea id="description" class="form-control"
-                          type="textarea" ></textarea>
-            </div>
-            <input type="submit" value="Create Ticket">
-        </form>
+{% block container %}
+<div class="element create-form-card">
+    <div class="card create-form-card">
+        <div class="card-header" >
+            <h1 class="text-center">Create a {{ fs.ticket_type.name }} for {{ fs.project.name }}</h1>
+        </div>
+        <div class="card-block" >
+            <form method="POST" action="/tickets/create/{{ fs.project.key }}/{{ fs.ticket_type.name }}">
+                {% csrf_token %}
+                <div class="form-group" >
+                    <label for="summary">
+                        Summary
+                    </label>
+                    <input id="summary" name="summary"
+                           class="form-control" type="text" ></input>
+                </div>
+                <div class="form-group" >
+                    <label for="description">
+                        Description
+                    </label>
+                    <textarea id="description" class="form-control"
+                              type="textarea" name="description" ></textarea>
+                </div>
+                {% for f in fs.fields.all %}
+                {% include 'fields/field_form.html' with field=f %}
+                {% endfor %}
+                <input type="submit" value="Create Ticket" class="btn btn-success form-control">
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

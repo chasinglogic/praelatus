@@ -3,8 +3,8 @@ from enum import Enum
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-
-from tickets.models import Ticket
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 
 class DataTypes(Enum):
@@ -12,6 +12,7 @@ class DataTypes(Enum):
 
     FLOAT = 'FLOAT'
     STRING = 'STRING'
+    TEXT = 'TEXT'
     INTEGER = 'INTEGER'
     DATE = 'DATE'
     OPTION = 'OPTION'
@@ -63,13 +64,29 @@ class FieldValue(models.Model):
     """An instance of a field with it's value on a ticket."""
 
     field = models.ForeignKey(Field)
-    ticket = models.ForeignKey(Ticket, related_name='fields')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey()
 
     int_value = models.IntegerField(null=True)
     str_value = models.CharField(max_length=255, null=True)
     opt_value = models.CharField(max_length=255, null=True)
     flt_value = models.FloatField(null=True)
     date_value = models.DateTimeField(null=True)
+
+    def set_value(self, value):
+        """Set the value according to data type. Performs necessary conversion."""
+        if self.field.data_type == DataTypes.OPTION.value:
+            self.opt_value = str(value)
+        elif self.field.data_type == DataTypes.STRING.value:
+            self.str_value = str(value)
+        elif self.field.data_type == DataTypes.FLOAT.value:
+            self.flt_value = float(value)
+        # TODO: ??????????
+        # elif self.field.data_type == DataTypes.DATE.value:
+            # self.date_value = (value)
+        elif self.field.data_type == DataTypes.INTEGER.value:
+            self.int_value = int(value)
 
     @property
     def name(self):

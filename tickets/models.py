@@ -1,8 +1,11 @@
 from django.contrib.auth.models import User
-from projects.models import Project
-from labels.models import Label
-from workflows.models import Workflow, Status, Transition
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
+
+from fields.models import Field, FieldValue
+from labels.models import Label
+from projects.models import Project
+from workflows.models import Status, Transition, Workflow
 
 
 class TicketType(models.Model):
@@ -22,11 +25,12 @@ class Ticket(models.Model):
 
     project = models.ForeignKey(Project, related_name='content')
     reporter = models.ForeignKey(User, related_name='reported')
-    assignee = models.ForeignKey(User, related_name='assigned')
+    assignee = models.ForeignKey(User, related_name='assigned', null=True)
     ticket_type = models.ForeignKey(TicketType, related_name='tickets')
     status = models.ForeignKey(Status, default=1, related_name='tickets')
     workflow = models.ForeignKey(Workflow, default=1, related_name='tickets')
 
+    fields = GenericRelation(FieldValue)
     labels = models.ManyToManyField(Label)
 
     @property
@@ -47,3 +51,39 @@ class Comment(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class FieldScheme(models.Model):
+    """Determine what fields a project wants for a ticket type."""
+    name = models.CharField(max_length=255)
+    project = models.ForeignKey(Project, related_name='field_schemes')
+    ticket_type = models.ForeignKey(TicketType, related_name='field_schemes',
+                                    null=True)
+
+
+class FieldSchemeField(models.Model):
+    """A field on a FieldScheme"""
+    required = models.BooleanField(default=False)
+    scheme = models.ForeignKey(FieldScheme, related_name='fields')
+    field = models.ForeignKey(Field)
+
+    @property
+    def name(self):
+        return self.field.name
+
+    @property
+    def options(self):
+        return self.field.options
+
+    @property
+    def data_type(self):
+        return self.field.data_type
+
+
+class WorkflowScheme(models.Model):
+    """Tie a workflow to a project for a TicketType."""
+    name = models.CharField(max_length=255)
+    project = models.ForeignKey(Project, related_name='workflow_schemes')
+    ticket_type = models.ForeignKey(TicketType, related_name='workflow_schemes',
+                                    null=True)
+    workflow = models.ForeignKey(Workflow, related_name='schemes')

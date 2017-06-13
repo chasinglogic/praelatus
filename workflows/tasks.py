@@ -9,7 +9,7 @@ log = get_task_logger(__name__)
 
 @shared_task
 def fire_hooks(transition, ticket):
-    for h in transition.web_hooks:
+    for h in transition.web_hooks.all():
         b = jinja2.Template(h.body).render(ticket)
         r = requests.Request(h.method, h.url, data=b)
         with requests.Connection() as s:

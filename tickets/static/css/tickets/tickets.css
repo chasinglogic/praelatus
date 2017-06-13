@@ -23,3 +23,10 @@
 .comment-form .form-group textarea {
     width: 100%;
 }
+
+
+.create-form-card {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
