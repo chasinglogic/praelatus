@@ -52,4 +52,4 @@ class WebHook(models.Model):
     url = models.TextField()
     method = models.CharField(max_length=10)
     body = models.TextField()
-    transition = models.ForeignKeyField(Transition, related_name='web_hooks')
+    transition = models.ForeignKey(Transition, related_name='web_hooks')
