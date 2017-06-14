@@ -80,7 +80,7 @@
                     <span style="display: inline-block">
                         commented on <span>{{ c.created_at | date:'Y-m-d h:i A' }}</span>
                     </span>
-                    {% if c.author == user %}
+                    {% if c.author == user or user.is_staff %}
                     <div class="pull-right comment-buttons" >
                         <button id="{{ c.id }}"
                                 onclick="editComment(this)"

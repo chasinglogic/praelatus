@@ -25,3 +25,7 @@ class Project(models.Model):
             ('edit_content', 'Ability to edit content within the project.'),
             ('comment_content', 'Ability to comment on content within the project.'),
         )
+
+    def __str__(self):
+        """Return the project's name."""
+        return self.name

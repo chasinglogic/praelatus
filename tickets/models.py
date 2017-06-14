@@ -13,6 +13,10 @@ class TicketType(models.Model):
 
     name = models.CharField(max_length=255)
 
+    def __str__(self):
+        """Return the type's name."""
+        return self.name
+
 
 class Ticket(models.Model):
     """A unit of work."""
@@ -61,7 +65,11 @@ class FieldScheme(models.Model):
     name = models.CharField(max_length=255)
     project = models.ForeignKey(Project, related_name='field_schemes')
     ticket_type = models.ForeignKey(TicketType, related_name='field_schemes',
-                                    null=True)
+                                    blank=True, null=True)
+
+    def __str__(self):
+        """Return the scheme's name."""
+        return '%s for %s' % (self.name, self.project.name)
 
 
 class FieldSchemeField(models.Model):
@@ -88,5 +96,9 @@ class WorkflowScheme(models.Model):
     name = models.CharField(max_length=255)
     project = models.ForeignKey(Project, related_name='workflow_schemes')
     ticket_type = models.ForeignKey(TicketType, related_name='workflow_schemes',
-                                    null=True)
+                                    null=True, blank=True)
     workflow = models.ForeignKey(Workflow, related_name='schemes')
+
+    def __str__(self):
+        """Return the scheme's name."""
+        return '%s for %s' % (self.name, self.project.name)
