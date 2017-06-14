@@ -111,6 +111,7 @@ if os.getenv('PRAELATUS_USE_SQLITE'):
 
 # AUTHENTICATION
 
+LOGIN_URL = '/login'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

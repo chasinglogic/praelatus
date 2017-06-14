@@ -1,5 +1,7 @@
-from django.http import Http404
+from django.contrib.auth.decorators import login_required
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods
 
 from fields.models import Field, FieldValue
 from projects.models import Project
@@ -63,6 +65,7 @@ def show(request, key=''):
     return render(request, 'tickets/show.html', {'ticket': t[0]})
 
 
+@login_required
 def create(request, project_key='', ticket_type=''):
     if not request.user.is_authenticated():
         return redirect('/login?next=' + request.path)
@@ -120,10 +123,12 @@ def create(request, project_key='', ticket_type=''):
     return render(request, 'tickets/create.html', {'fs': fs[0]})
 
 
+@login_required
 def dashboard(request):
     return render(request, 'dashboard/index.html')
 
 
+@login_required
 def transition(request, key=''):
     t = Ticket.objects.\
         filter(key=key).\
@@ -145,3 +150,34 @@ def transition(request, key=''):
     fire_hooks(tr, tk)
 
     return redirect('/tickets/' + tk.key)
+
+
+@login_required
+@require_http_methods(['POST'])
+def comment(request, key=''):
+    t = Ticket.objects.\
+        filter(key=key).\
+        prefetch_related('comments').\
+        all()
+    if len(t) == 0:
+        raise Http404('No ticket with that key found.')
+
+    c = Comment(body=request.POST['body'], author=request.user, ticket=t[0])
+    c.save()
+
+    return redirect('/tickets/' + t[0].key)
+
+
+
+@login_required
+@require_http_methods(['POST', 'DELETE'])
+def edit_comment(request, id=0):
+    c = Comment.objects.get(id=int(id))
+    nxt = '/'
+    if request.method == 'POST':
+        c.body = request.POST['body']
+        c.save()
+        nxt = request.POST.get('next', nxt)
+    else:
+        c.delete()
+    return redirect(nxt)

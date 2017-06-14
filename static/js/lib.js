@@ -1,21 +1,24 @@
 /* Common functions used in Praelatus JS */
 
-// Search a model returns a promise of the JSON response.
-function searchModel(model_name, search) {
-  console.log('sending','/api/v1/'+model_name+'?filter='+search);
-  return fetch('/api/v1/'+model_name+'?filter='+search)
-  .then(function(response) {
-    return response.json();
-  });
-}
-
 function getParameterByName(name) {
     var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
 
 
-var ticketPreview = {
-  props: ['ticket'],
-  template: '<h1>{{ ticket.key }}</h1>',
-};
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}

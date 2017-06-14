@@ -1,5 +1,9 @@
 /* Praelatus Global CSS */
 
+textarea {
+    min-height: 6em;
+}
+
 body {
     padding-top: 4.5rem;
     background-color: #efedf2;

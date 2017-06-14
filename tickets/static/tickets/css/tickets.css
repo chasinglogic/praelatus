@@ -19,11 +19,22 @@
     line-height: 30px;
 }
 
+.comment-header {
+    padding-bottom: 0;
+}
 
 .comment-form .form-group textarea {
     width: 100%;
 }
 
+.comment-form .row .col-md-6 p {
+    line-height: 38px;
+    margin-bottom: 0;
+}
+
+.comment-form {
+    margin-bottom: 0;
+}
 
 .create-form-card {
     max-width: 900px;
