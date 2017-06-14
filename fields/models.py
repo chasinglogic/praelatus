@@ -42,16 +42,25 @@ class FieldOption(models.Model):
 
     name = models.CharField(max_length=255)
 
+    def __str__(self):
+        """Return name."""
+        return self.name
+
 
 class Field(models.Model):
     """A field is a place to store Data. This describes what kind of data."""
 
     name = models.CharField(max_length=255, unique=True)
-    data_type = models.CharField(max_length=10)
-    options = models.ManyToManyField(FieldOption)
+    data_type = models.CharField(max_length=10,
+                                 choices=[(x.value, x.value) for x in DataTypes])
+    options = models.ManyToManyField(FieldOption, blank=True, null=True)
 
     def is_valid_data_type(self):
         return self.data_type in DataTypes.values()
+
+    def __str__(self):
+        """Return name."""
+        return self.name
 
 
 @receiver(pre_save, sender=Field)
@@ -117,3 +126,7 @@ class FieldValue(models.Model):
             return self.int_value
         else:
             return None
+
+    def __str__(self):
+        """Return name."""
+        return self.name

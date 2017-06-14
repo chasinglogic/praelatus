@@ -7,6 +7,10 @@ class Workflow(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
 
+    def __str__(self):
+        """Return name."""
+        return self.name
+
 
 class State(enum.Enum):
     """Indicates whether a Status is ToDo, In Progress, or Done."""
@@ -18,7 +22,8 @@ class State(enum.Enum):
 class Status(models.Model):
     """A state in the process of a workflow."""
     name = models.CharField(max_length=255)
-    state = models.CharField(max_length=11, default=State.TODO.value)
+    state = models.CharField(max_length=11, default=State.TODO.value,
+                             choices=[(x.value, x.value) for x in State])
     # Hex color for the background of the Status Pill
     bg_color = models.CharField(max_length=7)
 
@@ -37,6 +42,10 @@ class Status(models.Model):
         """Indicate if this is a completed status."""
         return self.state == State.DONE.value
 
+    def __str__(self):
+        """Return name."""
+        return self.name
+
 
 class Transition(models.Model):
     """A transition from one status to another."""
@@ -44,6 +53,10 @@ class Transition(models.Model):
     workflow = models.ForeignKey(Workflow, related_name='transitions')
     to_status = models.ForeignKey(Status, related_name='+')
     from_status = models.ForeignKey(Status, related_name='+', null=True)
+
+    def __str__(self):
+        """Return name."""
+        return self.name
 
 
 class WebHook(models.Model):
@@ -53,3 +66,7 @@ class WebHook(models.Model):
     method = models.CharField(max_length=10)
     body = models.TextField()
     transition = models.ForeignKey(Transition, related_name='web_hooks')
+
+    def __str__(self):
+        """Return name."""
+        return self.name
