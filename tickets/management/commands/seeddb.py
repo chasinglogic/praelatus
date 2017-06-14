@@ -153,7 +153,7 @@ facit mihi primaque remanet parte, eundo.
 
 
         for i in range(25):
-            body = """"This is the %d th comment
+            body = """This is the %d th comment
 
 # Yo Dawg
 
@@ -161,6 +161,6 @@ facit mihi primaque remanet parte, eundo.
 
 > like markdown
 
-so I put markdown in your comment"""
+so I put markdown in your comment""" % i
             c = Comment(body=body, author=users[randint(0,1)], ticket=t)
             c.save()
