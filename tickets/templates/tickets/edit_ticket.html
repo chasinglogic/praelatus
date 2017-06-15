@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/tickets/tickets.css" />
+{% endblock %}
+
+{% block container %}
+<div class="element mw600 mr-auto ml-auto create-form-card">
+    <div class="card create-form-card">
+        <div class="card-header" >
+            <h2 class="text-center">Editing Ticket {{ ticket.key }}</h2>
+        </div>
+        <div class="card-block" >
+            <form method="POST" action="/tickets/{{ ticket.key }}/edit">
+                {% csrf_token %}
+                {% if error %}
+                {{ error }}
+                {% endif %}
+                <div class="form-group" >
+                    <label for="summary">
+                        Summary
+                    </label>
+                    <input id="summary" name="summary"
+                           class="form-control" type="text"
+                           value="{{ ticket.summary }}"></input>
+                </div>
+                <div class="form-group" >
+                    <label for="description">
+                        Description
+                    </label>
+                    <textarea id="description" class="form-control"
+                              type="textarea" name="description">{{ ticket.description }}</textarea>
+                </div>
+                {% for f in fields %}
+                {% include 'fields/field_form.html' with field=f %}
+                {% endfor %}
+                <input type="submit" value="Update Ticket" class="btn btn-success form-control">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,9 +1,11 @@
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, HttpResponse
+from django.contrib.auth.models import User
+from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
 from fields.models import Field, FieldValue
+from labels.models import Label
 from projects.models import Project
 from rest_framework import generics
 from workflows.models import Transition
@@ -67,9 +69,6 @@ def show(request, key=''):
 
 @login_required
 def create(request, project_key='', ticket_type=''):
-    if not request.user.is_authenticated():
-        return redirect('/login?next=' + request.path)
-
     if request.method == 'POST':
         proj = Project.objects.get(key=project_key)
         ttype = TicketType.objects.get(name=ticket_type)
@@ -191,3 +190,85 @@ def edit_comment(request, id=0):
     else:
         c.delete()
     return redirect(nxt)
+
+
+# TODO: Reduce the complexity and code duplication in this function.
+@login_required
+@require_http_methods(['GET', 'POST', 'DELETE'])
+def edit_ticket(request, key=''):
+    t = Ticket.objects.get(key=key)
+    fs = FieldScheme.objects.\
+        filter(project=t.project,
+               ticket_type=t.ticket_type).\
+        all()
+    if len(fs) == 0:
+        fs = FieldScheme.objects.\
+            filter(project=t.project,
+                   ticket_type=None).\
+            all()
+
+    def edit_form(error=None):
+        field_scheme_fields = list(fs[0].fields.all())
+        existing_fields = list(t.fields.all())
+        existing_field_names = [f.name for f in existing_fields]
+        return render(request, 'tickets/edit_ticket.html', {
+            'error': error,
+            'ticket': t,
+            'fields': existing_fields + [f for f in field_scheme_fields
+                                         if f.name not in existing_field_names]
+        })
+
+    if request.method == 'GET':
+        return edit_form()
+    elif request.method == 'DELETE':
+        t.delete()
+        return redirect('/')
+    # Since we can have arbitrary custom fields extract all values into a
+    # mutable dict
+    fields = request.POST.copy()
+
+    # Pop the defaults
+    summary = fields.pop('summary', None)
+    description = fields.pop('description', None)
+    labels = fields.pop('label', None)
+    assignee = fields.pop('assignee', None)
+    reporter = fields.pop('reporter', None)
+
+    if summary:
+        t.summary = summary[0]
+
+    if description:
+        t.description = description[0]
+
+    if labels:
+        l = list(Label.objects.filter(name__in=labels).all())
+        t.labels.set(l)
+
+    if assignee:
+        a = User.objects.get(username=assignee[0])
+        t.assignee = a
+
+    if reporter:
+        a = User.objects.get(username=reporter[0])
+        t.reporter = a
+
+    print('yep')
+    allowed_fields = [f.name for f in fs[0].fields.all()]
+    for f, v in fields.items():
+        print(f)
+        print(v)
+        if f == 'csrfmiddlewaretoken':
+            continue
+        if f not in allowed_fields:
+            return edit_form('Field ' + f +
+                             ' is not allowed for this Project and Ticket Type')
+        try:
+            fv = FieldValue.objects.get(ticket=t, field__name=f)
+        except FieldValue.DoesNotExist:
+            field = Field.objects.get(name=f)
+            fv = FieldValue(field=f, ticket=t)
+        fv.set_value(v)
+        fv.save()
+
+    t.save()
+    return redirect('/tickets/' + t.key)
