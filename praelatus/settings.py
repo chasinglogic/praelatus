@@ -15,6 +15,9 @@ from .celery import app as celery_app
 
 __all__ = ['celery_app']
 
+RELEASE_NAME = 'Rio Bravo'
+VERSION = '0.1.0'
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -69,6 +72,15 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 ROOT_URLCONF = 'praelatus.urls'
 
+
+def version_number(request):
+    return {'version_number': VERSION}
+
+
+def release_name(request):
+    return {'release_name': RELEASE_NAME}
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -80,6 +92,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'praelatus.settings.version_number',
+                'praelatus.settings.release_name',
             ],
         },
     }
@@ -112,6 +126,8 @@ if os.getenv('PRAELATUS_USE_SQLITE'):
 # AUTHENTICATION
 
 LOGIN_URL = '/login'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

@@ -85,6 +85,10 @@ body {
 }
 
 
+.mw600 {
+    max-width: 600px;
+}
+
 .sidebar {
     padding-left: 0px !important;
     padding-right: 0px !important;

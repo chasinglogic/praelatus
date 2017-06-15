@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block container %}
-<div class="element create-form-card">
+<div class="element mw600 mr-auto ml-auto create-form-card">
     <div class="card create-form-card">
         <div class="card-header" >
-            <h1 class="text-center">Create a {{ fs.ticket_type.name }} for {{ fs.project.name }}</h1>
+            <h2 class="text-center">Create a Ticket for {{ fs.project.name }}</h2>
         </div>
         <div class="card-block" >
             <form method="POST" action="/tickets/create/{{ fs.project.key }}/{{ fs.ticket_type.name }}">
