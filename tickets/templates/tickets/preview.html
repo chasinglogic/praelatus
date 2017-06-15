@@ -60,9 +60,10 @@
 </div>
 
 <script>
- var defaultTicket = document.getElementById('{{ unique_id }}-ticket-list').
-                              children[0];
  var converter = new showdown.Converter();
+ var defaultTicket = document.
+                            getElementById('{{ unique_id }}-ticket-list').
+                            children[0];
 
  var {{ unique_id }}_preview = new Vue({
      el: '#{{ unique_id }}-preview',

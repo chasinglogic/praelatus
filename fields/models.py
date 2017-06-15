@@ -53,7 +53,7 @@ class Field(models.Model):
     name = models.CharField(max_length=255, unique=True)
     data_type = models.CharField(max_length=10,
                                  choices=[(x.value, x.value) for x in DataTypes])
-    options = models.ManyToManyField(FieldOption, blank=True, null=True)
+    options = models.ManyToManyField(FieldOption, blank=True)
 
     def is_valid_data_type(self):
         return self.data_type in DataTypes.values()
@@ -70,7 +70,7 @@ def verify_field_data_type(sender, **kwargs):
 
 
 class FieldValue(models.Model):
-    """An instance of a field with it's value on a ticket."""
+    """An instance of a field with it's value on a some content."""
 
     field = models.ForeignKey(Field)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
