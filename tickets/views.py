@@ -123,6 +123,16 @@ def create(request, project_key='', ticket_type=''):
     return render(request, 'tickets/create.html', {'fs': fs[0]})
 
 
+def create_prompt(request):
+    projects = Project.objects.all()
+    ticket_types = TicketType.objects.all()
+    return render(request, 'tickets/create_prompt.html', {
+        'projects': projects,
+        'ticket_types': ticket_types
+    })
+
+
+
 @login_required
 def dashboard(request):
     return render(request, 'dashboard/index.html')
