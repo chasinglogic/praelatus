@@ -28,16 +28,29 @@
     <b>Quick Actions</b>
 </p>
 
-<ul class="nav nav-pills flex-column">
+<ul id="quick-actions"  class="nav nav-pills flex-column">
     <li class="nav-item" >
         <a class="nav-link praelatus-nav-link"  href="#comment-form" >
             Add Comment
+        </a>
+    </li>
+    <li class="nav-item" >
+        <a class="nav-link praelatus-nav-link"
+           data-toggle="modal"  data-target="#labelModal">
+            Add Labels
+        </a>
+    </li>
+    <li class="nav-item" >
+        <a class="nav-link praelatus-nav-link"  href="/tickets/{{ ticket.key }}/edit" >
+            Edit Ticket
         </a>
     </li>
 </ul>
 {% endblock %}
 
 {% block content %}
+
+{% include 'tickets/label_modal.html' with ticket=ticket %}
 
 <div>
     <h4>
@@ -84,12 +97,12 @@
                     <div class="pull-right comment-buttons" >
                         <button id="{{ c.id }}"
                                 onclick="editComment(this)"
-                                class="d-inline-block comment-edit-button" >
+                                class="d-inline-block btn btn-secondary comment-edit-button" >
                             <i class="fa fa-pencil" ></i>
                         </button>
                         <button id="{{ c.id }}"
                                 onclick="deleteComment(this)"
-                                class="d-inline-block comment-delete-button" >
+                                class="d-inline-block btn btn-secondary comment-delete-button" >
                             <i class="fa fa-times" ></i>
                         </button>
                     </div>
@@ -124,10 +137,8 @@
                     <b>Labels:</b><br />
                     <p class="card-text" >
                         {% for l in ticket.labels.all %}
-                        <span class="badge badge-pill badge-default"
-                              {% if l.bg_color %}
-                              style="background-color: {{ l.bg_color }}"
-                              {% endif %}>
+                        <span class="label badge badge-pill badge-default"
+                              style="background-color: {{ l.bg_color }}">
                             {{ l.name }}
                         </span>
                         {% endfor %}
@@ -183,4 +194,13 @@
 <div id="edit-form-container" style="display: none">
     {% include 'comments/comment_form.html' with unique_id='edit-comment' edit=True %}
 </div>
+
+<script>
+ new Vue({
+     el: '#quick-actions',
+     data: {
+         showLabelModal: false,
+     }
+ })
+</script>
 {% endblock %}

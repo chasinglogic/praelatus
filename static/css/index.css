@@ -26,6 +26,14 @@ body {
   color: white;
 }
 
+.btn-close {
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    background-color: none;
+    border: none;
+}
+
 .btn-outline-praelatus {
   border: 1px solid #703D6F;
   color: #703D6F;
@@ -33,12 +41,13 @@ body {
 }
 
 .btn-outline-praelatus:hover, .praelatus-nav-link:hover {
-  background-color: #703D6F;
-  color: white;
+  background-color: #703D6F !important;
+  color: white !important;
+  cursor: pointer !important;
 }
 
 .praelatus-nav-link {
-    color: #703D6F;
+    color: #703D6F !important;
 }
 
 .praelatus-nav-link.active {

@@ -34,7 +34,7 @@ class Ticket(models.Model):
     status = models.ForeignKey(Status, default=1, related_name='tickets')
     workflow = models.ForeignKey(Workflow, default=1, related_name='tickets')
 
-    fields = GenericRelation(FieldValue)
+    fields = GenericRelation(FieldValue, related_query_name='ticket')
     labels = models.ManyToManyField(Label)
 
     @property
