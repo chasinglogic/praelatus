@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from guardian.shortcuts import get_objects_for_user
 
 from .models import Project
 from .serializers import ProjectSerializer
@@ -9,8 +10,10 @@ from rest_framework import generics
 
 class ProjectList(generics.ListCreateAPIView):
     """API for projects."""
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+
+    def get_queryset(self):
+        return get_objects_for_user(self.request.user, 'projects.view_project')
 
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -18,6 +21,7 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     lookup_field = 'key'
+
 
 # UI
 

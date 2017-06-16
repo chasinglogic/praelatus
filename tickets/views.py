@@ -1,7 +1,9 @@
+from guardian.shortcuts import get_objects_for_user
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import Http404, HttpResponseBadRequest
+from django.http import Http404
 from django.db.models import Q
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
@@ -20,8 +22,11 @@ from .serializers import (CommentSerializer, TicketSerializer,
 
 
 class TicketList(generics.ListCreateAPIView):
-    queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
+
+    def get_queryset(self):
+        projects = get_objects_for_user(self.request.user, 'projects.view_project')
+        return Ticket.objects.filter(project__key__in=[p.key for p in projects]).all()
 
 
 class TicketDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -70,8 +75,11 @@ def show(request, key=''):
 
 @login_required
 def create(request, project_key='', ticket_type=''):
+    proj = Project.objects.get(key=project_key)
+    if not request.user.has_perm('projects.create_content', proj):
+        raise PermissionDenied
+
     if request.method == 'POST':
-        proj = Project.objects.get(key=project_key)
         ttype = TicketType.objects.get(name=ticket_type)
 
         workflows = proj.workflow_schemes.filter(ticket_type=ttype).all()
@@ -108,13 +116,13 @@ def create(request, project_key='', ticket_type=''):
         return redirect('/tickets/' + t.key)
 
     fs = FieldScheme.objects.\
-        filter(project__key=project_key,
+        filter(project=proj,
                ticket_type__name=ticket_type).\
         all()
 
     if len(fs) == 0:
         fs = FieldScheme.objects.\
-            filter(project__key=project_key,
+            filter(project=proj,
                    ticket_type=None).\
             all()
 
@@ -122,7 +130,7 @@ def create(request, project_key='', ticket_type=''):
 
 
 def create_prompt(request):
-    projects = Project.objects.all()
+    projects = get_objects_for_user(request.user, 'projects.create_content')
     ticket_types = TicketType.objects.all()
     return render(request, 'tickets/create_prompt.html', {
         'projects': projects,
@@ -153,6 +161,9 @@ def transition(request, key=''):
     if tr is None:
         raise Http404('Not a valid transition for this ticket.')
 
+    if not request.user.has_perm('projects.edit_content', tk.project):
+        raise PermissionDenied
+
     tk.status = tr.to_status
     tk.save()
 
@@ -171,11 +182,13 @@ def comment(request, key=''):
     if len(t) == 0:
         raise Http404('No ticket with that key found.')
 
+    if not request.user.has_perm('projects.comment_content', t.project):
+        raise PermissionDenied
+
     c = Comment(body=request.POST['body'], author=request.user, ticket=t[0])
     c.save()
 
     return redirect('/tickets/' + t[0].key)
-
 
 
 @login_required
@@ -183,7 +196,13 @@ def comment(request, key=''):
 def edit_comment(request, id=0):
     c = Comment.objects.get(id=int(id))
     nxt = '/'
+
+    if request.user != c.author and not request.user.is_staff:
+            raise PermissionDenied
+
     if request.method == 'POST':
+        if request.user != c.author and not request.user.is_staff:
+            raise PermissionDenied
         c.body = request.POST['body']
         c.save()
         nxt = request.POST.get('next', nxt)
@@ -219,10 +238,18 @@ def edit_ticket(request, key=''):
         })
 
     if request.method == 'GET':
+        if not request.user.has_perm('projects.edit_content', t.project):
+            raise PermissionDenied
         return edit_form()
     elif request.method == 'DELETE':
+        if not request.user.has_perm('projects.delete_content', t.project):
+            raise PermissionDenied
         t.delete()
         return redirect('/')
+
+    if not request.user.has_perm('projects.edit_content', t.project):
+        raise PermissionDenied
+
     # Since we can have arbitrary custom fields extract all values into a
     # mutable dict
     fields = request.POST.copy()
