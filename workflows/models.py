@@ -1,5 +1,7 @@
 import enum
 from django.db import models
+from django.contrib.contenttypes.fields import GenericRelation
+from hooks.models import WebHook
 
 
 class State(enum.Enum):
@@ -42,6 +44,7 @@ class Workflow(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
     create_status = models.ForeignKey(Status)
+    web_hooks = GenericRelation(WebHook)
 
     def __str__(self):
         """Return name."""
@@ -54,19 +57,7 @@ class Transition(models.Model):
     workflow = models.ForeignKey(Workflow, related_name='transitions')
     to_status = models.ForeignKey(Status, related_name='+')
     from_status = models.ForeignKey(Status, related_name='+', null=True, blank=True)
-
-    def __str__(self):
-        """Return name."""
-        return self.name
-
-
-class WebHook(models.Model):
-    """A web hook is ran when the associated transition is executed."""
-    name = models.CharField(max_length=255)
-    url = models.TextField()
-    method = models.CharField(max_length=10, default='POST')
-    body = models.TextField(null=True, blank=True)
-    transition = models.ForeignKey(Transition, related_name='web_hooks')
+    web_hooks = GenericRelation(WebHook)
 
     def __str__(self):
         """Return name."""
