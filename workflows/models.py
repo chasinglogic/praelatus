@@ -2,16 +2,6 @@ import enum
 from django.db import models
 
 
-class Workflow(models.Model):
-    """A workflow is a set of statuses and transitions."""
-    name = models.CharField(max_length=255)
-    description = models.TextField()
-
-    def __str__(self):
-        """Return name."""
-        return self.name
-
-
 class State(enum.Enum):
     """Indicates whether a Status is ToDo, In Progress, or Done."""
     TODO = 'TODO'
@@ -21,7 +11,7 @@ class State(enum.Enum):
 
 class Status(models.Model):
     """A state in the process of a workflow."""
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     state = models.CharField(max_length=11, default=State.TODO.value,
                              choices=[(x.value, x.value) for x in State])
     # Hex color for the background of the Status Pill
@@ -47,6 +37,17 @@ class Status(models.Model):
         return self.name
 
 
+class Workflow(models.Model):
+    """A workflow is a set of statuses and transitions."""
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(blank=True, null=True)
+    create_status = models.ForeignKey(Status)
+
+    def __str__(self):
+        """Return name."""
+        return self.name
+
+
 class Transition(models.Model):
     """A transition from one status to another."""
     name = models.CharField(max_length=255, default='Create')
@@ -63,8 +64,8 @@ class WebHook(models.Model):
     """A web hook is ran when the associated transition is executed."""
     name = models.CharField(max_length=255)
     url = models.TextField()
-    method = models.CharField(max_length=10)
-    body = models.TextField()
+    method = models.CharField(max_length=10, default='POST')
+    body = models.TextField(null=True, blank=True)
     transition = models.ForeignKey(Transition, related_name='web_hooks')
 
     def __str__(self):

@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponseBadRequest
+from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 
@@ -81,15 +82,13 @@ def create(request, project_key='', ticket_type=''):
         else:
             workflow = workflows[0].workflow
 
-        create = workflow.transitions.filter(name='Create').all()[0]
-
         t = Ticket(
             key=project_key + '-' + str(proj.content.count() + 1),
             summary=request.POST['summary'],
             project=proj,
             reporter=request.user,
             ticket_type=ttype,
-            status=create.to_status,
+            status=workflow.create_status,
             workflow=workflow,
             description=request.POST['description']
         )
@@ -147,9 +146,10 @@ def transition(request, key=''):
         raise Http404('No ticket with that key found.')
 
     tk = t[0]
-    tr = Transition.objects.get(name=request.GET['name'],
-                                from_status=tk.status,
-                                workflow=tk.workflow)
+    tr = Transition.objects.get(Q(name=request.GET['name'],
+                                  workflow=tk.workflow) &
+                                (Q(from_status=tk.status) |
+                                 Q(from_status=None)))
     if tr is None:
         raise Http404('Not a valid transition for this ticket.')
 

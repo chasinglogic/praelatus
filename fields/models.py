@@ -40,7 +40,7 @@ class InvalidDataTypeException(Exception):
 class FieldOption(models.Model):
     """An option in a select type field."""
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         """Return name."""
@@ -53,6 +53,7 @@ class Field(models.Model):
     name = models.CharField(max_length=255, unique=True)
     data_type = models.CharField(max_length=10,
                                  choices=[(x.value, x.value) for x in DataTypes])
+    # Only relevant for fields of the OPTION type
     options = models.ManyToManyField(FieldOption, blank=True)
 
     def is_valid_data_type(self):

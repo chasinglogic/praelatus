@@ -15,7 +15,14 @@
             <div class="modal-body">
                 <label for="label-multi-select" class="sr-only">
                 </label>
-                <select id="label-multi-select" name="labels" class="form-control"  multiple></select>
+                <select id="label-multi-select" name="labels" class="form-control"  multiple>
+                    {% if ticket.labels.all %}
+                    {% for l in ticket.labels.all %}
+                    <option id="{{ l.name }}" val="{{ l.name }}" selected>{{ l.name }}</option>
+                    {% endfor %}
+                    {% endif %}
+
+                </select>
             </div>
             <div class="modal-footer">
                 <button onclick="updateLabels();" type="button" class="btn btn-primary">Save changes</button>
@@ -45,11 +52,15 @@
          },
          processResults: function(data, params) {
              return {
-                 results: data.map(function(x) { return {id: x.name, text: x.name}}),
+                 results: data
+                     .map((x) => { return {id: x.name, text: x.name} })
+                     .filter((x) => {
+                         return $('#label-multi-select').val().indexOf(x.text) === -1
+                     }),
              }
          }
      }
- }).on('select2:select', function(evt) {
+ }).on('select2:select', (evt) => {
      if(evt.params.data.newOption) {
          let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0];
          fetch('/api/labels', {
@@ -62,7 +73,7 @@
              },
              body: JSON.stringify({name: evt.params.data.text})
          }).
-       then(function(r) {
+       then((r) => {
            if (!r.ok) {
                alert('Error creating label.');
                r.text().then(console.log);
