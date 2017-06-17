@@ -40,5 +40,10 @@
 
 .sidebar .nav .nav-item .nav-link {
     border-radius: 0px;
-    text-align: center;
+}
+
+.search-button {
+    border-radius: .25rem !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
 }

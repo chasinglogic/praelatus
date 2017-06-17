@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/profiles/css/profiles.css" />
+{% endblock %}
+
+{% block content %}
+<div class="element">
+    {% include 'helpers/search_bar.html' %}
+
+    <div>
+        <table id="searchResults" class="table table-bordered">
+            <thead class="thead-default">
+                <tr>
+                    <th>Name</th>
+                    <th>Key</th>
+                    <th>Lead</th>
+                    <th>Homepage</th>
+                    <th>Repo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in object_list %}
+                <tr>
+                    <td>
+                        <a href="/projects/{{ p.key }}">{{ p.name }}</a>
+                    </td>
+                    <td>{{ p.key }}</td>
+                    <td>{% include 'users/user_stub.html' with user=p.lead %}</td>
+                    <td>{{ p.homepage }}</td>
+                    <td>{{ p.repo }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

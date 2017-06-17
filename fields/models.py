@@ -3,8 +3,8 @@ from enum import Enum
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-
-from tickets.models import Ticket
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 
 class DataTypes(Enum):
@@ -12,6 +12,7 @@ class DataTypes(Enum):
 
     FLOAT = 'FLOAT'
     STRING = 'STRING'
+    TEXT = 'TEXT'
     INTEGER = 'INTEGER'
     DATE = 'DATE'
     OPTION = 'OPTION'
@@ -39,18 +40,28 @@ class InvalidDataTypeException(Exception):
 class FieldOption(models.Model):
     """An option in a select type field."""
 
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        """Return name."""
+        return self.name
 
 
 class Field(models.Model):
     """A field is a place to store Data. This describes what kind of data."""
 
     name = models.CharField(max_length=255, unique=True)
-    data_type = models.CharField(max_length=10)
-    options = models.ManyToManyField(FieldOption)
+    data_type = models.CharField(max_length=10,
+                                 choices=[(x.value, x.value) for x in DataTypes])
+    # Only relevant for fields of the OPTION type
+    options = models.ManyToManyField(FieldOption, blank=True)
 
     def is_valid_data_type(self):
         return self.data_type in DataTypes.values()
+
+    def __str__(self):
+        """Return name."""
+        return self.name
 
 
 @receiver(pre_save, sender=Field)
@@ -60,16 +71,32 @@ def verify_field_data_type(sender, **kwargs):
 
 
 class FieldValue(models.Model):
-    """An instance of a field with it's value on a ticket."""
+    """An instance of a field with it's value on a some content."""
 
     field = models.ForeignKey(Field)
-    ticket = models.ForeignKey(Ticket, related_name='fields')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey()
 
     int_value = models.IntegerField(null=True)
     str_value = models.CharField(max_length=255, null=True)
     opt_value = models.CharField(max_length=255, null=True)
     flt_value = models.FloatField(null=True)
     date_value = models.DateTimeField(null=True)
+
+    def set_value(self, value):
+        """Set the value according to data type. Performs necessary conversion."""
+        if self.field.data_type == DataTypes.OPTION.value:
+            self.opt_value = str(value)
+        elif self.field.data_type == DataTypes.STRING.value:
+            self.str_value = str(value)
+        elif self.field.data_type == DataTypes.FLOAT.value:
+            self.flt_value = float(value)
+        # TODO: ??????????
+        # elif self.field.data_type == DataTypes.DATE.value:
+            # self.date_value = (value)
+        elif self.field.data_type == DataTypes.INTEGER.value:
+            self.int_value = int(value)
 
     @property
     def name(self):
@@ -81,6 +108,8 @@ class FieldValue(models.Model):
 
     @property
     def options(self):
+        if len(self.field.options.all()) == 0:
+            return None
         return self.field.options
 
     @property
@@ -98,3 +127,7 @@ class FieldValue(models.Model):
             return self.int_value
         else:
             return None
+
+    def __str__(self):
+        """Return name."""
+        return self.name

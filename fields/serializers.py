@@ -30,7 +30,7 @@ class FieldSerializer(serializers.ModelSerializer):
 
 class FieldValueSerializer(serializers.ModelSerializer):
     """Serialize a field to JSON."""
-    options = FieldOptionSerializer
+    options = FieldOptionSerializer(many=True)
 
     class Meta:
         model = FieldValue

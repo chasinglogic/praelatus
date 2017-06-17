@@ -52,7 +52,7 @@
         <h1 class="separator">
             {{ summary }}
 
-            <a v-bind:href="url" class="btn btn-primary pull-right">Detail</a>
+            <a v-bind:href="url" class="btn btn-primary float-right">Detail</a>
         </h1>
         <div v-html="description"></div>
         {% endverbatim %}
@@ -60,9 +60,10 @@
 </div>
 
 <script>
- var defaultTicket = document.getElementById('{{ unique_id }}-ticket-list').
-                              children[0];
  var converter = new showdown.Converter();
+ var defaultTicket = document.
+                            getElementById('{{ unique_id }}-ticket-list').
+                            children[0];
 
  var {{ unique_id }}_preview = new Vue({
      el: '#{{ unique_id }}-preview',
@@ -81,7 +82,7 @@
 
      {{ unique_id }}_preview.summary = 'Loading....';
 
-     fetch('/api/v1/tickets/'+tickEle.id)
+     fetch('/api/tickets/'+tickEle.id)
          .then(function(res) {
              return res.json();
          })
@@ -89,7 +90,7 @@
              {{ unique_id }}_preview.key = jsn.key;
              {{ unique_id }}_preview.summary = jsn.summary;
              {{ unique_id }}_preview.description = converter.makeHtml(jsn.description);
-             {{ unique_id }}_preview.url = '/'+jsn.key.split('-')[0]+'/'+jsn.key;
+             {{ unique_id }}_preview.url = '/tickets/' + jsn.key;
          })
  }
 

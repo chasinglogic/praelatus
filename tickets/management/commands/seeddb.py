@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 from fields.models import *
 from projects.models import Project
-from tickets.models import Comment, Ticket, TicketType
+from tickets.models import *
 from workflows.models import *
 
 
@@ -45,21 +45,21 @@ class Command(BaseCommand):
         story_points.save()
         priority.save()
 
-        backlog = Status(name='Backlog')
-        in_progress = Status(name='In Progress')
-        done = Status(name='Done')
+        backlog = Status(name='Backlog', state='TODO')
+        in_progress = Status(name='In Progress', state='IN_PROGRESS')
+        done = Status(name='Done', state='DONE')
 
         backlog.save()
         in_progress.save()
         done.save()
 
-        w = Workflow(name='Default Workflow')
+        w = Workflow(name='Default Workflow', create_status=backlog)
 
         w.save()
 
-        create = Transition(name='Create', to_status=backlog, workflow=w)
-        to_prog = Transition(name='In Progress', to_status=in_progress, from_status=backlog, workflow=w)
-        to_done = Transition(name='Done', to_status=done, from_status=in_progress, workflow=w)
+        create = Transition(name='Backlog', to_status=backlog, workflow=w)
+        to_prog = Transition(name='In Progress', to_status=in_progress, workflow=w)
+        to_done = Transition(name='Done', to_status=done, workflow=w)
 
         to_done.save()
         to_prog.save()
@@ -74,6 +74,28 @@ class Command(BaseCommand):
         feature.save()
 
         ticket_types = [bug, feature, epic]
+
+
+        fs = FieldScheme(name='Bug Field Scheme', project=p, ticket_type=bug)
+        fs.save()
+
+        FieldSchemeField(field=priority, scheme=fs).save()
+
+        fs = FieldScheme(name='Epic Field Scheme', project=p, ticket_type=epic)
+        fs.save()
+
+        FieldSchemeField(field=priority, scheme=fs).save()
+
+        fs = FieldScheme(name='Feature Field Scheme', project=p, ticket_type=feature)
+        fs.save()
+
+        FieldSchemeField(field=priority, scheme=fs).save()
+        FieldSchemeField(field=story_points, scheme=fs).save()
+
+        ws = WorkflowScheme(name='Default Workflow Scheme', project=p,
+                            ticket_type=None, workflow=w)
+        ws.save()
+
 
         for i in range(25):
             t = Ticket(key=p.key + '-' + str(i + 1),
@@ -116,9 +138,9 @@ facit mihi primaque remanet parte, eundo.
 
             fvs = [
                 FieldValue(field=story_points, int_value=randint(1, 20),
-                           ticket=t),
+                           content_object=t),
                 FieldValue(field=priority, opt_value=priorities[randint(0, 2)].name,
-                           ticket=t)
+                           content_object=t)
             ]
 
             for fv in fvs:
@@ -131,7 +153,7 @@ facit mihi primaque remanet parte, eundo.
 
 
         for i in range(25):
-            body = """"This is the %d th comment
+            body = """This is the %d th comment
 
 # Yo Dawg
 
@@ -139,6 +161,6 @@ facit mihi primaque remanet parte, eundo.
 
 > like markdown
 
-so I put markdown in your comment"""
+so I put markdown in your comment""" % i
             c = Comment(body=body, author=users[randint(0,1)], ticket=t)
             c.save()

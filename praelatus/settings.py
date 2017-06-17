@@ -15,6 +15,9 @@ from .celery import app as celery_app
 
 __all__ = ['celery_app']
 
+RELEASE_NAME = 'Rio Bravo'
+VERSION = '0.1.0'
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -44,6 +47,7 @@ INSTALLED_APPS = [
     'labels.apps.LabelsConfig',
     'fields.apps.FieldsConfig',
     'profiles.apps.ProfilesConfig',
+    'hooks.apps.HooksConfig',
 
     # Django
     'django.contrib.admin',
@@ -69,6 +73,15 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 ROOT_URLCONF = 'praelatus.urls'
 
+
+def version_number(request):
+    return {'version_number': VERSION}
+
+
+def release_name(request):
+    return {'release_name': RELEASE_NAME}
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -80,6 +93,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'praelatus.settings.version_number',
+                'praelatus.settings.release_name',
             ],
         },
     }
@@ -111,6 +126,9 @@ if os.getenv('PRAELATUS_USE_SQLITE'):
 
 # AUTHENTICATION
 
+LOGIN_URL = '/login'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -151,6 +169,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = './static'
+MEDIA_ROOT = 'static/media/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
@@ -177,6 +197,17 @@ CELERY_RESULT_BACKEND = 'rpc://'
 # REST
 
 REST_FRAMEWORK = {
+    # Integrate Django Filters
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+
+    # Use sessions or basic auth
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [

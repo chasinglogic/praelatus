@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from guardian.shortcuts import get_objects_for_user
 
 from .models import Project
 from .serializers import ProjectSerializer
@@ -9,8 +10,10 @@ from rest_framework import generics
 
 class ProjectList(generics.ListCreateAPIView):
     """API for projects."""
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+
+    def get_queryset(self):
+        return get_objects_for_user(self.request.user, 'projects.view_project')
 
 
 class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -18,6 +21,7 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     lookup_field = 'key'
+
 
 # UI
 
@@ -29,20 +33,3 @@ def show(request, key=''):
         'project': p,
         'content': p.content.all()
     })
-
-
-def search(request):
-    """Search through projects."""
-    q = request.GET.get('filter', '')
-
-    if q == '':
-        projects = Project.objects.all()
-    elif ':' in q:
-        split = q.split(' ')
-        projects = Project.objects.\
-            filter(**{s.split(':')[0]: s.split(':')[1] for s in split}).\
-            all()
-    else:
-        projects = Project.objects.filter(key=q).all()
-
-    return render(request, 'projects/search.html', {'projects': projects})

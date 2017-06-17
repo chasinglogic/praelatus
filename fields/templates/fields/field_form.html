@@ -1,0 +1,30 @@
+<div class="form-group">
+    <label for="{{ field.name }}">
+        {{ field.name }}
+    </label>
+    {% if field.data_type == 'INTEGER' or field.data_type == 'FLOAT' %}
+    <input id="{{ field.name }}" type="number"
+           name="{{ field.name }}" class="form-control"
+           {% if field.value %}value="{{ field.value }}"{% endif %}/>
+    {% elif field.data_type == 'OPTION' %}
+    <select id="{{ field.name }}" name="{{ field.name }}" class="form-control"
+        {% if field.value %}value="{{ field.value }}"{% endif %}>
+        {% for opt in field.options.all %}
+        <option value="{{ opt.name }}">{{ opt.name }}</option>
+        {% endfor %}
+    </select>
+    {% elif field.data_type == 'DATE' %}
+    <input id="{{ field.name }}" name="{{ field.name }}"  type="date"
+           class="form-control"
+           {% if field.value %}value="{{ field.value }}"{% endif %}/>
+    {% elif field.data_type == 'STRING' %}
+    <input id="{{ field.name }}" name="{{ field.name }}"
+           type="text" class="form-control"
+           {% if field.value %}value="{{ field.value }}"{% endif %} />
+    {% elif field.data_type == 'TEXT' %}
+    <textarea id="{{ field.name }}" name="{{ field.name }}"
+              class="form-control">{% if field.value %}{{ field.value }}{% endif %}</textarea>
+    {% else %}
+    Error rendering field
+    {% endif %}
+</div>

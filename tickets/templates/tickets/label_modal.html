@@ -1,0 +1,119 @@
+{% block head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+{% endblock %}
+
+<div id="labelModal" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Labels</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="label-multi-select" class="sr-only">
+                </label>
+                <select id="label-multi-select" name="labels" class="form-control"  multiple>
+                    {% if ticket.labels.all %}
+                    {% for l in ticket.labels.all %}
+                    <option id="{{ l.name }}" val="{{ l.name }}" selected>{{ l.name }}</option>
+                    {% endfor %}
+                    {% endif %}
+
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button onclick="updateLabels();" type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+ console.log('wooooo');
+ $('#label-multi-select').select2({
+     dropdownParent: $('#labelModal'),
+     tags: true,
+     createTag: function (params) {
+         return {
+             id: params.term,
+             text: params.term,
+             newOption: true
+         }
+     },
+     ajax: {
+         url: '/api/labels',
+         dataType: 'json',
+         data: function(params) {
+             return {search: params.term}
+         },
+         processResults: function(data, params) {
+             return {
+                 results: data
+                     .map((x) => { return {id: x.name, text: x.name} })
+                     .filter((x) => {
+                         return $('#label-multi-select').val().indexOf(x.text) === -1
+                     }),
+             }
+         }
+     }
+ }).on('select2:select', (evt) => {
+     if(evt.params.data.newOption) {
+         let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0];
+         fetch('/api/labels', {
+             credentials: 'same-origin',
+             method: 'POST',
+             headers: {
+                 'Accepts': 'application/json',
+                 'Content-Type': 'application/json',
+                 'X-CSRFToken': csrfToken.value,
+             },
+             body: JSON.stringify({name: evt.params.data.text})
+         }).
+       then((r) => {
+           if (!r.ok) {
+               alert('Error creating label.');
+               r.text().then(console.log);
+           } else {
+               console.log('Created label successfully!');
+           }
+       })
+     }
+ });
+
+ // Select2 wigs out when in a hidden div.
+ $('.select2').width("100%");
+ $('.select2-search__field').width("100%");
+
+
+ $('#labelModel').on('shown.bs.modal', function () {
+     $('#labels-multi-select').focus()
+ })
+
+
+ function updateLabels() {
+     let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0];
+     let selected = $('#label-multi-select').val();
+     fetch('/tickets/{{ ticket.key }}/edit', {
+         credentials: 'same-origin',
+         method: 'POST',
+         body: selected.map((x) => 'label=' + x).join('&'),
+         headers: {
+             'Content-Type': 'application/x-www-form-urlencoded',
+             'X-CSRFToken': csrfToken.value,
+         }
+     }).
+   then(function(r) {
+       if (!r.ok) {
+           alert('Error adding labels.');
+           r.text().then(console.log);
+       } else {
+           console.log('Added labels successfully!');
+           window.location.reload();
+       }
+   })
+ }
+</script>

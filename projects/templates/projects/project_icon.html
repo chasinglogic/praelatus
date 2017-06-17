@@ -1,5 +1,5 @@
-{% if project.icon_url %}
-<img src="{{ icon_url }}" class="project-icon btn-praelatus" />
+{% if project.icon %}
+<img src="/static/media/{{ project.icon.url }}" class="project-icon" alt="{{ project.key.0 }}"/>
 {% else %}
 <div class="project-icon btn-praelatus">
     <span>
