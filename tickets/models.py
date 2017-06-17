@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
+from django.db.models import Q
+
 
 from fields.models import Field, FieldValue
 from labels.models import Label
@@ -21,7 +23,7 @@ class TicketType(models.Model):
 class Ticket(models.Model):
     """A unit of work."""
 
-    key = models.CharField(max_length=255)
+    key = models.CharField(max_length=255, unique=True)
     summary = models.CharField(max_length=140)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,8 +43,12 @@ class Ticket(models.Model):
     def transitions(self):
         """Get available transitions for a ticket."""
         return Transition.objects.\
-            filter(workflow=self.workflow,
-                   from_status=self.status).\
+            filter(
+                Q(workflow=self.workflow,
+                  from_status=self.status) |
+                (Q(workflow=self.workflow, from_status=None) &
+                 ~Q(to_status=self.status))
+            ).\
             all()
 
 
@@ -62,10 +68,13 @@ class Comment(models.Model):
 
 class FieldScheme(models.Model):
     """Determine what fields a project wants for a ticket type."""
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     project = models.ForeignKey(Project, related_name='field_schemes')
     ticket_type = models.ForeignKey(TicketType, related_name='field_schemes',
                                     blank=True, null=True)
+
+    class Meta:
+        unique_together = ('project', 'ticket_type',)
 
     def __str__(self):
         """Return the scheme's name."""
@@ -77,6 +86,9 @@ class FieldSchemeField(models.Model):
     required = models.BooleanField(default=False)
     scheme = models.ForeignKey(FieldScheme, related_name='fields')
     field = models.ForeignKey(Field)
+
+    class Meta:
+        unique_together = ('scheme', 'field',)
 
     @property
     def name(self):
@@ -93,12 +105,23 @@ class FieldSchemeField(models.Model):
 
 class WorkflowScheme(models.Model):
     """Tie a workflow to a project for a TicketType."""
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     project = models.ForeignKey(Project, related_name='workflow_schemes')
+    workflow = models.ForeignKey(Workflow, related_name='schemes')
     ticket_type = models.ForeignKey(TicketType, related_name='workflow_schemes',
                                     null=True, blank=True)
-    workflow = models.ForeignKey(Workflow, related_name='schemes')
+
+    class Meta:
+        unique_together = ('project', 'ticket_type', 'workflow',)
 
     def __str__(self):
         """Return the scheme's name."""
         return '%s for %s' % (self.name, self.project.name)
+
+
+class Attachment(models.Model):
+    """An attachment on a ticket."""
+    ticket = models.ForeignKey(Ticket, related_name='attachments')
+    # Optional display name.
+    name = models.CharField(max_length=255, null=True, blank=True)
+    attachment = models.FileField(upload_to='tickets/attachments/')

@@ -1,15 +1,10 @@
 from django.contrib import admin
-
-from .models import Workflow, Status, Transition, WebHook
+from .models import Workflow, Status, Transition
+from hooks.admin import InlineWebHookAdmin
 
 
 class StatusAdmin(admin.ModelAdmin):
     pass
-
-
-class WebHookAdmin(admin.StackedInline):
-    model = WebHook
-    extra = 1
 
 
 class TransitionInlineAdmin(admin.StackedInline):
@@ -19,13 +14,14 @@ class TransitionInlineAdmin(admin.StackedInline):
 
 class TransitionAdmin(admin.ModelAdmin):
     inlines = [
-        WebHookAdmin,
+        InlineWebHookAdmin,
     ]
 
 
 class WorkflowAdmin(admin.ModelAdmin):
     inlines = [
-        TransitionInlineAdmin
+        TransitionInlineAdmin,
+        InlineWebHookAdmin
     ]
 
 

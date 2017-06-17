@@ -18,7 +18,8 @@
     <li class="nav-item">
         <a class="nav-link praelatus-nav-link"
            href="/tickets/{{ ticket.key }}/transition?name={{ tr.name }}">
-            {{ tr.name }}
+            <span class="ion-arrow-right-c"></span>
+            <span class="link-description" >{{ tr.name }}</span>
         </a>
     </li>
     {% endfor %}
@@ -31,21 +32,42 @@
 <ul id="quick-actions"  class="nav nav-pills flex-column">
     <li class="nav-item" >
         <a class="nav-link praelatus-nav-link"  href="#comment-form" >
-            Add Comment
+            <span class="ion-chatboxes"></span>
+            <span class="link-description">Add Comment</span>
         </a>
     </li>
     <li class="nav-item" >
         <a class="nav-link praelatus-nav-link"
-           data-toggle="modal"  data-target="#labelModal">
-            Add Labels
+           {% if user.is_authenticated %}
+           data-toggle="modal"  data-target="#labelModal"
+           {% else %}
+           href="/login"
+           {% endif %}>
+            <span class="ion-pricetags"></span>
+            <span class="link-description">Add Labels</span>
         </a>
     </li>
     <li class="nav-item" >
         <a class="nav-link praelatus-nav-link"  href="/tickets/{{ ticket.key }}/edit" >
-            Edit Ticket
+            <span class="ion-edit"></span>
+            <span class="link-description">Edit Ticket</span>
         </a>
     </li>
 </ul>
+
+{% if ticket.attachments.all %}
+<p class="sidebar-header" >
+    <b>Attachments</b>
+</p>
+
+<ul id="attachments" class="nav nav-pills flex-column" >
+    {% for a in ticket.attachments.all %}
+    <a href="{{ a.attachment.url }}" class="nav-link praelatus-nav-link">
+        {% if a.name %}{{ a.name }}{% else %}{{ a.attachment.name }}{% endif %}
+    </a>
+    {% endfor %}
+</ul>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -94,18 +116,18 @@
                         commented on <span>{{ c.created_at | date:'Y-m-d h:i A' }}</span>
                     </span>
                     {% if c.author == user or user.is_staff %}
-                    <div class="pull-right comment-buttons" >
+                    <span class="float-right comment-buttons" >
                         <button id="{{ c.id }}"
                                 onclick="editComment(this)"
                                 class="d-inline-block btn btn-secondary comment-edit-button" >
-                            <i class="fa fa-pencil" ></i>
+                            <i class="ion-edit" ></i>
                         </button>
                         <button id="{{ c.id }}"
                                 onclick="deleteComment(this)"
                                 class="d-inline-block btn btn-secondary comment-delete-button" >
-                            <i class="fa fa-times" ></i>
+                            <i class="ion-close" ></i>
                         </button>
-                    </div>
+                    </span>
                     {% endif %}
                 </div>
             </div>
@@ -114,7 +136,7 @@
             {% if user.is_authenticated %}
             {% include 'comments/comment_form.html' with unique_id='new-comment' %}
             {% else %}
-            <div class="card shadow">
+            <div id="comment-form" class="card shadow">
                 <p class="element card-text">You must <a href="/login">login</a> to comment.</p>
             </div>
             {% endif %}

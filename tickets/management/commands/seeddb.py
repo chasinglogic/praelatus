@@ -53,13 +53,13 @@ class Command(BaseCommand):
         in_progress.save()
         done.save()
 
-        w = Workflow(name='Default Workflow')
+        w = Workflow(name='Default Workflow', create_status=backlog)
 
         w.save()
 
-        create = Transition(name='Create', to_status=backlog, workflow=w)
-        to_prog = Transition(name='In Progress', to_status=in_progress, from_status=backlog, workflow=w)
-        to_done = Transition(name='Done', to_status=done, from_status=in_progress, workflow=w)
+        create = Transition(name='Backlog', to_status=backlog, workflow=w)
+        to_prog = Transition(name='In Progress', to_status=in_progress, workflow=w)
+        to_done = Transition(name='Done', to_status=done, workflow=w)
 
         to_done.save()
         to_prog.save()
