@@ -18,3 +18,4 @@ django-filter
 djangorestframework
 jinja2
 requests
+pillow
