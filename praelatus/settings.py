@@ -24,14 +24,18 @@ DATA_DIR = os.getenv('PRAELATUS_DATA_DIR', os.path.join(BASE_DIR, 'data'))
 
 APPEND_SLASH = False
 
+SECRET_KEY = ''
 # SECURITY WARNING: keep the secret key used in production secret!
 if os.path.isfile(os.path.join(DATA_DIR, '.secret_key')):
     with open(os.path.join(DATA_DIR, '.secret_key')) as f:
         SECRET_KEY = f.read()
 else:
     with open(os.path.join(DATA_DIR, '.secret_key'), 'w') as f:
-        SECRET_KEY = os.urandom(24).encode('hex')
+        import binascii
+        rand = os.urandom(24)
+        SECRET_KEY = binascii.b2a_hex(rand).decode('ascii')
         f.write(SECRET_KEY)
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.getenv('PRAELATUS_DEBUG', 'False'))
