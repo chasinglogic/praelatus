@@ -20,12 +20,19 @@ VERSION = '0.1.0'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.getenv('PRAELATUS_DATA_DIR', op.path.join(BASE_DIR, 'data'))
 
 APPEND_SLASH = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# TODO: Generate this randomly
-SECRET_KEY = '!$4psc7!-5kzqb30upz66)cg*u3p5$ud!th-30&dkw66k^@6ix'
+
+if os.path.isfile(os.path.join(DATA_DIR, '.secret_key')):
+    with open(os.path.join(DATA_DIR, '.secret_key')) as f:
+        SECRET_KEY = f.read()
+else:
+    with open(os.path.join(DATA_DIR, '.secret_key'), 'w') as f:
+        SECRET_KEY = os.urandom(24).encode('hex')
+        f.write(SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.getenv('PRAELATUS_DEBUG', 'False'))
@@ -168,9 +175,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
+STATIC_ROOT = os.path.join(DATA_DIR, 'static')
+MEDIA_ROOT = os.path.join(STATIC_ROOT, 'media')
+
 STATIC_URL = '/static/'
-STATIC_ROOT = './data/static'
-MEDIA_ROOT = 'static/media/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
