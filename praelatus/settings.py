@@ -20,12 +20,11 @@ VERSION = '0.1.0'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.getenv('PRAELATUS_DATA_DIR', op.path.join(BASE_DIR, 'data'))
+DATA_DIR = os.getenv('PRAELATUS_DATA_DIR', os.path.join(BASE_DIR, 'data'))
 
 APPEND_SLASH = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
-
 if os.path.isfile(os.path.join(DATA_DIR, '.secret_key')):
     with open(os.path.join(DATA_DIR, '.secret_key')) as f:
         SECRET_KEY = f.read()
