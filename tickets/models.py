@@ -122,6 +122,7 @@ class WorkflowScheme(models.Model):
 class Attachment(models.Model):
     """An attachment on a ticket."""
     ticket = models.ForeignKey(Ticket, related_name='attachments')
+    uploader = models.ForeignKey(User, related_name='attachments')
     # Optional display name.
     name = models.CharField(max_length=255, null=True, blank=True)
     attachment = models.FileField(upload_to='tickets/attachments/')

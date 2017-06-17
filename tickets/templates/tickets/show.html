@@ -55,24 +55,63 @@
     </li>
 </ul>
 
-{% if ticket.attachments.all %}
 <p class="sidebar-header" >
-    <b>Attachments</b>
+    Attachments
 </p>
 
 <ul id="attachments" class="nav nav-pills flex-column" >
+    {% load guardian_tags %}
+    {% get_obj_perms request.user for ticket.project as "perms" %}
+    {% if user.is_authenticated and "edit_content" in perms %}
+    <li class="nav-item" >
+        <a class="nav-link praelatus-nav-link"
+           data-toggle="modal"  data-target="#fileModal">
+            <span class="ion-plus" ></span>
+            <span class="link-description" >Add Attachments</span>
+        </a>
+    </li>
+    {% endif %}
     {% for a in ticket.attachments.all %}
-    <a href="{{ a.attachment.url }}" class="nav-link praelatus-nav-link">
-        {% if a.name %}{{ a.name }}{% else %}{{ a.attachment.name }}{% endif %}
-    </a>
+    <li class="nav-item" >
+        <a href="/static/media/{{ a.attachment.url }}" class="nav-link praelatus-nav-link">
+            <span class="ion-archive"></span>
+            <span class="link-description" >{% if a.name %}{{ a.name }}{% else %}{{ a.attachment.name }}{% endif %}</span>
+        </a>
+    </li>
     {% endfor %}
 </ul>
-{% endif %}
 {% endblock %}
 
 {% block content %}
 
 {% include 'tickets/label_modal.html' with ticket=ticket %}
+
+<div id="fileModal" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Attachments</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="POST"
+                enctype="multipart/form-data"
+                action="/tickets/{{ ticket.key }}/attachment">
+                {% csrf_token %}
+            <div class="modal-body">
+                {{ attachment_form.attachment.errors }}
+                {{ attachment_form.attachment }}
+            </div>
+            <div class="modal-footer">
+                <input type="submit" class="btn btn-primary" value="Add Attachments" />
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <div>
     <h4>

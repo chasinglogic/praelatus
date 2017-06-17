@@ -16,7 +16,7 @@ class Project(models.Model):
     key = models.CharField(max_length=10, unique=True)
     description = models.TextField(blank=True, null=True)
 
-    icon = models.FileField(upload_to='projects/icons/', blank=True, null=True)
+    icon = models.ImageField(upload_to='projects/icons/', blank=True, null=True)
     homepage = models.CharField(max_length=255, blank=True, null=True)
     repo = models.CharField(max_length=255, blank=True, null=True)
 

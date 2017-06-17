@@ -58,12 +58,12 @@
                 </li>
                 {% block nav_items %}
                 {% endblock %}
-            </ul>
-            <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="btn btn-primary"
                        href="/tickets/create">Create</a>
                 </li>
+            </ul>
+            <ul class="navbar-nav">
                 {% if user.is_authenticated %}
                 <li class="nav-item dropdown btn-group">
                     <a class="dropdown-toggle nav-link"

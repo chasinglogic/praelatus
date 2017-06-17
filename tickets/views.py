@@ -14,7 +14,8 @@ from rest_framework import generics
 from workflows.models import Transition
 from workflows.tasks import fire_hooks
 
-from .models import Comment, FieldScheme, Ticket, TicketType
+from .forms import AttachmentForm
+from .models import Comment, FieldScheme, Ticket, TicketType, Attachment
 from .serializers import (CommentSerializer, TicketSerializer,
                           TicketTypeSerializer)
 
@@ -70,7 +71,9 @@ def show(request, key=''):
 
     if len(t) == 0:
         raise Http404('No ticket with that key found.')
-    return render(request, 'tickets/show.html', {'ticket': t[0]})
+
+    attachment_form = AttachmentForm()
+    return render(request, 'tickets/show.html', {'ticket': t[0], 'attachment_form': attachment_form})
 
 
 @login_required
@@ -299,3 +302,14 @@ def edit_ticket(request, key=''):
 
     t.save()
     return redirect('/tickets/' + t.key)
+
+
+@login_required
+@require_http_methods(['POST'])
+def attachments(request, key=''):
+    tk = Ticket.objects.get(key=key)
+    form = AttachmentForm(request.POST, request.FILES)
+    for f in request.FILES.getlist('attachment'):
+        attachment = Attachment(name=f.name, attachment=f, ticket=tk, uploader=request.user)
+        attachment.save()
+    return redirect('/tickets/' + tk.key)
