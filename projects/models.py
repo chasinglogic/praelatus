@@ -14,11 +14,11 @@ class Project(models.Model):
     lead = models.ForeignKey(User)
     name = models.CharField(max_length=140, unique=True)
     key = models.CharField(max_length=10, unique=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
-    icon_url = models.CharField(max_length=255)
-    homepage = models.CharField(max_length=255)
-    repo = models.CharField(max_length=255)
+    icon = models.FileField(upload_to='projects/icons/', blank=True, null=True)
+    homepage = models.CharField(max_length=255, blank=True, null=True)
+    repo = models.CharField(max_length=255, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
