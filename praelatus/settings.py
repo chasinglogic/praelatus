@@ -22,11 +22,14 @@ VERSION = '0.1.0'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.getenv('PRAELATUS_DATA_DIR', os.path.join(BASE_DIR, 'data'))
 
+if not os.path.exists(DATA_DIR):
+    os.mkdir(DATA_DIR)
+
 APPEND_SLASH = False
 
 SECRET_KEY = ''
 # SECURITY WARNING: keep the secret key used in production secret!
-if os.path.isfile(os.path.join(DATA_DIR, '.secret_key')):
+if os.path.exists(os.path.join(DATA_DIR, '.secret_key')):
     with open(os.path.join(DATA_DIR, '.secret_key')) as f:
         SECRET_KEY = f.read()
 else:
