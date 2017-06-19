@@ -16,8 +16,6 @@ class Status(models.Model):
     name = models.CharField(max_length=255, unique=True)
     state = models.CharField(max_length=11, default=State.TODO.value,
                              choices=[(x.value, x.value) for x in State])
-    # Hex color for the background of the Status Pill
-    bg_color = models.CharField(max_length=7)
 
     @property
     def is_todo(self):
@@ -53,7 +51,7 @@ class Workflow(models.Model):
 
 class Transition(models.Model):
     """A transition from one status to another."""
-    name = models.CharField(max_length=255, default='Create')
+    name = models.CharField(max_length=255)
     workflow = models.ForeignKey(Workflow, related_name='transitions')
     to_status = models.ForeignKey(Status, related_name='+')
     from_status = models.ForeignKey(Status, related_name='+', null=True, blank=True)
