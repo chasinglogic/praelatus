@@ -18,4 +18,5 @@ urlpatterns = [
     url(r'^comments/(?P<id>[0-9]+)', views.edit_comment, name='edit_comment'),
 
     url(r'^dashboard', views.dashboard),
+    url(r'^add_link_form', views.add_link, name='add_link')
 ]
