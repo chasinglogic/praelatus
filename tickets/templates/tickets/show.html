@@ -79,7 +79,28 @@
         </a>
     </li>
     {% endfor %}
+    <li class="nav-item" >
+        <a class="nav-link praelatus-nav-link" href="/tickets/add_link_form.html" >
+          Add Link
+        </a>
+    </li>
 </ul>
+
+{% if ticket.links.all %}
+<p class="sidebar-header" >
+    <b>Links </b>
+</p>
+<ul class="nav nav-pills flex-column">
+    {% for link in ticket.links.all %}
+  <li class="nav-item" >
+    <a class="nav-link praelatus-nav-link" href="{{ link.href }}">
+      {{ link.display }}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
 {% endblock %}
 
 {% block content %}
