@@ -15,7 +15,7 @@ from workflows.models import Transition
 from workflows.tasks import fire_hooks
 
 from .forms import AttachmentForm
-from .models import Comment, FieldScheme, Ticket, TicketType, Attachment
+from .models import Comment, FieldScheme, Ticket, TicketType, Attachment, TicketLink
 from .serializers import (CommentSerializer, TicketSerializer,
                           TicketTypeSerializer)
 
@@ -314,6 +314,10 @@ def attachments(request, key=''):
         attachment.save()
     return redirect('/tickets/' + tk.key)
 
-
-def add_link(request):
-    return render(request, 'add_link.html')
+@login_required
+@require_http_methods(['POST'])
+def add_link(request, key=''):
+    tk = Ticket.objects.get(key=key)
+    link = TicketLink(display=request.POST['display'], href=request.POST['url'], ticket=tk)
+    link.save()
+    return redirect('/tickets/' + tk.key)
