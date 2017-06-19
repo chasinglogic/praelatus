@@ -6,7 +6,6 @@
 
 {% block content %}
 <div class="user-profile d-flex justify-content-center">
-  {% from 'users/macros.html' import user_profile %}
-  {{ user_profile(user) }}
+  {% include 'users/user_profile.html' with user=profile_user %} 
 </div>
 {% endblock %}
