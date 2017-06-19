@@ -67,6 +67,7 @@ def show(request, key=''):
         prefetch_related('labels').\
         prefetch_related('fields').\
         prefetch_related('comments').\
+        prefetch_related('links').\
         all()
 
     if len(t) == 0:
@@ -312,3 +313,7 @@ def attachments(request, key=''):
         attachment = Attachment(name=f.name, attachment=f, ticket=tk, uploader=request.user)
         attachment.save()
     return redirect('/tickets/' + tk.key)
+
+
+def add_link(request):
+    return render(request, 'add_link.html')
