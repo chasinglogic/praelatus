@@ -97,3 +97,4 @@ ENV/
 *data*
 *.rdb
 static/media*
+db.sqlite3
