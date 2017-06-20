@@ -1,0 +1,18 @@
+language: python
+python:
+  - 3.4
+  - 3.5
+  - 3.6
+services:
+  - postgresql
+  - redis
+install:
+  - pip install -r requirements.txt
+  - pip install tox
+before_script:
+  - psql -c 'create database praelatus;' -U postgres
+  - psql -c "alter role postgres with password 'postgres'" -U postgres
+  - ./manage.py genconfig
+  - ./manage.py migrate
+script:
+  - tox

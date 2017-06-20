@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Q
 from guardian.shortcuts import get_objects_for_user
 
 from .models import Project
@@ -33,3 +34,24 @@ def show(request, key=''):
         'project': p,
         'content': p.content.all()
     })
+
+
+def search(request):
+    query = request.GET.get('query', '')
+    print(query)
+    if query == '':
+        results = Project.objects.prefetch_related('lead').all()
+    else:
+        results = Project.objects.\
+            prefetch_related('lead').\
+            filter(
+                Q(key__icontains=query) |
+                Q(name__icontains=query) |
+                Q(lead__username=query) |
+                Q(lead__email=query) |
+                Q(lead__first_name__icontains=query) |
+                Q(lead__last_name__icontains=query)
+            ).\
+            all()
+    print(results)
+    return render(request, 'projects/project_filter.html', {'results': results})
