@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 
 
 def index(request):
@@ -21,3 +22,8 @@ def register(request):
             login(request, user)
             return redirect('/tickets/dashboard')
     return render(request, 'registration/register.html', {'form': form})
+
+
+def show(request, username=''):
+    u = User.objects.get(username=username)
+    return render(request, 'users/show.html', {'profile_user': u})

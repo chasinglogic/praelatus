@@ -15,7 +15,7 @@ from workflows.models import Transition
 from workflows.tasks import fire_hooks
 
 from .forms import AttachmentForm
-from .models import Comment, FieldScheme, Ticket, TicketType, Attachment
+from .models import Comment, FieldScheme, Ticket, TicketType, Attachment, TicketLink
 from .serializers import (CommentSerializer, TicketSerializer,
                           TicketTypeSerializer)
 
@@ -67,6 +67,7 @@ def show(request, key=''):
         prefetch_related('labels').\
         prefetch_related('fields').\
         prefetch_related('comments').\
+        prefetch_related('links').\
         all()
 
     if len(t) == 0:
@@ -89,7 +90,7 @@ def create(request, project_key='', ticket_type=''):
         if len(workflows) == 0:
             # Get the default workflow
             workflow = proj.workflow_schemes.\
-                       filter(ticket_type=None).all()[0].workflow
+                filter(ticket_type=None).all()[0].workflow
         else:
             workflow = workflows[0].workflow
 
@@ -139,7 +140,6 @@ def create_prompt(request):
         'projects': projects,
         'ticket_types': ticket_types
     })
-
 
 
 @login_required
@@ -296,7 +296,7 @@ def edit_ticket(request, key=''):
             fv = FieldValue.objects.get(ticket=t, field__name=f)
         except FieldValue.DoesNotExist:
             field = Field.objects.get(name=f)
-            fv = FieldValue(field=f, ticket=t)
+            fv = FieldValue(field=field, ticket=t)
         fv.set_value(v)
         fv.save()
 
@@ -308,8 +308,16 @@ def edit_ticket(request, key=''):
 @require_http_methods(['POST'])
 def attachments(request, key=''):
     tk = Ticket.objects.get(key=key)
-    form = AttachmentForm(request.POST, request.FILES)
+    AttachmentForm(request.POST, request.FILES)
     for f in request.FILES.getlist('attachment'):
         attachment = Attachment(name=f.name, attachment=f, ticket=tk, uploader=request.user)
         attachment.save()
+    return redirect('/tickets/' + tk.key)
+
+@login_required
+@require_http_methods(['POST'])
+def add_link(request, key=''):
+    tk = Ticket.objects.get(key=key)
+    link = TicketLink(display=request.POST['display'], href=request.POST['url'], ticket=tk)
+    link.save()
     return redirect('/tickets/' + tk.key)

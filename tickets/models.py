@@ -126,3 +126,10 @@ class Attachment(models.Model):
     # Optional display name.
     name = models.CharField(max_length=255, null=True, blank=True)
     attachment = models.FileField(upload_to='tickets/attachments/')
+
+
+class TicketLink(models.Model):
+    """A link to an issue, docs, another ticket."""
+    display = models.CharField(max_length=140)
+    href = models.URLField()
+    ticket = models.ForeignKey(Ticket, related_name='links')
