@@ -28,7 +28,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'name',
             'description',
             'lead',
-            'icon_url',
+            'icon',
             'homepage',
             'repo'
         )

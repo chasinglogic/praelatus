@@ -2,38 +2,49 @@
 
 {% block head %}
 <link rel="stylesheet" href="/static/profiles/css/profiles.css" />
+<link rel="stylesheet" href="/static/projects/css/projects.css" />
 {% endblock %}
 
-{% block content %}
-<div class="element">
-    {% include 'helpers/search_bar.html' %}
+{% block container %}
+<div class="container" >
+    <div class="element">
+        {% include 'helpers/search_bar.html' %}
 
-    <div>
-        <table id="searchResults" class="table table-bordered">
-            <thead class="thead-default">
-                <tr>
-                    <th>Name</th>
-                    <th>Key</th>
-                    <th>Lead</th>
-                    <th>Homepage</th>
-                    <th>Repo</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for p in object_list %}
-                <tr>
-                    <td>
-                        <a href="/projects/{{ p.key }}">{{ p.name }}</a>
-                    </td>
-                    <td>{{ p.key }}</td>
-                    <td>{% include 'users/user_stub.html' with user=p.lead %}</td>
-                    <td>{{ p.homepage }}</td>
-                    <td>{{ p.repo }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div>
+            <table id="searchResults" class="table">
+                <thead class="">
+                    <tr>
+                        <th>Name</th>
+                        <th>Key</th>
+                        <th>Lead</th>
+                        <th>Homepage</th>
+                        <th>Repo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in results %}
+                    <tr>
+                        <td>
+                            <small>
+                                {% include 'projects/project_icon.html' with project=p %}
+                            </small>
+                            <a href="/projects/{{ p.key }}">{{ p.name }}</a>
+                        </td>
+                        <td>
+                            <span>{{ p.key }}</span>
+                        </td>
+                        <td>{% include 'users/user_stub.html' with user=p.lead %}</td>
+                        <td>
+                            {{ p.homepage }}
+                        </td>
+                        <td>
+                            <span>{{ p.repo }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-
 {% endblock %}

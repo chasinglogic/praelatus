@@ -5,8 +5,8 @@
 
 .project-icon {
     border-radius: 50%;
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     text-align: center;
     margin-right: 0.5rem;
 }
@@ -15,4 +15,25 @@
     font-size: 38px;
     font-weight: bold;
     line-height: 44px;
+}
+
+small .project-icon {
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    margin-right: 0.5rem;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+small .project-icon span {
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 28px;
+}
+
+td a, td p {
+    display: inline-block;
+    vertical-align: middle;
 }
