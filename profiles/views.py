@@ -1,19 +1,22 @@
+from django.conf import settings
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
+
+from .forms import ExtendedRegistrationForm
 
 
 def index(request):
     if request.user.is_authenticated():
         return redirect('/tickets/dashboard')
-    form = UserCreationForm()
+    form = ExtendedRegistrationForm()
     return render(request, 'index.html', {'form': form})
 
 
 def register(request):
-    form = UserCreationForm(request.POST)
+    form = ExtendedRegistrationForm()
     if request.method == 'POST':
+        form = ExtendedRegistrationForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')

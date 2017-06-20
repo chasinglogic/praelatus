@@ -1,14 +1,26 @@
 <form method="POST" action="{% url 'users:register' %}">
     {% csrf_token %}
     {% if form.errors %}
-    <p class=" label label-danger">
-        {{ form.errors }}
-    </p>
+        {% for e in form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ e }}
+            </div>
+        {% endfor %}
+        {% for field in form %}
+             {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endfor %}
     {% endif %}
+
     <div class="form-group" >
         <label for="username" >Username</label>
         <input id="username" name="username"
+               {% if form.data.username %}value="{{ form.data.username }}"{% endif %}
                class="form-control" type="text" />
+
     </div>
     <div class="form-group" >
         <label for="password" >Password</label>
@@ -23,16 +35,19 @@
     <div class="form-group" >
         <label for="first_name" >First Name</label>
         <input id="first_name" name="first_name"
+               {% if form.data.first_name %}value="{{ form.data.first_name }}"{% endif %}
                class="form-control" type="text" />
     </div>
     <div class="form-group" >
         <label for="last_name" >Last Name</label>
         <input id="last_name" name="last_name"
+               {% if form.data.last_name %}value="{{ form.data.last_name }}"{% endif %}
                class="form-control" type="text" />
     </div>
     <div class="form-group" >
         <label for="email" >Email</label>
         <input id="email" name="email"
+               {% if form.data.email %}value="{{ form.data.email }}"{% endif %}
                class="form-control" type="email" />
     </div>
     <button class="form-control btn btn-success"
