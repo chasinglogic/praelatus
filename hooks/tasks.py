@@ -5,13 +5,13 @@ log = get_task_logger(__name__)
 
 
 @shared_task
-def fire_hooks(transition, ticket):
-    fire_web_hooks(transition, ticket).delay()
+def fire_hooks(hooks, context):
+    fire_web_hooks().delay(hooks, context)
 
 
 @shared_task
-def fire_web_hooks(transition, ticket):
-    for h in transition.web_hooks.all():
-        res = h.fire_hook(ticket)
+def fire_web_hooks(web_hooks, context):
+    for h in web_hooks:
+        res = h.fire_hook(context)
         log.info("%s: %s Status Code: %d Response: %s" %
                  (h.method, h.url, res.status_code, res.text))

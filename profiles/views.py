@@ -8,7 +8,7 @@ from .forms import ExtendedRegistrationForm
 
 def index(request):
     if request.user.is_authenticated():
-        return redirect('/tickets/dashboard')
+        return redirect(settings.LOGIN_REDIRECT_URL)
     form = ExtendedRegistrationForm()
     return render(request, 'index.html', {'form': form})
 
@@ -23,7 +23,7 @@ def register(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return redirect('/tickets/dashboard')
+            return redirect(settings.LOGIN_REDIRECT_URL)
     return render(request, 'registration/register.html', {'form': form})
 
 

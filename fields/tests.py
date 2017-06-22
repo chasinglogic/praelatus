@@ -19,6 +19,7 @@ class TestField(TestCase):
         f = Field(name='Test Nope Field', data_type='NOPE')
         try:
             f.save()
+            self.assertTrue(False)
         except InvalidDataTypeException:
             self.assertTrue(True)
         f.data_type = 'INTEGER'

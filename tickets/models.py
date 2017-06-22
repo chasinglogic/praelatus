@@ -73,6 +73,16 @@ class FieldScheme(models.Model):
     ticket_type = models.ForeignKey(TicketType, related_name='field_schemes',
                                     blank=True, null=True)
 
+    @classmethod
+    def get_for_project(cls, project=None, **kwargs):
+        scheme = cls.objects.\
+            filter(Q(project=project, **kwargs) |
+                   Q(project=project, ticket_type=None))
+
+        if len(scheme) > 0:
+            return scheme[0]
+        return None
+
     class Meta:
         unique_together = ('project', 'ticket_type',)
 
@@ -110,6 +120,15 @@ class WorkflowScheme(models.Model):
     workflow = models.ForeignKey(Workflow, related_name='schemes')
     ticket_type = models.ForeignKey(TicketType, related_name='workflow_schemes',
                                     null=True, blank=True)
+
+    @classmethod
+    def get_for_project(cls, project=None, **kwargs):
+        scheme = cls.objects.\
+            filter(Q(project=project, **kwargs) |
+                   Q(project=project, ticket_type=None))
+        if len(scheme) > 0:
+            return scheme[0]
+        return None
 
     class Meta:
         unique_together = ('project', 'ticket_type', 'workflow',)

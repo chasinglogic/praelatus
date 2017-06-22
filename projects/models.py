@@ -58,6 +58,7 @@ def create_project_groups(sender, instance=None, **kwargs):
     assign_perm('admin_project', admin_group, instance)
     assign_perm('create_content', admin_group, instance)
     assign_perm('edit_content', admin_group, instance)
+    assign_perm('delete_content', admin_group, instance)
     assign_perm('view_project', admin_group, instance)
     assign_perm('comment_content', admin_group, instance)
 
@@ -66,6 +67,7 @@ def create_project_groups(sender, instance=None, **kwargs):
     assign_perm('view_project', member_group, instance)
     assign_perm('comment_content', member_group, instance)
 
+    assign_perm('create_content', user_group, instance)
     assign_perm('view_project', user_group, instance)
     assign_perm('comment_content', user_group, instance)
 
@@ -73,11 +75,11 @@ def create_project_groups(sender, instance=None, **kwargs):
         anon = User.objects.get(
             username=getattr(settings,
                              'ANONYMOUS_USER_NAME',
-                             'AnonymousUser')
-        )
+                             'AnonymousUser'))
         assign_perm('view_project', anon, instance)
     except Exception as e:
         print(e)
         pass
 
     instance.lead.groups.add(admin_group)
+    instance.lead.save()

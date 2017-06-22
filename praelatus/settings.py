@@ -106,7 +106,7 @@ WSGI_APPLICATION = 'praelatus.wsgi.application'
 
 # AUTHENTICATION
 LOGIN_URL = '/login'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/tickets/dashboard'
 LOGOUT_REDIRECT_URL = '/'
 AUTH_PASSWORD_VALIDATORS = [
     {
