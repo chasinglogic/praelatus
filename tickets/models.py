@@ -74,13 +74,13 @@ class FieldScheme(models.Model):
 
     @classmethod
     def get_for_project(cls, project=None, **kwargs):
-        q = Q(project=project, ticket_type=None)
-        if kwargs != {}:
-            q = q | Q(project=project, **kwargs)
+        schemes = cls.objects.filter(project=project, **kwargs)
 
-        scheme = cls.objects.filter(q)
-        if len(scheme) > 0:
-            return scheme[0]
+        if len(schemes) == 0:
+            schemes = cls.objects.filter(project=project, ticket_type=None)
+
+        if len(schemes) > 0:
+            return schemes[0]
         return None
 
     class Meta:
@@ -123,14 +123,16 @@ class WorkflowScheme(models.Model):
 
     @classmethod
     def get_for_project(cls, project=None, **kwargs):
-        q = Q(project=project, ticket_type=None)
-        if kwargs != {}:
-            q = q | Q(project=project, **kwargs)
+        schemes = cls.objects.filter(project=project, **kwargs)
 
-        scheme = cls.objects.filter(q)
-        if len(scheme) > 0:
-            return scheme[0]
+        if len(schemes) == 0:
+            schemes = cls.objects.filter(project=project, ticket_type=None)
+
+        if len(schemes) > 0:
+            return schemes[0]
         return None
+
+
 
     class Meta:
         unique_together = ('project', 'ticket_type', 'workflow',)
