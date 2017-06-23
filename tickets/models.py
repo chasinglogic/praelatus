@@ -74,10 +74,11 @@ class FieldScheme(models.Model):
 
     @classmethod
     def get_for_project(cls, project=None, **kwargs):
-        scheme = cls.objects.\
-            filter(Q(project=project, **kwargs) |
-                   Q(project=project, ticket_type=None))
+        q = Q(project=project, ticket_type=None)
+        if kwargs != {}:
+            q = q | Q(project=project, **kwargs)
 
+        scheme = cls.objects.filter(q)
         if len(scheme) > 0:
             return scheme[0]
         return None
@@ -122,9 +123,11 @@ class WorkflowScheme(models.Model):
 
     @classmethod
     def get_for_project(cls, project=None, **kwargs):
-        scheme = cls.objects.\
-            filter(Q(project=project, **kwargs) |
-                   Q(project=project, ticket_type=None))
+        q = Q(project=project, ticket_type=None)
+        if kwargs != {}:
+            q = q | Q(project=project, **kwargs)
+
+        scheme = cls.objects.filter(q)
         if len(scheme) > 0:
             return scheme[0]
         return None
