@@ -32,4 +32,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
+    md5 = hashlib.md5()
+    md5.update(instance.email.encode('utf-8'))
+    instance.profile.gravatar = 'https://gravatar.com/avatar/' + md5.hexdigest()
     instance.profile.save()

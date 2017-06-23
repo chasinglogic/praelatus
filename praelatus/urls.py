@@ -34,9 +34,11 @@ urlpatterns = [
 
     # API Routes
     url(r'^api/auth/', include('rest_framework.urls', namespace='drf')),
+
     url(r'^api/tickets', include('tickets.api', namespace='tickets_api')),
     url(r'^api/projects', include('projects.api', namespace='projects_api')),
-    url(r'^api/fields', include('fields.api', namespace='fields_api')),
-    url(r'^api/labels', include('labels.urls', namespace='labels_api')),
     url(r'^api/workflows', include('workflows.api', namespace='workflows_api')),
+
+    url(r'^api/fields', include('fields.urls', namespace='fields_api')),
+    url(r'^api/labels', include('labels.urls', namespace='labels_api')),
 ]

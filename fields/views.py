@@ -1,9 +1,9 @@
 from django.http import JsonResponse
-from django.shortcuts import render
 
 from rest_framework import generics
+from rest_framework.permissions import IsAdminUser
 
-from .models import Field, DataTypes
+from .models import DataTypes, Field
 from .serializers import FieldSerializer
 
 
@@ -15,9 +15,11 @@ class FieldList(generics.ListCreateAPIView):
     """API for fields."""
     queryset = Field.objects.all()
     serializer_class = FieldSerializer
+    permission_classes = (IsAdminUser,)
 
 
 class FieldDetail(generics.RetrieveUpdateDestroyAPIView):
     """API for fields."""
     queryset = Field.objects.all()
     serializer_class = FieldSerializer
+    permission_classes = (IsAdminUser,)
