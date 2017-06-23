@@ -1,10 +1,11 @@
-from django.shortcuts import render
 from django.db.models import Q
+from django.shortcuts import render
+
 from guardian.shortcuts import get_objects_for_user
+from rest_framework import generics
 
 from .models import Project
 from .serializers import ProjectSerializer
-from rest_framework import generics
 
 # API
 

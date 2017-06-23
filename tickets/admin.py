@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import FieldScheme, WorkflowScheme, TicketType
+from .models import FieldScheme, TicketType, WorkflowScheme
 
 
 class FieldSchemeAdmin(admin.ModelAdmin):

@@ -1,6 +1,8 @@
 import enum
-from django.db import models
+
 from django.contrib.contenttypes.fields import GenericRelation
+from django.db import models
+
 from hooks.models import WebHook
 
 

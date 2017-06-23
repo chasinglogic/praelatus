@@ -1,6 +1,7 @@
-import yaml
-from socket import gethostname
 from os.path import join
+from socket import gethostname
+
+import yaml
 from django.conf import settings
 from django.core.management.base import BaseCommand
 

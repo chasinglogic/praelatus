@@ -1,10 +1,11 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 
-from django.contrib.auth.models import User
-from projects.models import Project
 from fields.models import Field
-from workflows.models import Workflow, Status
-from .models import FieldScheme, FieldSchemeField, WorkflowScheme, TicketType
+from projects.models import Project
+from workflows.models import Status, Workflow
+
+from .models import FieldScheme, FieldSchemeField, TicketType, WorkflowScheme
 
 
 class TestSchemes(TestCase):

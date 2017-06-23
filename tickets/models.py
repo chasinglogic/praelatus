@@ -3,7 +3,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q
 
-
 from fields.models import Field, FieldValue
 from labels.models import Label
 from projects.models import Project

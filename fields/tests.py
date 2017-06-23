@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.test import TestCase
 
-from .models import Field, FieldValue, FieldOption, InvalidDataTypeException
+from .models import Field, FieldOption, FieldValue, InvalidDataTypeException
 
 
 class TestField(TestCase):

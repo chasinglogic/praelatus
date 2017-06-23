@@ -1,9 +1,10 @@
-from rest_framework import serializers
-from projects.serializers import UserSerializer, ProjectSerializer
 from fields.serializers import FieldValueSerializer
 from labels.serializers import LabelSerializer
+from projects.serializers import ProjectSerializer, UserSerializer
+from rest_framework import serializers
 from workflows.serializers import TransitionSerializer
-from .models import Ticket, TicketType, Comment
+
+from .models import Comment, Ticket, TicketType
 
 
 class CommentSerializer(serializers.ModelSerializer):
