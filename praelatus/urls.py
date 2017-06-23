@@ -17,8 +17,8 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from profiles import views as profile_views
 
+from profiles import views as profile_views
 
 urlpatterns = [
     # Django builtins

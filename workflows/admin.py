@@ -1,6 +1,8 @@
 from django.contrib import admin
-from .models import Workflow, Status, Transition
+
 from hooks.admin import InlineWebHookAdmin
+
+from .models import Status, Transition, Workflow
 
 
 class StatusAdmin(admin.ModelAdmin):

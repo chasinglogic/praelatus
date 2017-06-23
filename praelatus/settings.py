@@ -9,7 +9,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+
 import yaml
+
 from .celery import app as celery_app
 
 __all__ = ['celery_app']

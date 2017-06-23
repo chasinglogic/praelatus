@@ -1,10 +1,10 @@
+from urllib.request import getproxies
+
 import jinja2
 import requests
-
-from urllib.request import getproxies
-from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
 
 
 class Hook(models.Model):

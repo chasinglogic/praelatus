@@ -1,7 +1,7 @@
-from django.test import TestCase
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.test import TestCase
 
 
 class TestProfileCreation(TestCase):
