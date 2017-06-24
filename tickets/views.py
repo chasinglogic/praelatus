@@ -14,6 +14,8 @@ from projects.models import Project
 from rest_framework import generics
 from workflows.models import Transition
 
+from .serializers import TicketSerializer
+from .queries import compile, CompileException
 from .forms import AttachmentForm
 from .models import (Attachment, Comment, FieldScheme, Ticket, TicketLink,
                      TicketType, WorkflowScheme)
@@ -28,6 +30,14 @@ class TicketList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         projects = get_objects_for_user(self.request.user, 'projects.view_project')
+        q = Q()
+        query = self.request.GET.get('query')
+        if query is not None:
+            try:
+                q = compile(query)
+            # Ignore the error in the API
+            except CompileException:
+                pass
         return Ticket.objects.\
             filter(project__in=projects).\
             prefetch_related('ticket_type').\
@@ -36,6 +46,7 @@ class TicketList(generics.ListCreateAPIView):
             prefetch_related('fields').\
             prefetch_related('comments').\
             prefetch_related('links').\
+            filter(q).\
             all()
 
 
@@ -140,7 +151,10 @@ def create_prompt(request):
 
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard/index.html')
+    assigned = request.user.assigned.filter(~Q(status__state='DONE')).all()
+    reported = request.user.reported.filter(~Q(status__state='DONE')).all()
+    return render(request, 'dashboard/index.html',
+                  {'assigned': assigned, 'reported': reported})
 
 
 @login_required
@@ -166,7 +180,11 @@ def transition(request, key=''):
     tk.status = tr.to_status
     tk.save()
 
-    fire_web_hooks.delay(tr.web_hooks.all(), {'ticket': tk})
+    if len(tr.web_hooks.all()) > 0:
+        fire_web_hooks.delay(
+            tr.web_hooks.all(),
+            {'ticket': TicketSerializer(tk).data}
+        )
 
     return redirect('/tickets/' + tk.key)
 
@@ -251,8 +269,11 @@ def edit_ticket(request, key=''):
     labels = fields.pop('label', None)
     assignee = fields.pop('assignee', None)
 
-    t.summary = summary[0]
-    t.description = description[0]
+    if summary:
+        t.summary = summary[0]
+
+    if description:
+        t.description = description[0]
 
     # TODO: Add this to the edit form.
     if assignee:
@@ -323,3 +344,21 @@ def add_link(request, key=''):
 
     link.save()
     return redirect('/tickets/' + tk.key)
+
+
+def query(request):
+    q = Q()
+    error = None
+    query = request.GET.get('query')
+    if query is not None:
+        try:
+            q = compile(query)
+        except CompileException as e:
+            error = str(e)
+    tickets = Ticket.objects.filter(q).all()
+    return render(request, 'tickets/ticket_filter.html',
+                  {
+                      'tickets': tickets,
+                      'query': query,
+                      'error': error
+                  })

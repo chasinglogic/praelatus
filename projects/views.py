@@ -33,7 +33,7 @@ def show(request, key=''):
     p = Project.objects.get(key=key)
     return render(request, 'projects/show.html', {
         'project': p,
-        'content': p.content.all()
+        'content': p.content.filter(~Q(status__state='DONE')).all()
     })
 
 
