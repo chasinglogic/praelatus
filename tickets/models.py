@@ -3,7 +3,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q
 
-
 from fields.models import Field, FieldValue
 from labels.models import Label
 from projects.models import Project
@@ -73,6 +72,17 @@ class FieldScheme(models.Model):
     ticket_type = models.ForeignKey(TicketType, related_name='field_schemes',
                                     blank=True, null=True)
 
+    @classmethod
+    def get_for_project(cls, project=None, **kwargs):
+        schemes = cls.objects.filter(project=project, **kwargs)
+
+        if len(schemes) == 0:
+            schemes = cls.objects.filter(project=project, ticket_type=None)
+
+        if len(schemes) > 0:
+            return schemes[0]
+        return None
+
     class Meta:
         unique_together = ('project', 'ticket_type',)
 
@@ -111,6 +121,19 @@ class WorkflowScheme(models.Model):
     ticket_type = models.ForeignKey(TicketType, related_name='workflow_schemes',
                                     null=True, blank=True)
 
+    @classmethod
+    def get_for_project(cls, project=None, **kwargs):
+        schemes = cls.objects.filter(project=project, **kwargs)
+
+        if len(schemes) == 0:
+            schemes = cls.objects.filter(project=project, ticket_type=None)
+
+        if len(schemes) > 0:
+            return schemes[0]
+        return None
+
+
+
     class Meta:
         unique_together = ('project', 'ticket_type', 'workflow',)
 
@@ -126,3 +149,10 @@ class Attachment(models.Model):
     # Optional display name.
     name = models.CharField(max_length=255, null=True, blank=True)
     attachment = models.FileField(upload_to='tickets/attachments/')
+
+
+class TicketLink(models.Model):
+    """A link to an issue, docs, another ticket."""
+    display = models.CharField(max_length=140)
+    href = models.URLField()
+    ticket = models.ForeignKey(Ticket, related_name='links')

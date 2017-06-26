@@ -26,7 +26,7 @@
                 <h3>Assigned Tickets</h3>
             </div>
             <div class="card-block" >
-                {% include 'tickets/preview.html' with tickets=user.assigned.all unique_id='assigned' %}
+                {% include 'tickets/preview.html' with tickets=assigned unique_id='assigned' %}
             </div>
         </div>
     </div>
@@ -36,7 +36,7 @@
                 <h3>Reported Tickets</h3>
             </div>
             <div class="card-block" >
-                {% include 'tickets/preview.html' with tickets=user.reported.all unique_id='reported' %}
+                {% include 'tickets/preview.html' with tickets=reported unique_id='reported' %}
             </div>
         </div>
     </div>

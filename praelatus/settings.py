@@ -9,7 +9,9 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+
 import yaml
+
 from .celery import app as celery_app
 
 __all__ = ['celery_app']
@@ -106,7 +108,7 @@ WSGI_APPLICATION = 'praelatus.wsgi.application'
 
 # AUTHENTICATION
 LOGIN_URL = '/login'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/tickets/dashboard'
 LOGOUT_REDIRECT_URL = '/'
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -162,8 +164,9 @@ try:
 except FileNotFoundError:
     import sys
     if 'genconfig' not in sys.argv:
-        print('No config file found, please run ./manage.py genconfig')
-        sys.exit(1)
+        print('No config file found, run ./manage.py genconfig.'
+              'See https://docs.praelatus.io/deployments/Deploy%20on%20Linux/#configuring-praelatus'
+              'for more information.')
     config = {}
 
 # SECURITY WARNING: don't run with debug turned on in production!

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Workflow, Status, Transition
+from .models import Status, Transition, Workflow
 
 
 class StatusSerializer(serializers.ModelSerializer):

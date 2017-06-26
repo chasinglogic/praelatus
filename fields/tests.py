@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.test import TestCase
 
-from .models import Field, FieldValue, FieldOption, InvalidDataTypeException
+from .models import Field, FieldOption, FieldValue, InvalidDataTypeException
 
 
 class TestField(TestCase):
@@ -19,6 +19,7 @@ class TestField(TestCase):
         f = Field(name='Test Nope Field', data_type='NOPE')
         try:
             f.save()
+            self.assertTrue(False)
         except InvalidDataTypeException:
             self.assertTrue(True)
         f.data_type = 'INTEGER'

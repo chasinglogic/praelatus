@@ -1,5 +1,5 @@
-from django import template
 import markdown as md
+from django import template
 
 register = template.Library()
 

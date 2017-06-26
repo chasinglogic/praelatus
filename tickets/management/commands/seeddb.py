@@ -3,10 +3,11 @@ from random import randint
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
-from fields.models import *
+from fields.models import Field, FieldOption, FieldValue
 from projects.models import Project
-from tickets.models import *
-from workflows.models import *
+from tickets.models import (Comment, FieldScheme, FieldSchemeField, Ticket,
+                            TicketType, WorkflowScheme)
+from workflows.models import Status, Transition, Workflow
 
 
 class Command(BaseCommand):
@@ -75,7 +76,6 @@ class Command(BaseCommand):
 
         ticket_types = [bug, feature, epic]
 
-
         fs = FieldScheme(name='Bug Field Scheme', project=p, ticket_type=bug)
         fs.save()
 
@@ -95,7 +95,6 @@ class Command(BaseCommand):
         ws = WorkflowScheme(name='Default Workflow Scheme', project=p,
                             ticket_type=None, workflow=w)
         ws.save()
-
 
         for i in range(25):
             t = Ticket(key=p.key + '-' + str(i + 1),
@@ -146,11 +145,7 @@ facit mihi primaque remanet parte, eundo.
             for fv in fvs:
                 fv.save()
 
-
-
-
         t = Ticket.objects.get(key='TEST-1')
-
 
         for i in range(25):
             body = """This is the %d th comment
@@ -162,5 +157,5 @@ facit mihi primaque remanet parte, eundo.
 > like markdown
 
 so I put markdown in your comment""" % i
-            c = Comment(body=body, author=users[randint(0,1)], ticket=t)
+            c = Comment(body=body, author=users[randint(0, 1)], ticket=t)
             c.save()

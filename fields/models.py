@@ -1,10 +1,10 @@
 from enum import Enum
 
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 
 
 class DataTypes(Enum):
@@ -115,9 +115,8 @@ class FieldValue(models.Model):
     @property
     def value(self):
         """Return the value of this FieldValue based on data type."""
-        if self.field.data_type == DataTypes.OPTION.value:
-            return self.opt_value
-        elif self.field.data_type == DataTypes.STRING.value:
+        if (self.field.data_type == DataTypes.STRING.value or
+           self.field.data_type == DataTypes.OPTION):
             return self.str_value
         elif self.field.data_type == DataTypes.FLOAT.value:
             return self.flt_value

@@ -1,10 +1,11 @@
-from django.shortcuts import render
 from django.db.models import Q
+from django.shortcuts import render
+
 from guardian.shortcuts import get_objects_for_user
+from rest_framework import generics
 
 from .models import Project
 from .serializers import ProjectSerializer
-from rest_framework import generics
 
 # API
 
@@ -32,7 +33,7 @@ def show(request, key=''):
     p = Project.objects.get(key=key)
     return render(request, 'projects/show.html', {
         'project': p,
-        'content': p.content.all()
+        'content': p.content.filter(~Q(status__state='DONE')).all()
     })
 
 

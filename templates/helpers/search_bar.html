@@ -2,6 +2,7 @@
     <div class="form-group">
         <div class="input-group">
             <input type="text" id="search" name="query"
+                   {% if query %}value="{{ query }}"{% endif %}
                    class="form-control" placeholder="Search for..." />
             <span class="input-group-btn hidden-sm-down search-button">
                 <button type="submit" class="btn btn-outline-praelatus search-button">

@@ -1,5 +1,4 @@
-from rest_framework import generics
-from rest_framework import filters
+from rest_framework import filters, generics
 
 from .models import Label
 from .serializers import LabelSerializer
