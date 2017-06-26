@@ -7,6 +7,7 @@ from . import models, views
 urlpatterns = [
     url(r'^(?P<key>[A-z-]{1,6}-[0-9]{1,})$', views.show, name='show'),
     url(r'^(?P<key>[A-z-]{1,6}-[0-9]{1,})/edit$', views.edit_ticket, name='edit'),
+    url(r'^(?P<key>[A-z-]{1,6}-[0-9]{1,})/upvote$', views.upvote, name='upvote'),
     url(r'^(?P<key>[A-z-]{1,6}-[0-9]{1,})/attachment$', views.attachments, name='attachment'),
     url(r'^(?P<key>[A-z-]{1,6}-[0-9]{1,})/link$', views.add_link, name='add_link'),
     url(r'^create/?$', views.create_prompt, name='create_prompt'),

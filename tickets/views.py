@@ -18,7 +18,7 @@ from .serializers import TicketSerializer
 from .queries import compile, CompileException
 from .forms import AttachmentForm
 from .models import (Attachment, Comment, FieldScheme, Ticket, TicketLink,
-                     TicketType, WorkflowScheme)
+                     TicketType, WorkflowScheme, Upvote)
 from .serializers import (CommentSerializer, TicketSerializer,
                           TicketTypeSerializer)
 
@@ -362,3 +362,17 @@ def query(request):
                       'query': query,
                       'error': error
                   })
+
+
+@login_required
+@require_http_methods(['POST'])
+def upvote(request, key=''):
+    tk = Ticket.objects.get(key=key)
+
+    q = Upvote.objects.filter(voter=request.user, ticket=tk).all()
+
+    if len(q) == 0:
+        u = Upvote(voter=request.user, ticket=tk)
+        u.save()
+
+    return redirect("/tickets/" + key)

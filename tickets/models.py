@@ -65,6 +65,14 @@ class Comment(models.Model):
         ordering = ['created_at']
 
 
+class Upvote(models.Model):
+    """An upvote on a ticket"""
+
+    voter = models.ForeignKey(User)
+    ticket = models.ForeignKey(Ticket, related_name='upvotes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class FieldScheme(models.Model):
     """Determine what fields a project wants for a ticket type."""
     name = models.CharField(max_length=255, unique=True)

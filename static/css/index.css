@@ -40,13 +40,13 @@ body {
   background-color: transparent;
 }
 
-.btn-outline-praelatus:hover, .praelatus-nav-link:hover {
+.btn-outline-praelatus:hover, .praelatus-nav-link:hover, .praelatus-nav-link:hover button {
   background-color: #703D6F !important;
   color: white !important;
   cursor: pointer !important;
 }
 
-.praelatus-nav-link {
+.praelatus-nav-link, .praelatus-nav-link button {
     color: #703D6F !important;
 }
 

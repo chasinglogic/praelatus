@@ -4,7 +4,7 @@
 <script src="/static/tickets/js/tickets.js"></script>
 <link rel="stylesheet" href="/static/tickets/css/tickets.css">
 <link rel="stylesheet" href="/static/profiles/css/profiles.css">
-{% endblock %} 
+{% endblock %}
 {% block sidebar %}
 
 <p class="sidebar-header">
@@ -44,6 +44,18 @@
             <span class="ion-edit"></span>
             <span class="link-description">Edit Ticket</span>
         </a>
+  </li>
+  <li class="nav-item">
+    <form class="nav-link praelatus-nav-link"
+          method="POST"
+          action="/tickets/{{ ticket.key }}/upvote">
+          {% csrf_token %}
+          <button
+            style="border: none; background: none; padding: 0;">
+            <span class="ion-arrow-up-a"></span>
+            <span class="link-description">Upvote</span>
+          </button>
+    </form>
   </li>
 </ul>
 
@@ -226,6 +238,11 @@
           <b>Ticket Type:</b>
           <p class="card-text">
             {{ ticket.ticket_type.name }}
+          </p>
+
+          <b>Upvotes:</b>
+          <p class="card-text">
+            {{ ticket.upvotes.count }}
           </p>
 
           {% if ticket.labels.all %}
