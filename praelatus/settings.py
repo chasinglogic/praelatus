@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'django_filters',
     # REST API
     'rest_framework',
+    # Github-esque notifications
+    # https://github.com/django-notifications/django-notifications
+    'notifications',
 
     # Praelatus
     'projects.apps.ProjectsConfig',
@@ -212,3 +215,14 @@ CACHES = config.get('cache', {
 
 CELERY_BROKER_URL = config.get('mq_server', CACHES['default']['LOCATION'])
 CELERY_RESULT_BACKEND = 'rpc://'
+
+# EMAIL
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_ADDRESS = config.get('email', {}).get('address', 'praelatus@localhost')
+EMAIL_HOST = config.get('email', {}).get('host', 'localhost')
+EMAIL_PORT = config.get('email', {}).get('port', 25)
+EMAIL_HOST_USER = config.get('email', {}).get('username', None)
+EMAIL_HOST_PASS = config.get('email', {}).get('password', None)
+EMAIL_USE_TLS = config.get('email', {}).get('use_tls', False)
+EMAIL_USE_SSL = config.get('email', {}).get('use_ssl', False)

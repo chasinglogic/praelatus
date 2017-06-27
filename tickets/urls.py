@@ -1,8 +1,6 @@
 from django.conf.urls import url
 
-from django_filters.views import FilterView
-
-from . import models, views
+from . import views
 
 urlpatterns = [
     url(r'^(?P<key>[A-z-]{1,6}-[0-9]{1,})$', views.show, name='show'),
@@ -19,5 +17,8 @@ urlpatterns = [
     url(r'^(?P<key>[A-z-]{1,6}-[0-9]{1,})/comment$', views.comment, name='comment'),
     url(r'^comments/(?P<id>[0-9]+)', views.edit_comment, name='edit_comment'),
 
-    url(r'^dashboard', views.dashboard),
+    url(r'^dashboard$', views.notifications),
+    url(r'^dashboard/notifications', views.notifications),
+    url(r'^dashboard/reported', views.reported),
+    url(r'^dashboard/assigned', views.assigned),
 ]

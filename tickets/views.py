@@ -1,3 +1,4 @@
+import markdown
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -5,20 +6,20 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
+from guardian.shortcuts import get_objects_for_user
+from notifications.signals import notify
+from rest_framework import generics
 
 from fields.models import Field, FieldValue
-from guardian.shortcuts import get_objects_for_user
 from hooks.tasks import fire_web_hooks
 from labels.models import Label
 from projects.models import Project
-from rest_framework import generics
 from workflows.models import Transition
 
-from .serializers import TicketSerializer
-from .queries import compile, CompileException
 from .forms import AttachmentForm
 from .models import (Attachment, Comment, FieldScheme, Ticket, TicketLink,
                      TicketType, WorkflowScheme, Upvote)
+from .queries import CompileException, compile
 from .serializers import (CommentSerializer, TicketSerializer,
                           TicketTypeSerializer)
 
@@ -150,11 +151,26 @@ def create_prompt(request):
 
 
 @login_required
-def dashboard(request):
-    assigned = request.user.assigned.filter(~Q(status__state='DONE')).all()
+def notifications(request):
+    notifications = request.user.notifications.\
+        prefetch_related('action_object').\
+        prefetch_related('target').\
+        prefetch_related('actor').\
+        all()
+    return render(request, 'dashboard/notifications.html',
+                  {'notifications': notifications})
+
+
+@login_required
+def reported(request):
     reported = request.user.reported.filter(~Q(status__state='DONE')).all()
-    return render(request, 'dashboard/index.html',
-                  {'assigned': assigned, 'reported': reported})
+    return render(request, 'dashboard/reported.html', {'reported': reported})
+
+
+@login_required
+def assigned(request):
+    assigned = request.user.assigned.filter(~Q(status__state='DONE')).all()
+    return render(request, 'dashboard/assigned.html', {'assigned': assigned})
 
 
 @login_required
@@ -186,6 +202,10 @@ def transition(request, key=''):
             {'ticket': TicketSerializer(tk).data}
         )
 
+    notify.send(request.user, recipient=t[0].watching(),
+                verb='transitioned to ' + tk.status.name,
+                action_object=tk, target=tk.project)
+
     return redirect('/tickets/' + tk.key)
 
 
@@ -194,16 +214,21 @@ def transition(request, key=''):
 def comment(request, key=''):
     t = Ticket.objects.\
         filter(key=key).\
+        prefetch_related('watchers').\
         prefetch_related('comments').\
         all()
     if len(t) == 0:
         raise Http404('No ticket with that key found.')
 
-    if not request.user.has_perm('projects.comment_content', t.project):
+    if not request.user.has_perm('projects.comment_content', t[0].project):
         raise PermissionDenied
 
     c = Comment(body=request.POST['body'], author=request.user, ticket=t[0])
     c.save()
+
+    notify.send(request.user, recipient=t[0].watching(), verb='commented on',
+                action_object=t[0], target=t[0].project,
+                description=markdown.markdown(c.body, safe_mode='escape'))
 
     return redirect('/tickets/' + t[0].key)
 
@@ -355,6 +380,7 @@ def query(request):
             q = compile(query)
         except CompileException as e:
             error = str(e)
+
     tickets = Ticket.objects.filter(q).all()
     return render(request, 'tickets/ticket_filter.html',
                   {
