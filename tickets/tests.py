@@ -6,8 +6,8 @@ from fields.models import Field
 from projects.models import Project
 from workflows.models import Status, Workflow
 
-from .queries import compile
 from .models import FieldScheme, FieldSchemeField, TicketType, WorkflowScheme
+from .queries import compile
 
 
 class TestQueriesParser(TestCase):
@@ -19,14 +19,13 @@ class TestQueriesParser(TestCase):
     def test_complex_query(self):
         q = '(summary ~~ "TEST*" and (assignee = "chasinglogic" or reporter = "link867"))'
         self.assertEqual(str(compile(q)),
-                             str(Q(summary__regex="TEST*") &
-                                 (Q(assignee__username__exact='chasinglogic') |
-                                  Q(reporter__username__exact='link867'))))
+                         str(Q(summary__regex="TEST*") &
+                             (Q(assignee__username__exact='chasinglogic') |
+                              Q(reporter__username__exact='link867'))))
 
     def test_labels_query(self):
         q = 'labels in ["test", "ops"]'
         self.assertEqual(str(compile(q)), str(Q(labels__name__in=['test', 'ops'])))
-
 
 
 class TestSchemes(TestCase):

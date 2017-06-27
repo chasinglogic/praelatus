@@ -1,7 +1,7 @@
 from django.db.models import Q
 from django.shortcuts import render
-
 from guardian.shortcuts import get_objects_for_user
+from notifications.models import Notification
 from rest_framework import generics
 
 from .models import Project
@@ -31,28 +31,31 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
 def show(request, key=''):
     """Show a single project"""
     p = Project.objects.get(key=key)
+    activity = Notification.objects.\
+        filter(target_object_id=p.id).\
+        all()[:25]
+
     return render(request, 'projects/show.html', {
         'project': p,
-        'content': p.content.filter(~Q(status__state='DONE')).all()
+        'activity': activity
     })
 
 
 def search(request):
+    q = Q()
+
     query = request.GET.get('query', '')
-    print(query)
     if query == '':
-        results = Project.objects.prefetch_related('lead').all()
-    else:
-        results = Project.objects.\
-            prefetch_related('lead').\
-            filter(
-                Q(key__icontains=query) |
-                Q(name__icontains=query) |
-                Q(lead__username=query) |
-                Q(lead__email=query) |
-                Q(lead__first_name__icontains=query) |
-                Q(lead__last_name__icontains=query)
-            ).\
-            all()
-    print(results)
+        q = (Q(key__icontains=query) |
+             Q(name__icontains=query) |
+             Q(lead__username=query) |
+             Q(lead__email=query) |
+             Q(lead__first_name__icontains=query) |
+             Q(lead__last_name__icontains=query))
+
+    results = Project.objects.\
+        prefetch_related('lead').\
+        filter(q).\
+        all()
+
     return render(request, 'projects/project_filter.html', {'results': results})
