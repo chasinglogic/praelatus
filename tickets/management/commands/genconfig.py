@@ -17,7 +17,15 @@ class Command(BaseCommand):
             'static_root': settings.STATIC_ROOT,
             'language_code': settings.LANGUAGE_CODE,
             'cache': settings.CACHES,
-            'database': settings.DATABASES
+            'database': settings.DATABASES,
+            'email': {
+                'host': settings.EMAIL_HOST,
+                'port': settings.EMAIL_PORT,
+                'username': settings.EMAIL_HOST_USER,
+                'password': settings.EMAIL_HOST_PASS,
+                'use_tls': settings.EMAIL_USE_TLS,
+                'use_ssl': settings.EMAIL_USE_SSL
+            }
         }
 
         with open(join(settings.DATA_DIR, 'config.yaml'), 'w') as f:

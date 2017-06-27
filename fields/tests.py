@@ -70,6 +70,6 @@ class TestFieldValue(TestCase):
         f = Field(name='Test Option Field', data_type='OPTION')
         f.save()
         f.options = fopts
-        fv = FieldValue(field=f, opt_value='Mary')
+        fv = FieldValue(field=f, str_value='Mary')
         self.assertEqual([x for x in fv.options.all()], fopts)
         self.assertEqual(fv.value, 'Mary')

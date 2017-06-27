@@ -2,9 +2,10 @@
 # flake8: noqa
 
 import datetime
-from django.db.models import Q
-import ply.yacc as yacc
+
 import ply.lex as lex
+import ply.yacc as yacc
+from django.db.models import Q
 
 tokens = (
     'LIST',

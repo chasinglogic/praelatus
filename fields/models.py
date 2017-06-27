@@ -80,14 +80,13 @@ class FieldValue(models.Model):
 
     int_value = models.IntegerField(null=True)
     str_value = models.CharField(max_length=255, null=True)
-    opt_value = models.CharField(max_length=255, null=True)
     flt_value = models.FloatField(null=True)
     date_value = models.DateTimeField(null=True)
 
     def set_value(self, value):
         """Set the value according to data type. Performs necessary conversion."""
         if self.field.data_type == DataTypes.OPTION.value:
-            self.opt_value = str(value)
+            self.str_value = str(value)
         elif self.field.data_type == DataTypes.STRING.value:
             self.str_value = str(value)
         elif self.field.data_type == DataTypes.FLOAT.value:
@@ -116,7 +115,7 @@ class FieldValue(models.Model):
     def value(self):
         """Return the value of this FieldValue based on data type."""
         if (self.field.data_type == DataTypes.STRING.value or
-           self.field.data_type == DataTypes.OPTION):
+           self.field.data_type == DataTypes.OPTION.value):
             return self.str_value
         elif self.field.data_type == DataTypes.FLOAT.value:
             return self.flt_value
