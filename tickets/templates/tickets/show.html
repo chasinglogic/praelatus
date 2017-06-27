@@ -1,5 +1,6 @@
 {% extends 'layout.html' %}
 {% load markdown %}
+{% load tickets_extra %}
 {% block head %}
 <script src="/static/tickets/js/tickets.js"></script>
 <link rel="stylesheet" href="/static/tickets/css/tickets.css">
@@ -45,18 +46,26 @@
             <span class="link-description">Edit Ticket</span>
         </a>
   </li>
+  {% if user.is_authenticated %}
   <li class="nav-item">
     <form class="nav-link praelatus-nav-link"
           method="POST"
           action="/tickets/{{ ticket.key }}/upvote">
           {% csrf_token %}
+          {% has_upvoted request.user ticket as upvoted %}
           <button
             style="border: none; background: none; padding: 0;">
+          {% if upvoted %}
+            <span class="ion-checkmark"></span>
+            <span class="link-description">Upvoted</span>
+          {% else %}
             <span class="ion-arrow-up-a"></span>
             <span class="link-description">Upvote</span>
+          {% endif %}
           </button>
     </form>
   </li>
+  {% endif %}
 </ul>
 
 <p class="sidebar-header" >
@@ -87,7 +96,7 @@
 </ul>
 
 <p class="sidebar-header">
-  <b>Links </b>
+  <b>Links</b>
 </p>
 <ul class="nav nav-pills flex-column">
   {% if ticket.links.all %} {% for link in ticket.links.all %}
@@ -137,7 +146,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Attachments</h5>
+        <h5 class="modal-title">Links</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
