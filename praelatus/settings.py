@@ -57,7 +57,11 @@ INSTALLED_APPS = [
     'labels.apps.LabelsConfig',
     'fields.apps.FieldsConfig',
     'profiles.apps.ProfilesConfig',
+    'queries.apps.QueriesConfig',
     'hooks.apps.HooksConfig',
+    'upvotes.apps.UpvotesConfig',
+    'schemes.apps.SchemesConfig',
+    'links.apps.LinksConfig',
 
     # Django
     'django.contrib.admin',

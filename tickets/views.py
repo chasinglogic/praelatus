@@ -17,9 +17,11 @@ from projects.models import Project
 from workflows.models import Transition
 
 from .forms import AttachmentForm
-from .models import (Attachment, Comment, FieldScheme, Ticket, TicketLink,
-                     TicketType, WorkflowScheme, Upvote)
-from .queries import CompileException, compile
+from schemes.models import FieldScheme, WorkflowScheme
+from upvotes.models import Upvote
+from links.models import Link
+from .models import (Attachment, Comment, Ticket, TicketType)
+from queries.dsl import CompileException, compile
 from .serializers import (CommentSerializer, TicketSerializer,
                           TicketTypeSerializer)
 
@@ -361,10 +363,11 @@ def attachments(request, key=''):
 def add_link(request, key=''):
     tk = Ticket.objects.get(key=key)
 
-    link = TicketLink(
+    link = Link(
+        owner=request.user,
         display=request.POST['display'],
         href=request.POST['url'],
-        ticket=tk
+        content_object=tk
     )
 
     link.save()
@@ -395,10 +398,11 @@ def query(request):
 def upvote(request, key=''):
     tk = Ticket.objects.get(key=key)
 
-    q = Upvote.objects.filter(voter=request.user, ticket=tk).all()
+    q = Upvote.objects.filter(voter=request.user,
+                              ticket=tk).all()
 
     if len(q) == 0:
-        u = Upvote(voter=request.user, ticket=tk)
+        u = Upvote(voter=request.user, content_object=tk)
         u.save()
 
     return redirect("/tickets/" + key)

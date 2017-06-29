@@ -1,20 +1,10 @@
 from django.contrib import admin
 
-from .models import FieldScheme, TicketType, WorkflowScheme
-
-
-class FieldSchemeAdmin(admin.ModelAdmin):
-    empty_value_display = 'Default'
-
-
-class WorkflowSchemeAdmin(admin.ModelAdmin):
-    empty_value_display = 'Default'
+from .models import TicketType
 
 
 class TicketTypeSchemeAdmin(admin.ModelAdmin):
     empty_value_display = 'Default'
 
 
-admin.site.register(FieldScheme, FieldSchemeAdmin)
-admin.site.register(WorkflowScheme, WorkflowSchemeAdmin)
 admin.site.register(TicketType, TicketTypeSchemeAdmin)
