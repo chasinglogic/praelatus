@@ -1,59 +1,46 @@
-<div id="comment-form"  class="card shadow" >
-    <div class="card-header comment-header">
-        <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab"
-                   role="tab" href="#{{ unique_id }}-editor">Editor</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab"
-                   role="tab" href="#{{ unique_id }}-preview">Preview</a>
-            </li>
-        </ul>
-    </div>
-
-    <div class="tab-content" >
-        <div id="{{ unique_id }}-editor" class="tab-pane active element" role="tabpanel" >
-            <form id="{{ unique_id }}-comment-form" class="form comment-form"
-                  method="POST"
-                  action="/tickets/{{ ticket.key }}/comment" >
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="comment" class="sr-only">Comment</label>
-                    <textarea id="{{ unique_id }}" name="body"
-                              onkeyup="reloadPreview(this);"
-                              class="form-control"></textarea>
-                </div>
-                <input id="{{ unique_id }}-next" type="hidden" name="next"  value="{{ request.get_full_path }}" />
-                <div class="row" >
-                    <div class="col-md-6 col-sm-12 col-xs-12" >
-                        <p>Markdown is supported</p>
-                    </div>
-                    <div class="col-md-6 col-sm-12 col-xs-12 text-right" >
-                        {% if edit %}
-                        <button id="{{ unique_id }}"
-                                type="button" onclick="cancelEdit(this);"
-                                class="d-inline-block btn btn-secondary">
-                            Cancel
-                        </button>
-                        {% endif %}
-                        <input class="d-inline-block btn btn-success"
-                               type="submit" {% if edit %}value="Update Comment"{% else %}value="Add Comment"{% endif %} />
-                    </div>
-                </div>
-            </form>
+<div id="comment-form"  class="card element shadow" >
+    <form id="comment-form" class="form comment-form"
+          method="POST"
+          action="/tickets/{{ ticket.key }}/comment" >
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="comment" class="sr-only">Comment</label>
+            <textarea id="new-comment" name="body"
+                      onkeyup="reloadPreview(this);"
+                      class="form-control"></textarea>
         </div>
-        <div id="{{ unique_id }}-preview" class="tab-pane" role="tabpanel">
-            <div id="{{ unique_id }}-preview-content" class="card-block">
+        <input id="next" type="hidden" name="next"  value="{{ request.get_full_path }}" />
+        <div class="row" >
+            <div class="col-md-6 col-sm-12 col-xs-12" >
+                <p>
+                    <span class="ion-social-markdown"></span>
+                    Markdown is supported
+                </p>
             </div>
-            <div class="card-header author">
-                <div style="display: inline-block">
-                    {% include 'users/user_stub.html' with user=user %}
-                </div>
-                <span style="display: inline-block">
-                    commented on <span>{% now 'Y-m-d h:i A' %}</span>
-                </span>
+            <div class="col-md-6 col-sm-12 col-xs-12 text-right" >
+                {% if edit %}
+                <button id=""
+                        type="button" onclick="cancelEdit(this);"
+                        class="d-inline-block btn btn-secondary">
+                    Cancel
+                </button>
+                {% endif %}
+                <input class="d-inline-block btn btn-success"
+                       type="submit" value="Add Comment" />
             </div>
         </div>
-    </div>
+    </form>
 </div>
+
+<style>
+ #comment-form .form-group .CodeMirror {
+     height: 200px;
+ }
+</style>
+
+<script>
+ var simplemde = new SimpleMDE({
+     element: document.getElementById("new-comment"),
+     toolbar: toolbarConfig,
+ });
+</script>

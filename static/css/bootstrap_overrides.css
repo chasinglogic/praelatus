@@ -6,6 +6,10 @@
     margin-right: 1rem;
 }
 
+.nav-item form {
+    margin-bottom: 0;
+}
+
 .disabled:hover {
   background-color: #703D6F !important;
 }
