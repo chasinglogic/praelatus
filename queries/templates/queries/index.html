@@ -4,7 +4,11 @@
 <link rel="stylesheet" href="/static/profiles/css/profiles.css" />
 {% endblock %}
 
-{% block container %}
+{% block sidebar %}
+{% include 'queries/sidebar.html' with index=True %}
+{% endblock %}
+
+{% block content %}
 <div class="container" >
     <div class="element">
         {% include 'helpers/search_bar.html' %}

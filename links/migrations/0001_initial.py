@@ -12,17 +12,20 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
+        ('contenttypes', '0002_remove_content_type_name'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Profile',
+            name='Link',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('avatar', models.CharField(max_length=255)),
-                ('gravatar', models.CharField(max_length=255)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='profile', to=settings.AUTH_USER_MODEL)),
+                ('display', models.CharField(max_length=140)),
+                ('href', models.URLField()),
+                ('object_id', models.PositiveIntegerField()),
+                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
+                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]

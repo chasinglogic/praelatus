@@ -10,8 +10,6 @@ urlpatterns = [
     url(r'^(?P<key>[A-z-]{1,6}-[0-9]{1,})/link$', views.add_link, name='add_link'),
     url(r'^create/?$', views.create_prompt, name='create_prompt'),
     url(r'^create/(?P<project_key>[A-z-]{1,6})/(?P<ticket_type>[A-z]+)$', views.create, name='create'),
-    url(r'^search', views.query),
-
     url(r'^(?P<key>[A-z-]{1,6}-[0-9]{1,})/transition$', views.transition, name='transition'),
 
     url(r'^(?P<key>[A-z-]{1,6}-[0-9]{1,})/comment$', views.comment, name='comment'),

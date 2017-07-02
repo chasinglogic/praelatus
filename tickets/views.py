@@ -374,25 +374,6 @@ def add_link(request, key=''):
     return redirect('/tickets/' + tk.key)
 
 
-def query(request):
-    q = Q()
-    error = None
-    query = request.GET.get('query')
-    if query is not None:
-        try:
-            q = compile(query)
-        except CompileException as e:
-            error = str(e)
-
-    tickets = Ticket.objects.filter(q).all()
-    return render(request, 'tickets/ticket_filter.html',
-                  {
-                      'tickets': tickets,
-                      'query': query,
-                      'error': error
-                  })
-
-
 @login_required
 @require_http_methods(['POST'])
 def upvote(request, key=''):

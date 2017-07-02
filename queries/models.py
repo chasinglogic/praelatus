@@ -10,6 +10,7 @@ class Query(models.Model):
     name = models.CharField(max_length=140)
     owner = models.ForeignKey(User)
     query = models.CharField(max_length=255, blank=True, null=True)
+    favorite = models.BooleanField(default=False)
 
     def compile(self, make_q=make_q):
         return compile(self.query)
