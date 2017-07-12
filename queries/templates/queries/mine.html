@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/profiles/css/profiles.css" />
+{% endblock %}
+
+{% block sidebar %}
+{% include 'queries/sidebar.html' with index=True %}
+{% endblock %}
+
+{% block content %}
+<div class="container" >
+    {% for q in queries %}
+    {{ q.name }}
+    {% endfor %}
+</div>

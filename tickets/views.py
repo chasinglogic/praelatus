@@ -21,7 +21,7 @@ from schemes.models import FieldScheme, WorkflowScheme
 from upvotes.models import Upvote
 from links.models import Link
 from .models import (Attachment, Comment, Ticket, TicketType)
-from queries.dsl import CompileException, compile
+from queries.dsl import CompileException, compile_q
 from .serializers import (CommentSerializer, TicketSerializer,
                           TicketTypeSerializer)
 
@@ -37,7 +37,7 @@ class TicketList(generics.ListCreateAPIView):
         query = self.request.GET.get('query')
         if query is not None:
             try:
-                q = compile(query)
+                q = compile_q(query)
             # Ignore the error in the API
             except CompileException:
                 pass

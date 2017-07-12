@@ -6,7 +6,7 @@ from django.http import Http404
 from tickets.models import Ticket
 
 from .models import Query
-from .dsl import CompileException
+from .dsl import compile_q, CompileException
 
 
 def index(request):
@@ -23,7 +23,7 @@ def index(request):
     error = None
     if query is not None:
         try:
-            q = compile(query)
+            q = compile_q(query)
         except CompileException as e:
             error = str(e)
 
@@ -47,5 +47,8 @@ def query(request, id='0'):
     return redirect('/queries?query=' + q.query)
 
 
+@login_required
 def mine(request):
-    query = request.
+    queries = Query.objects.filter(owner=request.user)
+    return render(request, 'queries/mine.html',
+                  {'queries': queries})

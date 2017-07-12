@@ -181,7 +181,7 @@ class CompileException(Exception):
         self.message = message
 
 
-def compile(expr):
+def compile_q(expr):
     lexer = lex.lex()
     parser = yacc.yacc()
     return parser.parse(expr, lexer=lexer)

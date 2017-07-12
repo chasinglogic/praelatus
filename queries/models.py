@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from .dsl import compile, make_q
+from .dsl import compile_q, make_q
 
 
 # TODO: Maybe store the compiled query as a pickled object?
@@ -13,4 +13,7 @@ class Query(models.Model):
     favorite = models.BooleanField(default=False)
 
     def compile(self, make_q=make_q):
-        return compile(self.query)
+        return compile_q(self.query)
+
+    class Meta:
+        unique_together = (('owner', 'name'),)

@@ -1,14 +1,64 @@
-<ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
-    <li class="nav-item">
-        <a class="nav-link praelatus-nav-link {% if index %}active{% endif %}"
-           href="/queries">
-           Search
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link praelatus-nav-link {% if mine %}active{% endif %}"
-           href="/queries/mine">
-           My Queries
-        </a>
-    </li>
-</ul>
+<script>
+function saveQuery() {
+    let q = document.getElementById("search").value;
+    let name = document.getElementById("name").value;
+    let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0];
+    fetch('/queries?query='+q+'&name='+name, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken.value
+        },
+        credentials: 'same-origin'
+    }).
+        then(function(res) {
+            if(res.ok) {
+                console.log('Much success!')
+            } else {
+                alert('Error!');
+                console.log(res);
+                console.log(res.text().then(console.log));
+            }
+        })
+}
+</script>
+
+<p class="sidebar-header"><b>Quick Actions</b></p>
+
+
+<div id="saveModal" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Save Query</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-save="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="name" />
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveQuery();" type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link praelatus-nav-link"
+               data-toggle="modal" data-target="#saveModal">
+                <span class="link-description">Save Query</span>
+            </a>
+
+        </li>
+
+        {% for q in reqeust.user.favorite_queries %}
+        <li class="nav-item">
+            <a class="nav-link praelatus-nav-link">
+                {{ q.name }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>

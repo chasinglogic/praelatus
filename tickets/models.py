@@ -9,11 +9,9 @@ from django.dispatch import receiver
 from django.template.loader import get_template
 from notifications.models import Notification
 
-from queries.dsl import compile
-
 from links.models import Link
 from upvotes.models import Upvote
-from fields.models import Field, FieldValue
+from fields.models import FieldValue
 from labels.models import Label
 from projects.models import Project
 from workflows.models import Status, Transition, Workflow
