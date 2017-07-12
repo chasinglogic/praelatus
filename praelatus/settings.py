@@ -52,16 +52,17 @@ INSTALLED_APPS = [
 
     # Praelatus
     'projects.apps.ProjectsConfig',
-    'workflows.apps.WorkflowsConfig',
     'tickets.apps.TicketsConfig',
-    'labels.apps.LabelsConfig',
-    'fields.apps.FieldsConfig',
     'profiles.apps.ProfilesConfig',
     'queries.apps.QueriesConfig',
-    'hooks.apps.HooksConfig',
-    'upvotes.apps.UpvotesConfig',
     'schemes.apps.SchemesConfig',
-    'links.apps.LinksConfig',
+
+    'workflows',
+    'labels',
+    'fields',
+    'hooks',
+    'upvotes',
+    'links',
 
     # Django
     'django.contrib.admin',

@@ -35,7 +35,9 @@
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link praelatus-nav-link" {% if user.is_authenticated %} data-toggle="modal" data-target="#labelModal" {% else %} href="/login" {% endif %}>
+        <a class="nav-link praelatus-nav-link" 
+          {% if user.is_authenticated %} data-toggle="modal" data-target="#labelModal"
+          {% else %} href="/login" {% endif %}>
             <span class="ion-pricetags"></span>
             <span class="link-description">Add Labels</span>
         </a>
@@ -97,12 +99,9 @@
 </ul>
 
 <p class="sidebar-header">
-<<<<<<< HEAD
-  <b>Links</b>
-=======
-    <b>Links </b>
->>>>>>> 986a1e1c032354828c1160116664d58d31538ffb
+<b>Links </b>
 </p>
+
 <ul class="nav nav-pills flex-column">
     {% if ticket.links.all %} {% for link in ticket.links.all %}
     <li class="nav-item">
@@ -262,63 +261,63 @@
                         {{ ticket.ticket_type.name }}
                     </p>
 
-<<<<<<< HEAD
-          <b>Upvotes:</b>
-          <p class="card-text">
-            {{ ticket.upvotes.count }}
-          </p>
-
-          {% if ticket.labels.all %}
-          <b>Labels:</b><br />
-          <p class="card-text">
-            {% for l in ticket.labels.all %}
-            <span class="label badge badge-pill badge-default" style="background-color: {{ l.bg_color }}">
-=======
-                    {% if ticket.labels.all %}
-                    <b>Labels:</b><br />
+                    <b>Upvotes:</b>
                     <p class="card-text">
-                        {% for l in ticket.labels.all %}
-                        <span class="label badge badge-pill badge-default" style="background-color: {{ l.bg_color }}">
->>>>>>> 986a1e1c032354828c1160116664d58d31538ffb
-                            {{ l.name }}
-                        </span> {% endfor %}
+                    {{ ticket.upvotes.count }}
                     </p>
+
+                    {% if ticket.labels.all %}
+                    <b>Labels:</b>
+                    <br />
+                    <p class="card-text">
+                    {% for l in ticket.labels.all %}
+                    <span class="label badge badge-pill badge-default" style="background-color: {{ l.bg_color }}">
+                      {{ l.name }}
+                    </span> 
+                    {% endfor %}
                     {% endif %}
+
                     <b>Reporter:</b>
                     <p class="card-text">
-                        {% include 'users/user_stub.html' with user=ticket.reporter %}
+                    {% include 'users/user_stub.html' with user=ticket.reporter %}
                     </p>
 
                     <b>Assignee:</b>
                     <p class="card-text">
-                        {% if ticket.assignee %} {% include 'users/user_stub.html' with user=ticket.reporter %} {% else %} Unassigned {% endif %}
+                    {% if ticket.assignee %} 
+                    {% include 'users/user_stub.html' with user=ticket.reporter %} 
+                    {% else %} 
+                    Unassigned 
+                    {% endif %}
                     </p>
 
                     <b>Created:</b>
                     <p class="card-text">
-                        {{ ticket.created_at | date:'h:iA Y-m-d' }}
+                    {{ ticket.created_at | date:'h:iA Y-m-d' }}
                     </p>
 
                     <b>Updated:</b>
                     <p class="card-text">
-                        {{ ticket.updated_at | date:'h:iA Y-m-d' }}
+                    {{ ticket.updated_at | date:'h:iA Y-m-d' }}
                     </p>
                 </div>
             </div>
+
             {% if ticket.fields.all %}
             <div class="card shadow">
-                <h4 class="card-header fields">Fields</h4>
-                <div class="card-block">
-                    {% for f in ticket.fields.all %}
-                    <div class="d-flex-inline">
-                        <b>{{ f.name }}:</b> {% if f.data_type == 'DATE' %}
-                        <p>{{ f.value | date:'h:iA Y-m-d' }}</p>
-                        {% else %}
-                        <p>{{ f.value }}</p>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
+              <h4 class="card-header fields">Fields</h4>
+              <div class="card-block">
+                {% for f in ticket.fields.all %}
+                <div class="d-flex-inline">
+                  <b>{{ f.name }}:</b> 
+                  {% if f.data_type == 'DATE' %}
+                  <p>{{ f.value | date:'h:iA Y-m-d' }}</p>
+                  {% else %}
+                  <p>{{ f.value }}</p>
+                  {% endif %}
                 </div>
+                {% endfor %}
+              </div>
             </div>
             {% endif %}
         </div>
@@ -327,15 +326,6 @@
 
 
 <div id="edit-form-container" style="display: none">
-    {% include 'comments/comment_form.html' with unique_id='edit-comment' edit=True %}
+  {% include 'comments/comment_form.html' with unique_id='edit-comment' edit=True %}
 </div>
-
-<script>
- new Vue({
-     el: '#quick-actions',
-     data: {
-         showLabelModal: false,
-     }
- })
-</script>
 {% endblock %}

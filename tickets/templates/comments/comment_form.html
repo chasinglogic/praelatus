@@ -17,30 +17,31 @@
             <form id="{{ unique_id }}-comment-form" class="form comment-form"
                   method="POST"
                   action="/tickets/{{ ticket.key }}/comment" >
-                {% csrf_token %}
+                  {% csrf_token %}
                 <div class="form-group">
                     <label for="comment" class="sr-only">Comment</label>
                     <textarea id="{{ unique_id }}" name="body"
                               onkeyup="reloadPreview(this);"
                               class="form-control"></textarea>
                 </div>
-                <input id="{{ unique_id }}-next" type="hidden" name="next"  value="{{ request.get_full_path }}" />
-                <div class="row" >
-                    <div class="col-md-6 col-sm-12 col-xs-12" >
-                        <p>Markdown is supported</p>
-                    </div>
-                    <div class="col-md-6 col-sm-12 col-xs-12 text-right" >
-                        {% if edit %}
-                        <button id="{{ unique_id }}"
-                                type="button" onclick="cancelEdit(this);"
-                                class="d-inline-block btn btn-secondary">
-                            Cancel
-                        </button>
-                        {% endif %}
-                        <input class="d-inline-block btn btn-success"
-                               type="submit" {% if edit %}value="Update Comment"{% else %}value="Add Comment"{% endif %} />
-                    </div>
-                </div>
+                <input id="{{ unique_id }}-next" type="hidden"
+                       name="next"  value="{{ request.get_full_path }}" />
+        <div class="row" >
+            <div class="col-md-6 col-sm-12 col-xs-12" >
+                <p>Markdown is supported</p>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12 text-right" >
+                {% if edit %}
+                <button id="{{ unique_id }}"
+                        type="button" onclick="cancelEdit(this);"
+                                      class="d-inline-block btn btn-secondary">
+                    Cancel
+                </button>
+                {% endif %}
+                <input class="d-inline-block btn btn-success"
+                       type="submit" {% if edit %}value="Update Comment"{% else %}value="Add Comment"{% endif %} />
+            </div>
+        </div>
             </form>
         </div>
         <div id="{{ unique_id }}-preview" class="tab-pane" role="tabpanel">

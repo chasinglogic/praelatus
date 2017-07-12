@@ -262,7 +262,7 @@ def edit_ticket(request, key=''):
     fs = FieldScheme.get_for_project(t.project, ticket_type=t.ticket_type)
 
     def edit_form(error=None):
-        field_scheme_fields = list(fs[0].fields.all())
+        field_scheme_fields = list(fs.fields.all())
         existing_fields = list(t.fields.all())
         # We have to check against names here since existing_fields is
         # actually a list of FieldValue's and not Field's
