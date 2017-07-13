@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block sidebar %}
-{% include 'queries/sidebar.html' with index=True %}
+{% include 'queries/sidebar.html' %}
 {% endblock %}
 
 {% block content %}
@@ -19,28 +19,27 @@
         </div>
         {% endif %}
 
-        <div>
-            <table id="searchResults" class="table table-bordered">
-                <thead class="thead-default">
-                    <tr>
-                        <th>Key</th>
-                        <th>Reporter</th>
-                        <th>Summary</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for t in tickets %}
-                    <tr>
-                        <td>
-                            <a href="/tickets/{{ t.key }}">{{ t.key}}</a>
-                        </td>
-                        <td>{% include 'users/user_stub.html' with user=t.reporter %}</td>
-                        <td>{{ t.summary }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+
+        <table id="searchResults" class="table table-bordered">
+            <thead class="thead-default">
+                <tr>
+                    <th>Key</th>
+                    <th>Reporter</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tickets %}
+                <tr>
+                    <td>
+                        <a href="/tickets/{{ t.key }}">{{ t.key}}</a>
+                    </td>
+                    <td>{% include 'users/user_stub.html' with user=t.reporter %}</td>
+                    <td>{{ t.summary }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

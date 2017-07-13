@@ -1,4 +1,10 @@
-<script>
+<p class="sidebar-header">
+    <b>Quick Actions</b>
+</p>
+
+
+<div id="saveModal" class="modal fade">
+    <script>
 function saveQuery() {
     let q = document.getElementById("search").value;
     let name = document.getElementById("name").value;
@@ -20,12 +26,8 @@ function saveQuery() {
             }
         })
 }
-</script>
+    </script>
 
-<p class="sidebar-header"><b>Quick Actions</b></p>
-
-
-<div id="saveModal" class="modal fade">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -35,7 +37,8 @@ function saveQuery() {
                 </button>
             </div>
             <div class="modal-body">
-                <input type="text" id="name" />
+                <label>Name</label>
+                <input class="form-control" type="text" id="name" />
             </div>
             <div class="modal-footer">
                 <button onclick="saveQuery();" type="button" class="btn btn-primary">Save changes</button>
@@ -45,20 +48,15 @@ function saveQuery() {
     </div>
 </div>
 
-    <ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link praelatus-nav-link"
-               data-toggle="modal" data-target="#saveModal">
-                <span class="link-description">Save Query</span>
-            </a>
+<ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
+    <li class="nav-item">
+    </li>
 
-        </li>
-
-        {% for q in reqeust.user.favorite_queries %}
-        <li class="nav-item">
-            <a class="nav-link praelatus-nav-link">
-                {{ q.name }}
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
+    {% for q in reqeust.user.favorite_queries %}
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link">
+            {{ q.name }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
