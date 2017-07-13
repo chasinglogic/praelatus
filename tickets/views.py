@@ -32,7 +32,8 @@ class TicketList(generics.ListCreateAPIView):
     serializer_class = TicketSerializer
 
     def get_queryset(self):
-        projects = get_objects_for_user(self.request.user, 'projects.view_project')
+        projects = get_objects_for_user(
+            self.request.user, 'projects.view_project')
         q = Q()
         query = self.request.GET.get('query')
         if query is not None:
@@ -139,7 +140,8 @@ def create(request, project_key='', ticket_type=''):
 
         return redirect('/tickets/' + t.key)
 
-    fs = FieldScheme.get_for_project(project=proj, ticket_type__name=ticket_type)
+    fs = FieldScheme.get_for_project(
+        project=proj, ticket_type__name=ticket_type)
     return render(request, 'tickets/create.html', {'fs': fs})
 
 
@@ -242,7 +244,7 @@ def edit_comment(request, id=0):
     nxt = '/'
 
     if request.user != c.author and not request.user.is_staff:
-            raise PermissionDenied
+        raise PermissionDenied
 
     if request.method == 'POST':
         if request.user != c.author and not request.user.is_staff:

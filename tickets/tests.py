@@ -25,7 +25,8 @@ class TestQueriesParser(TestCase):
 
     def test_labels_query(self):
         q = 'labels in ["test", "ops"]'
-        self.assertEqual(str(compile(q)), str(Q(labels__name__in=['test', 'ops'])))
+        self.assertEqual(str(compile(q)), str(
+            Q(labels__name__in=['test', 'ops'])))
 
 
 class TestSchemes(TestCase):
@@ -47,7 +48,8 @@ class TestSchemes(TestCase):
         u = User.objects.create_user('fakelead', 'fake@fa.ke', 'fake')
         u.save()
 
-        self.project = Project(key='SCHEME', name='Test Scheme Project', lead=u)
+        self.project = Project(
+            key='SCHEME', name='Test Scheme Project', lead=u)
         self.project.save()
 
         self.ttypeone = TicketType(name='Test Type One')

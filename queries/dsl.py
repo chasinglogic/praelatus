@@ -21,7 +21,7 @@ tokens = (
 t_COMPA = r'startswith|endswith|in|IN|=|[<>]=?|~~?'
 
 literals = '()'
-t_ignore  = ' \t\n'
+t_ignore = ' \t\n'
 
 
 def t_LIST(t):
@@ -52,8 +52,9 @@ def t_DATE(t):
     day = int(t.lexer.lexmatch.group('day'))
     month = int(t.lexer.lexmatch.group('month'))
     year = int(t.lexer.lexmatch.group('year'))
-    t.value = date(year,month,day)
+    t.value = date(year, month, day)
     return t
+
 
 def t_B_OP(t):
     r'AND|OR|and|or'
@@ -80,7 +81,7 @@ def make_q(f, compa, v):
         f == 'description' or
         f == 'created_at' or
         f == 'updated_at' or
-        f == 'key'):
+            f == 'key'):
         field = '%s__%s' % (f, compa)
         return Q(**{field: v})
     elif f == 'project':
