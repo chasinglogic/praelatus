@@ -59,8 +59,11 @@ class WorkflowScheme(models.Model):
     name = models.CharField(max_length=255, unique=True)
     project = models.ForeignKey(Project, related_name='workflow_schemes')
     workflow = models.ForeignKey(Workflow, related_name='schemes')
-    ticket_type = models.ForeignKey(TicketType, related_name='workflow_schemes',
-                                    null=True, blank=True)
+    ticket_type = models.ForeignKey(
+        TicketType,
+        related_name='workflow_schemes',
+        null=True,
+        blank=True)
 
     @classmethod
     def get_for_project(cls, project=None, **kwargs):

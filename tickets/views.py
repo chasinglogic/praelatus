@@ -98,7 +98,8 @@ def show(request, key=''):
         raise Http404('No ticket with that key found.')
 
     attachment_form = AttachmentForm()
-    return render(request, 'tickets/show.html', {'ticket': t[0], 'attachment_form': attachment_form})
+    return render(request, 'tickets/show.html',
+                  {'ticket': t[0], 'attachment_form': attachment_form})
 
 
 @login_required
@@ -321,8 +322,10 @@ def edit_ticket(request, key=''):
     for f, v in fields.items():
         # Make sure they aren't doing anything malicious
         if f not in allowed_fields:
-            return edit_form('Field ' + f +
-                             ' is not allowed for this Project and Ticket Type')
+            return edit_form(
+                'Field ' +
+                f +
+                ' is not allowed for this Project and Ticket Type')
 
         # Try to pull the existing value to update
         try:

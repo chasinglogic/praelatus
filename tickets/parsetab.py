@@ -13,7 +13,7 @@ _lr_action_items = {')': ([5, 7, 9, 10, 11, 12, 13, 14, 15, ], [-2, 14, -6, -4, 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
     for _x, _y in zip(_v[0], _v[1]):
-        if not _x in _lr_action:
+        if _x not in _lr_action:
             _lr_action[_x] = {}
         _lr_action[_x][_k] = _y
 del _lr_action_items
@@ -24,7 +24,7 @@ _lr_goto_items = {'value': ([6, ], [10, ]), 'expression': (
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
     for _x, _y in zip(_v[0], _v[1]):
-        if not _x in _lr_goto:
+        if _x not in _lr_goto:
             _lr_goto[_x] = {}
         _lr_goto[_x][_k] = _y
 del _lr_goto_items

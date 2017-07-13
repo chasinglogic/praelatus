@@ -85,7 +85,7 @@ def make_q(f, compa, v):
         field = '%s__%s' % (f, compa)
         return Q(**{field: v})
     elif f == 'project':
-        if type(v) is int:
+        if isinstance(v, int):
             return Q(project__id=v)
         return (Q(project__key=v) |
                 Q(project__name=v))
@@ -102,11 +102,11 @@ def make_q(f, compa, v):
         return Q(labels__name__in=v)
     # Else we have an actual field field
     value = ''
-    if type(v) == int:
+    if isinstance(v, int):
         value = 'fields__int_value__%s' % compa
-    elif type(v) == float:
+    elif isinstance(v, float):
         value = 'fields__flt_value__%s' % compa
-    elif type(v) == str:
+    elif isinstance(v, str):
         value = 'fields__str_value__%s' % compa
     elif isinstance(v, datetime.datetime):
         value = 'fields__date_value__%s' % compa

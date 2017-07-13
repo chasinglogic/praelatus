@@ -57,15 +57,15 @@ class TestSchemes(TestCase):
         self.ttypetwo = TicketType(name='Test Type One')
         self.ttypetwo.save()
 
-        self.default_wkflow_scheme = WorkflowScheme(name='Default Workflow Scheme',
-                                                    workflow=wone,
-                                                    project=self.project)
+        self.default_wkflow_scheme = WorkflowScheme(
+            name='Default Workflow Scheme', workflow=wone, project=self.project)
         self.default_wkflow_scheme.save()
 
-        self.ttypeone_wkflow_scheme = WorkflowScheme(name='Ttypeone Workflow Scheme',
-                                                     workflow=wtwo,
-                                                     project=self.project,
-                                                     ticket_type=self.ttypeone)
+        self.ttypeone_wkflow_scheme = WorkflowScheme(
+            name='Ttypeone Workflow Scheme',
+            workflow=wtwo,
+            project=self.project,
+            ticket_type=self.ttypeone)
         self.ttypeone_wkflow_scheme.save()
 
         self.default_field_scheme = FieldScheme(name='Default Field Scheme',

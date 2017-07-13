@@ -58,4 +58,6 @@ def search(request):
         filter(q).\
         all()
 
-    return render(request, 'projects/project_filter.html', {'results': results})
+    return render(request,
+                  'projects/project_filter.html',
+                  {'results': results})
