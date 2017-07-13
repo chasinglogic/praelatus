@@ -318,7 +318,7 @@ def edit_ticket(request, key=''):
     # Remove csrf token as we don't need it
     fields.pop('csrfmiddlewaretoken', None)
 
-    allowed_fields = [f.name for f in fs[0].fields.all()]
+    allowed_fields = [f.name for f in fs.fields.all()]
     for f, v in fields.items():
         # Make sure they aren't doing anything malicious
         if f not in allowed_fields:

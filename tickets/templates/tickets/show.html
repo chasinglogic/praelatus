@@ -57,9 +57,9 @@
           method="POST"
           action="/tickets/{{ ticket.key }}/upvote">
           {% csrf_token %}
-          {% has_upvoted request.user ticket as upvoted %}
           <button
             style="border: none; background: none; padding: 0;">
+          {% has_upvoted request.user ticket as upvoted %}
           {% if upvoted %}
             <span class="ion-checkmark"></span>
             <span class="link-description">Upvoted</span>
@@ -131,7 +131,7 @@
 
 {% include 'tickets/label_modal.html' with ticket=ticket %}
 {% include 'tickets/file_modal.html' with ticket=ticket %}
-{% include 'tickets/file_modal.html' with ticket=ticket %}
+{% include 'tickets/link_modal.html' with ticket=ticket %}
 
 <div>
   <h4>
