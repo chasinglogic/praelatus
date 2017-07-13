@@ -11,6 +11,11 @@
 {% block content %}
 <div class="container" >
     {% for q in queries %}
-    {{ q.name }}
+    <div>
+        <a href="/queries/{{ q.id }}">
+            {{ q.name }}
+        </a>
+    </div>
     {% endfor %}
 </div>
+{% endblock %}

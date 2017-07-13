@@ -1,24 +1,30 @@
+from datetime import datetime
+
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
 from django.db.models import Q
 from django.http import Http404
+from django.shortcuts import redirect, render
 
 from tickets.models import Ticket
 
+from .dsl import CompileException, compile_q
 from .models import Query
-from .dsl import compile_q, CompileException
 
 
 def index(request):
     # Check if creating a new query model
     if request.method == 'POST' and request.user.is_authenticated:
         name = request.POST['name']
-        query = request.POST['query']
+        # The value in the input escapes the quotes.
+        # So we use replace calls to unescape them.
+        query = request.POST['query'].\
+            replace("\\'", "'").\
+            replace('\\"', '"')
         qry = Query(owner=request.user, query=query, name=name)
         qry.save()
-    else:
-        query = request.GET.get('query')
+        return redirect('/queries?query=' + query)
 
+    query = request.GET.get('query')
     q = Q()
     error = None
     if query is not None:
@@ -43,6 +49,9 @@ def query(request, id='0'):
         q = Query.objects.get(id=id)
     except Query.DoesNotExist:
         raise Http404()
+
+    q.last_used = datetime.now()
+    q.save()
 
     return redirect('/queries?query=' + q.query)
 

@@ -58,14 +58,17 @@
                        aria-haspopup="true" aria-expanded="false">
                         Tickets
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right"
+                    <div class="dropdown-menu dropdown-menu"
                          aria-labelledby="ticketMenu1">
+                        <h6 class="dropdown-header">Queries</h6>
                         <a class="dropdown-item" href="/queries/mine">
                             Manage Queries
                         </a>
                         <a class="dropdown-item" href="/queries">
                             Search
                         </a>
+                        {% block tickets_menu %}
+                        {% endblock %}
                     </div>
                 </li>
                 {% block nav_items %}

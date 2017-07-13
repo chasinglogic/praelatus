@@ -11,6 +11,7 @@ class Query(models.Model):
     owner = models.ForeignKey(User)
     query = models.CharField(max_length=255, blank=True, null=True)
     favorite = models.BooleanField(default=False)
+    last_used = models.DateTimeField(auto_now=True)
 
     def compile(self, make_q=make_q):
         return compile_q(self.query)

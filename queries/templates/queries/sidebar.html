@@ -2,9 +2,7 @@
     <b>Quick Actions</b>
 </p>
 
-
-<div id="saveModal" class="modal fade">
-    <script>
+<script>
 function saveQuery() {
     let q = document.getElementById("search").value;
     let name = document.getElementById("name").value;
@@ -26,30 +24,14 @@ function saveQuery() {
             }
         })
 }
-    </script>
-
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Save Query</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-save="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <label>Name</label>
-                <input class="form-control" type="text" id="name" />
-            </div>
-            <div class="modal-footer">
-                <button onclick="saveQuery();" type="button" class="btn btn-primary">Save changes</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
+</script>
 
 <ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
     <li class="nav-item">
+        <a class="nav-link praelatus-nav-link" 
+            data-toggle="modal" data-target="#saveModal">
+            Save Query
+        </a>
     </li>
 
     {% for q in reqeust.user.favorite_queries %}
