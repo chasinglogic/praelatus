@@ -8,20 +8,24 @@ from django.shortcuts import redirect, render
 from tickets.models import Ticket
 
 from .dsl import CompileException, compile_q
-from .models import Query
+from .models import Query, QueryUse
 
 
 def index(request):
     # Check if creating a new query model
     if request.method == 'POST' and request.user.is_authenticated:
         name = request.POST['name']
-        # The value in the input escapes the quotes.
+        # The value in the html input escapes the quotes.
         # So we use replace calls to unescape them.
         query = request.POST['query'].\
             replace("\\'", "'").\
             replace('\\"', '"')
         qry = Query(owner=request.user, query=query, name=name)
         qry.save()
+
+        qu = QueryUse(user=request.user, query=qry)
+        qu.save()
+
         return redirect('/queries?query=' + query)
 
     query = request.GET.get('query')
@@ -34,11 +38,23 @@ def index(request):
             error = str(e)
 
     tickets = Ticket.objects.filter(q).all()
+
+    if request.user.is_authenticated():
+        recent_queries = QueryUse.objects.\
+            filter(user=request.user).\
+            order_by('-last_used')[:5]
+        favorites = Query.favorites(request.user)
+    else:
+        recent_queries = []
+        favorites = []
+
     return render(request, 'queries/index.html',
                   {
                       'tickets': tickets,
                       'query': query,
-                      'error': error
+                      'error': error,
+                      'favorites': favorites,
+                      'recent_queries': recent_queries
                   })
 
 
@@ -50,8 +66,13 @@ def query(request, id='0'):
     except Query.DoesNotExist:
         raise Http404()
 
-    q.last_used = datetime.now()
-    q.save()
+    try:
+        qu = QueryUse.objects.get(query=q, user=request.user)
+        qu.last_used = datetime.now()
+        qu.save()
+    except QueryUse.DoesNotExist:
+        qu = QueryUse(query=q, user=request.user)
+        qu.save()
 
     return redirect('/queries?query=' + q.query)
 

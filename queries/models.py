@@ -11,10 +11,24 @@ class Query(models.Model):
     owner = models.ForeignKey(User)
     query = models.CharField(max_length=255, blank=True, null=True)
     favorite = models.BooleanField(default=False)
-    last_used = models.DateTimeField(auto_now=True)
 
     def compile(self, make_q=make_q):
         return compile_q(self.query)
 
+    @classmethod
+    def favorites(cls, user):
+        """Get the favorite queries for the given user."""
+        return cls.objects.filter(favorite=True, owner=user)
+
     class Meta:
         unique_together = (('owner', 'name'),)
+
+
+class QueryUse(models.Model):
+    """Store recently used queries."""
+    user = models.ForeignKey(User)
+    query = models.ForeignKey(Query)
+    last_used = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = (('user', 'query'),)

@@ -28,17 +28,53 @@ function saveQuery() {
 
 <ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
     <li class="nav-item">
-        <a class="nav-link praelatus-nav-link" 
+        <a class="nav-link praelatus-nav-link"
             data-toggle="modal" data-target="#saveModal">
             Save Query
         </a>
     </li>
 
-    {% for q in reqeust.user.favorite_queries %}
     <li class="nav-item">
-        <a class="nav-link praelatus-nav-link">
+        <a class="nav-link praelatus-nav-link" href="/queries/mine">
+            Manage Queries
+        </a>
+    </li>
+</ul>
+
+{% if recent_queries %}
+
+<p class="sidebar-header">
+    <b>Recent Queries</b>
+</p>
+
+<ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
+    {% for q in recent_queries %}
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link"
+            href="/queries/{{ q.query.id }}">
+            {{ q.query.name }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endif %}
+
+{% if favorites %}
+
+<p class="sidebar-header">
+    <b>Favorite Queries</b>
+</p>
+
+<ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
+    {% for q in favorites %}
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link"
+            href="/queries/{{ q.id }}">
             {{ q.name }}
         </a>
     </li>
     {% endfor %}
 </ul>
+
+{% endif %}
