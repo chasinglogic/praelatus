@@ -9,6 +9,13 @@
         </a>
     </li>
 
+    <li class="nav-item" >
+        <a class="nav-link praelatus-nav-link"
+           href="/projects/{{ project.key }}/open">
+            Open Tickets
+        </a>
+    </li>
+
     {% load guardian_tags %}
     {% get_obj_perms request.user for project as "perms" %}
     {% if request.user.is_staff or "admin_project" in perms %}

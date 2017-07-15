@@ -9,18 +9,50 @@
     <link rel="stylesheet" href="/static/css/bootstrap-reboot.min.css">
     <link rel="stylesheet" href="/static/css/bootstrap-grid.min.css">
     <link rel="stylesheet" href="/static/css/ionicons.min.css" />
+    <link rel="stylesheet" href="/static/tickets/css/simplemde.min.css">
 
+    <!-- TODO Store locally -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.10/select2-bootstrap.min.css" />
+
+    <!-- Praelatus CSS -->
     <link rel="stylesheet" href="/static/css/index.css">
     <link rel="stylesheet" href="/static/css/bootstrap_overrides.css">
 
     <!-- Javascript -->
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/tickets/js/simplemde.min.js"></script>
 
+    <!-- TODO Store locally -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+    <script>
+     $.fn.select2.defaults.set("theme", "bootstrap");
+    </script>
+
+    <!-- Praelatus JS -->
     <script src="/static/js/index.js"></script>
 
-    <!-- TODO store these locally. -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.7.1/showdown.min.js"></script>
+    <script>
+     // Global toolbar config for Simplemde.
+     var toolbarConfig = [
+         "bold",
+         "italic",
+         "code", "|",
+         "heading",
+         "heading-2",
+         "heading-3", "|",
+         "heading-bigger",
+         "heading-smaller", "|",
+         "quote",
+         "unordered-list",
+         "ordered-list", "|",
+         "link",
+         "image",
+         "table",
+         "|", "preview", "guide"
+     ]
+    </script>
 
     {% block head %}
     {% endblock %}

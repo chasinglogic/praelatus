@@ -1,27 +1,28 @@
 <div id="linkModal" class="modal fade">
   <div class="modal-dialog" role="document">
-    <div class="modal-header">
-      <h5 class="modal-title">Links</h5>
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-    </div>
     <div class="modal-content">
-      <form method="POST" action="/tickets/{{ ticket.key }}/link">
-        {% csrf_token %}
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="">Label</label>
-            <input id="label" name="display" class="form-control" type="text" />
+      <div class="modal-header">
+        <h5 class="modal-title">Links</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        </button>
+        <form method="POST" action="/tickets/{{ ticket.key }}/link">
+          {% csrf_token %}
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="">Label</label>
+              <input id="label" name="display" class="form-control" type="text" />
+            </div>
+            <div class="form-group">
+              <label for="url">URL</label>
+              <input id="url" name="url" class="form-control" type="url" />
+            </div>
           </div>
-          <div class="form-group">
-            <label for="url">URL</label>
-            <input id="url" name="url" class="form-control" type="url" />
+          <div class="modal-footer">
+            <input type="submit" class="btn btn-primary" value="Add Link" />
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
-        </div>
-        <div class="modal-footer">
-          <input type="submit" class="btn btn-primary" value="Add Link" />
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
 </div>

@@ -1,12 +1,10 @@
 {% extends 'layout.html' %}
 
-
 {% block container %}
 <script>
  function loadCreate() {
      let project = document.getElementById('project').value;
      let ticketType = document.getElementById('ticket-type').value;
-     console.log('bing');
      window.location = '/tickets/create/' + project + '/' + ticketType;
      // prevent form submission
      return false;
@@ -33,4 +31,10 @@
     </div>
     <input class="form-control btn btn-praelatus" type="submit" value="Submit" />
 </form>
+
+
+<script>
+ $('#project').select2();
+ $('#ticket-type').select2();
+</script>
 {% endblock %}

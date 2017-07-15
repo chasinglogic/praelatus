@@ -126,3 +126,8 @@ body {
 .dropdown-toggle {
     cursor: pointer;
 }
+
+
+.CodeMirror {
+    height: 6em;
+}
