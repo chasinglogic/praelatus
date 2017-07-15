@@ -29,6 +29,7 @@ urlpatterns = [
     # App Routes
     url(r'^/?$', profile_views.index, name='index'),
     url(r'^projects/', include('projects.urls', namespace='projects')),
+    url(r'^queries/?', include('queries.urls', namespace='queries')),
     url(r'^tickets/', include('tickets.urls', namespace='tickets')),
     url(r'^users/', include('profiles.urls', namespace='users')),
 

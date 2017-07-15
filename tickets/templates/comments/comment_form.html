@@ -6,25 +6,15 @@
         <div class="form-group">
             <label for="comment" class="sr-only">Comment</label>
             <textarea id="new-comment" name="body"
-                      onkeyup="reloadPreview(this);"
                       class="form-control"></textarea>
         </div>
         <input id="next" type="hidden" name="next"  value="{{ request.get_full_path }}" />
         <div class="row" >
             <div class="col-md-6 col-sm-12 col-xs-12" >
-                <p>
-                    <span class="ion-social-markdown"></span>
-                    Markdown is supported
-                </p>
+                <span class="ion-social-markdown"></span>
+                Markdown is supported
             </div>
             <div class="col-md-6 col-sm-12 col-xs-12 text-right" >
-                {% if edit %}
-                <button id=""
-                        type="button" onclick="cancelEdit(this);"
-                        class="d-inline-block btn btn-secondary">
-                    Cancel
-                </button>
-                {% endif %}
                 <input class="d-inline-block btn btn-success"
                        type="submit" value="Add Comment" />
             </div>

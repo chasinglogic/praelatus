@@ -25,7 +25,8 @@ class TestQueriesParser(TestCase):
 
     def test_labels_query(self):
         q = 'labels in ["test", "ops"]'
-        self.assertEqual(str(compile(q)), str(Q(labels__name__in=['test', 'ops'])))
+        self.assertEqual(str(compile(q)), str(
+            Q(labels__name__in=['test', 'ops'])))
 
 
 class TestSchemes(TestCase):
@@ -47,7 +48,8 @@ class TestSchemes(TestCase):
         u = User.objects.create_user('fakelead', 'fake@fa.ke', 'fake')
         u.save()
 
-        self.project = Project(key='SCHEME', name='Test Scheme Project', lead=u)
+        self.project = Project(
+            key='SCHEME', name='Test Scheme Project', lead=u)
         self.project.save()
 
         self.ttypeone = TicketType(name='Test Type One')
@@ -55,15 +57,15 @@ class TestSchemes(TestCase):
         self.ttypetwo = TicketType(name='Test Type One')
         self.ttypetwo.save()
 
-        self.default_wkflow_scheme = WorkflowScheme(name='Default Workflow Scheme',
-                                                    workflow=wone,
-                                                    project=self.project)
+        self.default_wkflow_scheme = WorkflowScheme(
+            name='Default Workflow Scheme', workflow=wone, project=self.project)
         self.default_wkflow_scheme.save()
 
-        self.ttypeone_wkflow_scheme = WorkflowScheme(name='Ttypeone Workflow Scheme',
-                                                     workflow=wtwo,
-                                                     project=self.project,
-                                                     ticket_type=self.ttypeone)
+        self.ttypeone_wkflow_scheme = WorkflowScheme(
+            name='Ttypeone Workflow Scheme',
+            workflow=wtwo,
+            project=self.project,
+            ticket_type=self.ttypeone)
         self.ttypeone_wkflow_scheme.save()
 
         self.default_field_scheme = FieldScheme(name='Default Field Scheme',

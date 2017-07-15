@@ -17,9 +17,11 @@ from projects.models import Project
 from workflows.models import Transition
 
 from .forms import AttachmentForm
-from .models import (Attachment, Comment, FieldScheme, Ticket, TicketLink,
-                     TicketType, WorkflowScheme, Upvote)
-from .queries import CompileException, compile
+from schemes.models import FieldScheme, WorkflowScheme
+from upvotes.models import Upvote
+from links.models import Link
+from .models import (Attachment, Comment, Ticket, TicketType)
+from queries.dsl import CompileException, compile_q
 from .serializers import (CommentSerializer, TicketSerializer,
                           TicketTypeSerializer)
 
@@ -30,12 +32,13 @@ class TicketList(generics.ListCreateAPIView):
     serializer_class = TicketSerializer
 
     def get_queryset(self):
-        projects = get_objects_for_user(self.request.user, 'projects.view_project')
+        projects = get_objects_for_user(
+            self.request.user, 'projects.view_project')
         q = Q()
         query = self.request.GET.get('query')
         if query is not None:
             try:
-                q = compile(query)
+                q = compile_q(query)
             # Ignore the error in the API
             except CompileException:
                 pass
@@ -95,7 +98,8 @@ def show(request, key=''):
         raise Http404('No ticket with that key found.')
 
     attachment_form = AttachmentForm()
-    return render(request, 'tickets/show.html', {'ticket': t[0], 'attachment_form': attachment_form})
+    return render(request, 'tickets/show.html',
+                  {'ticket': t[0], 'attachment_form': attachment_form})
 
 
 @login_required
@@ -137,7 +141,8 @@ def create(request, project_key='', ticket_type=''):
 
         return redirect('/tickets/' + t.key)
 
-    fs = FieldScheme.get_for_project(project=proj, ticket_type__name=ticket_type)
+    fs = FieldScheme.get_for_project(
+        project=proj, ticket_type__name=ticket_type)
     return render(request, 'tickets/create.html', {'fs': fs})
 
 
@@ -240,7 +245,7 @@ def edit_comment(request, id=0):
     nxt = '/'
 
     if request.user != c.author and not request.user.is_staff:
-            raise PermissionDenied
+        raise PermissionDenied
 
     if request.method == 'POST':
         if request.user != c.author and not request.user.is_staff:
@@ -260,7 +265,7 @@ def edit_ticket(request, key=''):
     fs = FieldScheme.get_for_project(t.project, ticket_type=t.ticket_type)
 
     def edit_form(error=None):
-        field_scheme_fields = list(fs[0].fields.all())
+        field_scheme_fields = list(fs.fields.all())
         existing_fields = list(t.fields.all())
         # We have to check against names here since existing_fields is
         # actually a list of FieldValue's and not Field's
@@ -313,12 +318,14 @@ def edit_ticket(request, key=''):
     # Remove csrf token as we don't need it
     fields.pop('csrfmiddlewaretoken', None)
 
-    allowed_fields = [f.name for f in fs[0].fields.all()]
+    allowed_fields = [f.name for f in fs.fields.all()]
     for f, v in fields.items():
         # Make sure they aren't doing anything malicious
         if f not in allowed_fields:
-            return edit_form('Field ' + f +
-                             ' is not allowed for this Project and Ticket Type')
+            return edit_form(
+                'Field ' +
+                f +
+                ' is not allowed for this Project and Ticket Type')
 
         # Try to pull the existing value to update
         try:
@@ -361,33 +368,15 @@ def attachments(request, key=''):
 def add_link(request, key=''):
     tk = Ticket.objects.get(key=key)
 
-    link = TicketLink(
+    link = Link(
+        owner=request.user,
         display=request.POST['display'],
         href=request.POST['url'],
-        ticket=tk
+        content_object=tk
     )
 
     link.save()
     return redirect('/tickets/' + tk.key)
-
-
-def query(request):
-    q = Q()
-    error = None
-    query = request.GET.get('query')
-    if query is not None:
-        try:
-            q = compile(query)
-        except CompileException as e:
-            error = str(e)
-
-    tickets = Ticket.objects.filter(q).all()
-    return render(request, 'tickets/ticket_filter.html',
-                  {
-                      'tickets': tickets,
-                      'query': query,
-                      'error': error
-                  })
 
 
 @login_required
@@ -395,10 +384,11 @@ def query(request):
 def upvote(request, key=''):
     tk = Ticket.objects.get(key=key)
 
-    q = Upvote.objects.filter(voter=request.user, ticket=tk).all()
+    q = Upvote.objects.filter(voter=request.user,
+                              ticket=tk).all()
 
     if len(q) == 0:
-        u = Upvote(voter=request.user, ticket=tk)
+        u = Upvote(voter=request.user, content_object=tk)
         u.save()
 
     return redirect("/tickets/" + key)

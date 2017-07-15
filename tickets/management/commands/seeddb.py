@@ -2,11 +2,10 @@ from random import randint
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
-
 from fields.models import Field, FieldOption, FieldValue
 from projects.models import Project
-from tickets.models import (Comment, FieldScheme, FieldSchemeField, Ticket,
-                            TicketType, WorkflowScheme)
+from schemes.models import FieldScheme, FieldSchemeField, WorkflowScheme
+from tickets.models import Comment, Ticket, TicketType
 from workflows.models import Status, Transition, Workflow
 
 
@@ -138,7 +137,7 @@ facit mihi primaque remanet parte, eundo.
             fvs = [
                 FieldValue(field=story_points, int_value=randint(1, 20),
                            content_object=t),
-                FieldValue(field=priority, opt_value=priorities[randint(0, 2)].name,
+                FieldValue(field=priority, str_value=priorities[randint(0, 2)].name,
                            content_object=t)
             ]
 

@@ -52,12 +52,17 @@ INSTALLED_APPS = [
 
     # Praelatus
     'projects.apps.ProjectsConfig',
-    'workflows.apps.WorkflowsConfig',
     'tickets.apps.TicketsConfig',
-    'labels.apps.LabelsConfig',
-    'fields.apps.FieldsConfig',
     'profiles.apps.ProfilesConfig',
-    'hooks.apps.HooksConfig',
+    'queries.apps.QueriesConfig',
+    'schemes.apps.SchemesConfig',
+
+    'workflows',
+    'labels',
+    'fields',
+    'hooks',
+    'upvotes',
+    'links',
 
     # Django
     'django.contrib.admin',
@@ -167,9 +172,10 @@ try:
 except FileNotFoundError:
     import sys
     if 'genconfig' not in sys.argv:
-        print('No config file found, run ./manage.py genconfig.'
-              'See https://docs.praelatus.io/deployments/Deploy%20on%20Linux/#configuring-praelatus'
-              'for more information.')
+        print(
+            'No config file found, run ./manage.py genconfig.'
+            'See https://docs.praelatus.io/deployments/Deploy%20on%20Linux/#configuring-praelatus'
+            'for more information.')
     config = {}
 
 # SECURITY WARNING: don't run with debug turned on in production!

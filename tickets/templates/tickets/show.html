@@ -19,119 +19,119 @@
 
 
 <h4>
-    <small>
-        <div class="d-inline-block align-middle" >
-            {% include 'projects/project_icon.html' with project=ticket.project %}
-        </div>
-        <span class="d-inline-block align-middle" >
-            <a href="/projects/{{ ticket.project.key }}">
-                {{ ticket.project.name }}
-            </a>
-            / {{ ticket.key }}
-        </span>
-    </small>
+  <small>
+    <div class="d-inline-block align-middle" >
+      {% include 'projects/project_icon.html' with project=ticket.project %}
+    </div>
+      <span class="d-inline-block align-middle" >
+        <a href="/projects/{{ ticket.project.key }}">
+          {{ ticket.project.name }}
+        </a>
+        / {{ ticket.key }}
+      </span>
+  </small>
 </h4>
 
 <h1 class="element border shadow">
-    {{ ticket.summary }}
+  {{ ticket.summary }}
 </h1>
 
 <div class="separator"></div>
 
 <div class="row">
-    <div class="col-md-9 col-sm-12 comments">
-        <div class="card shadow m-bottom">
-            <h3 class="card-header">Description</h3>
-            <div class="card-block">
-                {{ ticket.description | markdown | safe }}
-            </div>
-        </div>
+  <div class="col-md-9 col-sm-12 comments">
+    <div class="card shadow m-bottom">
+      <h3 class="card-header">Description</h3>
+      <div class="card-block">
+        {{ ticket.description | markdown | safe }}
+      </div>
+    </div>
 
-        {% include 'comments/comment_list.html' with comments=ticket.comments.all %}
+    {% include 'comments/comment_list.html' with comments=ticket.comments.all %}
 
-        {% if user.is_authenticated %}
-        {% include 'comments/comment_form.html' with unique_id='new-comment' %}
+    {% if user.is_authenticated %}
+    {% include 'comments/comment_form.html' with unique_id='new-comment' %}
+    {% else %}
+    <div id="comment-form" class="card shadow">
+      <p class="element card-text">
+      You must <a href="/login">login</a> to comment.
+      </p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col-md-3 col-sm-12">
+    <div class="card shadow m-bottom">
+      <h4 class="card-header">Details</h4>
+      <div class="card-block">
+        <b>Status:</b>
+        <p class="card-text">
+        {% include 'statuses/status_pill.html' with status=ticket.status %}
+        </p>
+
+        <b>Ticket Type:</b>
+        <p class="card-text">
+        {{ ticket.ticket_type.name }}
+        </p>
+
+        <b>Upvotes:</b>
+        <p class="card-text">
+        {{ ticket.upvotes.count }}
+        </p>
+
+        {% if ticket.labels.all %}
+        <b>Labels:</b><br />
+        <p class="card-text">
+        {% for l in ticket.labels.all %}
+        <span class="label badge badge-pill badge-default" style="background-color: {{ l.bg_color }}">
+          {{ l.name }}
+        </span>
+        {% endfor %}
+        </p>
+        {% endif %}
+        <b>Reporter:</b>
+        <p class="card-text">
+        {% include 'users/user_stub.html' with user=ticket.reporter %}
+        </p>
+
+        <b>Assignee:</b>
+        <p class="card-text">
+        {% if ticket.assignee %}
+        {% include 'users/user_stub.html' with user=ticket.reporter %}
         {% else %}
-        <div id="comment-form" class="card shadow">
-            <p class="element card-text">
-                You must <a href="/login">login</a> to comment.
-            </p>
-        </div>
+        Unassigned
         {% endif %}
+        </p>
+
+        <b>Created:</b>
+        <p class="card-text">
+        {{ ticket.created_at | date:'h:iA Y-m-d' }}
+        </p>
+
+        <b>Updated:</b>
+        <p class="card-text">
+        {{ ticket.updated_at | date:'h:iA Y-m-d' }}
+        </p>
+      </div>
     </div>
 
-    <div class="col-md-3 col-sm-12">
-        <div class="card shadow m-bottom">
-            <h4 class="card-header">Details</h4>
-            <div class="card-block">
-                <b>Status:</b>
-                <p class="card-text">
-                    {% include 'statuses/status_pill.html' with status=ticket.status %}
-                </p>
-
-                <b>Ticket Type:</b>
-                <p class="card-text">
-                    {{ ticket.ticket_type.name }}
-                </p>
-
-                <b>Upvotes:</b>
-                <p class="card-text">
-                    {{ ticket.upvotes.count }}
-                </p>
-
-                {% if ticket.labels.all %}
-                <b>Labels:</b><br />
-                <p class="card-text">
-                    {% for l in ticket.labels.all %}
-                    <span class="label badge badge-pill badge-default" style="background-color: {{ l.bg_color }}">
-                        {{ l.name }}
-                    </span>
-                    {% endfor %}
-                </p>
-                {% endif %}
-                <b>Reporter:</b>
-                <p class="card-text">
-                    {% include 'users/user_stub.html' with user=ticket.reporter %}
-                </p>
-
-                <b>Assignee:</b>
-                <p class="card-text">
-                    {% if ticket.assignee %}
-                    {% include 'users/user_stub.html' with user=ticket.reporter %}
-                    {% else %}
-                    Unassigned
-                    {% endif %}
-                </p>
-
-                <b>Created:</b>
-                <p class="card-text">
-                    {{ ticket.created_at | date:'h:iA Y-m-d' }}
-                </p>
-
-                <b>Updated:</b>
-                <p class="card-text">
-                    {{ ticket.updated_at | date:'h:iA Y-m-d' }}
-                </p>
-            </div>
+    {% if ticket.fields.all %}
+    <div class="card shadow">
+      <h4 class="card-header fields">Fields</h4>
+      <div class="card-block">
+        {% for f in ticket.fields.all %}
+        <div class="d-flex-inline">
+          <b>{{ f.name }}:</b>
+          {% if f.data_type == 'DATE' %}
+          <p>{{ f.value | date:'h:iA Y-m-d' }}</p>
+          {% else %}
+          <p>{{ f.value }}</p>
+          {% endif %}
         </div>
-
-        {% if ticket.fields.all %}
-        <div class="card shadow">
-            <h4 class="card-header fields">Fields</h4>
-            <div class="card-block">
-                {% for f in ticket.fields.all %}
-                <div class="d-flex-inline">
-                    <b>{{ f.name }}:</b>
-                    {% if f.data_type == 'DATE' %}
-                    <p>{{ f.value | date:'h:iA Y-m-d' }}</p>
-                    {% else %}
-                    <p>{{ f.value }}</p>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
+        {% endfor %}
+      </div>
     </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

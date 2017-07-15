@@ -19,7 +19,6 @@ class Profile(models.Model):
             return self.avatar
         return self.gravatar
 
-
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
