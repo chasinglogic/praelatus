@@ -82,3 +82,33 @@ def mine(request):
     queries = Query.objects.filter(owner=request.user)
     return render(request, 'queries/mine.html',
                   {'queries': queries})
+
+
+def favorite(request, id='0'):
+    id = int(id)
+
+    try:
+        q = Query.objects.get(id=id)
+    except Query.DoesNotExist:
+        raise Http404()
+
+    if q.favorite:
+        q.favorite = False
+    else:
+        q.favorite = True
+
+    q.save()
+
+    return redirect('/queries/mine')
+
+
+def delete(request, id='0'):
+    id = int(id)
+
+    try:
+        q = Query.objects.get(id=id)
+    except Query.DoesNotExist:
+        raise Http404()
+
+    q.delete()
+    return redirect('/queries/mine')

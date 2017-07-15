@@ -64,7 +64,7 @@
                 {% for t in tickets %}
                 <tr>
                     <td>
-                        <a href="/tickets/{{ t.key }}">{{ t.key}}</a>
+                        <a href="/tickets/{{ t.key }}">{{ t.key }}</a>
                     </td>
                     <td>{% include 'users/user_stub.html' with user=t.reporter %}</td>
                     <td>{{ t.summary }}</td>
