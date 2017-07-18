@@ -1,5 +1,5 @@
 .navbar .nav-link:hover {
-  background-color: #995197;
+  /* background-color: #59427f; */
 }
 
 .nav-item .btn {
@@ -11,11 +11,7 @@
 }
 
 .disabled:hover {
-  background-color: #703D6F !important;
-}
-
-.navbar .nav-link {
-  color: white !important;
+  /* background-color: #59427f !important; */
 }
 
 .nav-tabs .nav-item {
@@ -25,7 +21,7 @@
 
 .nav-tabs .nav-item.active {
   border-bottom: none;
-  background-color: #fafafa;
+  /* background-color: #fafafa; */
 }
 
 .nav-tabs .nav-item, .nav-tabs .nav-item .active {

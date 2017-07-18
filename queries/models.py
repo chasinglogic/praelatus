@@ -21,7 +21,7 @@ class Query(models.Model):
         return cls.objects.filter(favorite=True, owner=user)
 
     class Meta:
-        unique_together = (('owner', 'name'),)
+        unique_together = (('owner', 'name'), )
 
 
 class QueryUse(models.Model):
@@ -31,4 +31,4 @@ class QueryUse(models.Model):
     last_used = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = (('user', 'query'),)
+        unique_together = (('user', 'query'), )

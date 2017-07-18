@@ -6,7 +6,6 @@ from .models import Project
 
 
 class TestPermissions(TestCase):
-
     def test_guardian_permissions(self):
         u = User.objects.create_user('testlead', 'test@example.com', 'test')
         u.save()
@@ -20,18 +19,18 @@ class TestPermissions(TestCase):
         admin = Group.objects.get(name=p.name + ' Admin')
         self.assertTrue('admin_project' in get_perms(admin, p))
         self.assertTrue('view_project' in get_perms(admin, p))
-        self.assertTrue('create_content' in get_perms(admin, p))
-        self.assertTrue('edit_content' in get_perms(admin, p))
-        self.assertTrue('delete_content' in get_perms(admin, p))
-        self.assertTrue('comment_content' in get_perms(admin, p))
+        self.assertTrue('create_tickets' in get_perms(admin, p))
+        self.assertTrue('edit_tickets' in get_perms(admin, p))
+        self.assertTrue('delete_tickets' in get_perms(admin, p))
+        self.assertTrue('add_comments' in get_perms(admin, p))
 
-        member = Group.objects.get(name=p.name + ' Member')
+        member = Group.objects.get(name=p.name + ' Contributor')
         self.assertTrue('view_project' in get_perms(member, p))
-        self.assertTrue('create_content' in get_perms(member, p))
-        self.assertTrue('edit_content' in get_perms(member, p))
-        self.assertTrue('comment_content' in get_perms(member, p))
+        self.assertTrue('create_tickets' in get_perms(member, p))
+        self.assertTrue('edit_tickets' in get_perms(member, p))
+        self.assertTrue('add_comments' in get_perms(member, p))
 
         user = Group.objects.get(name=p.name + ' User')
         self.assertTrue('view_project' in get_perms(user, p))
-        self.assertTrue('create_content' in get_perms(user, p))
-        self.assertTrue('comment_content' in get_perms(user, p))
+        self.assertTrue('create_tickets' in get_perms(user, p))
+        self.assertTrue('add_comments' in get_perms(user, p))

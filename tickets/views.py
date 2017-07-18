@@ -32,8 +32,8 @@ class TicketList(generics.ListCreateAPIView):
     serializer_class = TicketSerializer
 
     def get_queryset(self):
-        projects = get_objects_for_user(
-            self.request.user, 'projects.view_project')
+        projects = get_objects_for_user(self.request.user,
+                                        'projects.view_project')
         q = Q()
         query = self.request.GET.get('query')
         if query is not None:
@@ -79,6 +79,7 @@ class CommentList(generics.ListCreateAPIView):
             filter(ticket__key=self.kwargs.get(self.lookup_url_kwarg)).\
             all()
 
+
 # UI
 
 
@@ -94,18 +95,20 @@ def show(request, key=''):
         prefetch_related('links').\
         all()
 
-    if len(t) == 0:
+    if (len(t) == 0 or
+            not request.user.has_perm('projects.view_project', t[0].project)):
         raise Http404('No ticket with that key found.')
 
     attachment_form = AttachmentForm()
     return render(request, 'tickets/show.html',
-                  {'ticket': t[0], 'attachment_form': attachment_form})
+                  {'ticket': t[0],
+                   'attachment_form': attachment_form})
 
 
 @login_required
 def create(request, project_key='', ticket_type=''):
     proj = Project.objects.get(key=project_key)
-    if not request.user.has_perm('projects.create_content', proj):
+    if not request.user.has_perm('projects.create_tickets', proj):
         raise PermissionDenied
 
     if request.method == 'POST':
@@ -122,16 +125,15 @@ def create(request, project_key='', ticket_type=''):
             ticket_type=ttype,
             status=workflow.create_status,
             workflow=workflow,
-            description=request.POST['description']
-        )
+            description=request.POST['description'])
 
         t.save()
 
-        fields = [f for f in request.POST.keys()
-                  if (f != 'labels' and
-                      f != 'summary' and
-                      f != 'description' and
-                      f != 'csrfmiddlewaretoken')]
+        fields = [
+            f for f in request.POST.keys()
+            if (f != 'labels' and f != 'summary' and f != 'description'
+                and f != 'csrfmiddlewaretoken')
+        ]
 
         for f in fields:
             field = Field.objects.get(name=f)
@@ -149,10 +151,9 @@ def create(request, project_key='', ticket_type=''):
 def create_prompt(request):
     projects = get_objects_for_user(request.user, 'projects.create_content')
     ticket_types = TicketType.objects.all()
-    return render(request, 'tickets/create_prompt.html', {
-        'projects': projects,
-        'ticket_types': ticket_types
-    })
+    return render(request, 'tickets/create_prompt.html',
+                  {'projects': projects,
+                   'ticket_types': ticket_types})
 
 
 @login_required
@@ -188,28 +189,28 @@ def transition(request, key=''):
         raise Http404('No ticket with that key found.')
 
     tk = t[0]
-    tr = Transition.objects.get(Q(name=request.GET['name'],
-                                  workflow=tk.workflow) &
-                                (Q(from_status=tk.status) |
-                                 Q(from_status=None)))
+    tr = Transition.objects.get(
+        Q(name=request.GET['name'], workflow=tk.workflow) &
+        (Q(from_status=tk.status) | Q(from_status=None)))
     if tr is None:
         raise Http404('Not a valid transition for this ticket.')
 
-    if not request.user.has_perm('projects.edit_content', tk.project):
+    if not request.user.has_perm('projects.edit_tickets', tk.project):
         raise PermissionDenied
 
     tk.status = tr.to_status
     tk.save()
 
     if len(tr.web_hooks.all()) > 0:
-        fire_web_hooks.delay(
-            tr.web_hooks.all(),
-            {'ticket': TicketSerializer(tk).data}
-        )
+        fire_web_hooks.delay(tr.web_hooks.all(),
+                             {'ticket': TicketSerializer(tk).data})
 
-    notify.send(request.user, recipient=t[0].watching(),
-                verb='transitioned to ' + tk.status.name,
-                action_object=tk, target=tk.project)
+    notify.send(
+        request.user,
+        recipient=t[0].watching(),
+        verb='transitioned to ' + tk.status.name,
+        action_object=tk,
+        target=tk.project)
 
     return redirect('/tickets/' + tk.key)
 
@@ -225,15 +226,19 @@ def comment(request, key=''):
     if len(t) == 0:
         raise Http404('No ticket with that key found.')
 
-    if not request.user.has_perm('projects.comment_content', t[0].project):
+    if not request.user.has_perm('projects.add_comments', t[0].project):
         raise PermissionDenied
 
     c = Comment(body=request.POST['body'], author=request.user, ticket=t[0])
     c.save()
 
-    notify.send(request.user, recipient=t[0].watching(), verb='commented on',
-                action_object=t[0], target=t[0].project,
-                description=markdown.markdown(c.body, safe_mode='escape'))
+    notify.send(
+        request.user,
+        recipient=t[0].watching(),
+        verb='commented on',
+        action_object=t[0],
+        target=t[0].project,
+        description=markdown.markdown(c.body, safe_mode='escape'))
 
     return redirect('/tickets/' + t[0].key)
 
@@ -271,19 +276,24 @@ def edit_ticket(request, key=''):
         # actually a list of FieldValue's and not Field's
         existing_field_names = [f.name for f in existing_fields]
         return render(request, 'tickets/edit_ticket.html', {
-            'error': error,
-            'ticket': t,
-            'fields': existing_fields + [f for f in field_scheme_fields
-                                         if f.name not in existing_field_names]
+            'error':
+            error,
+            'ticket':
+            t,
+            'fields':
+            existing_fields + [
+                f for f in field_scheme_fields
+                if f.name not in existing_field_names
+            ]
         })
 
     if request.method == 'DELETE':
-        if not request.user.has_perm('projects.delete_content', t.project):
+        if not request.user.has_perm('projects.delete_tickets', t.project):
             raise PermissionDenied
         t.delete()
         return redirect('/')
 
-    if not request.user.has_perm('projects.edit_content', t.project):
+    if not request.user.has_perm('projects.edit_tickets', t.project):
         raise PermissionDenied
 
     if request.method == 'GET':
@@ -323,8 +333,7 @@ def edit_ticket(request, key=''):
         # Make sure they aren't doing anything malicious
         if f not in allowed_fields:
             return edit_form(
-                'Field ' +
-                f +
+                'Field ' + f +
                 ' is not allowed for this Project and Ticket Type')
 
         # Try to pull the existing value to update
@@ -352,11 +361,7 @@ def attachments(request, key=''):
 
     for f in request.FILES.getlist('attachment'):
         attachment = Attachment(
-            name=f.name,
-            attachment=f,
-            ticket=tk,
-            uploader=request.user
-        )
+            name=f.name, attachment=f, ticket=tk, uploader=request.user)
 
         attachment.save()
 
@@ -372,8 +377,7 @@ def add_link(request, key=''):
         owner=request.user,
         display=request.POST['display'],
         href=request.POST['url'],
-        content_object=tk
-    )
+        content_object=tk)
 
     link.save()
     return redirect('/tickets/' + tk.key)
@@ -384,8 +388,7 @@ def add_link(request, key=''):
 def upvote(request, key=''):
     tk = Ticket.objects.get(key=key)
 
-    q = Upvote.objects.filter(voter=request.user,
-                              ticket=tk).all()
+    q = Upvote.objects.filter(voter=request.user, ticket=tk).all()
 
     if len(q) == 0:
         u = Upvote(voter=request.user, content_object=tk)

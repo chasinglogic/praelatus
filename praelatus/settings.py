@@ -38,7 +38,6 @@ else:
         SECRET_KEY = binascii.b2a_hex(rand).decode('ascii')
         f.write(SECRET_KEY)
 
-
 INSTALLED_APPS = [
     # Row level security
     'guardian',
@@ -56,7 +55,6 @@ INSTALLED_APPS = [
     'profiles.apps.ProfilesConfig',
     'queries.apps.QueriesConfig',
     'schemes.apps.SchemesConfig',
-
     'workflows',
     'labels',
     'fields',
@@ -94,23 +92,21 @@ def release_name(request):
     return {'release_name': RELEASE_NAME}
 
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'praelatus.settings.version_number',
-                'praelatus.settings.release_name',
-            ],
-        },
-    }
-]
+TEMPLATES = [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': ['templates'],
+    'APP_DIRS': True,
+    'OPTIONS': {
+        'context_processors': [
+            'django.template.context_processors.debug',
+            'django.template.context_processors.request',
+            'django.contrib.auth.context_processors.auth',
+            'django.contrib.messages.context_processors.messages',
+            'praelatus.settings.version_number',
+            'praelatus.settings.release_name',
+        ],
+    },
+}]
 
 WSGI_APPLICATION = 'praelatus.wsgi.application'
 
@@ -120,49 +116,48 @@ LOGIN_REDIRECT_URL = '/tickets/dashboard'
 LOGOUT_REDIRECT_URL = '/'
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
 AUTH_PROFILE_MODULE = 'profiles.Profile'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'guardian.backends.ObjectPermissionBackend',
-)
+    'projects.backends.ObjectPermissionAnonFallbackBackend',
+    'guardian.backends.ObjectPermissionBackend', )
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # REST
 
 REST_FRAMEWORK = {
     # Integrate Django Filters
-    'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ),
+    'DEFAULT_FILTER_BACKENDS':
+    ('django_filters.rest_framework.DjangoFilterBackend', ),
 
     # Use sessions or basic auth
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ),
+    'DEFAULT_AUTHENTICATION_CLASSES':
+    ('rest_framework.authentication.BasicAuthentication',
+     'rest_framework.authentication.SessionAuthentication', ),
 
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+    'DEFAULT_PERMISSION_CLASSES':
+    ['rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly']
 }
 
 # Project config, these are taken from the praelatus config file
