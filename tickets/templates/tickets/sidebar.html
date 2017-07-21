@@ -78,9 +78,10 @@
 
     {% load guardian_tags %}
     {% get_obj_perms request.user for ticket.project as "perms" %}
-    {% if user.is_authenticated and "edit_content" in perms %}
+    {% if user.is_authenticated and "edit_tickets" in perms %}
     <li class="nav-item">
-        <a class="nav-link praelatus-nav-link" data-toggle="modal" data-target="#fileModal">
+        <a class="nav-link praelatus-nav-link"
+            data-toggle="modal" data-target="#fileModal">
             <span class="ion-plus" ></span>
             <span class="link-description" >Add Attachments</span>
         </a>
@@ -104,7 +105,7 @@
 
     {% endif %}
 
-    {% if user.is_authenticated and "edit_content" in perms %}
+    {% if user.is_authenticated and "edit_tickets" in perms %}
     <li class="nav-item">
         <a class="nav-link praelatus-nav-link" data-toggle="modal" data-target="#linkModal">
             <span class="ion-plus" ></span>

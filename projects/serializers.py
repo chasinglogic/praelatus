@@ -8,13 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = (
-            'id',
-            'first_name',
-            'last_name',
-            'username',
-            'email'
-        )
+        fields = ('id', 'first_name', 'last_name', 'username', 'email')
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -23,12 +17,5 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = (
-            'id',
-            'name',
-            'description',
-            'lead',
-            'icon',
-            'homepage',
-            'repo'
-        )
+        fields = ('id', 'name', 'description', 'lead', 'icon', 'homepage',
+                  'repo')

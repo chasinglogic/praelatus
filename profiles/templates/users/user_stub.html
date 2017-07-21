@@ -1,4 +1,5 @@
 <div class="user-stub">
-    <img src="{{ user.profile.profile_pic }}" alt="profile picture" />
+    <img class="sm-profile-pic"
+         src="{{ user.profile.profile_pic }}" alt="profile picture" />
     <a href="/users/{{ user.username }}">{{ user.get_full_name }}</a>
 </div>

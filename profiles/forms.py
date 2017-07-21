@@ -11,9 +11,10 @@ class ExtendedRegistrationForm(UserCreationForm):
 
     def save(self):
         """Override the save method of UserCreationForm."""
-        u = User.objects.create_user(self.data['username'],
-                                     self.data['email'],
-                                     self.data['password1'],
-                                     first_name=self.data['first_name'],
-                                     last_name=self.data['last_name'])
+        u = User.objects.create_user(
+            self.data['username'],
+            self.data['email'],
+            self.data['password1'],
+            first_name=self.data['first_name'],
+            last_name=self.data['last_name'])
         u.save()

@@ -7,16 +7,7 @@ import ply.lex as lex
 import ply.yacc as yacc
 from django.db.models import Q
 
-tokens = (
-    'LIST',
-    'STRING',
-    'NUMBER',
-    'DATE',
-    'B_OP',
-    'U_OP',
-    'FIELD',
-    'COMPA'
-)
+tokens = ('LIST', 'STRING', 'NUMBER', 'DATE', 'B_OP', 'U_OP', 'FIELD', 'COMPA')
 
 t_COMPA = r'startswith|endswith|in|IN|=|[<>]=?|~~?'
 
@@ -28,8 +19,7 @@ def t_LIST(t):
     r'\[(?P<values>.*)\]'
     values = t.lexer.lexmatch.group('values').split(", ")
     if "'" in values[0] or '"' in values[0]:
-        t.value = [v.replace('"', '').replace("'", "")
-                   for v in values]
+        t.value = [v.replace('"', '').replace("'", "") for v in values]
     else:
         t.value = [int(v) for v in values]
     return t
@@ -77,18 +67,14 @@ def t_error(t):
 
 
 def make_q(f, compa, v):
-    if (f == 'summary' or
-        f == 'description' or
-        f == 'created_at' or
-        f == 'updated_at' or
-            f == 'key'):
+    if (f == 'summary' or f == 'description' or f == 'created_at'
+            or f == 'updated_at' or f == 'key'):
         field = '%s__%s' % (f, compa)
         return Q(**{field: v})
     elif f == 'project':
         if isinstance(v, int):
             return Q(project__id=v)
-        return (Q(project__key=v) |
-                Q(project__name=v))
+        return (Q(project__key=v) | Q(project__name=v))
     elif f == 'assignee' or f == 'reporter':
         username = '%s__username__%s' % (f, compa)
         return Q(**{username: v})
@@ -111,7 +97,6 @@ def make_q(f, compa, v):
     elif isinstance(v, datetime.datetime):
         value = 'fields__date_value__%s' % compa
     return (Q(fields__field__name=f) & Q(**{value: v}))
-
 
 
 # missing: i* (case insensitive), day&co, isnull
@@ -142,7 +127,7 @@ def p_expression_b_op(p):
 def p_expression_u_op(p):
     '''expression : U_OP expression'''
     if p[1] == 'NOT':
-        p[0] = ~ p[2]
+        p[0] = ~p[2]
 
 
 def p_expression_paren(p):
@@ -170,14 +155,10 @@ def p_error(p):
     raise CompileException(u"Parsing error: unexpected end of expression")
 
 
-precedence = (
-    ('left', 'B_OP'),
-    ('right', 'U_OP'),
-)
+precedence = (('left', 'B_OP'), ('right', 'U_OP'), )
 
 
 class CompileException(Exception):
-
     def __init__(self, message):
         self.message = message
 

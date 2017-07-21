@@ -20,10 +20,10 @@
     {% get_obj_perms request.user for project as "perms" %}
     {% if request.user.is_staff or "admin_project" in perms %}
     <li class="nav-item" >
-        <a class="nav-link praelatus-nav-link" href="#">
+        <a class="nav-link praelatus-nav-link"
+           href="/projects/{{ project.key }}/admin">
             Project Admin
         </a>
     </li>
     {% endif %}
-
 </ul>

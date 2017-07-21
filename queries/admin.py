@@ -1,3 +1,1 @@
-from django.contrib import admin
-
-# Register your models here.
+"""Django admin is not needed for this app."""

@@ -21,6 +21,7 @@ class TicketType(models.Model):
     """A classification of a ticket, i.e. Bug, Feature, Epic."""
 
     name = models.CharField(max_length=255)
+    projects = models.ManyToManyField(Project, related_name='ticket_types')
 
     def __str__(self):
         """Return the type's name."""
@@ -111,11 +112,9 @@ def email_watchers(sender, instance=None, **kwargs):
         text_content = get_template('email/text/transition.txt').render(c)
 
     msg = EmailMultiAlternatives(
-        'Ticket Tracking System: ' + instance.action_object.key,
-        text_content,
+        'Ticket Tracking System: ' + instance.action_object.key, text_content,
         settings.EMAIL_ADDRESS,
-        [u.email for u in instance.action_object.watching()]
-    )
+        [u.email for u in instance.action_object.watching()])
 
     msg.attach_alternative(html_content, 'text/html')
     msg.send()

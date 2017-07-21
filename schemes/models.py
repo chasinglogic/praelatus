@@ -8,10 +8,10 @@ from tickets.models import TicketType
 
 class FieldScheme(models.Model):
     """Determine what fields a project wants for a ticket type."""
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     project = models.ForeignKey(Project, related_name='field_schemes')
-    ticket_type = models.ForeignKey(TicketType, related_name='field_schemes',
-                                    blank=True, null=True)
+    ticket_type = models.ForeignKey(
+        TicketType, related_name='field_schemes', blank=True, null=True)
 
     @classmethod
     def get_for_project(cls, project=None, **kwargs):
@@ -25,7 +25,7 @@ class FieldScheme(models.Model):
         return None
 
     class Meta:
-        unique_together = ('project', 'ticket_type',)
+        unique_together = ('project', 'ticket_type', )
 
     def __str__(self):
         """Return the scheme's name."""
@@ -39,7 +39,7 @@ class FieldSchemeField(models.Model):
     field = models.ForeignKey(Field)
 
     class Meta:
-        unique_together = ('scheme', 'field',)
+        unique_together = ('scheme', 'field', )
 
     @property
     def name(self):
@@ -56,14 +56,10 @@ class FieldSchemeField(models.Model):
 
 class WorkflowScheme(models.Model):
     """Tie a workflow to a project for a TicketType."""
-    name = models.CharField(max_length=255, unique=True)
     project = models.ForeignKey(Project, related_name='workflow_schemes')
     workflow = models.ForeignKey(Workflow, related_name='schemes')
     ticket_type = models.ForeignKey(
-        TicketType,
-        related_name='workflow_schemes',
-        null=True,
-        blank=True)
+        TicketType, related_name='workflow_schemes', null=True, blank=True)
 
     @classmethod
     def get_for_project(cls, project=None, **kwargs):
@@ -81,4 +77,4 @@ class WorkflowScheme(models.Model):
         return '%s for %s' % (self.name, self.project.name)
 
     class Meta:
-        unique_together = ('project', 'ticket_type', 'workflow',)
+        unique_together = ('project', 'ticket_type', 'workflow', )

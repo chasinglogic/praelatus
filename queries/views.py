@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect, render
+from guardian.shortcuts import get_objects_for_user
 
 from tickets.models import Ticket
 
@@ -37,7 +38,10 @@ def index(request):
         except CompileException as e:
             error = str(e)
 
-    tickets = Ticket.objects.filter(q).all()
+    users_projects = get_objects_for_user(request.user,
+                                          'projects.view_project')
+    tickets = Ticket.objects.filter(q).\
+        filter(project__in=users_projects)
 
     if request.user.is_authenticated():
         recent_queries = QueryUse.objects.\
@@ -48,14 +52,13 @@ def index(request):
         recent_queries = []
         favorites = []
 
-    return render(request, 'queries/index.html',
-                  {
-                      'tickets': tickets,
-                      'query': query,
-                      'error': error,
-                      'favorites': favorites,
-                      'recent_queries': recent_queries
-                  })
+    return render(request, 'queries/index.html', {
+        'tickets': tickets,
+        'query': query,
+        'error': error,
+        'favorites': favorites,
+        'recent_queries': recent_queries
+    })
 
 
 def query(request, id='0'):
@@ -80,8 +83,7 @@ def query(request, id='0'):
 @login_required
 def mine(request):
     queries = Query.objects.filter(owner=request.user)
-    return render(request, 'queries/mine.html',
-                  {'queries': queries})
+    return render(request, 'queries/mine.html', {'queries': queries})
 
 
 def favorite(request, id='0'):
