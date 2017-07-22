@@ -149,7 +149,7 @@ def create(request, project_key='', ticket_type=''):
 
 
 def create_prompt(request):
-    projects = get_objects_for_user(request.user, 'projects.create_content')
+    projects = get_objects_for_user(request.user, 'projects.create_tickets')
     ticket_types = TicketType.objects.all()
     return render(request, 'tickets/create_prompt.html',
                   {'projects': projects,

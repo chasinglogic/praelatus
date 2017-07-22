@@ -58,7 +58,7 @@ def project_by_key(fn):
         except Project.DoesNotExist:
             raise Http404()
 
-        return fn(request, key=key, project=p, **kwargs)
+        return fn(request, project=p, **kwargs)
 
     return wrapper
 

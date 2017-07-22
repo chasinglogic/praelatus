@@ -102,7 +102,6 @@ class Command(BaseCommand):
         FieldSchemeField(field=story_points, scheme=fs).save()
 
         ws = WorkflowScheme(
-            name='Default Workflow Scheme',
             project=p,
             ticket_type=None,
             workflow=w)
