@@ -9,14 +9,15 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-
 import yaml
+
+from socket import gethostname
 
 from .celery import app as celery_app
 
 __all__ = ['celery_app']
 
-# Project settings, Not configurable
+# Project settings, Not CONFIGurable
 RELEASE_NAME = 'Rio Bravo'
 VERSION = '0.1.0'
 
@@ -160,70 +161,118 @@ REST_FRAMEWORK = {
     ['rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly']
 }
 
-# Project config, these are taken from the praelatus config file
+# Project CONFIG, these are taken from the praelatus CONFIG file
+CONFIG = {}
+
 try:
     with open(os.path.join(DATA_DIR, 'config.yaml')) as f:
-        config = yaml.load(f)
+        CONFIG = yaml.load(f)
 except FileNotFoundError:
-    import sys
-    if 'genconfig' not in sys.argv:
-        print(
-            'No config file found, run ./manage.py genconfig.'
-            'See https://docs.praelatus.io/deployments/Deploy%20on%20Linux/#configuring-praelatus'
-            'for more information.')
-    config = {}
+    CONFIG = {
+        'debug':
+        os.getenv('PRAE_DEBUG', False),
+        'allowed_hosts':
+        os.getenv('PRAE_ALLOWED_HOSTS', gethostname()).split(','),
+        'session_engine':
+        os.getenv('PRAE_SESSION_ENGINE',
+                  'django.contrib.sessions.backends.cached_db'),
+        'database': {
+            'default': {
+                'ENGINE':
+                os.getenv('PRAE_DB_ENGINE', 'django.db.backends.postgresql'),
+                'NAME':
+                os.getenv('PRAE_DB_NAME', 'praelatus'),
+                'USER':
+                os.getenv('PRAE_DB_USER', 'postgres'),
+                'PASSWORD':
+                os.getenv('PRAE_DB_PASS', 'postgres'),
+                'HOST':
+                os.getenv('PRAE_DB_HOST', '127.0.0.1'),
+                'PORT':
+                os.getenv('PRAE_DB_PORT', '5432')
+            }
+        },
+        'language_code':
+        os.getenv('PRAE_LANG_CODE', 'en-us'),
+        'time_zone':
+        os.getenv('PRAE_TZ', 'UTC'),
+        'use_tz':
+        bool(os.getenv('PRAE_USE_TZ', 'true')),
+        'use_i18n':
+        bool(os.getenv('PRAE_ENBALE_INTERNATIONALIZATION', 'true')),
+        'static_root':
+        os.getenv('PRAE_STATIC_ROOT', os.path.join(DATA_DIR, 'static')),
+        'media_root':
+        os.getenv('PRAE_MEDIA_ROOT', os.path.join(DATA_DIR, 'media')),
+        'cache': {
+            'default': {
+                'BACKEND':
+                'django_redis.cache.RedisCache',
+                'LOCATION':
+                os.getenv('PRAE_REDIS_URL', 'redis://127.0.0.1:6379/1'),
+                'KEY_PREFIX':
+                'PRAE',
+                'OPTIONS': {
+                    'CLIENT_CLASS': 'django_redis.client.DefaultClient'
+                }
+            }
+        },
+        'mq_server':
+        os.getenv('PRAE_MQ_SERVER', 'amqp://guest:guest@localhost:5672//'),
+        'mq_result_backend':
+        os.getenv('PRAE_MQ_RESULT', 'rpc://'),
+        'email': {
+            'backend':
+            os.getenv('PRAE_EMAIL_BACKEND',
+                      'django.core.mail.backends.smtp.EmailBackend'),
+            'address':
+            os.getenv('PRAE_EMAIL_ADDRESS', 'praelatus@' + gethostname()),
+            'host':
+            os.getenv('PRAE_EMAIL_HOST', 'localhost'),
+            'port':
+            int(os.getenv('PRAE_EMAIL_PORT', '25')),
+            'user':
+            os.getenv('PRAE_EMAIL_USER', None),
+            'pass':
+            os.getenv('PRAE_EMAIL_PASS', None),
+            'use_tls':
+            bool(os.getenv('PRAE_EMAIL_USE_TLS', 'false')),
+            'use_ssl':
+            bool(os.getenv('PRAE_EMAIL_USE_SSL', 'false')),
+        }
+    }
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config.get('debug', False)
-ALLOWED_HOSTS = config.get('allowed_hosts', [])
-SESSION_ENGINE = config.get('session_engine',
-                            'django.contrib.sessions.backends.cached_db')
-DATABASES = config.get('database', {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'praelatus',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1',
-        'PORT': '5432'
-    }
-})
+DEBUG = CONFIG.get('debug', False)
+ALLOWED_HOSTS = CONFIG.get('allowed_hosts')
+SESSION_ENGINE = CONFIG.get('session_engine')
+DATABASES = CONFIG.get('database')
 
 # Internationalization
-LANGUAGE_CODE = config.get('language_code', 'en-us')
-TIME_ZONE = config.get('time_zone', 'UTC')
-USE_I18N = config.get('use_i18n', True)
-USE_L10N = config.get('use_l10n', True)
-USE_TZ = config.get('use_tz', True)
+LANGUAGE_CODE = CONFIG.get('language_code')
+TIME_ZONE = CONFIG.get('time_zone')
+USE_I18N = CONFIG.get('use_i18n')
+USE_TZ = CONFIG.get('use_tz')
 
-STATIC_ROOT = config.get('static_root', os.path.join(DATA_DIR, 'static'))
-MEDIA_ROOT = config.get('media_root', os.path.join(STATIC_ROOT, 'media'))
+STATIC_ROOT = CONFIG.get('static_root')
+MEDIA_ROOT = CONFIG.get('media_root')
 
 # CACHING
 
-CACHES = config.get('cache', {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
-        'KEY_PREFIX': 'PRAE',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient'
-        }
-    }
-})
+CACHES = CONFIG.get('cache')
 
 # CELERY
 
-CELERY_BROKER_URL = config.get('mq_server', CACHES['default']['LOCATION'])
-CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_BROKER_URL = CONFIG.get('mq_server')
+CELERY_RESULT_BACKEND = CONFIG.get('mq_result_backend')
 
 # EMAIL
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_ADDRESS = config.get('email', {}).get('address', 'praelatus@localhost')
-EMAIL_HOST = config.get('email', {}).get('host', 'localhost')
-EMAIL_PORT = config.get('email', {}).get('port', 25)
-EMAIL_HOST_USER = config.get('email', {}).get('username', None)
-EMAIL_HOST_PASS = config.get('email', {}).get('password', None)
-EMAIL_USE_TLS = config.get('email', {}).get('use_tls', False)
-EMAIL_USE_SSL = config.get('email', {}).get('use_ssl', False)
+EMAIL_BACKEND = CONFIG.get('email', {}).get('backend')
+EMAIL_ADDRESS = CONFIG.get('email', {}).get('address')
+EMAIL_HOST = CONFIG.get('email', {}).get('host')
+EMAIL_PORT = CONFIG.get('email', {}).get('port')
+EMAIL_HOST_USER = CONFIG.get('email', {}).get('username')
+EMAIL_HOST_PASS = CONFIG.get('email', {}).get('password')
+EMAIL_USE_TLS = CONFIG.get('email', {}).get('use_tls')
+EMAIL_USE_SSL = CONFIG.get('email', {}).get('use_ssl')
