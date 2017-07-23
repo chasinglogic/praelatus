@@ -1,0 +1,50 @@
+.btn-primary {
+    background-color: #703D6F !important;
+}
+
+.btn-outline-primary {
+    color: #703D6F !important;
+    border-color: #703D6F !important;
+}
+
+.btn-outline-primary:hover {
+    color: #fff !important;
+    background-color: #703D6F !important;
+    border-color: #703D6F !important;
+}
+
+.btn-github {
+    color: #fff;
+    background-color: black;
+    border: 1px solid black !important;
+}
+
+.btn-github:hover {
+    color: #fff !important;
+    background-color: #3d3d3d !important;
+    border-color: black !important;
+}
+
+.navbar-praelatus {
+    background-color: #703D6F !important;
+    color: #fff !important;
+    position: relative;
+    width: 100%;
+    top: 0;
+    padding: 1.5em;
+}
+
+.navbar-praelatus a {
+    color: #fff;
+}
+
+.nav-item:hover,
+.nav-item .nav-link:hover {
+    background-color: white;
+    color: black;
+    border-radius: 10%;
+}
+
+.nav-item{
+    margin-right: 1em;
+}

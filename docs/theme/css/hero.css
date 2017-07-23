@@ -1,0 +1,72 @@
+.hero-holder {
+    width: 100%;
+    height: 100vh;
+    background-color: #703D6F;
+}
+
+.hero-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.hero {
+    display: inline-block;
+    width: 90%;
+    max-width: 500px;
+}
+
+.hero-btns {
+    margin-top: 1em;
+    text-align: center;
+}
+
+.hero-btns a:hover, .hero-btns a {
+    text-decoration: none;
+}
+
+.hero-btn {
+    margin-top: 1em;
+    margin-right: 20px;
+}
+
+.purple {
+    background-color: #703D6F !important;
+    color: white;
+}
+
+.purple a {
+    color: #508ff4;
+}
+
+.big-text-block {
+    padding: 5em;
+    font-size: 1.1em;
+    justify-content: center;
+    align-items: center;
+    background: white;
+}
+
+.platform-logos img {
+    width: 30%;
+    max-width: 200px;
+    max-height: 200px;
+}
+
+.platform-logos {
+    text-align: center;
+    margin-top: 1.0em;
+    margin-bottom: 1.0em;
+}
+
+.lang-logos img {
+    max-width: 200px;
+    max-height: 200px;
+}
+
+.lang-logos {
+    text-align: center;
+    margin-top: 1.0em;
+    margin-bottom: 1.0em;
+}
