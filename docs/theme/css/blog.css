@@ -1,0 +1,25 @@
+.content-area {
+    max-width: 680px;
+    top: 88px;
+    margin: 3em auto;
+}
+
+.text-justify {
+    text-align: justify;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.blog-header {
+    margin: 1.5em auto 1.5em auto;
+}
+
+.blogMeta {
+    margin-bottom: 1em;
+}
+
+p {
+    font-size: 1.1em
+}
