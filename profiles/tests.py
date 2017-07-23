@@ -5,9 +5,9 @@ from django.test import TestCase
 
 
 class TestProfileCreation(TestCase):
-
     def test_profile_creation(self):
-        user = User.objects.create_user('testprofile', 'test@example.com', 'test')
+        user = User.objects.create_user('testprofile', 'test@example.com',
+                                        'test')
         user.save()
         self.assertTrue(user.profile is not None)
         self.assertTrue(user.profile.gravatar is not None)
@@ -15,7 +15,8 @@ class TestProfileCreation(TestCase):
         self.assertTrue(user.profile.profile_pic == user.profile.gravatar)
 
     def test_profile_update(self):
-        user = User.objects.create_user('testupdate', 'test@example.com', 'test')
+        user = User.objects.create_user('testupdate', 'test@example.com',
+                                        'test')
         user.save()
         orig = user.profile.gravatar
         user.email = 'blank@blank.com'
@@ -24,7 +25,6 @@ class TestProfileCreation(TestCase):
 
 
 class TestViews(TestCase):
-
     def test_index_anon(self):
         res = self.client.get(reverse('index'), follow=True)
         self.assertEqual(res.status_code, 200)

@@ -1,7 +1,8 @@
+from rest_framework import serializers
+
 from fields.serializers import FieldValueSerializer
 from labels.serializers import LabelSerializer
 from projects.serializers import ProjectSerializer, UserSerializer
-from rest_framework import serializers
 from workflows.serializers import TransitionSerializer
 
 from .models import Comment, Ticket, TicketType
@@ -13,22 +14,13 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = (
-            'id',
-            'body',
-            'author',
-            'created_at',
-            'updated_at'
-        )
+        fields = ('id', 'body', 'author', 'created_at', 'updated_at')
 
 
 class TicketTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketType
-        fields = (
-            'id',
-            'name'
-        )
+        fields = ('id', 'name')
 
 
 class TicketSerializer(serializers.ModelSerializer):
@@ -42,18 +34,6 @@ class TicketSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ticket
-        fields = (
-            'id',
-            'key',
-            'updated_at',
-            'created_at',
-            'summary',
-            'description',
-            'ticket_type',
-            'labels',
-            'fields',
-            'assignee',
-            'reporter',
-            'project',
-            'transitions'
-        )
+        fields = ('id', 'key', 'updated_at', 'created_at', 'summary',
+                  'description', 'ticket_type', 'labels', 'fields', 'assignee',
+                  'reporter', 'project', 'transitions')

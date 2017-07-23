@@ -38,7 +38,6 @@ else:
         SECRET_KEY = binascii.b2a_hex(rand).decode('ascii')
         f.write(SECRET_KEY)
 
-
 INSTALLED_APPS = [
     # Row level security
     'guardian',
@@ -46,15 +45,22 @@ INSTALLED_APPS = [
     'django_filters',
     # REST API
     'rest_framework',
+    # Github-esque notifications
+    # https://github.com/django-notifications/django-notifications
+    'notifications',
 
     # Praelatus
     'projects.apps.ProjectsConfig',
-    'workflows.apps.WorkflowsConfig',
     'tickets.apps.TicketsConfig',
-    'labels.apps.LabelsConfig',
-    'fields.apps.FieldsConfig',
     'profiles.apps.ProfilesConfig',
-    'hooks.apps.HooksConfig',
+    'queries.apps.QueriesConfig',
+    'schemes.apps.SchemesConfig',
+    'workflows',
+    'labels',
+    'fields',
+    'hooks',
+    'upvotes',
+    'links',
 
     # Django
     'django.contrib.admin',
@@ -86,23 +92,21 @@ def release_name(request):
     return {'release_name': RELEASE_NAME}
 
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'praelatus.settings.version_number',
-                'praelatus.settings.release_name',
-            ],
-        },
-    }
-]
+TEMPLATES = [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': ['templates'],
+    'APP_DIRS': True,
+    'OPTIONS': {
+        'context_processors': [
+            'django.template.context_processors.debug',
+            'django.template.context_processors.request',
+            'django.contrib.auth.context_processors.auth',
+            'django.contrib.messages.context_processors.messages',
+            'praelatus.settings.version_number',
+            'praelatus.settings.release_name',
+        ],
+    },
+}]
 
 WSGI_APPLICATION = 'praelatus.wsgi.application'
 
@@ -112,49 +116,48 @@ LOGIN_REDIRECT_URL = '/tickets/dashboard'
 LOGOUT_REDIRECT_URL = '/'
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME':
+        'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
 AUTH_PROFILE_MODULE = 'profiles.Profile'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'guardian.backends.ObjectPermissionBackend',
-)
+    'projects.backends.ObjectPermissionAnonFallbackBackend',
+    'guardian.backends.ObjectPermissionBackend', )
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # REST
 
 REST_FRAMEWORK = {
     # Integrate Django Filters
-    'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ),
+    'DEFAULT_FILTER_BACKENDS':
+    ('django_filters.rest_framework.DjangoFilterBackend', ),
 
     # Use sessions or basic auth
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ),
+    'DEFAULT_AUTHENTICATION_CLASSES':
+    ('rest_framework.authentication.BasicAuthentication',
+     'rest_framework.authentication.SessionAuthentication', ),
 
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+    'DEFAULT_PERMISSION_CLASSES':
+    ['rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly']
 }
 
 # Project config, these are taken from the praelatus config file
@@ -164,9 +167,10 @@ try:
 except FileNotFoundError:
     import sys
     if 'genconfig' not in sys.argv:
-        print('No config file found, run ./manage.py genconfig.'
-              'See https://docs.praelatus.io/deployments/Deploy%20on%20Linux/#configuring-praelatus'
-              'for more information.')
+        print(
+            'No config file found, run ./manage.py genconfig.'
+            'See https://docs.praelatus.io/deployments/Deploy%20on%20Linux/#configuring-praelatus'
+            'for more information.')
     config = {}
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -212,3 +216,14 @@ CACHES = config.get('cache', {
 
 CELERY_BROKER_URL = config.get('mq_server', CACHES['default']['LOCATION'])
 CELERY_RESULT_BACKEND = 'rpc://'
+
+# EMAIL
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_ADDRESS = config.get('email', {}).get('address', 'praelatus@localhost')
+EMAIL_HOST = config.get('email', {}).get('host', 'localhost')
+EMAIL_PORT = config.get('email', {}).get('port', 25)
+EMAIL_HOST_USER = config.get('email', {}).get('username', None)
+EMAIL_HOST_PASS = config.get('email', {}).get('password', None)
+EMAIL_USE_TLS = config.get('email', {}).get('use_tls', False)
+EMAIL_USE_SSL = config.get('email', {}).get('use_ssl', False)

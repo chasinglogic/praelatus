@@ -29,16 +29,17 @@ urlpatterns = [
     # App Routes
     url(r'^/?$', profile_views.index, name='index'),
     url(r'^projects/', include('projects.urls', namespace='projects')),
+    url(r'^queries/?', include('queries.urls', namespace='queries')),
     url(r'^tickets/', include('tickets.urls', namespace='tickets')),
     url(r'^users/', include('profiles.urls', namespace='users')),
 
     # API Routes
     url(r'^api/auth/', include('rest_framework.urls', namespace='drf')),
-
     url(r'^api/tickets', include('tickets.api', namespace='tickets_api')),
     url(r'^api/projects', include('projects.api', namespace='projects_api')),
-    url(r'^api/workflows', include('workflows.api', namespace='workflows_api')),
-
+    url(r'^api/workflows', include('workflows.api',
+                                   namespace='workflows_api')),
     url(r'^api/fields', include('fields.urls', namespace='fields_api')),
     url(r'^api/labels', include('labels.urls', namespace='labels_api')),
+    url(r'^api/users', include('profiles.api', namespace='users_api')),
 ]

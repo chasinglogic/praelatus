@@ -1,0 +1,116 @@
+{% load tickets_extra %}
+
+<p class="sidebar-header">
+    <b>Available Transitions</b>
+</p>
+
+<ul class="nav nav-pills flex-column">
+    {% for tr in ticket.transitions %}
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link" href="/tickets/{{ ticket.key }}/transition?name={{ tr.name }}">
+            <span class="ion-arrow-right-c"></span>
+            <span class="link-description" >{{ tr.name }}</span>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+
+<p class="sidebar-header">
+    <b>Quick Actions</b>
+</p>
+
+<ul id="quick-actions" class="nav nav-pills flex-column">
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link" href="#comment-form">
+            <span class="ion-chatboxes"></span>
+            <span class="link-description">Add Comment</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link" {% if user.is_authenticated %} data-toggle="modal" data-target="#labelModal" {% else %} href="/login" {% endif %}>
+            <span class="ion-pricetags"></span>
+            <span class="link-description">Add Labels</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link" href="/tickets/{{ ticket.key }}/edit">
+            <span class="ion-edit"></span>
+            <span class="link-description">Edit Ticket</span>
+        </a>
+    </li>
+    {% if user.is_authenticated %}
+    <li class="nav-item">
+        <form class="nav-link praelatus-nav-link"
+              method="POST"
+              action="/tickets/{{ ticket.key }}/upvote">
+            {% csrf_token %}
+            {% has_upvoted request.user ticket as upvoted %}
+            <button
+                style="border: none; background: none; padding: 0;">
+                {% if upvoted %}
+                <span class="ion-checkmark"></span>
+                <span class="link-description">Upvoted</span>
+                {% else %}
+                <span class="ion-arrow-up-a"></span>
+                <span class="link-description">Upvote</span>
+                {% endif %}
+            </button>
+        </form>
+    </li>
+    {% endif %}
+</ul>
+
+<p class="sidebar-header" >
+    <b>Attachments</b>
+</p>
+
+<ul id="attachments" class="nav nav-pills flex-column">
+    {% for a in ticket.attachments.all %}
+    <li class="nav-item">
+        <a href="/static/media/{{ a.attachment.url }}" class="nav-link praelatus-nav-link">
+            <span class="ion-archive"></span>
+            <span class="link-description" >
+                {% if a.name %}{{ a.name }}{% else %}{{ a.attachment.name }}{% endif %}
+            </span>
+        </a>
+    </li>
+    {% endfor %}
+
+    {% load guardian_tags %}
+    {% get_obj_perms request.user for ticket.project as "perms" %}
+    {% if user.is_authenticated and "edit_tickets" in perms %}
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link"
+            data-toggle="modal" data-target="#fileModal">
+            <span class="ion-plus" ></span>
+            <span class="link-description" >Add Attachments</span>
+        </a>
+    </li>
+    {% endif %}
+</ul>
+
+<p class="sidebar-header">
+    <b>Links</b>
+</p>
+<ul class="nav nav-pills flex-column">
+    {% if ticket.links.all %}
+
+    {% for link in ticket.links.all %}
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link" href="{{ link.href }}">
+            {{ link.display }}
+        </a>
+    </li>
+    {% endfor %}
+
+    {% endif %}
+
+    {% if user.is_authenticated and "edit_tickets" in perms %}
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link" data-toggle="modal" data-target="#linkModal">
+            <span class="ion-plus" ></span>
+            <span class="link-description" >Add Link</span>
+        </a>
+    </li>
+    {% endif %}
+</ul>

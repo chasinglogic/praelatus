@@ -1,0 +1,386 @@
+{% extends 'layout.html' %}
+{% load markdown %}
+{% load guardian_tags %}
+
+{% block sidebar %}
+{% include 'projects/admin_sidebar.html' with roles=True %}
+{% endblock %}
+
+{% block content %}
+<h1 class="text-center m-bottom">
+  Project Administration for {{ project.name }}
+</h1>
+
+<a id="details" class="anchor"></a>
+<div class="card mw1000 m-bottom">
+  <h2 class="card-header" >
+    Details
+    <a class="btn btn-secondary float-right"
+       href="/projects/{{ project.key }}/admin/edit">Edit</a>
+  </h2>
+  <div class="card-block" >
+    <table class="table w-90 mr-auto ml-auto" >
+      <tr>
+        <th>Name:</th>
+        <td>{{ project.name }}</td>
+      </tr>
+      <tr>
+        <th>Key:</th>
+        <td>{{ project.key }}</td>
+      </tr>
+      <tr>
+        <th>Created Date:</th>
+        <td>{{ project.created_at }}</td>
+      </tr>
+      <tr>
+        <th>Icon:</th>
+        <td>
+          {% if project.icon %}
+          <img src="{{ project.icon }}" />
+          {% else %}
+          None
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <th>Homepage:</th>
+        <td>{{ project.homepage }}</td>
+      </tr>
+      <tr>
+        <th>Repo:</th>
+        <td>{{ project.repo }}</td>
+      </tr>
+    </table>
+  </div>
+  <h2 class="card-header" >Description</h2>
+  <div class="card-block" >
+    {{ project.description | markdown | safe }}
+  </div>
+</div>
+
+<a id="roles" class="anchor"></a>
+<div class="card mw1000 m-bottom" >
+  <h2 class="card-header">Roles</h2>
+  <div class="card-block">
+    {% for g in project.groups.all %}
+    <div id="{{ g.name|cut:" " }}Modal" class="modal fade">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Users to {{ g.name }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form action="/projects/{{ project.key }}/admin/addUserToGroup">
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="users">
+                  Users
+                </label>
+                <select id="{{ g.name|cut:" " }}Users"
+                        name="users" class="form-control" multiple>
+                  {% for u in g.user_set.all %}
+                  <option selected value="{{ u.id }}">{{ u.username }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <input type="hidden"
+                     name="next"
+                     value="/projects/{{ project.key }}/admin#roles" />
+              <input type="hidden"
+                     name="group"
+                     value="{{ g.id }}" />
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Save changes</button>
+              <button type="button"
+                      class="btn btn-secondary"
+                      data-dismiss="modal">Close</button>
+            </div>
+          </form>
+
+          <script>
+$('#{{ g.name|cut:" " }}Users').select2({
+  ajax: {
+    url: '/api/users',
+    dataType: 'json',
+    data: function(params) {
+      return {search: params.term}
+    },
+    processResults: function(data, params) {
+      return {
+        results: data
+        .map((x) => { return {id: x.id, text: x.username } })
+        .filter((x) => {
+          return $('#{{ g.name|cut:" " }}Modal').val().indexOf(x.text) === -1
+        })
+      }
+    }
+  }
+});
+
+// Select2 wigs out when in a hidden div.
+$('.select2').width("100%");
+$('.select2-search__field').width("100%");
+
+
+ $('#{{ g.name|cut:" " }}Modal').on('shown.bs.modal', function () {
+   $('#{{ g.name|cut:" " }}Users').focus()
+ })
+          </script>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="m-bottom"
+         style="border-top: 1px solid #ddd; padding-top: 1rem">
+      <h4 class="m-bottom">
+        {{ g.name }}
+        <button class="ion-plus btn btn-success btn-sm"
+                data-toggle="modal"
+                data-target="#{{ g.name|cut:" " }}Modal"></button>
+      </h4>
+      <table class="table">
+        <tr>
+          <th>Username</th>
+          <th>Full Name</th>
+          <th>Email</th>
+        </tr>
+        {% for u in g.user_set.all %}
+        <tr>
+          <td>
+            <a href="/users/{{ u.username }}">
+              <img class="sm-profile-pic"
+                   src="{{ u.profile.profile_pic }}" >
+                   {{ u.username }}
+            </a>
+          </td>
+          <td>{{ u.get_full_name }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            <a href="/projects/{{ project.key }}/admin/removeUserFromGroup?user={{ u.id }}&group={{ g.id }}&next=/projects/{{ project.key }}/admin#roles"
+              class="btn btn-sm btn-danger ion-close"></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<a id="permissions" class="anchor"></a>
+<div class="card mw1000 m-bottom" >
+  <h2 class="card-header">Permissions</h2>
+  <div class="card-block">
+    {% for g in project.groups.all %}
+    <a id="{{ g.name|cut:" " }}Permissions" class="anchor"></a>
+    <div class="m-bottom"
+         style="border-top: 1px solid #ddd; padding-top: 1rem">
+      <h4 class="m-bottom">
+        {{ g.name }}
+      </h4>
+
+      {% get_obj_perms g for project as "group_perms" %}
+      {% for p in permissions %}
+      <ul class="list-group">
+        <li id="{{ g.name|cut:" " }}{{ p.codename }}"
+            class="list-group-item justify-content-between">
+          {{ p.name }}
+          {% if p.codename in group_perms %}
+          <a href="/projects/{{ project.key }}/admin/removePermission?group={{ g.name|urlencode }}&permission={{ p.codename|urlencode }}&next=/projects/{{ project.key }}/admin#{{ g.name|cut:" " }}Permissions"
+             class="btn btn-sm btn-danger ion-close" ></a>
+          {% else %}
+          <a href="/projects/{{ project.key }}/admin/addPermission?group={{ g.name|urlencode }}&permission={{ p.codename|urlencode }}&next=/projects/{{ project.key }}/admin#{{ g.name|cut:" " }}Permissions"
+             class="btn btn-sm btn-success ion-plus" ></a>
+          {% endif %}
+        </li>
+      </ul>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div id="ticketTypeAddModal" class="modal fade">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add tickettype</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/projects/{{ project.key }}/admin/addTicketType">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="ticketType">
+              Ticket Type
+            </label>
+            <select name="ticketType" class="form-control" multiple>
+              {% for t in ticket_types %}
+              <option value="{{ t.id }}">{{ t.name }}</option>
+              {% endfor %}
+            </select>
+            <input type="hidden"
+                   name="next"
+                   value="/projects/{{ project.key }}/admin#types" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save changes</button>
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-dismiss="modal">Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<a id="types" class="anchor"></a>
+<div class="card mw1000 m-bottom" >
+  <h2 class="card-header">
+    Ticket Types
+    <button type="button"
+            class="btn btn-sm btn-success ion-plus"
+            data-toggle="modal"
+            data-target="#ticketTypeAddModal">
+    </button>
+  </h2>
+  <div class="card-block">
+    {% for tt in project.ticket_types.all %}
+    <ul class="list-group">
+      <li class="list-group-item justify-content-between">
+        {{ tt.name }}
+        <a href="/projects/{{ project.key }}/admin/removeTicketType?ticketType={{ tt.id }}&next=/projects/{{ project.key }}/admin#types"
+           class="btn btn-sm btn-danger ion-close" ></a>
+      </li>
+    </ul>
+    {% endfor %}
+  </div>
+</div>
+
+
+<div id="workflowAddModal" class="modal fade">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Workflow</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/projects/{{ project.key }}/admin/addWorkflow">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="ticketType">
+              Ticket Type
+            </label>
+            <select name="ticketType" class="form-control" multiple>
+              <option value="0">Default</option>
+              {% for t in project.ticket_types.all %}
+              <option value="{{ t.id }}">{{ t.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="ticketType">Workflows</label>
+            <select name="workflow" class="form-control" >
+              {% for w in workflows %}
+              <option value="{{ w.id }}">{{ w.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <input type="hidden"
+                 name="next"
+                 value="/projects/{{ project.key }}/admin#workflows" />
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save changes</button>
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-dismiss="modal">Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<a id="workflows" class="anchor"></a>
+<div class="card mw1000 m-bottom" >
+  <h2 class="card-header">
+    Workflows
+    <button type="button"
+            class="btn btn-sm btn-success ion-plus"
+            data-toggle="modal"
+            data-target="#workflowAddModal">
+    </button>
+  </h2>
+  <div class="card-block">
+    <table class="table" >
+      <tr>
+        <th>Ticket Type</th>
+        <th>Workflow Name</th>
+        <th></th>
+      </tr>
+      {% for w in project.workflow_schemes.all %}
+      <tr>
+        <td>
+          {% if w.ticket_type %}
+          {{ w.ticket_type.name }}
+          {% else %}
+          Default
+          {% endif %}
+        </td>
+        <td>
+          {% if w.ticket_type %}
+          <a href="#">
+            {{ w.workflow.name }}
+          </a>
+          {% else %}
+          <select id="defaultWorkflow">
+            {% for wk in workflows %}
+            <option
+                  value="{{ wk.id }}"
+                  {% if wk.name == w.workflow.name %}
+                  selected
+                  {% endif %}>
+            {{ wk.name }}
+            </option>
+            {% endfor %}
+          </select>
+          {% endif %}
+        </td>
+        <td>
+          {% if w.ticket_type %}
+          <a href="/projects/{{ project.key }}/admin/removeWorkflow?ticketType={{ w.ticket_type.id }}&next=/projects/{{ project.key }}/admin#workflows"
+             class="btn btn-sm btn-danger ion-close" ></a>
+          {% else %}
+          <button id="workflowEditButton"
+                  onclick="editDefaultWorkflow();"
+                  class="btn btn-sm btn-success ion-checkmark"></button>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<script>
+function editDefaultWorkflow() {
+  let el = document.getElementById('defaultWorkflow');
+  fetch('/projects/{{ project.key }}/admin/addWorkflow?ticketType=0&workflow=' + el.value).
+    then((res) => {
+      if (!res.ok)
+        alert('Failed to update default workflow. Contact your system adminstrator for help!')
+      else
+        location.reload();
+    });
+}
+</script>
+{% endblock %}

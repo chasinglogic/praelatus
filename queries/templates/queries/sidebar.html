@@ -1,0 +1,80 @@
+<p class="sidebar-header">
+    <b>Quick Actions</b>
+</p>
+
+<script>
+function saveQuery() {
+    let q = document.getElementById("search").value;
+    let name = document.getElementById("name").value;
+    let csrfToken = document.getElementsByName('csrfmiddlewaretoken')[0];
+    fetch('/queries?query='+q+'&name='+name, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken.value
+        },
+        credentials: 'same-origin'
+    }).
+        then(function(res) {
+            if(res.ok) {
+                console.log('Much success!')
+            } else {
+                alert('Error!');
+                console.log(res);
+                console.log(res.text().then(console.log));
+            }
+        })
+}
+</script>
+
+<ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link"
+            data-toggle="modal" data-target="#saveModal">
+            Save Query
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link" href="/queries/mine">
+            Manage Queries
+        </a>
+    </li>
+</ul>
+
+{% if recent_queries %}
+
+<p class="sidebar-header">
+    <b>Recent Queries</b>
+</p>
+
+<ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
+    {% for q in recent_queries %}
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link"
+            href="/queries/{{ q.query.id }}">
+            {{ q.query.name }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endif %}
+
+{% if favorites %}
+
+<p class="sidebar-header">
+    <b>Favorite Queries</b>
+</p>
+
+<ul id="dashnav" class="nav nav-pills flex-column" role="tablist">
+    {% for q in favorites %}
+    <li class="nav-item">
+        <a class="nav-link praelatus-nav-link"
+            href="/queries/{{ q.id }}">
+            {{ q.name }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endif %}

@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/tickets/css/tickets.css" >
+{% endblock %}
+
+{% block sidebar %}
+{% include 'dashboard/sidebar.html' with notification=True %}
+{% endblock %}
+
+{% block content %}
+<h3 class="text-center">My Notifications</h3>
+<div class="card-block mw1000 mr-auto ml-auto" >
+    {% for n in notifications %}
+    <p class="element shadow">
+        <a href="/users/{{ n.actor.username }}">
+            {{ n.actor.username }}
+        </a>
+
+        {{ n.verb }}
+
+        <a href="/tickets/{{ n.action_object.key }}">
+            {{ n.action_object.key }}
+        </a>
+
+        in
+
+        <a href="/projects/{{ n.target.key }}">
+            {{ n.target.name }}
+        </a>
+
+        {{ n.timestamp | date:'h:iA Y-m-d' }}
+    </p>
+    {% endfor %}
+</div>
+{% endblock %}

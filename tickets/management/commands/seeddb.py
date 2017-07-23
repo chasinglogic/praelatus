@@ -2,11 +2,10 @@ from random import randint
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
-
 from fields.models import Field, FieldOption, FieldValue
 from projects.models import Project
-from tickets.models import (Comment, FieldScheme, FieldSchemeField, Ticket,
-                            TicketType, WorkflowScheme)
+from schemes.models import FieldScheme, FieldSchemeField, WorkflowScheme
+from tickets.models import Comment, Ticket, TicketType
 from workflows.models import Status, Transition, Workflow
 
 
@@ -14,10 +13,18 @@ class Command(BaseCommand):
     help = 'Seeds the database with ticket data.'
 
     def handle(self, *args, **kwargs):
-        admin = User.objects.create_superuser('testadmin', 'test@example.com', 'test',
-                                              first_name='Test', last_name='Testerson II')
-        user = User.objects.create_user('testuser', 'test@example.com', 'test',
-                                        first_name='Test', last_name='Testerson')
+        admin = User.objects.create_superuser(
+            'testadmin',
+            'test@example.com',
+            'test',
+            first_name='Test',
+            last_name='Testerson II')
+        user = User.objects.create_user(
+            'testuser',
+            'test@example.com',
+            'test',
+            first_name='Test',
+            last_name='Testerson')
 
         admin.save()
         user.save()
@@ -59,7 +66,8 @@ class Command(BaseCommand):
         w.save()
 
         create = Transition(name='Backlog', to_status=backlog, workflow=w)
-        to_prog = Transition(name='In Progress', to_status=in_progress, workflow=w)
+        to_prog = Transition(
+            name='In Progress', to_status=in_progress, workflow=w)
         to_done = Transition(name='Done', to_status=done, workflow=w)
 
         to_done.save()
@@ -86,26 +94,30 @@ class Command(BaseCommand):
 
         FieldSchemeField(field=priority, scheme=fs).save()
 
-        fs = FieldScheme(name='Feature Field Scheme', project=p, ticket_type=feature)
+        fs = FieldScheme(
+            name='Feature Field Scheme', project=p, ticket_type=feature)
         fs.save()
 
         FieldSchemeField(field=priority, scheme=fs).save()
         FieldSchemeField(field=story_points, scheme=fs).save()
 
-        ws = WorkflowScheme(name='Default Workflow Scheme', project=p,
-                            ticket_type=None, workflow=w)
+        ws = WorkflowScheme(
+            project=p,
+            ticket_type=None,
+            workflow=w)
         ws.save()
 
         for i in range(25):
-            t = Ticket(key=p.key + '-' + str(i + 1),
-                       summary='This is ticket #' + str(i + 1),
-                       reporter=users[randint(0, 1)],
-                       assignee=users[randint(0, 1)],
-                       ticket_type=ticket_types[randint(0, 2)],
-                       project=p,
-                       status=backlog,
-                       workflow=w,
-                       description="""
+            t = Ticket(
+                key=p.key + '-' + str(i + 1),
+                summary='This is ticket #' + str(i + 1),
+                reporter=users[randint(0, 1)],
+                assignee=users[randint(0, 1)],
+                ticket_type=ticket_types[randint(0, 2)],
+                project=p,
+                status=backlog,
+                workflow=w,
+                description="""
 # Utque erant et edentem suoque nox fertur
 
 ## Tegi aurum inridet flumine auras natas vulnus
@@ -136,10 +148,14 @@ facit mihi primaque remanet parte, eundo.
             t.save()
 
             fvs = [
-                FieldValue(field=story_points, int_value=randint(1, 20),
-                           content_object=t),
-                FieldValue(field=priority, opt_value=priorities[randint(0, 2)].name,
-                           content_object=t)
+                FieldValue(
+                    field=story_points,
+                    int_value=randint(1, 20),
+                    content_object=t),
+                FieldValue(
+                    field=priority,
+                    str_value=priorities[randint(0, 2)].name,
+                    content_object=t)
             ]
 
             for fv in fvs:

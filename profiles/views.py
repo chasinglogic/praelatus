@@ -2,8 +2,23 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
+from rest_framework import generics, filters
 
 from .forms import ExtendedRegistrationForm
+from .serializers import UserSerializer
+
+
+class UserList(generics.ListAPIView):
+    """API for Users"""
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('username', 'email')
+
+
+class UserDetail(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
 
 
 def index(request):

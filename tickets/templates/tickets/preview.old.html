@@ -1,0 +1,98 @@
+<style>
+ .ticket-list, .ticket-preview {
+     height: 100%;
+ }
+
+ .tickets {
+     overflow-x: hidden;
+ }
+
+ .ticket-list, .ticket-preview {
+     overflow-y: scroll;
+ }
+
+ .ticket-list {
+     border-right: 1px solid #ddd;
+ }
+
+ .ticket-preview .separator {
+     padding-bottom: 1rem;
+ }
+
+ .ticket-stub {
+     background-color: white;
+     padding: 1rem;
+     overflow-x: hidden;
+     border-bottom: 1px solid #ddd;
+ }
+
+ .ticket-stub:hover, .ticket-stub.active {
+     color: white;
+     background-color: #59427f;
+     cursor: pointer;
+ }
+
+ .ticket-stub p {
+     margin-bottom: 0;
+ }
+</style>
+
+<div class="row">
+    <div id="{{ unique_id }}-ticket-list" class="ticket-list col-md-3">
+        {% for t in tickets %}
+        <div class="{{ unique_id }}-ticket-stub ticket-stub" id="{{ t.key }}"
+             onclick="{{ unique_id }}LoadPreview(this)">
+            <b>{{ t.key }}</b>
+            <p>{{ t.summary }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    <div id="{{ unique_id }}-preview" class="col-md-9 ticket-preview">
+        {% verbatim %}
+        <h1 class="separator">
+            {{ summary }}
+
+            <a v-bind:href="url" class="btn btn-primary float-right">Detail</a>
+        </h1>
+        <div v-html="description"></div>
+        {% endverbatim %}
+    </div>
+</div>
+
+<script>
+ var converter = new showdown.Converter();
+ var defaultTicket = document.
+                            getElementById('{{ unique_id }}-ticket-list').
+                            children[0];
+
+ var {{ unique_id }}_preview = new Vue({
+     el: '#{{ unique_id }}-preview',
+     data: {
+         key: '',
+         summary: '',
+         description: '',
+         url: ''
+     }
+ });
+
+
+ function {{ unique_id }}LoadPreview(tickEle) {
+     $('.{{ unique_id }}-ticket-stub.active').removeClass('active');
+     $(tickEle).addClass('active');
+
+     {{ unique_id }}_preview.summary = 'Loading....';
+
+     fetch('/api/tickets/'+tickEle.id)
+         .then(function(res) {
+             return res.json();
+         })
+         .then(function(jsn) {
+             {{ unique_id }}_preview.key = jsn.key;
+             {{ unique_id }}_preview.summary = jsn.summary;
+             {{ unique_id }}_preview.description = converter.makeHtml(jsn.description);
+             {{ unique_id }}_preview.url = '/tickets/' + jsn.key;
+         })
+ }
+
+ {{ unique_id }}LoadPreview(defaultTicket);
+</script>
