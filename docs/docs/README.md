@@ -3,11 +3,7 @@
 An Open Source bug tracker and ticketing system. It is licensed under the 
 [Apache 2.0 License](https://github.com/chasinglogic/praelatus/blob/master/LICENSE)
 
-Documentation is here:
-https://docs.praelatus.io/
-
-If you're looking for the official web frontend it's
-[in its own repo](https://github.com/praelatus/frontend)
+Documentation for the project can be found [here](http://docs.praelatus.io)
 
 | Stable | Nightly |
 |:------:|:-------:|
@@ -24,7 +20,8 @@ reporting, Praelatus aims to simplify the way other
 [Open Source](https://opensource.org/) projects operate. Through intuitive
 workflows and support for “Internet Driver’s License” accounts such as Github,
 Google, and Twitter, any user can submit a ticket in three clicks or less –
-including account creation – without the need of a user manual.
+including account creation – without the need of a user manual (though we wrote 
+one anyway because you can't have too much documentation).
 
 ## Contributing
 

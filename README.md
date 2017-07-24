@@ -5,9 +5,6 @@ An Open Source bug tracker and ticketing system.
 Documentation is here:
 https://docs.praelatus.io/
 
-If you're looking for the official web frontend it's
-[in its own repo](https://github.com/praelatus/frontend)
-
 | Stable | Nightly |
 |:------:|:-------:|
 | [![Build Status](https://travis-ci.org/praelatus/praelatus.svg?branch=master)](https://travis-ci.org/praelatus/praelatus) | [![Build Status](https://travis-ci.org/praelatus/praelatus.svg?branch=develop)](https://travis-ci.org/praelatus/praelatus) |
