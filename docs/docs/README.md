@@ -1,6 +1,7 @@
-# Praelatus [![License](https://img.shields.io/badge/license-Apache-blue.svg)](https://github.com/chasinglogic/praelatus/blob/master/LICENSE)
+# Praelatus 
 
-An Open Source bug tracker and ticketing system.
+An Open Source bug tracker and ticketing system. 
+[![License](https://img.shields.io/badge/license-Apache-blue.svg)](https://github.com/chasinglogic/praelatus/blob/master/LICENSE)
 
 Documentation is here:
 https://docs.praelatus.io/
