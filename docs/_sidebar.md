@@ -1,0 +1,3 @@
+- [Praelatus](/)
+- [Contributing](contributing/)
+- [Hacking](hacking/)
