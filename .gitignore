@@ -98,3 +98,4 @@ ENV/
 *.rdb
 static/media*
 db.sqlite3
+worker.pid

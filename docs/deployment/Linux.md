@@ -470,6 +470,22 @@ followed this guide!
 
 # Running Praelatus
 
+Before actually running Praelatus we first have to "migrate" the
+database to the latest schema. To do this simply run:
+
+```bash
+$ ./manage.py migrate
+```
+
+Now we need to collect all the static files into a directory from
+which we can serve them. This is done with:
+
+```bash
+$ ./manage.py collectstatic
+```
+
+## Daemonizing Praelatus
+
 Praelatus runs using gunicorn, we have provided a script with the
 distribution which automatically configures gunicorn to the
 recommended settings based on your server. It is located in
