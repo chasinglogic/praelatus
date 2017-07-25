@@ -305,7 +305,26 @@ First install python3 if not already installed:
 **Note:** If you're on CentOS / Redhat replace python3 with python3.6 wherever
 you see it below.
 
+Now create the virtualenv and activate it:
 
+```bash
+$ python3 -m venv venv
+$ source venv/bin/activate
+```
+
+If everything goes right you should see a little `(venv)` added to your git 
+prompt. For example here was my prompt before and after:
+
+```bash
+chasinglogic@ubuntu-test:/opt/praelatus$ source venv/bin/activate
+(venv) chasinglogic@ubuntu-test:/opt/praelatus$
+```
+
+Now install the dependencies required by Praelatus with pip:
+
+```bash
+$ pip install -r requirements.txt
+```
 
 # Configuring Praelatus
 
