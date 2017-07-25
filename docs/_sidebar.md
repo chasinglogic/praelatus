@@ -1,3 +1,7 @@
 - [Praelatus](/)
+- [Deployment](deployment/)
+   - [Linux](deployment/Linux)
+   - [Windows](deployment/Windows)
+- [Advanced Topics](deployment/advanced/)
 - [Contributing](contributing/)
 - [Hacking](hacking/)

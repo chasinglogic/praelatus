@@ -2,36 +2,34 @@ In this guide anywhere the commands would differ based on Linux distro
 we will provide seperate commands for all supported Linux distros,
 otherwise only the required command will be provided.
 
-## Installing Postgres
+# Installing Postgres
 
 If you already have Postgres set up skip ahead
-to [Installing Praelatus](#installing-praelatus)
-or [Installing Redis (Optional)](#installing-redis-optional) if you
-plan on using Redis
+to [Installing Redis](#installing-redis). 
 
 First install postgres using your package manager:
 
 **Ubuntu**
 
-```text
+```bash
 # apt-get install postgresql
 ```
 
 **Fedora**
 
-```text
+```bash
 # dnf install postgresql postgresql-server
 ```
 
 **CentOS / Redhat**
 
-```text
+```bash
 # yum install postgresql postgresql-server
 ```
 
 Then enable and start the postgres server using systemd:
 
-```text
+```bash
 # systemctl enable postgresql
 # systemctl start postgresql
 ```
@@ -39,7 +37,7 @@ Then enable and start the postgres server using systemd:
 Then we need to setup password based authentication switch to the
 postgres user then connect to the database:
 
-```text
+```bash
 # su - postgres
 $ psql
 ```
@@ -47,7 +45,7 @@ $ psql
 You should then be greeted with a postgres shell that looks something
 like this:
 
-```text
+```bash
 psql (9.5.6)
 Type "help" for help.
 
@@ -56,7 +54,7 @@ postgres=#
 
 Let's create the database for praelatus:
 
-```text
+```bash
 postgres=# CREATE DATABASE praelatus;
 CREATE DATABASE
 postgres=#
@@ -65,7 +63,7 @@ postgres=#
 Now create an account and give it privileges on the database, **MAKE
 SURE TO CHANGE THE PASSWORD IN THIS QUERY**:
 
-```text
+```bash
 postgres=# CREATE ROLE praelatus WITH PASSWORD 'changeme';
 CREATE ROLE
 postgres=# GRANT ALL PRIVILEGES ON DATABASE praelatus TO praelatus;
@@ -77,63 +75,239 @@ Feel free to change the database name, account name, and password to
 taste as we will be configuring what praelatus uses later.
 
 You can then quit out of the postgres prompt by running `\q` you're
-now reading to move on
-to [Installing Praelatus](#installing-praelatus)
-or [Installing Redis (Optional)](#installing-redis-optional) as
-appropriate.
+now reading to move on to [Installing Redis](#installing-redis).
 
-## Installing Redis
+# Installing Redis
 
-TODO
+Per the [Redis quick start guide](https://redis.io/topics/quickstart) 
+it is recommended to install Redis from source. To do this simply run the 
+following commands:
 
-## Installing Rabbitmq
+```bash
+# Download the source tarball
+$ curl -O http://download.redis.io/redis-stable.tar.gz
 
-TODO
+# Extract the contents
+$ tar xvzf redis-stable.tar.gz
 
-## Running Celery
+# Compile Redis
+$ cd redis-stable
+$ make
+```
 
-TODO
+**Note:** If you're missing make or gcc you'll need to install gcc and make via 
+your package manager.
 
-## Installing Praelatus
+
+You'll need to be root to finish installing Redis simply run:
+
+```bash
+# make install
+```
+
+This will copy the Redis binaries to /usr/local/bin so it is in your `$PATH`.
+Next we will "productionalize" and secure Redis. Let's start by creating
+directories for the configuration and data of Redis.
+
+```bash
+# mkdir /etc/redis
+# mkdir /var/redis
+```
+
+**Note:** The following commands assume you're still in the directory that you 
+compiled Redis in.
+
+```bash
+# cp redis.conf /etc/redis/main.conf
+# mkdir /var/redis/main
+```
+
+Make the following changes to `/etc/redis/main.conf`:
+
+- Change supervised to yes
+- Change dir to `/var/redis/main`
+- Change logfile to `/var/log/redis.log`
+- Change pidfile to `/var/run/redis_main.pid`
+
+Next create a file at `/etc/systemd/system/redis.service` and write the following
+to it
+
+```
+[Unit]
+Description=Redis Datastore Server
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/redis/redis_main.pid
+ExecStartPre=/bin/mkdir -p /var/run/redis
+ExecStartPre=/bin/chown redis:redis /var/run/redis
+
+ExecStart=/sbin/start-stop-daemon --start --chuid redis:redis --pidfile /var/run/redis/redis.pid --umask 007 --exec /usr/bin/redis-server -- /etc/redis/redis.conf
+ExecReload=/bin/kill -USR2 $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Now create the user to run Redis:
+
+```bash
+# useradd redis
+# chown -R /var/redis
+```
+
+Finally enable and start the Redis service:
+
+```bash
+# systemctl enable redis
+# systemctl start redis
+```
+
+**Note:** Most modern Linux distributions use SystemD now. If you're using a 
+distribution on SysV Init or some other init system the Redis quick start guide
+has [pretty good docs](https://redis.io/topics/quickstart#installing-redis-more-properly) 
+on how to set that up.
+
+You're almost there! You can set up Rabbitmq for async messaging in Praelatus
+but if you would rather not [install rabbitmq](#installing-rabbitmq) you can
+move on to [installing Praelatus](#installing-praelatus). Celery can use Redis
+as a messaging backend however it is not recommended (and not supported).
+
+
+**Note:** This guide leaves Redis configured without a password. Praelatus does
+support authenticated instances of Redis but configuring it is outside the
+scope of this document. Redis with this configuration however is NOT exposed
+to the internet. If you feel the need to add a password to Redis please consult
+[Redis' documentation](https://redis.io)
+
+# Installing Rabbitmq
+
+Luckily rabbitmq is in most major distro's repositories so installing is simply
+a matter of the appropriate command:
+
+**Ubuntu**
+
+```bash
+# apt-get install rabbitmq
+```
+
+**Fedora**
+
+```bash
+# dnf install rabbitmq-server
+```
+
+**CentOS / Redhat**
+
+```bash
+# yum install rabbitmq-server
+```
+
+**Note:** If you're on Fedora / RHEL / CentOS you can download an RPM with newer
+versions of RabbitMQ from 
+[their website](https://admin.fedoraproject.org/updates/rabbitmq-server)
+
+Once installed just enable and start the service:
+
+```bash
+# systemctl enable rabbitmq-server
+# systemctl start rabbitmq-server
+```
+
+That's all that's required to get RabbitMQ up and running.
+
+**Note:** Configuring RabbitMQ for remote access is oustide the scope of this 
+document. As it stands RabbitMQ will be bound to localhost with a user and 
+password of guest. If you would like to further steps in configuring 
+RabbitMQ [please consult their website](https://rabbitmq.com)
+
+
+# Installing Praelatus
 
 For security reasons it's highly recommended that you create a service
 account for running the application and configure a reverse proxy to
 serve the application. You can create an account to do this with the
 following command:
 
-```text
+```bash
 # useradd --create-home --home-dir /opt/praelatus/ --comment "service account for praelatus" praelatus
 ```
 
-Download the latest Praelatus release
-from [here](https://github.com/praelatus/praelatus/releases) then you
-extract the tarball and place the files in an appropriate folder, we
-recommend using `/opt/praelatus/` and if you created the user as above
-you can install it by simply changing to that user:
+## Downloading Praelatus
 
-```text
+Before downloading switch to the service account. Then choose a download method
+below.
+
+```bash
 # su - praelatus
 ```
-Once you have the download link from the release page you can curl it down to
-your server, here I'm downloading v0.0.2:
 
-```text
-$ curl -sSOL https://github.com/praelatus/praelatus/releases/download/v0.0.2/praelatus-v0.0.2-linux-amd64.tar.gz
+### Downloading using curl
+
+The curl command below will get the latest tarball from our github releases 
+page. You will then need to extract the contents from that tarball. Make sure
+to change the version number accordingly.
+
+```bash
+$ curl -s https://api.github.com/repos/praelatus/praelatus/releases/latest | grep browser_download_url | grep -i 'linux' | cut -d '"' -f 4
+$ tar xzvf praelatus-<version number>-linux.tar.gz
 ```
 
-Then simply extract the tar ball:
+### Downloading using git 
 
-```text
+Alternatively you can "download" Praelatus using git if you'd like to do 
+something fancy. Our tip of master is always our latest release and develop
+tends to stay fairly stable if you'd like to be on the bleeding edge. Otherwise
+skip this step:
+
+```bash
+$ git clone https://github.com/praelatus/praelatus .
+```
+
+```bash
 $ tar xzf praelatus-v0.0.2-linux-amd64.tar.gz
 ```
 
-TODO FINISH THE INSTALLATION
+## Setting up Python
 
-You should now have the praelatus REST API and client folder inside of
-`/opt/praelatus` at this point you're ready to move on
-to [Configuring Praelatus](#configuring-praelatus)
+At this point you should have a praelatus installation located at 
+`/opt/praelatus` (if there is not a python script at 
+`/opt/praelatus/manage.py` then something has gone awry). The first step is to
+set up a virtualenv. Virtualenv's are a way that Python programmers keep app
+dependencies isolated from the system to prevent nastiness. You can read more
+about them [here](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/)
+though it is not necessary as we will document everything you need to know to
+get Praelatus up and running here.
 
-## Configuring Praelatus
+First install python3 if not already installed:
+
+**Ubuntu**
+
+```bash
+# apt-get install python3 python3-dev
+```
+
+**Fedora**
+
+```bash
+# dnf install python3 python3-devel
+```
+
+**CentOS / Redhat**
+
+```bash
+# yum install yum-utils
+# yum install https://centos7.iuscommunity.org/ius-release.rpm
+# yum install python36u
+```
+
+**Note:** If you're on CentOS / Redhat replace python3 with python3.6 wherever
+you see it below.
+
+
+
+# Configuring Praelatus
 
 Praelatus supports configuration through environment variables as well as a
 config.json file which should be located in the same directory as the praelatus
@@ -142,7 +316,7 @@ variable based configuration.
 
 The easiest way to get a config.json is using the `config gen` subcommand:
 
-```text
+```bash
 $ praelatus config gen
 ```
 
@@ -165,7 +339,7 @@ The default config.json that is generated from this looks like:
 		"SessionStore": "bolt"
 		"SessionURL": "sessions.db",
 		"Port": ":8080",
-		"ContextPath": "",
+		"ConbashPath": "",
 		"LogLocations": [
 				"stdout"
 		],
@@ -195,15 +369,15 @@ For example to listen only on localhost:
 
 **PRAELATUS_CONTEXT_PATH**
 
-This is the context path that will be prepended to all of Praelatus' routes,
+This is the conbash path that will be prepended to all of Praelatus' routes,
 by default it is unset.
 
-## Running Praelatus
+# Running Praelatus
 
 Once you have set your configuration appropriately you can now run praelatus.
 First make sure the database connection is working using the testdb subcommand:
 
-```text
+```bash
 $ praelatus testdb
 ```
 
@@ -212,7 +386,7 @@ TODO UPDATE ALL OF THIS
 If this comes back with `connection successful!` then we can run the API server
 by just running the binary:
 
-```text
+```bash
 $ praelatus serve
 ```
 
@@ -242,7 +416,7 @@ Save that to `/etc/systemd/system/multi-user.target.wants` with the
 name `praelatus.service` and you can then enable and start praelatus
 using systemd:
 
-```text
+```bash
 # systemctl enable praelatus
 # systemctl start praelatus
 ```

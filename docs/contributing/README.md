@@ -16,7 +16,7 @@
   you'd like to help in this capacity you can
   email [team@praelatus.io](mailto:team@praelatus.io).
 
-# General Contribution Guidelines
+# General Guidelines
 
 If you're planning on working on something, make sure you open an
 issue or claim an existing one. This practice helps everyone on the
@@ -33,7 +33,7 @@ assume you've abandoned work.
 only that you need to update it so we know you have not abandoned
 working on the issue.
 
-# General Code Contribution Guidelines
+# Code Contribution Guidelines
 
 
 1. All code must have tests. Unit tests are preferred, integration
@@ -47,7 +47,7 @@ working on the issue.
 Documentation for building Praelatus can be
 found [here](/Contributing/Code/Building Praelatus)
 
-## Bug Report Guidelines
+# Bug Report Guidelines
 
 Bug reports are welcome. If you're not sure if the issue you're
 experiencing is a bug or not, report it anyway.
