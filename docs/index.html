@@ -12,9 +12,23 @@
 </body>
 <script>
   window.$docsify = {
-    name: '',
-    repo: ''
+    name: 'Praelatus',
+    repo: 'https://github.com/praelatus/praelatus',
+    loadSidebar: true,
+    subMaxLevel: 2,
+    search: {
+      noData: {
+        '/': 'No results!'
+      },
+      paths: 'auto',
+      placeholder: {
+        '/': 'Search'
+      }
+    }
   }
 </script>
 <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+<script src="//unpkg.com/prismjs/components/prism-bash.min.js"></script>
+<script src="//unpkg.com/prismjs/components/prism-python.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/docsify@latest/lib/plugins/search.min.js"></script>
 </html>
