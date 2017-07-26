@@ -169,8 +169,7 @@ try:
         CONFIG = yaml.load(f)
 except FileNotFoundError:
     CONFIG = {
-        'debug':
-        os.getenv('PRAE_DEBUG', False),
+        'debug': ('true' == os.getenv('PRAE_DEBUG', 'false').lower()),
         'allowed_hosts':
         os.getenv('PRAE_ALLOWED_HOSTS', gethostname()).split(','),
         'session_engine':
@@ -235,10 +234,8 @@ except FileNotFoundError:
             os.getenv('PRAE_EMAIL_USER', None),
             'pass':
             os.getenv('PRAE_EMAIL_PASS', None),
-            'use_tls':
-            bool(os.getenv('PRAE_EMAIL_USE_TLS', 'false')),
-            'use_ssl':
-            bool(os.getenv('PRAE_EMAIL_USE_SSL', 'false')),
+            'use_tls': ('true' == os.getenv('PRAE_EMAIL_USE_TLS', 'false').lower()),
+            'use_ssl': ('true' == os.getenv('PRAE_EMAIL_USE_TLS', 'false').lower()),
         }
     }
 
