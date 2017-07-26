@@ -1,3 +1,5 @@
+# Deploying Praelatus on Linux
+
 In this guide anywhere the commands would differ based on Linux distro
 we will provide seperate commands for all supported Linux distros,
 otherwise only the required command will be provided.
@@ -98,24 +100,23 @@ $ make
 **Note:** If you're missing make or gcc you'll need to install gcc and
 make via your package manager.
 
-
 You'll need to be root to finish installing Redis simply run:
 
 ```bash
 # make install
 ```
 
-This will copy the Redis binaries to /usr/local/bin so it is in your
-`$PATH`.  Next we will "productionalize" and secure Redis. Let's start
-by creating directories for the configuration and data of Redis.
+This will copy the Redis binaries to /usr/local/bin so it is in your `$PATH`.
+Next we will "productionalize" and secure Redis. Let's start by creating
+directories for the configuration and data of Redis.
 
 ```bash
 # mkdir /etc/redis
 # mkdir /var/redis
 ```
 
-**Note:** The following commands assume you're still in the directory
-that you compiled Redis in.
+**Note:** The following commands assume you're still in the directory that you
+compiled Redis in.
 
 ```bash
 # cp redis.conf /etc/redis/main.conf
@@ -129,8 +130,8 @@ Make the following changes to `/etc/redis/main.conf`:
 - Change logfile to `/var/log/redis.log`
 - Change pidfile to `/var/run/redis_main.pid`
 
-Next create a file at `/etc/systemd/system/redis.service` and write
-the following to it
+Next create a file at `/etc/systemd/system/redis.service` and write the following
+to it
 
 ```
 [Unit]
@@ -164,32 +165,27 @@ Finally enable and start the Redis service:
 # systemctl start redis
 ```
 
-**Note:** Most modern Linux distributions use SystemD now. If you're
-using a distribution on SysV Init or some other init system the Redis
-quick start guide
-has
-[pretty good docs](https://redis.io/topics/quickstart#installing-redis-more-properly) on
-how to set that up.
+**Note:** Most modern Linux distributions use SystemD now. If you're using a
+distribution on SysV Init or some other init system the Redis quick start guide
+has [pretty good docs](https://redis.io/topics/quickstart#installing-redis-more-properly)
+on how to set that up.
 
-You're almost there! You can set up Rabbitmq for async messaging in
-Praelatus but if you would rather
-not [install rabbitmq](#installing-rabbitmq) you can move on
-to [installing Praelatus](#installing-praelatus). Celery can use Redis
-as a messaging backend however it is not recommended (and not
-supported).
+You're almost there! You can set up Rabbitmq for async messaging in Praelatus
+but if you would rather not [install rabbitmq](#installing-rabbitmq) you can
+move on to [installing Praelatus](#installing-praelatus). Celery can use Redis
+as a messaging backend however it is not recommended (and not supported).
 
 
-**Note:** This guide leaves Redis configured without a
-password. Praelatus does support authenticated instances of Redis but
-configuring it is outside the scope of this document. Redis with this
-configuration however is NOT exposed to the internet. If you feel the
-need to add a password to Redis please
-consult [Redis' documentation](https://redis.io)
+**Note:** This guide leaves Redis configured without a password. Praelatus does
+support authenticated instances of Redis but configuring it is outside the
+scope of this document. Redis with this configuration however is NOT exposed
+to the internet. If you feel the need to add a password to Redis please consult
+[Redis' documentation](https://redis.io)
 
 # Installing Rabbitmq
 
-Luckily rabbitmq is in most major distro's repositories so installing
-is simply a matter of the appropriate command:
+Luckily rabbitmq is in most major distro's repositories so installing is simply
+a matter of the appropriate command:
 
 **Ubuntu**
 
@@ -270,10 +266,6 @@ bleeding edge. Otherwise skip this step:
 
 ```bash
 $ git clone https://github.com/praelatus/praelatus .
-```
-
-```bash
-$ tar xzf praelatus-v0.0.2-linux-amd64.tar.gz
 ```
 
 ## Setting up Python
@@ -470,6 +462,22 @@ followed this guide!
 
 # Running Praelatus
 
+Before actually running Praelatus we first have to "migrate" the
+database to the latest schema. To do this simply run:
+
+```bash
+$ ./manage.py migrate
+```
+
+Now we need to collect all the static files into a directory from
+which we can serve them. This is done with:
+
+```bash
+$ ./manage.py collectstatic
+```
+
+## Daemonizing Praelatus
+
 Praelatus runs using gunicorn, we have provided a script with the
 distribution which automatically configures gunicorn to the
 recommended settings based on your server. It is located in
@@ -479,10 +487,12 @@ service to run Praelatus for you. Our configuration is below:
 ```toml
 [Unit]
 Description=Praelatus, an Open Source Ticketing / Bug Tracking System
-Requires=postgresql.service redis.service
+Requires=postgresql.service
 After=network-online.target
 
 [Service]
+Requires=postgresql.service redis.service
+After=network-online.target
 ExecStart=/opt/praelatus/bin/start-praelatus.sh
 User=praelatus
 
@@ -498,7 +508,7 @@ enable and start praelatus using systemd:
 # systemctl start praelatus
 ```
 
-Praelatus will now be running at: localhost:
+Praelatus will now be running at: localhost:8000
 
 Finally you'll need an http server to use as a reverse proxy and
 serving the client, this is MUCH faster than Praelatus serving it

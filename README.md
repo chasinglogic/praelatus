@@ -1,15 +1,16 @@
-# Praelatus [![License](https://img.shields.io/badge/license-Apache-blue.svg)](https://github.com/chasinglogic/praelatus/blob/master/LICENSE)
+# Praelatus
 
-An Open Source bug tracker and ticketing system.
+An Open Source bug tracker and ticketing system. It is licensed under the
+[Apache 2.0 License](https://github.com/chasinglogic/praelatus/blob/master/LICENSE)
 
-Documentation is here:
-https://docs.praelatus.io/
+## Build Status
 
-| Stable | Nightly |
+| Version | Status |
 |:------:|:-------:|
-| [![Build Status](https://travis-ci.org/praelatus/praelatus.svg?branch=master)](https://travis-ci.org/praelatus/praelatus) | [![Build Status](https://travis-ci.org/praelatus/praelatus.svg?branch=develop)](https://travis-ci.org/praelatus/praelatus) |
+| Stable | [![Build Status](https://travis-ci.org/praelatus/praelatus.svg?branch=master)](https://travis-ci.org/praelatus/praelatus) |
+| Nightly | [![Build Status](https://travis-ci.org/praelatus/praelatus.svg?branch=develop)](https://travis-ci.org/praelatus/praelatus) |
 
-## What is Praelatus?
+# Why Praelatus?
 
 Praelatus is a modern bug tracker and ticketing system inspired by JIRA,
 BugZilla, and the many support ticketing systems members of the Core Team
@@ -20,33 +21,30 @@ reporting, Praelatus aims to simplify the way other
 [Open Source](https://opensource.org/) projects operate. Through intuitive
 workflows and support for “Internet Driver’s License” accounts such as Github,
 Google, and Twitter, any user can submit a ticket in three clicks or less –
-including account creation – without the need of a user manual.
+including account creation – without the need of a user manual (though we wrote
+one anyway because you can't have too much documentation).
 
-## Contributing
+# Contributing
 
-The basics:
-
-1. Fork it! :fork_and_knife:
-2. Create an issue describing what you're working on.
-3. Create your feature branch: `git checkout -b my-new-feature`
-4. Commit your changes: `git commit -am 'Add some feature'`
-5. Push to the branch: `git push origin my-new-feature`
-6. :fire: Submit a pull request :D :fire:
-
-All pull requests should go to the develop branch not master. Thanks!
+Praelatus is built with [Python](https://python.org) and
+[Django](https://djangoproject.org). We're open to any and all contributions.
+Please read our [Contribution Documentation](contributing/) docs first.
 
 Need help getting started hacking on Praelatus? No problem we have docs for that!
-- [Contribution Guidelines](https://github.com/praelatus/praelatus/blob/develop/CONTRIBUTING.md)
-- [HACKING](https://doc.praelatus.io/contributing/HACKING)
-- [REST API Reference](https://doc.praelatus.io/rest/api_reference/)
 
-## Installation
+- [Contribution Guidelines](http://praelatus.io/#/contributing/)
+- [HACKING](http://praelatus.io/#/hacking/)
+- [REST API Reference](http://praelatus.io/#/api/)
+
+Need more help? Feel free to [contact](#contact) us!
+
+# Installation
 
 View our deployment guides for your platform:
-- [Linux](https://doc.praelatus.io/deployments/linux/)
-- [Windows](https://doc.praelatus.io/deployments/windows/)
+- [Linux](http://praelatus.io/#/deployments/Linux)
+- [Windows](http://praelatus.io/#/deployments/Windows)
 
-## License
+# License
 
 Praelatus is distributed under the Apache License.
 
@@ -65,3 +63,12 @@ Praelatus is distributed under the Apache License.
    See the License for the specific language governing permissions and
    limitations under the License.
 ```
+
+
+# Core Team
+
+Praelatus is maintained by these fine folks:
+
+- [Mathew Robinson](https://github.com/chasinglogic)
+- [Wes Swett](https://github.com/donotwesthisup)
+- [Ryan Brzezinski](https://github.com/link867)
