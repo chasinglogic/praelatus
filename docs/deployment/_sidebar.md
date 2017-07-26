@@ -4,3 +4,4 @@
 - [Advanced Topics](deployment/advanced/)
    - [Configuring Apache](deployment/advanced/apache)
    - [Configuring NGINX](deployment/advanced/nginx)
+   - [Advanced Praelatus Configuration](deployment/advanced/configuration)
