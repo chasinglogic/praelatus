@@ -1,7 +1,12 @@
-- [Praelatus](/)
-- [Deployment](deployment/)
+- Deployment
    - [Linux](deployment/Linux)
    - [Windows](deployment/Windows)
-- [Advanced Topics](deployment/advanced/)
-- [Contributing](contributing/)
-- [Hacking](hacking/)
+- Advanced Topics
+   - [Configuring Apache](deployment/advanced/apache)
+   - [Configuring NGINX](deployment/advanced/nginx)
+   - [Advanced Praelatus Configuration](deployment/advanced/configuration)
+- Contributing
+   - [Contribution Guidelines](contributing/guidelines)
+   - [Hacking](contributing/hacking)
+   - [Git Workflow](contributing/git_workflow)
+   - [Code of Conduct](contributing/code_of_conduct)

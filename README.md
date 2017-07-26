@@ -3,13 +3,6 @@
 An Open Source bug tracker and ticketing system. It is licensed under the
 [Apache 2.0 License](https://github.com/chasinglogic/praelatus/blob/master/LICENSE)
 
-## Build Status
-
-| Version | Status |
-|:------:|:-------:|
-| Stable | [![Build Status](https://travis-ci.org/praelatus/praelatus.svg?branch=master)](https://travis-ci.org/praelatus/praelatus) |
-| Nightly | [![Build Status](https://travis-ci.org/praelatus/praelatus.svg?branch=develop)](https://travis-ci.org/praelatus/praelatus) |
-
 # Why Praelatus?
 
 Praelatus is a modern bug tracker and ticketing system inspired by JIRA,
