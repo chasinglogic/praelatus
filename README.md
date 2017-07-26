@@ -32,17 +32,17 @@ Please read our [Contribution Documentation](contributing/) docs first.
 
 Need help getting started hacking on Praelatus? No problem we have docs for that!
 
-- [Contribution Guidelines](contributing/)
-- [HACKING](hacking/)
-- [REST API Reference](api/)
+- [Contribution Guidelines](http://praelatus.io/#/contributing/)
+- [HACKING](http://praelatus.io/#/hacking/)
+- [REST API Reference](http://praelatus.io/#/api/)
 
 Need more help? Feel free to [contact](#contact) us!
 
 # Installation
 
 View our deployment guides for your platform:
-- [Linux](deployments/linux/)
-- [Windows](deployments/windows/)
+- [Linux](http://praelatus.io/#/deployments/Linux)
+- [Windows](http://praelatus.io/#/deployments/Windows)
 
 # License
 
