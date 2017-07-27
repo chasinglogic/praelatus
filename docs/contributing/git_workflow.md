@@ -35,7 +35,7 @@ if the name is short and to the point then it's probably good enough.
 
 We use Pull Requests and merges to bring these changes back into `master`
 however, we try to keep the branches to as few commits as possible. Generally 1
-- 2 commits for a branch. We do this through `git rebase` and
+to 2 commits for a branch. We do this through `git rebase` and
 [squashing](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History). This
 allows us to keep the project mangeable from a history perspective as well as
 encourages high quality commit messages. For those unfamiliar with git however
@@ -274,7 +274,13 @@ Bug Fixes:
 #
 ```
 
-From that point you can [open a pull
+From that point you can push to your fork with:
+
+```bash
+git push --force
+```
+
+Finally you will [open a pull
 request](https://help.github.com/articles/creating-a-pull-request/) on Github
 and it will automatically populate the PR with the well written commit message.
 From there a member of the core team will perform a code review and any
