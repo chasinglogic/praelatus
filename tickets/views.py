@@ -106,19 +106,24 @@ def show(request, key=''):
 
 
 @login_required
-def create(request, project_key='', ticket_type=''):
-    proj = Project.objects.get(key=project_key)
-    if not request.user.has_perm('projects.create_tickets', proj):
-        raise PermissionDenied
+def create(request):
+    flash = None
 
     if request.method == 'POST':
-        ttype = TicketType.objects.get(name=ticket_type)
+        proj = Project.objects.get(id=request.POST.get('project'))
+        if not request.user.has_perm('projects.create_tickets', proj):
+            raise PermissionDenied
+
+        ttype = TicketType.objects.get(id=request.POST.get('ticket_type'))
         workflow = WorkflowScheme.\
             get_for_project(project=proj, ticket_type=ttype).\
             workflow
 
+        task_of = request.POST.get('task_of')
+        parent = Ticket.objects.get(id=task_of) if task_of else None
+
         t = Ticket(
-            key=project_key + '-' + str(proj.content.count() + 1),
+            key=proj.key + '-' + str(proj.content.count() + 1),
             summary=request.POST['summary'],
             project=proj,
             reporter=request.user,
@@ -127,12 +132,16 @@ def create(request, project_key='', ticket_type=''):
             workflow=workflow,
             description=request.POST['description'])
 
+        if parent:
+            t.parent = parent
+
         t.save()
 
         fields = [
             f for f in request.POST.keys()
             if (f != 'labels' and f != 'summary' and f != 'description'
-                and f != 'csrfmiddlewaretoken')
+                and f != 'csrfmiddlewaretoken' and f != 'project'
+                and f != 'ticket_type' and f != 'task_of')
         ]
 
         for f in fields:
@@ -140,20 +149,30 @@ def create(request, project_key='', ticket_type=''):
             value = FieldValue(field=field, content_object=t)
             value.set_value(request.POST[f])
             value.save()
-
         return redirect('/tickets/' + t.key)
 
-    fs = FieldScheme.get_for_project(
-        project=proj, ticket_type__name=ticket_type)
-    return render(request, 'tickets/create.html', {'fs': fs})
+    # Grab the params
+    project = request.GET.get('project')
+    ticket_type = request.GET.get('ticket_type')
 
+    p = Project.objects.get(id=project) if project else None
+    if p and not request.user.has_perm('projects.create_tickets', p):
+        flash = 'You do not have permission to create tickets in this project.'
 
-def create_prompt(request):
-    projects = get_objects_for_user(request.user, 'projects.create_tickets')
-    ticket_types = TicketType.objects.all()
-    return render(request, 'tickets/create_prompt.html',
-                  {'projects': projects,
-                   'ticket_types': ticket_types})
+    tt = TicketType.objects.get(id=ticket_type) if ticket_type else None
+
+    fs = FieldScheme.get_for_project(project=p, ticket_type=tt) \
+        if project and ticket_type else None
+
+    return render(request, 'tickets/create.html',
+                  {
+                      'fs': fs,
+                      'projects': Project.objects.all(),
+                      'ticket_type': tt,
+                      'project': p,
+                      'flash_message': flash,
+                      'task': request.GET.get('task_of')
+                   })
 
 
 @login_required

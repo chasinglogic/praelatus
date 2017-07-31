@@ -72,9 +72,5 @@ class WorkflowScheme(models.Model):
             return schemes[0]
         return None
 
-    def __str__(self):
-        """Return the scheme's name."""
-        return '%s for %s' % (self.name, self.project.name)
-
     class Meta:
         unique_together = ('project', 'ticket_type', 'workflow', )

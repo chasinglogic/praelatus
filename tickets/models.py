@@ -50,6 +50,8 @@ class Ticket(models.Model):
     labels = models.ManyToManyField(Label)
     watchers = models.ManyToManyField(User)
 
+    parent = models.ForeignKey('self', null=True, related_name='tasks')
+
     def watching(self, filter_out=None):
         """Return all users who should be notified of actions on this ticket."""
         recipients = [self.assignee, self.reporter]
@@ -70,6 +72,16 @@ class Ticket(models.Model):
                  ~Q(to_status=self.status))
             ).\
             all()
+
+    def ordered_parents(self):
+        p = [x for x in self.parents()]
+        return reversed(p)
+
+    def parents(self):
+        parent = self.parent
+        while parent is not None:
+            yield parent
+            parent = parent.parent
 
 
 class Comment(models.Model):

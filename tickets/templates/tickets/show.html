@@ -27,6 +27,11 @@
                 <a href="/projects/{{ ticket.project.key }}">
                     {{ ticket.project.name }}
                 </a>
+                {% if ticket.parent %}
+                    {% for p in ticket.ordered_parents %}
+                        / <a href="/tickets/{{ p.key  }}">{{ p.key }}</a>
+                    {% endfor %}
+                {% endif %}
                 / {{ ticket.key }}
             </span>
         </small>
@@ -44,6 +49,39 @@
             <h3 class="card-header">Description</h3>
             <div class="card-block">
                 {{ ticket.description | markdown | safe }}
+            </div>
+        </div>
+
+        <div class="card shadow m-bottom">
+            <h3 class="card-header">
+                {% if ticket.ticket_type.name == "Epic" %}
+                Tickets in Epic
+                {% elif ticket.ticket_type.name == "Story" %}
+                Tickets in Story
+                {% else %}
+                Tasks
+                {% endif %}
+                <a href="/tickets/create?task_of={{ ticket.id }}&project={{ ticket.project.id }}"
+                    class="btn btn-sm btn-success ion-plus float-right">
+                </a>
+            </h3>
+            <div class="card-block">
+                <table class="table table-sm table-striped">
+                    <tbody>
+                    {% for t in ticket.tasks.all %}
+                    <tr>
+                        <td>
+                            <a href="/tickets/{{ t.key }}">
+                               {{ t.key }}
+                            </a>
+                        </td>
+                        <td>
+                            {{ t.summary }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
 

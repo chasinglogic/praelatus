@@ -5,8 +5,8 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.TicketList.as_view()),
-    url(r'^/types$', views.TicketTypeList.as_view()),
-    url(r'^/types/(?P<pk>[0-9]+)$', views.TicketTypeDetail.as_view()),
+    url(r'^/ticketTypes/?$', views.TicketTypeList.as_view()),
+    url(r'^/ticketTypes/(?P<pk>[0-9]+)$', views.TicketTypeDetail.as_view()),
     url(r'^/(?P<key>[A-z]{1,6}-[0-9]+)$', views.TicketDetail.as_view()),
     url(r'^/(?P<key>[A-z]{1,6}-[0-9]+)/comments$',
         views.CommentList.as_view()),
