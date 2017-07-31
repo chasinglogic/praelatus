@@ -14,11 +14,12 @@ class FieldScheme(models.Model):
         TicketType, related_name='field_schemes', blank=True, null=True)
 
     @classmethod
-    def get_for_project(cls, project=None, **kwargs):
-        schemes = cls.objects.filter(project=project, **kwargs)
-
+    def get_for_project(cls, project=None, ticket_type=None, **kwargs):
+        schemes = cls.objects.filter(project=project,
+                                     ticket_type=ticket_type)
         if len(schemes) == 0:
-            schemes = cls.objects.filter(project=project, ticket_type=None)
+            schemes = cls.objects.filter(project=project,
+                                         ticket_type=None)
 
         if len(schemes) > 0:
             return schemes[0]
