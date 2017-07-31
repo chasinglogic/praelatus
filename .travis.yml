@@ -14,5 +14,6 @@ before_script:
   - psql -c "alter role postgres with password 'postgres'" -U postgres
   - ./manage.py genconfig
   - ./manage.py migrate
+  - ./manage.py seeddb
 script:
   - tox

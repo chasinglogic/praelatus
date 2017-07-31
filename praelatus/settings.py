@@ -241,7 +241,7 @@ except FileNotFoundError:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = CONFIG.get('debug', False)
-ALLOWED_HOSTS = CONFIG.get('allowed_hosts')
+ALLOWED_HOSTS = CONFIG.get('allowed_hosts', [])
 SESSION_ENGINE = CONFIG.get('session_engine')
 DATABASES = CONFIG.get('database')
 

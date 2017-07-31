@@ -172,7 +172,7 @@ def create(request):
                       'project': p,
                       'flash_message': flash,
                       'task': request.GET.get('task_of')
-                   })
+                  })
 
 
 @login_required
