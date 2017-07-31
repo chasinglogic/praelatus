@@ -81,20 +81,31 @@ now reading to move on to [Installing Redis](#installing-redis).
 
 # Installing Redis
 
-Per the [Redis quick start guide](https://redis.io/topics/quickstart)
-it is recommended to install Redis from source. To do this simply run
-the following commands:
+Per the [Redis quick start guide](https://redis.io/topics/quickstart) it is
+recommended to install Redis from source. To do this you have to switch back to
+the root account:
+
+if still the postgres account
 
 ```bash
-# Download the source tarball
-$ curl -O http://download.redis.io/redis-stable.tar.gz
+$ exit
+```
 
-# Extract the contents
-$ tar xvzf redis-stable.tar.gz
+or
 
-# Compile Redis
-$ cd redis-stable
-$ make
+```bash
+$ su - root
+```
+
+Then download and compile Redis:
+
+```bash
+# mkdir /opt/redis
+# cd /opt/redis
+# curl -O http://download.redis.io/redis-stable.tar.gz
+# tar xvzf redis-stable.tar.gz
+# cd redis-stable
+# make
 ```
 
 **Note:** If you're missing make or gcc you'll need to install gcc and
