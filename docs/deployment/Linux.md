@@ -166,7 +166,7 @@ Now create the user to run Redis:
 
 ```bash
 # useradd redis
-# chown -R /var/redis
+# chown -R redis:redis /var/redis
 ```
 
 Finally enable and start the Redis service:
@@ -502,6 +502,7 @@ Requires=postgresql.service
 After=network-online.target
 
 [Service]
+WorkingDir=/opt/praelatus
 Requires=postgresql.service redis.service
 After=network-online.target
 ExecStart=/opt/praelatus/bin/start-praelatus.sh

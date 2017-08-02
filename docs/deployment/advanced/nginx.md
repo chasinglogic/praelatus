@@ -86,7 +86,7 @@ server {
    # default location. If you've customized the data directory location then
    # update the alias statement accordingly.
    location /static/ {
-       alias /opt/praelatus/data;
+       alias /opt/praelatus/data/static/;
    }
 
    # This tells NGINX to serve the attachments and force the download of them.
@@ -94,14 +94,14 @@ server {
    # browser can recognize (png, xml, txt, etc.) then it will try to display it
    # instead of downloading it.
    location /media/tickets/attachments {
-      alias /opt/praelatus/data/media/tickets;
+      alias /opt/praelatus/data/media/tickets/;
       add_header Content-Disposition "attachment";
    }
 
    # Serve the rest of the media appropriately (project icons, user avatars,
    # etc.)
    location /media/ {
-      alias /opt/praelatus/data/media;
+      alias /opt/praelatus/data/media/;
    }
 
    # Finally all other requests should go to Praelatus.
