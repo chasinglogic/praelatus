@@ -70,7 +70,7 @@ postgres=# CREATE ROLE praelatus WITH PASSWORD 'changeme';
 CREATE ROLE
 postgres=# GRANT ALL PRIVILEGES ON DATABASE praelatus TO praelatus;
 GRANT
-postgres=#
+postgres=# ALTER ROLE "praelatus" WITH LOGIN;
 ```
 
 Feel free to change the database name, account name, and password to
@@ -125,7 +125,7 @@ compiled Redis in.
 
 Make the following changes to `/etc/redis/main.conf`:
 
-- Change supervised to yes
+- Change supervised to sytemd or v init based on your startup manager
 - Change dir to `/var/redis/main`
 - Change logfile to `/var/log/redis.log`
 - Change pidfile to `/var/run/redis_main.pid`
@@ -144,7 +144,7 @@ PIDFile=/var/run/redis/redis_main.pid
 ExecStartPre=/bin/mkdir -p /var/run/redis
 ExecStartPre=/bin/chown redis:redis /var/run/redis
 
-ExecStart=/sbin/start-stop-daemon --start --chuid redis:redis --pidfile /var/run/redis/redis.pid --umask 007 --exec /usr/bin/redis-server -- /etc/redis/redis.conf
+ExecStart=/sbin/start-stop-daemon --start --chuid redis:redis --pidfile /var/run/redis/redis.pid --umask 007 --exec /usr/local/bin/redis-server -- /etc/redis/redis.conf
 ExecReload=/bin/kill -USR2 $MAINPID
 
 [Install]
@@ -155,9 +155,13 @@ Now create the user to run Redis:
 
 ```bash
 # useradd redis
-# chown -R /var/redis
+# chown redis:redis -R /var/redis
 ```
-
+Now we create the log file:
+```bash
+#touch /var/log/redis.log
+#chown redis:redis /var/log/redis.log
+```
 Finally enable and start the Redis service:
 
 ```bash
@@ -190,7 +194,7 @@ a matter of the appropriate command:
 **Ubuntu**
 
 ```bash
-# apt-get install rabbitmq
+# apt-get install rabbitmq-server
 ```
 
 **Fedora**
