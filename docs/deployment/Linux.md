@@ -70,7 +70,7 @@ postgres=# CREATE ROLE praelatus WITH PASSWORD 'changeme';
 CREATE ROLE
 postgres=# GRANT ALL PRIVILEGES ON DATABASE praelatus TO praelatus;
 GRANT
-postgres=#
+postgres=# ALTER ROLE "praelatus" WITH LOGIN;
 ```
 
 Feel free to change the database name, account name, and password to
@@ -81,20 +81,31 @@ now reading to move on to [Installing Redis](#installing-redis).
 
 # Installing Redis
 
-Per the [Redis quick start guide](https://redis.io/topics/quickstart)
-it is recommended to install Redis from source. To do this simply run
-the following commands:
+Per the [Redis quick start guide](https://redis.io/topics/quickstart) it is
+recommended to install Redis from source. To do this you have to switch back to
+the root account:
+
+if still the postgres account
 
 ```bash
-# Download the source tarball
-$ curl -O http://download.redis.io/redis-stable.tar.gz
+$ exit
+```
 
-# Extract the contents
-$ tar xvzf redis-stable.tar.gz
+or
 
-# Compile Redis
-$ cd redis-stable
-$ make
+```bash
+$ su - root
+```
+
+Then download and compile Redis:
+
+```bash
+# mkdir /opt/redis
+# cd /opt/redis
+# curl -O http://download.redis.io/redis-stable.tar.gz
+# tar xvzf redis-stable.tar.gz
+# cd redis-stable
+# make
 ```
 
 **Note:** If you're missing make or gcc you'll need to install gcc and
@@ -125,7 +136,7 @@ compiled Redis in.
 
 Make the following changes to `/etc/redis/main.conf`:
 
-- Change supervised to yes
+- Change supervised to sytemd or v init based on your startup manager
 - Change dir to `/var/redis/main`
 - Change logfile to `/var/log/redis.log`
 - Change pidfile to `/var/run/redis_main.pid`
@@ -144,7 +155,7 @@ PIDFile=/var/run/redis/redis_main.pid
 ExecStartPre=/bin/mkdir -p /var/run/redis
 ExecStartPre=/bin/chown redis:redis /var/run/redis
 
-ExecStart=/sbin/start-stop-daemon --start --chuid redis:redis --pidfile /var/run/redis/redis.pid --umask 007 --exec /usr/bin/redis-server -- /etc/redis/redis.conf
+ExecStart=/sbin/start-stop-daemon --start --chuid redis:redis --pidfile /var/run/redis/redis.pid --umask 007 --exec /usr/local/bin/redis-server -- /etc/redis/redis.conf
 ExecReload=/bin/kill -USR2 $MAINPID
 
 [Install]
@@ -155,9 +166,14 @@ Now create the user to run Redis:
 
 ```bash
 # useradd redis
-# chown -R /var/redis
+# chown -R redis:redis /var/redis
 ```
+Now we create the log file:
 
+```bash
+# touch /var/log/redis.log
+# chown redis:redis /var/log/redis.log
+```
 Finally enable and start the Redis service:
 
 ```bash
@@ -190,7 +206,7 @@ a matter of the appropriate command:
 **Ubuntu**
 
 ```bash
-# apt-get install rabbitmq
+# apt-get install rabbitmq-server
 ```
 
 **Fedora**
@@ -491,6 +507,7 @@ Requires=postgresql.service
 After=network-online.target
 
 [Service]
+WorkingDir=/opt/praelatus
 Requires=postgresql.service redis.service
 After=network-online.target
 ExecStart=/opt/praelatus/bin/start-praelatus.sh
