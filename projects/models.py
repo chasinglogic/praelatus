@@ -10,7 +10,7 @@ from guardian.shortcuts import assign_perm
 class Project(models.Model):
     """A project is a way to group work."""
 
-    lead = models.ForeignKey(User)
+    lead = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=140, unique=True)
     key = models.CharField(max_length=10, unique=True)
     description = models.TextField(blank=True, null=True)

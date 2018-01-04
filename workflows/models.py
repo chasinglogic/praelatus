@@ -43,7 +43,7 @@ class Workflow(models.Model):
     """A workflow is a set of statuses and transitions."""
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
-    create_status = models.ForeignKey(Status)
+    create_status = models.ForeignKey(Status, on_delete=models.PROTECT)
     web_hooks = GenericRelation(WebHook)
 
     def __str__(self):
@@ -54,9 +54,9 @@ class Workflow(models.Model):
 class Transition(models.Model):
     """A transition from one status to another."""
     name = models.CharField(max_length=255)
-    workflow = models.ForeignKey(Workflow, related_name='transitions')
-    to_status = models.ForeignKey(Status, related_name='+')
-    from_status = models.ForeignKey(Status, related_name='+', null=True, blank=True)
+    workflow = models.ForeignKey(Workflow, related_name='transitions', on_delete=models.CASCADE)
+    to_status = models.ForeignKey(Status, related_name='+', on_delete=models.PROTECT)
+    from_status = models.ForeignKey(Status, related_name='+', null=True, blank=True, on_delete=models.PROTECT)
     web_hooks = GenericRelation(WebHook)
 
     def __str__(self):

@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'django_filters',
     # REST API
     'rest_framework',
+
+    # TODO: NOT COMPATIBLE WITH DJANGO 2 Need to not use github version
     # Github-esque notifications
     # https://github.com/django-notifications/django-notifications
     'notifications',

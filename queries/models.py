@@ -8,7 +8,7 @@ from .dsl import compile_q, make_q
 class Query(models.Model):
     """Store a query for later reference."""
     name = models.CharField(max_length=140)
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     query = models.CharField(max_length=255, blank=True, null=True)
     favorite = models.BooleanField(default=False)
 
@@ -26,8 +26,8 @@ class Query(models.Model):
 
 class QueryUse(models.Model):
     """Store recently used queries."""
-    user = models.ForeignKey(User)
-    query = models.ForeignKey(Query)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    query = models.ForeignKey(Query, on_delete=models.CASCADE)
     last_used = models.DateTimeField(auto_now_add=True)
 
     class Meta:

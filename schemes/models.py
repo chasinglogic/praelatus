@@ -9,9 +9,9 @@ from tickets.models import TicketType
 class FieldScheme(models.Model):
     """Determine what fields a project wants for a ticket type."""
     name = models.CharField(max_length=255)
-    project = models.ForeignKey(Project, related_name='field_schemes')
+    project = models.ForeignKey(Project, related_name='field_schemes', on_delete=models.CASCADE)
     ticket_type = models.ForeignKey(
-        TicketType, related_name='field_schemes', blank=True, null=True)
+        TicketType, related_name='field_schemes', blank=True, null=True, on_delete=models.PROTECT)
 
     @classmethod
     def get_for_project(cls, project=None, ticket_type=None, **kwargs):
@@ -36,8 +36,8 @@ class FieldScheme(models.Model):
 class FieldSchemeField(models.Model):
     """A field on a FieldScheme"""
     required = models.BooleanField(default=False)
-    scheme = models.ForeignKey(FieldScheme, related_name='fields')
-    field = models.ForeignKey(Field)
+    scheme = models.ForeignKey(FieldScheme, related_name='fields', on_delete=models.CASCADE)
+    field = models.ForeignKey(Field, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('scheme', 'field', )
@@ -57,10 +57,10 @@ class FieldSchemeField(models.Model):
 
 class WorkflowScheme(models.Model):
     """Tie a workflow to a project for a TicketType."""
-    project = models.ForeignKey(Project, related_name='workflow_schemes')
-    workflow = models.ForeignKey(Workflow, related_name='schemes')
+    project = models.ForeignKey(Project, related_name='workflow_schemes', on_delete=models.CASCADE)
+    workflow = models.ForeignKey(Workflow, related_name='schemes', on_delete=models.CASCADE)
     ticket_type = models.ForeignKey(
-        TicketType, related_name='workflow_schemes', null=True, blank=True)
+        TicketType, related_name='workflow_schemes', null=True, blank=True, on_delete=models.PROTECT)
 
     @classmethod
     def get_for_project(cls, project=None, **kwargs):

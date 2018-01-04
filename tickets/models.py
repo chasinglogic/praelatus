@@ -37,12 +37,12 @@ class Ticket(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    project = models.ForeignKey(Project, related_name='content')
-    reporter = models.ForeignKey(User, related_name='reported')
-    assignee = models.ForeignKey(User, related_name='assigned', null=True)
-    ticket_type = models.ForeignKey(TicketType, related_name='tickets')
-    status = models.ForeignKey(Status, default=1, related_name='tickets')
-    workflow = models.ForeignKey(Workflow, default=1, related_name='tickets')
+    project = models.ForeignKey(Project, related_name='content', on_delete=models.CASCADE)
+    reporter = models.ForeignKey(User, related_name='reported', on_delete=models.PROTECT)
+    assignee = models.ForeignKey(User, related_name='assigned', null=True, on_delete=models.SET_NULL)
+    ticket_type = models.ForeignKey(TicketType, related_name='tickets', on_delete=models.PROTECT)
+    status = models.ForeignKey(Status, default=1, related_name='tickets', on_delete=models.PROTECT)
+    workflow = models.ForeignKey(Workflow, default=1, related_name='tickets', on_delete=models.PROTECT)
 
     links = GenericRelation(Link, related_query_name='ticket')
     upvotes = GenericRelation(Upvote, related_query_name='ticket')
@@ -50,7 +50,7 @@ class Ticket(models.Model):
     labels = models.ManyToManyField(Label)
     watchers = models.ManyToManyField(User)
 
-    parent = models.ForeignKey('self', null=True, related_name='tasks')
+    parent = models.ForeignKey('self', null=True, related_name='tasks', on_delete=models.CASCADE)
 
     def watching(self, filter_out=None):
         """Return all users who should be notified of actions on this ticket."""
@@ -88,8 +88,8 @@ class Comment(models.Model):
     """A comment on a ticket."""
 
     body = models.TextField()
-    author = models.ForeignKey(User)
-    ticket = models.ForeignKey(Ticket, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    ticket = models.ForeignKey(Ticket, related_name='comments', on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -100,8 +100,8 @@ class Comment(models.Model):
 
 class Attachment(models.Model):
     """An attachment on a ticket."""
-    ticket = models.ForeignKey(Ticket, related_name='attachments')
-    uploader = models.ForeignKey(User, related_name='attachments')
+    ticket = models.ForeignKey(Ticket, related_name='attachments', on_delete=models.CASCADE)
+    uploader = models.ForeignKey(User, related_name='attachments', on_delete=models.CASCADE)
     # Optional display name.
     name = models.CharField(max_length=255, null=True, blank=True)
     attachment = models.FileField(upload_to='tickets/attachments/')

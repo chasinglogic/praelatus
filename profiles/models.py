@@ -9,9 +9,10 @@ from django.dispatch import receiver
 class Profile(models.Model):
     """A users profile."""
 
-    user = models.OneToOneField(User, related_name='profile')
+    user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
     avatar = models.CharField(max_length=255)
     gravatar = models.CharField(max_length=255)
+    active = models.BooleanField(default=True)
 
     @property
     def profile_pic(self):

@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 
 class Link(models.Model):
     """A link to an issue, docs, another ticket."""
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     display = models.CharField(max_length=140)
     href = models.URLField()
 

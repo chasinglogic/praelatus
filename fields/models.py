@@ -73,7 +73,7 @@ def verify_field_data_type(sender, **kwargs):
 class FieldValue(models.Model):
     """An instance of a field with it's value on a some content."""
 
-    field = models.ForeignKey(Field)
+    field = models.ForeignKey(Field, on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()

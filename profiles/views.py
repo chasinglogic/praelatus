@@ -22,7 +22,7 @@ class UserDetail(generics.RetrieveAPIView):
 
 
 def index(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return redirect(settings.LOGIN_REDIRECT_URL)
     form = ExtendedRegistrationForm()
     return render(request, 'index.html', {'form': form})

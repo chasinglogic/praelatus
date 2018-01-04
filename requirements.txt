@@ -3,11 +3,11 @@ billiard==3.5.0.2
 celery==4.0.2
 certifi==2017.4.17
 chardet==3.0.4
-Django==1.11.2
+Django==2.0.1
 django-filter==1.0.4
 django-guardian==1.4.8
 django-redis==4.8.0
-djangorestframework==3.6.3
+djangorestframework==3.7.7
 gevent==1.2.1
 greenlet==0.4.12
 gunicorn==19.7.1
@@ -27,6 +27,6 @@ six==1.10.0
 urllib3==1.21.1
 vine==1.1.3
 ply==3.10
-django-notifications-hq==1.3
 django-attachments==1.1.1
 eventlet==0.21.0
+-e git://github.com/phamk/django-notifications.git@django-2.0#egg=elasticutils

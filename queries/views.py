@@ -43,7 +43,7 @@ def index(request):
     tickets = Ticket.objects.filter(q).\
         filter(project__in=users_projects)
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         recent_queries = QueryUse.objects.\
             filter(user=request.user).\
             order_by('-last_used')[:5]
