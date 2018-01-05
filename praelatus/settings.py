@@ -35,7 +35,7 @@ if os.path.exists(os.path.join(DATA_DIR, '.secret_key')):
 else:
     with open(os.path.join(DATA_DIR, '.secret_key'), 'w') as f:
         import binascii
-        rand = os.urandom(24)
+        rand = os.urandom(128)
         SECRET_KEY = binascii.b2a_hex(rand).decode('ascii')
         f.write(SECRET_KEY)
 
@@ -58,9 +58,9 @@ INSTALLED_APPS = [
     'profiles.apps.ProfilesConfig',
     'queries.apps.QueriesConfig',
     'schemes.apps.SchemesConfig',
-    'workflows',
-    'labels',
-    'fields',
+    'workflows.apps.WorkflowsConfig',
+    'labels.apps.LabelsConfig',
+    'fields.apps.FieldsConfig',
 
     # Django
     'django.contrib.admin',
@@ -160,14 +160,16 @@ REST_FRAMEWORK = {
     ['rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly']
 }
 
-# Project CONFIG, these are taken from the praelatus CONFIG file
-CONFIG = {}
 
+X_FRAME_OPTIONS = 'DENY'
+
+# Project CONFIG, these are taken from the praelatus CONFIG file
 try:
     with open(os.path.join(DATA_DIR, 'config.yaml')) as f:
         CONFIG = yaml.load(f)
 except FileNotFoundError:
     CONFIG = {
+        'https': ('true' == os.getenv('PRAE_HTTPS_ENABLED', 'false').lower()),
         'debug': ('true' == os.getenv('PRAE_DEBUG', 'false').lower()),
         'allowed_hosts':
         os.getenv('PRAE_ALLOWED_HOSTS', gethostname()).split(','),
@@ -237,6 +239,10 @@ except FileNotFoundError:
             'use_ssl': ('true' == os.getenv('PRAE_EMAIL_USE_TLS', 'false').lower()),
         }
     }
+
+if CONFIG.get('https', False):
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = CONFIG.get('debug', False)
