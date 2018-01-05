@@ -341,8 +341,8 @@ def edit_ticket(request, key=''):
 
     # TODO: Add this to the edit form.
     if labels:
-        l = list(Label.objects.filter(name__in=labels).all())
-        t.labels.set(l)
+        label_list = list(Label.objects.filter(name__in=labels).all())
+        t.labels.set(label_list)
 
     # Remove csrf token as we don't need it
     fields.pop('csrfmiddlewaretoken', None)

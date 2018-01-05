@@ -1,9 +1,11 @@
+"""Models for the Workflows App"""
+
 import enum
 
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
-from .hooks import Hook, WebHook
+from .hooks import WebHook
 
 
 class State(enum.Enum):

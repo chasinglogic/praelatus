@@ -1,3 +1,5 @@
+"""Hooks that get fired on Workflow transitions."""
+
 from urllib.request import getproxies
 
 import jinja2
@@ -24,16 +26,16 @@ class WebHook(Hook):
     body = models.TextField(null=True, blank=True)
     method = models.CharField(max_length=10, default='POST')
 
-    def fire_hook(self, context={}, verify=True, timeout=5):
+    def fire_hook(self, context=None, verify=True, timeout=5):
         """Render the url and body then send the request, returns the response."""
-        b = jinja2.Template(self.body).render(context)
-        u = jinja2.Template(self.url).render(context)
-        r = requests.Request(self.method, u, data=b)
-        with requests.Session() as s:
-            res = s.send(r.prepare(),
-                         timeout=timeout,
-                         verify=verify,
-                         proxies=getproxies())
+        rendered_body = jinja2.Template(self.body).render(context)
+        rendered_url = jinja2.Template(self.url).render(context)
+        req = requests.Request(self.method, rendered_url, data=rendered_body)
+        with requests.Session() as sess:
+            res = sess.send(req.prepare(),
+                            timeout=timeout,
+                            verify=verify,
+                            proxies=getproxies())
             return res
 
     def __str__(self):

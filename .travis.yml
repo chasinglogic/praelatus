@@ -8,11 +8,12 @@ services:
   - redis
 install:
   - pip install -r requirements.txt
-  - pip install tox
+  - pip install tox flake8
 before_script:
   - psql -c 'create database praelatus;' -U postgres
   - psql -c "alter role postgres with password 'postgres'" -U postgres
   - ./manage.py genconfig
   - ./manage.py migrate
 script:
+  - for package in $(find . -maxdepth 2 -name __init__.py | grep -v venv | sed s/__init__.py//); do flake8 $package; done
   - tox

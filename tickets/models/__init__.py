@@ -1,3 +1,5 @@
+"""The Ticket class and related models"""
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
@@ -30,10 +32,14 @@ class Ticket(models.Model):
 
     project = models.ForeignKey(Project, related_name='content', on_delete=models.CASCADE)
     reporter = models.ForeignKey(User, related_name='reported', on_delete=models.PROTECT)
-    assignee = models.ForeignKey(User, related_name='assigned', null=True, on_delete=models.SET_NULL)
-    ticket_type = models.ForeignKey(TicketType, related_name='tickets', on_delete=models.PROTECT)
-    status = models.ForeignKey(Status, default=1, related_name='tickets', on_delete=models.PROTECT)
-    workflow = models.ForeignKey(Workflow, default=1, related_name='tickets', on_delete=models.PROTECT)
+    assignee = models.ForeignKey(User, related_name='assigned', null=True,
+                                 on_delete=models.SET_NULL)
+    ticket_type = models.ForeignKey(TicketType, related_name='tickets',
+                                    on_delete=models.PROTECT)
+    status = models.ForeignKey(Status, default=1, related_name='tickets',
+                               on_delete=models.PROTECT)
+    workflow = models.ForeignKey(Workflow, default=1, related_name='tickets',
+                                 on_delete=models.PROTECT)
 
     links = GenericRelation(Link, related_query_name='ticket')
     upvotes = GenericRelation(Upvote, related_query_name='ticket')

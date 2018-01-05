@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from .models import Status
+from .models import Status, WebHook
 
 
 class TestStatusStateHelpers(TestCase):
