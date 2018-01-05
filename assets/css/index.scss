@@ -1,0 +1,75 @@
+@import "./variables";
+
+$theme-colors: (
+  "primary": $primary-color
+);
+
+@import "~bootstrap/scss/bootstrap";
+@import "~simplemde/dist/simplemde.min.css";
+
+$fa-font-path: "~font-awesome/fonts";
+@import '~font-awesome/scss/font-awesome';
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.nav-item div:hover {
+  cursor: pointer;
+}
+
+.text-big {
+  font-size: 1.5rem;
+}
+
+.content {
+  padding-top: 1rem;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: white;
+}
+
+.notification-tray {
+  width: 300px;
+  padding: 1rem;
+  position: absolute;
+  right: 0;
+}
+
+
+.notification-tray .alert {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.alert .dismiss-button {
+  position: absolute;
+  margin: 0.5rem;
+  right: 0;
+  top: 0;
+  background-color: transparent;
+  border: none;
+}
+
+#userMenu1 {
+  margin-left: 1rem;
+}
+
+.search-button {
+  border-radius: .25rem !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.ticket-header .card-block, .comments .card-block {
+  padding: 1rem;
+}
+
+.ticket-info .card-block {
+  padding-top: 1rem;
+}
+
+@import "./old.scss";

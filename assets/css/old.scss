@@ -1,0 +1,148 @@
+/* Praelatus Global CSS */
+
+textarea {
+    min-height: 6em;
+}
+
+body {
+    padding-top: 4.5rem;
+}
+
+.sidebar-header {
+    padding-left: 1rem;
+}
+
+.sidebar .nav {
+    margin-bottom: 1rem;
+}
+
+.text-praelatus {
+    color: $primary-color;
+}
+
+.bg-praelatus, .btn-praelatus, .bg-praelatus .nav-link {
+    background-color: $primary-color;
+    color: white;
+}
+
+.bg-praelatus .nav-link:hover {
+    background-color: $highlight-color;
+}
+
+.btn-close {
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    /* background-color: none; */
+    border: none;
+}
+
+.btn-outline-praelatus {
+    border: 1px solid $primary-color;
+    color: $primary-color;
+    background-color: transparent;
+}
+
+.btn-outline-praelatus:hover, .praelatus-nav-link:hover, .praelatus-nav-link:hover button {
+    background-color: $primary-color !important;
+    color: white !important;
+    cursor: pointer !important;
+}
+
+.praelatus-nav-link, .praelatus-nav-link button {
+    color: $primary-color !important;
+}
+
+.praelatus-nav-link.active {
+    background-color: $primary-color !important;
+    color: white !important;
+}
+
+/* Any element which needs to stand out from the background */
+.element {
+    background-color: white;
+    border-radius: 5px;
+    padding: 1rem;
+}
+
+.mw1000 {
+    max-width: 1000px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.border {
+    border: 1px solid #ddd;
+}
+
+.m-bottom {
+    margin-bottom: 1rem;
+}
+
+/* Make an empty div a separator line */
+.separator {
+    border-bottom: 1px solid black;
+    margin-bottom: 1.5rem;
+    margin-top: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+/* Layout */
+
+.content {
+    min-height: 85%;
+}
+
+.search-bar, .search-bar input {
+    width: 100%
+}
+
+
+.mw600 {
+    max-width: 600px;
+}
+
+.sidebar {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    position: fixed;
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-right: 1px solid #eee;
+}
+
+.dash-header {
+    border-bottom: 1px solid black;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.dropdown-toggle {
+    cursor: pointer;
+}
+
+.CodeMirror {
+    height: 6em;
+}
+
+.sm-profile-pic {
+  max-height: 24px;
+  max-width: 24px;
+}
+
+a {
+    cursor: pointer;
+}
+
+/* Fix anchoring with the navbar */
+a.anchor {
+    display: block;
+    position: relative;
+    top: -250px;
+    visibility: hidden;
+}
