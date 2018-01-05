@@ -15,10 +15,10 @@ module.exports = {
     'select2',
     'bootstrap',
     'simplemde',
-    path.join(__dirname, '/assets/css/index.scss'),
-    path.join(__dirname, '/assets/favicon.ico'),
-    path.join(__dirname, '/assets/js/index.js')
-  ].concat(glob.sync('./assets/img/*')),
+    path.join(__dirname, '/frontend/css/index.scss'),
+    path.join(__dirname, '/frontend/favicon.ico'),
+    path.join(__dirname, '/frontend/js/index.js')
+  ].concat(glob.sync('./frontend/img/*')),
   output: {
     path: path.join(__dirname, '/static/'),
     filename: 'index.js',
@@ -38,8 +38,8 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
 
     /* When there are errors while compiling this plugin skips the emitting
-       phase (and recording phase), so there are no assets emitted that include
-       errors. The emitted flag in the stats is false for all assets. If you are
+       phase (and recording phase), so there are no frontend emitted that include
+       errors. The emitted flag in the stats is false for all frontend. If you are
        using the CLI, the webpack process will not exit with an error code by
        enabling this plugin. If you want webpack to "fail" when using the CLI,
        please check out the bail option. */
