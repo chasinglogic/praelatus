@@ -28,7 +28,7 @@ echo "PORT: $PRAELATUS_PORT"
 echo "WORKERS: $PRAELATUS_WORKERS"
 echo "WORKER CONNS: $PRAELATUS_WORKER_CONNS"
 $VIRTUALENV/bin/gunicorn -b $PRAELATUS_BIND:$PRAELATUS_PORT \
-	 -k gevent \
-	 --worker-connections $PRAELATUS_WORKER_CONNS \
-	 -w $PRAELATUS_WORKERS \
-	 praelatus.wsgi
+	                       -k gevent \
+	                       --worker-connections $PRAELATUS_WORKER_CONNS \
+	                       -w $PRAELATUS_WORKERS \
+	                       praelatus.wsgi
