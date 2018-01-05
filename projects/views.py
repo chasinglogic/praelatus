@@ -106,6 +106,7 @@ def show(request, project=None):
 
     return render(request, 'projects/show.html',
                   {'project': project,
+                   'open_query': 'project = "{}"'.format(project.key),
                    'activity': activity})
 
 
