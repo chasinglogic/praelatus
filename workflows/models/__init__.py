@@ -3,7 +3,7 @@ import enum
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
-from hooks.models import WebHook
+from .hooks import Hook, WebHook
 
 
 class State(enum.Enum):

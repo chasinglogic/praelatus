@@ -1,9 +1,11 @@
 from django.contrib import admin
+from django.contrib.contenttypes.admin import GenericStackedInline
 
-from hooks.admin import InlineWebHookAdmin
+from .models import Status, Transition, Workflow, WebHook
 
-from .models import Status, Transition, Workflow
-
+class InlineWebHookAdmin(GenericStackedInline):
+    model = WebHook
+    extra = 0
 
 class StatusAdmin(admin.ModelAdmin):
     pass

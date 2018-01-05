@@ -11,15 +11,15 @@ from notifications.signals import notify
 from rest_framework import generics
 
 from fields.models import Field, FieldValue
-from hooks.tasks import fire_web_hooks
+from workflows.tasks import fire_web_hooks
 from labels.models import Label
 from projects.models import Project
 from workflows.models import Transition
 
 from .forms import AttachmentForm
 from schemes.models import FieldScheme, WorkflowScheme
-from upvotes.models import Upvote
-from links.models import Link
+from .models.upvotes import Upvote
+from .models.links import Link
 from .models import (Attachment, Comment, Ticket, TicketType)
 from queries.dsl import CompileException, compile_q
 from .serializers import (CommentSerializer, TicketSerializer,

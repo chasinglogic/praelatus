@@ -61,9 +61,6 @@ INSTALLED_APPS = [
     'workflows',
     'labels',
     'fields',
-    'hooks',
-    'upvotes',
-    'links',
 
     # Django
     'django.contrib.admin',
