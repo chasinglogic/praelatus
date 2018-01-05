@@ -1,3 +1,7 @@
+# Copyright 2018 Mathew Robinson <chasinglogic@gmail.com>. All rights reserved.
+# Use of this source code is governed by the AGPLv3 license that can be found in
+# the LICENSE file.
+
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
