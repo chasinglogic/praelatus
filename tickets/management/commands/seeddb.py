@@ -48,7 +48,7 @@ class Command(BaseCommand):
         story_points = Field(name='Story Points', data_type='INTEGER')
         priority = Field(name='Priority', data_type='OPTION')
         priority.save()
-        priority.options = priorities
+        priority.options.set(priorities)
 
         story_points.save()
         priority.save()
@@ -107,7 +107,7 @@ class Command(BaseCommand):
             workflow=w)
         ws.save()
 
-        for i in range(25):
+        for i in range(100):
             t = Ticket(
                 key=p.key + '-' + str(i + 1),
                 summary='This is ticket #' + str(i + 1),

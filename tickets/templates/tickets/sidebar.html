@@ -8,7 +8,7 @@
     {% for tr in ticket.transitions %}
     <li class="nav-item">
         <a class="nav-link praelatus-nav-link" href="/tickets/{{ ticket.key }}/transition?name={{ tr.name }}">
-            <span class="ion-arrow-right-c"></span>
+            <span class="fa fa-long-arrow-right"></span>
             <span class="link-description" >{{ tr.name }}</span>
         </a>
     </li>
@@ -22,19 +22,19 @@
 <ul id="quick-actions" class="nav nav-pills flex-column">
     <li class="nav-item">
         <a class="nav-link praelatus-nav-link" href="#comment-form">
-            <span class="ion-chatboxes"></span>
+            <span class="fa fa-comment"></span>
             <span class="link-description">Add Comment</span>
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link praelatus-nav-link" {% if user.is_authenticated %} data-toggle="modal" data-target="#labelModal" {% else %} href="/login" {% endif %}>
-            <span class="ion-pricetags"></span>
+            <span class="fa fa-tags"></span>
             <span class="link-description">Add Labels</span>
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link praelatus-nav-link" href="/tickets/{{ ticket.key }}/edit">
-            <span class="ion-edit"></span>
+            <span class="fa fa-edit"></span>
             <span class="link-description">Edit Ticket</span>
         </a>
     </li>
@@ -48,10 +48,10 @@
             <button
                 style="border: none; background: none; padding: 0;">
                 {% if upvoted %}
-                <span class="ion-checkmark"></span>
+                <span class="fa fa-check"></span>
                 <span class="link-description">Upvoted</span>
                 {% else %}
-                <span class="ion-arrow-up-a"></span>
+                <span class="fa fa-thumbs-o-up"></span>
                 <span class="link-description">Upvote</span>
                 {% endif %}
             </button>
@@ -68,7 +68,7 @@
     {% for a in ticket.attachments.all %}
     <li class="nav-item">
         <a href="/static/media/{{ a.attachment.url }}" class="nav-link praelatus-nav-link">
-            <span class="ion-archive"></span>
+            <span class="fa fa-download"></span>
             <span class="link-description" >
                 {% if a.name %}{{ a.name }}{% else %}{{ a.attachment.name }}{% endif %}
             </span>
@@ -82,7 +82,7 @@
     <li class="nav-item">
         <a class="nav-link praelatus-nav-link"
             data-toggle="modal" data-target="#fileModal">
-            <span class="ion-plus" ></span>
+            <span class="fa fa-plus" ></span>
             <span class="link-description" >Add Attachments</span>
         </a>
     </li>
@@ -108,7 +108,7 @@
     {% if user.is_authenticated and "edit_tickets" in perms %}
     <li class="nav-item">
         <a class="nav-link praelatus-nav-link" data-toggle="modal" data-target="#linkModal">
-            <span class="ion-plus" ></span>
+            <span class="fa fa-plus" ></span>
             <span class="link-description" >Add Link</span>
         </a>
     </li>

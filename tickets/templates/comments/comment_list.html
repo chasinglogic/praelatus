@@ -1,7 +1,7 @@
 {% load markdown %}
 
 {% for c in comments %}
-<div id="comment-{{ c.id }}" class="shadow m-bottom card">
+<div id="comment-{{ c.id }}" class="m-bottom card">
     <div class="card-block">
         <div id="comment-{{ c.id }}-body" style="display: none">{{ c.body }}</div>
         {{ c.body | markdown | safe }}
@@ -18,12 +18,12 @@
             <button id="{{ c.id }}"
                     onclick="editComment(this)"
                     class="d-inline-block btn btn-secondary comment-edit-button" >
-                <i class="ion-edit" ></i>
+                <i class="fa fa-edit" ></i>
             </button>
             <button id="{{ c.id }}"
                     onclick="deleteComment(this)"
                     class="d-inline-block btn btn-secondary comment-delete-button" >
-                <i class="ion-close" ></i>
+                <i class="fa fa-times" ></i>
             </button>
         </span>
         {% endif %}
@@ -62,7 +62,6 @@
                 <div class="row" >
                     <div class="col-md-6 col-sm-12 col-xs-12" >
                         <p>
-                            <span class="ion-social-markdown"></span>
                             Markdown is supported
                         </p>
                     </div>
