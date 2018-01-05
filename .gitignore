@@ -101,3 +101,4 @@ db.sqlite3
 worker.pid
 node_modules/*
 static/*
+*.tar.gz
