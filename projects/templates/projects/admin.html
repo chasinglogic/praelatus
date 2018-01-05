@@ -16,7 +16,7 @@
   <h2 class="card-header" >
     Details
     <a class="btn btn-secondary float-right"
-       href="/projects/{{ project.key }}/admin/edit">Edit</a>
+      href="/projects/{{ project.key }}/admin/edit">Edit</a>
   </h2>
   <div class="card-block" >
     <table class="table w-90 mr-auto ml-auto" >
@@ -79,55 +79,55 @@
                   Users
                 </label>
                 <select id="{{ g.name|cut:" " }}Users"
-                        name="users" class="form-control" multiple>
+                  name="users" class="form-control" multiple>
                   {% for u in g.user_set.all %}
                   <option selected value="{{ u.id }}">{{ u.username }}</option>
                   {% endfor %}
                 </select>
               </div>
               <input type="hidden"
-                     name="next"
-                     value="/projects/{{ project.key }}/admin#roles" />
+                name="next"
+                value="/projects/{{ project.key }}/admin#roles" />
               <input type="hidden"
-                     name="group"
-                     value="{{ g.id }}" />
+                name="group"
+                value="{{ g.id }}" />
             </div>
             <div class="modal-footer">
               <button type="submit" class="btn btn-primary">Save changes</button>
               <button type="button"
-                      class="btn btn-secondary"
-                      data-dismiss="modal">Close</button>
+                class="btn btn-secondary"
+                data-dismiss="modal">Close</button>
             </div>
           </form>
 
           <script>
-$('#{{ g.name|cut:" " }}Users').select2({
-  ajax: {
-    url: '/api/users',
-    dataType: 'json',
-    data: function(params) {
-      return {search: params.term}
-    },
-    processResults: function(data, params) {
-      return {
-        results: data
-        .map((x) => { return {id: x.id, text: x.username } })
-        .filter((x) => {
-          return $('#{{ g.name|cut:" " }}Modal').val().indexOf(x.text) === -1
-        })
-      }
-    }
-  }
-});
+           $('#{{ g.name|cut:" " }}Users').select2({
+             ajax: {
+               url: '/api/users',
+               dataType: 'json',
+               data: function(params) {
+                 return {search: params.term}
+               },
+               processResults: function(data, params) {
+                 return {
+                   results: data
+                     .map((x) => { return {id: x.id, text: x.username } })
+                     .filter((x) => {
+                       return $('#{{ g.name|cut:" " }}Modal').val().indexOf(x.text) === -1
+                     })
+                 }
+               }
+             }
+           });
 
-// Select2 wigs out when in a hidden div.
-$('.select2').width("100%");
-$('.select2-search__field').width("100%");
+           // Select2 wigs out when in a hidden div.
+           $('.select2').width("100%");
+           $('.select2-search__field').width("100%");
 
 
- $('#{{ g.name|cut:" " }}Modal').on('shown.bs.modal', function () {
-   $('#{{ g.name|cut:" " }}Users').focus()
- })
+           $('#{{ g.name|cut:" " }}Modal').on('shown.bs.modal', function () {
+             $('#{{ g.name|cut:" " }}Users').focus()
+           })
           </script>
         </div>
       </div>
@@ -135,12 +135,14 @@ $('.select2-search__field').width("100%");
 
 
     <div class="m-bottom"
-         style="border-top: 1px solid #ddd; padding-top: 1rem">
+      style="border-top: 1px solid #ddd; padding-top: 1rem">
       <h4 class="m-bottom">
         {{ g.name }}
-        <button class="ion-plus btn btn-success btn-sm"
-                data-toggle="modal"
-                data-target="#{{ g.name|cut:" " }}Modal"></button>
+        <button class="btn btn-success"
+          data-toggle="modal"
+          data-target="#{{ g.name|cut:" " }}Modal">
+          <i class="fa fa-plus"></i>
+        </button>
       </h4>
       <table class="table">
         <tr>
@@ -153,15 +155,17 @@ $('.select2-search__field').width("100%");
           <td>
             <a href="/users/{{ u.username }}">
               <img class="sm-profile-pic"
-                   src="{{ u.profile.profile_pic }}" >
-                   {{ u.username }}
+                src="{{ u.profile.profile_pic }}" >
+              {{ u.username }}
             </a>
           </td>
           <td>{{ u.get_full_name }}</td>
           <td>{{ u.email }}</td>
           <td>
             <a href="/projects/{{ project.key }}/admin/removeUserFromGroup?user={{ u.id }}&group={{ g.id }}&next=/projects/{{ project.key }}/admin#roles"
-              class="btn btn-sm btn-danger ion-close"></a>
+              class="btn btn-danger">
+              <i class="fa fa-times"></i>
+            </a>
           </td>
         </tr>
         {% endfor %}
@@ -178,7 +182,7 @@ $('.select2-search__field').width("100%");
     {% for g in project.groups.all %}
     <a id="{{ g.name|cut:" " }}Permissions" class="anchor"></a>
     <div class="m-bottom"
-         style="border-top: 1px solid #ddd; padding-top: 1rem">
+      style="border-top: 1px solid #ddd; padding-top: 1rem">
       <h4 class="m-bottom">
         {{ g.name }}
       </h4>
@@ -187,14 +191,18 @@ $('.select2-search__field').width("100%");
       {% for p in permissions %}
       <ul class="list-group">
         <li id="{{ g.name|cut:" " }}{{ p.codename }}"
-            class="list-group-item justify-content-between">
+          class="list-group-item justify-content-between">
           {{ p.name }}
           {% if p.codename in group_perms %}
           <a href="/projects/{{ project.key }}/admin/removePermission?group={{ g.name|urlencode }}&permission={{ p.codename|urlencode }}&next=/projects/{{ project.key }}/admin#{{ g.name|cut:" " }}Permissions"
-             class="btn btn-sm btn-danger ion-close" ></a>
+            class="btn btn-danger" >
+            <i class="fa fa-times"></i>
+          </a>
           {% else %}
           <a href="/projects/{{ project.key }}/admin/addPermission?group={{ g.name|urlencode }}&permission={{ p.codename|urlencode }}&next=/projects/{{ project.key }}/admin#{{ g.name|cut:" " }}Permissions"
-             class="btn btn-sm btn-success ion-plus" ></a>
+            class="btn btn-success" >
+            <i class="fa fa-plus"></i>
+          </a>
           {% endif %}
         </li>
       </ul>
@@ -225,15 +233,15 @@ $('.select2-search__field').width("100%");
               {% endfor %}
             </select>
             <input type="hidden"
-                   name="next"
-                   value="/projects/{{ project.key }}/admin#types" />
+              name="next"
+              value="/projects/{{ project.key }}/admin#types" />
           </div>
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Save changes</button>
           <button type="button"
-                  class="btn btn-secondary"
-                  data-dismiss="modal">Close</button>
+            class="btn btn-secondary"
+            data-dismiss="modal">Close</button>
         </div>
       </form>
     </div>
@@ -246,9 +254,10 @@ $('.select2-search__field').width("100%");
   <h2 class="card-header">
     Ticket Types
     <button type="button"
-            class="btn btn-sm btn-success ion-plus"
-            data-toggle="modal"
-            data-target="#ticketTypeAddModal">
+      class="btn btn-success"
+      data-toggle="modal"
+      data-target="#ticketTypeAddModal">
+      <i class="fa fa-plus"></i>
     </button>
   </h2>
   <div class="card-block">
@@ -257,7 +266,9 @@ $('.select2-search__field').width("100%");
       <li class="list-group-item justify-content-between">
         {{ tt.name }}
         <a href="/projects/{{ project.key }}/admin/removeTicketType?ticketType={{ tt.id }}&next=/projects/{{ project.key }}/admin#types"
-           class="btn btn-sm btn-danger ion-close" ></a>
+          class="btn btn-danger" >
+          <i class="fa fa-times"></i>
+        </a>
       </li>
     </ul>
     {% endfor %}
@@ -296,14 +307,14 @@ $('.select2-search__field').width("100%");
             </select>
           </div>
           <input type="hidden"
-                 name="next"
-                 value="/projects/{{ project.key }}/admin#workflows" />
+            name="next"
+            value="/projects/{{ project.key }}/admin#workflows" />
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Save changes</button>
           <button type="button"
-                  class="btn btn-secondary"
-                  data-dismiss="modal">Close</button>
+            class="btn btn-secondary"
+            data-dismiss="modal">Close</button>
         </div>
       </form>
     </div>
@@ -315,9 +326,10 @@ $('.select2-search__field').width("100%");
   <h2 class="card-header">
     Workflows
     <button type="button"
-            class="btn btn-sm btn-success ion-plus"
-            data-toggle="modal"
-            data-target="#workflowAddModal">
+      class="btn btn-success"
+      data-toggle="modal"
+      data-target="#workflowAddModal">
+      <i class="fa fa-plus"></i>
     </button>
   </h2>
   <div class="card-block">
@@ -345,11 +357,11 @@ $('.select2-search__field').width("100%");
           <select id="defaultWorkflow">
             {% for wk in workflows %}
             <option
-                  value="{{ wk.id }}"
-                  {% if wk.name == w.workflow.name %}
-                  selected
-                  {% endif %}>
-            {{ wk.name }}
+              value="{{ wk.id }}"
+              {% if wk.name == w.workflow.name %}
+              selected
+              {% endif %}>
+              {{ wk.name }}
             </option>
             {% endfor %}
           </select>
@@ -358,11 +370,15 @@ $('.select2-search__field').width("100%");
         <td>
           {% if w.ticket_type %}
           <a href="/projects/{{ project.key }}/admin/removeWorkflow?ticketType={{ w.ticket_type.id }}&next=/projects/{{ project.key }}/admin#workflows"
-             class="btn btn-sm btn-danger ion-close" ></a>
+            class="btn btn-danger" >
+            <i class="fa fa-times"></i>
+          </a>
           {% else %}
           <button id="workflowEditButton"
-                  onclick="editDefaultWorkflow();"
-                  class="btn btn-sm btn-success ion-checkmark"></button>
+            onclick="editDefaultWorkflow();"
+            class="btn btn-success">
+            <i class="fa fa-check"></i>
+          </button>
           {% endif %}
         </td>
       </tr>
@@ -372,15 +388,15 @@ $('.select2-search__field').width("100%");
 </div>
 
 <script>
-function editDefaultWorkflow() {
-  let el = document.getElementById('defaultWorkflow');
-  fetch('/projects/{{ project.key }}/admin/addWorkflow?ticketType=0&workflow=' + el.value).
-    then((res) => {
-      if (!res.ok)
-        alert('Failed to update default workflow. Contact your system adminstrator for help!')
-      else
-        location.reload();
-    });
-}
+ function editDefaultWorkflow() {
+   let el = document.getElementById('defaultWorkflow');
+   fetch('/projects/{{ project.key }}/admin/addWorkflow?ticketType=0&workflow=' + el.value).
+     then((res) => {
+       if (!res.ok)
+         alert('Failed to update default workflow. Contact your system adminstrator for help!')
+       else
+         location.reload();
+     });
+ }
 </script>
 {% endblock %}

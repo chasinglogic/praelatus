@@ -12,7 +12,7 @@
 
 {% block content %}
 <div class="mw1000 mr-auto ml-auto">
-    <div class="card shadow m-bottom">
+    <div class="card m-bottom">
         <div class="card-header project-header">
             <div class="d-inline-block" >
                 {% include 'projects/project_icon.html' %}
@@ -51,7 +51,7 @@
     <h1>Recent Activity</h1>
     <div class="card-block">
         {% for n in activity %}
-        <p class="element shadow">
+        <p class="element">
             <a href="/users/{{ n.actor.username }}">
                 {{ n.actor.username }}
             </a>
@@ -67,7 +67,7 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="card shadow" >
+    <div class="card" >
         <div class="card-header" >
             <h1>No recent activity! Take a coffee break!</h1>
         </div>
