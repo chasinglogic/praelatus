@@ -176,27 +176,27 @@ def create(request):
 
 
 @login_required
-def notifications(request):
+def dashboard(request):
     notifications = request.user.notifications.\
         prefetch_related('action_object').\
         prefetch_related('target').\
         prefetch_related('actor').\
         all()
-    return render(request, 'dashboard/notifications.html',
-                  {'notifications': notifications})
+    reported = request.user.reported.\
+        filter(~Q(status__state='DONE')).\
+        all()[:10]
+    assigned = request.user.assigned.\
+        filter(~Q(status__state='DONE')).\
+        all()[:10]
+    projects = request.user.projects.all()[:10]
 
-
-@login_required
-def reported(request):
-    reported = request.user.reported.filter(~Q(status__state='DONE')).all()
-    return render(request, 'dashboard/reported.html', {'reported': reported})
-
-
-@login_required
-def assigned(request):
-    assigned = request.user.assigned.filter(~Q(status__state='DONE')).all()
-    return render(request, 'dashboard/assigned.html', {'assigned': assigned})
-
+    return render(request, 'tickets/dashboard.html',
+                  {
+                      'notifications': notifications,
+                      'assigned': assigned,
+                      'reported': reported,
+                      'projects': projects
+                  })
 
 @login_required
 def transition(request, key=''):

@@ -24,8 +24,5 @@ urlpatterns = [
         views.comment,
         name='comment'),
     url(r'^comments/(?P<id>[0-9]+)', views.edit_comment, name='edit_comment'),
-    url(r'^dashboard$', views.notifications),
-    url(r'^dashboard/notifications', views.notifications),
-    url(r'^dashboard/reported', views.reported),
-    url(r'^dashboard/assigned', views.assigned),
+    url(r'^dashboard$', views.dashboard)
 ]
