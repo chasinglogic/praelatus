@@ -9,69 +9,69 @@
 {% endblock %}
 
 {% block content %}
-<div class="container" >
-    <div class="element">
-        {% include 'helpers/search_bar.html' %}
+<div id="saveModal"
+  class="modal fade"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="saveModalLabel" aria-hidden="true">
 
-        {% if error %}
-        <div class="alert alert-danger" >
-            {{ error }}
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="saveModalLabel">Save Query</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="modal-body">
+          <label for="name">Name</label>
+          <input name="name" type="text" />
+          <input name="query"
+            value="{{ query|addslashes }}"
+            type="hidden" />
         </div>
-        {% endif %}
-
-
-        <div id="saveModal"
-             class="modal fade"
-             tabindex="-1"
-             role="dialog"
-             aria-labelledby="saveModalLabel" aria-hidden="true">
-
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="saveModalLabel">Save Query</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form method="POST">
-                        {% csrf_token %}
-                    <div class="modal-body">
-                        <label for="name">Name</label>
-                        <input name="name" type="text" />
-                        <input name="query"
-                               value="{{ query|addslashes }}"
-                               type="hidden" />
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    </div>
-                    </form>
-                </div>
-            </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save</button>
         </div>
-
-        <table id="searchResults" class="table table-bordered">
-            <thead class="thead-default">
-                <tr>
-                    <th>Key</th>
-                    <th>Reporter</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for t in tickets %}
-                <tr>
-                    <td>
-                        <a href="/tickets/{{ t.key }}">{{ t.key }}</a>
-                    </td>
-                    <td>{% include 'users/user_stub.html' with user=t.reporter %}</td>
-                    <td>{{ t.summary }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+      </form>
     </div>
+  </div>
+</div>
+
+
+<div class="container" >
+  <div class="element">
+    {% include 'helpers/search_bar.html' %}
+
+    {% if error %}
+    <div class="alert alert-danger" >
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <table id="searchResults" class="table table-bordered">
+      <thead class="thead-default">
+        <tr>
+          <th>Key</th>
+          <th>Reporter</th>
+          <th>Summary</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tickets %}
+        <tr>
+          <td>
+            <a href="/tickets/{{ t.key }}">{{ t.key }}</a>
+          </td>
+          <td>{% include 'users/user_stub.html' with user=t.reporter %}</td>
+          <td>{{ t.summary }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
