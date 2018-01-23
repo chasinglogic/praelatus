@@ -1,0 +1,9 @@
+{% if project.icon %}
+<img src="/static/media/{{ project.icon.url }}" class="project-icon" alt="{{ project.key.0 }}"/>
+{% else %}
+<div class="project-icon btn-praelatus">
+    <span>
+        {{ project.key.0 }}
+    </span>
+</div>
+{% endif %}

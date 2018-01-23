@@ -15,12 +15,12 @@ module.exports = {
     'select2',
     'bootstrap',
     'simplemde',
-    path.join(__dirname, '/frontend/css/index.scss'),
-    path.join(__dirname, '/frontend/favicon.ico'),
-    path.join(__dirname, '/frontend/js/index.js')
+    path.join(__dirname, 'frontend/css/index.scss'),
+    path.join(__dirname, 'frontend/favicon.ico'),
+    path.join(__dirname, 'frontend/js/index.js')
   ].concat(glob.sync('./frontend/img/*')),
   output: {
-    path: path.join(__dirname, '/static/'),
+    path: path.join(__dirname, 'app/static/'),
     filename: 'index.js',
     publicPath: '/'
   },

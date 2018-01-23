@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block sidebar %}
+{% include 'dashboard/sidebar.html' with reported=True %}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Reported Tickets</h3>
+    </div>
+    <div class="card-block" >
+        {% include 'tickets/preview.html' with tickets=reported unique_id='reported' %}
+    </div>
+</div>
+{% endblock %}

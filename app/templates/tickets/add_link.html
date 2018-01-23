@@ -1,0 +1,24 @@
+{% block head %}
+<link rel="stylesheet" href="/static/css/tickets.css" />
+{% endblock %}
+
+{% block body %}
+<style>
+ body {
+     padding-top: 0;
+ }
+</style>
+
+<div class="container-fluid d-flex justify-content-center align-items-center"
+     style="background-color: #59427f; height: 100%;">
+    <div class="login-container">
+        <a href="/">
+            <img src="/static/name.svg" />
+        </a>
+        <div class="form-container element"
+             style="background-color: white; border-radius: 5px">
+            {% include 'tickets/templates/add_link_form.html' %}
+        </div>
+    </div>
+</div>
+{% endblock %}

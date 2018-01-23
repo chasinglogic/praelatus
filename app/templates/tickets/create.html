@@ -1,0 +1,123 @@
+{% extends 'layout.html' %}
+
+{% block container %}
+<div class="mw1000 mr-auto ml-auto create-form-card">
+    <div class="card create-form-card">
+        <div class="card-block" >
+            {% if flash_message %}
+            <div class="alert alert-danger">
+                {{ flash_message }}
+            </div>
+            {% endif %}
+            <form method="POST" action="/tickets/create">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="project">
+                        Project
+                    </label>
+                    <select name="project"
+                            id="projectSelect"
+                            class="form-control">
+                        {% if not project %}
+                        <option selected disabled value></option>
+                        {% endif %}
+                        {% for p in projects %}
+                        <option {% if p.id == project.id %}selected{% endif %}
+                            value="{{ p.id }}">
+                        {{ p.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% if task %}
+                <input type="hidden"
+                       name="task_of"
+                       value="{{ task }}" />
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="ticket_type">
+                        Ticket Type
+                    </label>
+                    <select id="ticketTypeSelect"
+                            name="ticket_type"
+                            class="form-control">
+                        {% if not ticket_type %}
+                        <option selected disabled value></option>
+                        {% endif %}
+                        {% for tt in project.ticket_types.all %}
+                        <option
+                            {% if tt.id == ticket_type.id %}selected{% endif %}
+                            value="{{ tt.id }}" >
+                            {{ tt.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group" >
+                    <label for="summary">
+                        Summary
+                    </label>
+                    <input id="summary" name="summary"
+                                        class="form-control" type="text" ></input>
+                </div>
+                <div class="form-group" >
+                    <label for="description">
+                        Description
+                    </label>
+                    <textarea id="description" class="form-control"
+                                               type="textarea" name="description" ></textarea>
+                </div>
+                {% for f in fs.fields.all %}
+                {% include 'fields/field_form.html' with field=f %}
+                {% endfor %}
+                <input type="submit" value="Create Ticket" class="btn btn-success form-control">
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+var simplemde = new SimpleMDE({ toolbar: toolbarConfig });
+
+// Add / Update a key-value pair in the URL query parameters
+function updateUrlParameter(uri, key, value) {
+    // remove the hash part before operating on the uri
+    console.log('updating', uri)
+    var i = uri.indexOf('#')
+    var hash = i === -1 ? ''  : uri.substr(i);
+    uri = i === -1 ? uri : uri.substr(0, i);
+
+    var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+    var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+    if (uri.match(re)) {
+        uri = uri.replace(re, '$1' + key + "=" + value + '$2');
+    } else {
+        uri = uri + separator + key + "=" + value;
+    }
+    console.log('updating', uri)
+    return uri + hash;  // finally append the hash as well
+}
+
+$("#ticketTypeSelect").select2().on('select2:select', (e) => {
+    location.href = updateUrlParameter(
+        location.href,
+        'ticket_type',
+        e.target.value
+    )
+})
+
+
+$("#projectSelect").select2().on('select2:select', (e) => {
+    location.href = updateUrlParameter(
+        location.href,
+        'project',
+        e.target.value
+    )
+})
+
+</script>
+{% endblock %}

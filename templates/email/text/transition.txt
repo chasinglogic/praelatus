@@ -1,4 +1,0 @@
-{{ actor.username }} {{ verb }} {{ ticket.key }}
-
-Link to ticket:
-https://adeo.praelatus.io/tickets/{{ ticket.key }}

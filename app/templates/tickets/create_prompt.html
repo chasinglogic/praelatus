@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+
+{% block container %}
+<script>
+ function loadCreate() {
+     let project = document.getElementById('project').value;
+     let ticketType = document.getElementById('ticket-type').value;
+     window.location = '/tickets/create/' + project + '/' + ticketType;
+     // prevent form submission
+     return false;
+ }
+</script>
+
+<form onsubmit="event.preventDefault(); return loadCreate();"
+      class="element mr-auto ml-auto mw1000">
+    <div class="form-group" >
+        <label for="project">Project</label>
+        <select id="project" name="project" class="form-control">
+            {% for p in projects %}
+            <option value="{{ p.key }}">{{ p.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group" >
+        <label for="ticket-type">Ticket Type</label>
+        <select id="ticket-type" name="ticket-type" class="form-control">
+            {% for t in ticket_types %}
+            <option value="{{ t.name }}">{{ t.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <input class="form-control btn btn-praelatus" type="submit" value="Submit" />
+</form>
+
+
+<script>
+ $('#project').select2();
+ $('#ticket-type').select2();
+</script>
+{% endblock %}

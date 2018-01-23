@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+
+
+{% block sidebar %}
+{% include 'projects/admin_sidebar.html' %}
+{% endblock %}
+
+
+{% block content %}
+<div class="card mw1000">
+    <form method="POST">
+        <h4 class="card-header">
+            Edit Project Details
+        </h4>
+        <div class="card-block">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-goup">
+                {{ field.label_tag }}
+                {{ field }}
+                <p class="form-text">
+                {{ field.help_text }}
+                </p>
+            </div>
+            {% endfor %}
+            <p></p>
+            <a href="/projects/{{ project.key }}/admin"
+                class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-success">Submit</button>
+        </div>
+    </form>
+</div>
+
+<script>
+ $("select").select2();
+
+ var simplemde = new SimpleMDE({
+     toolbar: toolbarConfig,
+ });
+</script>
+
+{% endblock %}

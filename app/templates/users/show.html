@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/profiles/css/profiles.css"
+{% endblock %}
+
+{% block content %}
+<div class="user-profile d-flex justify-content-center">
+  {% include 'users/user_profile.html' with user=profile_user %}
+
+<ul class="element">
+  {% for g in profile_user.groups.all %}
+  <li>{{ g.name }}</li>
+  {% endfor %}
+  </ul>
+
+</div>
+{% endblock %}

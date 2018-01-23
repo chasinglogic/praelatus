@@ -1,0 +1,211 @@
+{% extends 'layout.html' %}
+
+{% load markdown %}
+
+{% block head %}
+<script src="/static/tickets/js/tickets.js"></script>
+<link rel="stylesheet" href="/static/tickets/css/tickets.css">
+<link rel="stylesheet" href="/static/profiles/css/profiles.css">
+{% endblock %}
+
+{% block sidebar %}
+{% include 'tickets/sidebar.html' %}
+{% endblock sidebar %}
+
+{% block content %}
+{% include 'tickets/label_modal.html' with ticket=ticket %}
+{% include 'tickets/file_modal.html' with ticket=ticket attachment_form=attachment_form %}
+{% include 'tickets/link_modal.html' with ticket=ticket %}
+
+<div class="container">
+  <div class="card m-bottom ticket-header">
+    <h4 class="card-header">
+      <small>
+        <div class="d-inline-block align-middle" >
+          {% include 'projects/project_icon.html' with project=ticket.project %}
+        </div>
+        <span class="d-inline-block align-middle" >
+          <a href="/projects/{{ ticket.project.key }}">
+            {{ ticket.project.name }}
+          </a>
+          {% if ticket.parent %}
+          {% for p in ticket.ordered_parents %}
+          / <a href="/tickets/{{ p.key  }}">{{ p.key }}</a>
+          {% endfor %}
+          {% endif %}
+          / {{ ticket.key }}
+        </span>
+      </small>
+    </h4>
+    <div class="card-block">
+      <h1>
+        {{ ticket.summary }}
+      </h1>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8 col-sm-12 comments">
+      <div class="card m-bottom">
+        <h3 class="card-header">Description</h3>
+        <div class="card-block">
+          {{ ticket.description | markdown | safe }}
+        </div>
+      </div>
+
+      <div class="card m-bottom">
+        <h3 class="card-header">
+          {% if ticket.ticket_type.name == "Epic" %}
+          Tickets in Epic
+          {% elif ticket.ticket_type.name == "Story" %}
+          Tickets in Story
+          {% else %}
+          Tasks
+          {% endif %}
+          <a href="/tickets/create?task_of={{ ticket.id }}&project={{ ticket.project.id }}"
+            class="btn btn-success float-right">
+            <i class="fa fa-plus"></i>
+          </a>
+        </h3>
+        <div class="card-block">
+          <table class="table table-sm table-striped">
+            <tbody>
+              {% for t in ticket.tasks.all %}
+              <tr>
+                <td>
+                  <a href="/tickets/{{ t.key }}">
+                    {{ t.key }}
+                  </a>
+                </td>
+                <td>
+                  {{ t.summary }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {% include 'comments/comment_list.html' with comments=ticket.comments.all %}
+
+      {% if user.is_authenticated %}
+      {% include 'comments/comment_form.html' with unique_id='new-comment' %}
+      {% else %}
+      <div id="comment-form" class="card">
+        <p class="element card-text">
+          You must <a href="/login">login</a> to comment.
+        </p>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-4 col-sm-12 ticket-info">
+      <div class="card m-bottom">
+        <h4 class="card-header">Details</h4>
+        <div class="card-block">
+          <table class="table">
+            <tr>
+              <td>
+                <b>Status:</b>
+              </td>
+              <td>
+                {% include 'statuses/status_pill.html' with status=ticket.status %}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <b>Ticket Type:</b>
+              </td>
+              <td>
+                {{ ticket.ticket_type.name }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <b>Upvotes:</b>
+              </td>
+              <td>
+                {{ ticket.upvotes.count }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <b>Reporter:</b>
+              </td>
+              <td>
+                {% include 'users/user_stub.html' with user=ticket.reporter %}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <b>Assignee:</b>
+              </td>
+              <td>
+                {% if ticket.assignee %}
+                {% include 'users/user_stub.html' with user=ticket.reporter %}
+                {% else %}
+                Unassigned
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <b>Created:</b>
+              </td>
+              <td>
+                {{ ticket.created_at | date:'h:iA Y-m-d' }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <b>Updated:</b>
+              </td>
+              <td>
+                {{ ticket.updated_at | date:'h:iA Y-m-d' }}
+              </td>
+            </tr>
+          </table>
+
+          {% if ticket.labels.all %}
+          <b>Labels:</b><br />
+          <p class="card-text">
+            {% for l in ticket.labels.all %}
+            <span class="label badge badge-pill badge-default" style="background-color: {{ l.bg_color }}">
+              {{ l.name }}
+            </span>
+            {% endfor %}
+          </p>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if ticket.fields.all %}
+      <div class="card">
+        <h4 class="card-header fields">Fields</h4>
+        <div class="card-block">
+          <table class="table">
+            {% for f in ticket.fields.all %}
+            <tr>
+              <td>
+                <b>{{ f.name }}:</b>
+              </td>
+              <td>
+                {% if f.data_type == 'DATE' %}
+                {{ f.value | date:'h:iA Y-m-d' }}
+                {% else %}
+                {{ f.value }}
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+</div>
+
+{% endblock %}
