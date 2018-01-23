@@ -1,0 +1,24 @@
+---
+- name: redhat | ensure yum dependencies are installed
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - centos-release-scl
+    - postgresql-libs
+    - postgresql-devel
+    - gcc
+    - rh-python35
+    - rh-python35-devel
+    - libffi-devel
+    - git
+
+- name: redhat | download pip install script
+  get_url:
+    url: https://bootstrap.pypa.io/get-pip.py
+    dest: /opt/get-pip.py
+
+- name: redhat | install pip
+  shell: python3 /opt/get-pip.py
+  args:
+    creates: /usr/bin/pip

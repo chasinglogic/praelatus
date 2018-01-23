@@ -1,0 +1,4 @@
+PRAELATUS_PORT={{ api_port }}
+CELERY_APP="praelatus.api"
+CELERYD_NODES="worker1"
+CELERYD_OPTS="--time-limit 300"

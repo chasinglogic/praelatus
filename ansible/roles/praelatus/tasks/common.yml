@@ -1,0 +1,46 @@
+---
+- name: "create praelatus service account"
+  user:
+    name: praelatus
+    shell: /bin/bash
+    comment: "Praelatus service account"
+    home: /opt/praelatus
+
+- include: src_installation.yml
+  when: praelatus_src_installation
+
+- include: installation.yml
+  when: not praelatus_src_installation
+
+- name: "install app systemd service file"
+  template:
+    src: templates/praelatus.service
+    dest: /etc/systemd/system/
+
+- name: "install celery systemd service file"
+  template:
+    src: templates/praelatus-celery.service
+    dest: /etc/systemd/system/
+
+- name: "install the environmentfile"
+  template:
+    src: templates/envfile
+    dest: /etc/sysconfig/praelatus
+
+- name: "enable the app service"
+  service:
+    name: "praelatus"
+    state: started
+    enabled: yes
+
+# Commented out until celery gets merged into master
+# - name: "enable the celery service"
+#   service:
+#     name: "praelatus-celery"
+#     state: started
+#   enabled: yes
+
+- name: "install nginx configuration"
+  template:
+    src: templates/praelatus-api.conf
+    dest: /etc/nginx/sites-enabled/praelatus-api.conf

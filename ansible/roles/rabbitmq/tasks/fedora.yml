@@ -1,0 +1,11 @@
+---
+- name: fedora | installing RabbitMQ
+  dnf:
+    name: "rabbitmq-server"
+    state: latest
+
+- name: fedora | starting and enabling RabbitMQ service
+  service:
+    name: "rabbitmq-server"
+    state: started
+    enabled: yes

@@ -1,0 +1,24 @@
+[Unit]
+Description=Praelatus celery workers
+After=network.target
+Wants=network.target
+Documentation=https://doc.praelatus.io
+
+[Service]
+Type=forking
+User=praelatus
+Group=praelatus
+EnvironmentFile=-/etc/sysconfig/praelatus
+{% if praelatus_src_installation %}
+WorkingDir=/opt/praelatus/server/src
+{% endif %}
+# Recommended gunicorn config for praelatus, the fancy bit at -w
+# sets the number of workers to 2 * number of cpus + 1 as per the
+# recommendation in the gunicorn docs
+ExecStart=/bin/sh -c '/usr/bin/celery multi start ${CELERYD_NODES} -A ${CELERY_APP} ${CELERY_OPTS}'
+ExecStop=/bin/sh -c '/usr/bin/celery multi stopwait ${CELERYD_NODES} -A ${CELERY_APP} ${CELERY_OPTS}'
+ExecReload=/bin/sh -c '/usr/bin/celery multi restart ${CELERYD_NODES} -A ${CELERY_APP} ${CELERY_OPTS}'
+
+
+[Install]
+WantedBy=multi-user.target

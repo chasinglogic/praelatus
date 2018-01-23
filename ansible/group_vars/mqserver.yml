@@ -1,0 +1,24 @@
+---
+rabbitmq_config:
+  - queue_name: 'praelatus'
+    durable: true
+    exchange_name: praelatus
+    type: 'direct'
+    routing_key: 'praelatus'
+    tags: 'ha-mode=all,ha-sync-mode=automatic'
+
+rabbitmq_debian_repo: 'deb http://www.rabbitmq.com/debian/ testing main'
+rabbitmq_debian_repo_key: 'https://www.rabbitmq.com/rabbitmq-release-signing-key.asc'
+rabbitmq_redhat_repo_key: 'https://www.rabbitmq.com/rabbitmq-signing-key-public.asc'
+rabbitmq_redhat_package: 'rabbitmq-server-{{ rabbitmq_redhat_version }}-1.noarch.rpm'
+rabbitmq_redhat_url: 'http://www.rabbitmq.com/releases/rabbitmq-server/v{{ rabbitmq_redhat_version }}'
+rabbitmq_redhat_version: '3.6.1'
+
+rabbitmq_users:
+  - name: 'svcpraelatusmq'
+    password: "{{ lookup('env', 'PRAELATUS_MQ_PASS') }}"
+    vhost: '/'
+    configure_priv: '.*'
+    read_priv: '.*'
+    write_priv: '.*'
+    tags: 'administrator'

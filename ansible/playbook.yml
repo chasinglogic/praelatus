@@ -1,0 +1,19 @@
+- hosts: database
+  become: true
+  become_method: sudo
+  roles:
+    - ANXS.postgresql
+
+- hosts: appserver
+  become: true
+  become_method: sudo
+  roles:
+    - geerlingguy.redis
+    - nginx
+    - praelatus
+
+- hosts: mqserver
+  become: true
+  become_method: sudo
+  roles:
+    - rabbitmq

@@ -1,0 +1,23 @@
+[Unit]
+Description=Praelatus, Open Source bug tracker and ticketing system
+After=network.target
+Wants=network.target
+Documentation=https://doc.praelatus.io
+
+[Service]
+User=praelatus
+Group=praelatus
+EnvironmentFile=-/etc/sysconfig/praelatus
+
+{% if praelatus_src_installation and praelatus_dev %}
+WorkingDir={{ praelatus_installation_location }}/app
+ExecStart=/usr/bin/python3 manage.py runserver
+{% else %}
+# Recommended gunicorn config for praelatus, the fancy bit at -w
+# sets the number of workers to 2 * number of cpus + 1 as per the
+# recommendation in the gunicorn docs
+ExecStart=/usr/local/bin/praelatus
+{% endif %}
+
+[Install]
+WantedBy=multi-user.target

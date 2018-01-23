@@ -1,0 +1,53 @@
+---
+- stat:
+    path: praelatus_installation_location
+  register: installation_location_exists
+
+- name: "download praelatus"
+  git:
+    repo: "https://github.com/praelatus/praelatus"
+    dest: praelatus_installation_location
+    update: yes
+    recursive: yes
+  when: not installation_location_exists.stat.isdir
+
+- name: "install interpreters"
+  apt:
+    name: {{ item }}
+  with_items:
+    - nodejs
+    - npm
+    - python3
+
+- name: "install npm dependencies"
+  npm:
+    path: praelatus_installation_location
+
+- name: "install python dependencies"
+  pip:
+    executable: pip3
+    requirements: praelatus_installation_location + "/requirements.txt"
+
+- name: "build frontend"
+  shell: webpack
+  args:
+    chdir: praelatus_installation_location
+
+- name: "migrate the database"
+  shell: python3 manage.py migrate
+  args:
+    chdir: praelatus_installation_location + "/app"
+
+- name: "seed the database"
+  shell: python3 manage.py seeddb
+  args:
+    chdir: praelatus_installation_location + "/app"
+  when: praelatus_seed_database
+
+- name: "copy gunicorn script to path"
+  template:
+    src: templates/praelatus.sh
+    dest: /usr/local/bin/praelatus
+    mode: u=rwx,g=rx,o=rx
+    owner: root
+

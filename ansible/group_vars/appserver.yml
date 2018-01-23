@@ -1,0 +1,4 @@
+praelatus_src_installation: true
+praelatus_installation_location: "/vagrant"
+praelatus_seed_database: true
+praelatus_dev: true

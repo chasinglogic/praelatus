@@ -1,0 +1,55 @@
+- name: debian | ensure apt dependencies are installed
+  apt:
+    name: nginx
+    state: latest
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: redhat | ensure yum dependencies are installed
+  yum:
+    name: nginx
+    state: latest
+  when: ansible_distribution == "CentOS" or ansible_distribution == "Red Hat Enterprise Linux"
+
+- name: create /var/www
+  file:
+    path: /var/www
+    state: directory
+
+- name: create /var/www/html
+  file:
+    path: /var/www/html
+    state: directory
+
+- name: create www-data group
+  group:
+    name: www-data
+
+- name: create www group
+  group:
+    name: www
+
+- name: create www user
+  user:
+    name: www
+    groups:
+      - www-data
+      - www
+    shell: /bin/bash
+    home: /usr/share/nginx/html
+
+- name: create /etc/nginx/sites-enabled
+  file:
+    path: /etc/nginx/sites-enabled
+    state: directory
+
+- name: copy nginx config
+  template:
+    src: templates/nginx.conf
+    dest: /etc/nginx/nginx.conf
+
+- name: enable nginx
+  service:
+    name: "nginx"
+    state: started
+    enabled: yes
