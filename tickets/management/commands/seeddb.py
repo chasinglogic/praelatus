@@ -83,6 +83,10 @@ class Command(BaseCommand):
         feature.save()
 
         ticket_types = [bug, feature, epic]
+        p.ticket_types.add(bug)
+        p.ticket_types.add(feature)
+        p.ticket_types.add(epic)
+        p.save()
 
         fs = FieldScheme(name='Bug Field Scheme', project=p, ticket_type=bug)
         fs.save()
