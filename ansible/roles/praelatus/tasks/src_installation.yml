@@ -13,7 +13,7 @@
 
 - name: "install interpreters"
   apt:
-    name: {{ item }}
+    name: "{{ item }}"
   with_items:
     - nodejs
     - npm

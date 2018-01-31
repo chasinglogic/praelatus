@@ -6,10 +6,10 @@
     comment: "Praelatus service account"
     home: /opt/praelatus
 
-- include: src_installation.yml
+- include_tasks: src_installation.yml
   when: praelatus_src_installation
 
-- include: installation.yml
+- include_tasks: installation.yml
   when: not praelatus_src_installation
 
 - name: "install app systemd service file"

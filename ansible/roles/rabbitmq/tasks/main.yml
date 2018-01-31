@@ -1,10 +1,10 @@
-- include: debian.yml
+- include_tasks: debian.yml
   when: ansible_os_family == "Debian"
 
-- include: redhat.yml
+- include_tasks: redhat.yml
   when: ansible_distribution == "CentOS" or ansible_distribution == "Red Hat Enterprise Linux"
 
-- include: fedora.yml
+- include_tasks: fedora.yml
   when: ansible_distribution == "Fedora"
 
-- include: rabbitmq_users.yml
+- include_tasks: rabbitmq_users.yml
