@@ -1,47 +1,44 @@
-RELEASE_FILES = fields labels praelatus profiles schemes data/static \
-				templates tickets workflows LICENSE README.md manage.py
+RELEASE_FILES = app/fields app/labels app/praelatus app/profiles app/schemes app/app/data/static \
+				app/templates app/tickets app/workflows LICENSE README.md app/manage.py
 
 VERSION = 0.1.0
 HASH := $(shell git rev-parse HEAD)
 TARBALL = release-v$(VERSION)-$(HASH).tar.gz
 
-WEBPACK_FILES := static/index.js static/index.css
+WEBPACK_FILES := app/app/staticindex.js app/static/index.css
 
-build: install_deps $(WEBPACK_FILES) data/static
+build: node_modules pip $(WEBPACK_FILES) app/data/static
 
 clean:
-	rm -rf data/static static/ venv/ node_modules/ $(TARBALL)
+	rm -rf app/data/static app/static venv/ node_modules/ $(TARBALL)
 
 $(TARBALL): $(RELEASE_FILES)
 	tar czf $@ $^
 
 $(WEBPACK_FILES):
-	webpack
+	npm run webpack
 
-data/static:
-	python manage.py collectstatic --clear
+app/data/static:
+	cd app && python manage.py collectstatic --clear
 
 dist: build $(TARBALL)
 
 node_modules:
 	npm install
 
-install_deps: node_modules pip
-
 test:
-	python manage.py test
+	cd app && python manage.py test
 
 run: node_modules pip
-	webpack --watch & python manage.py runserver
+	webpack --watch & cd app && python manage.py runserver
 
-pip: .venv/lib/python3.6/django
+pip: venv/lib/python3.6/site-packages/django
 
-.venv/lib/python3.6/django:
-	pip install -r requirements.txt
+venv/lib/python3.6/site-packages/django:
+	pip install -r app/requirements.txt
 
-.venv:
-	python3 -m venv .venv
+venv:
+	python3 -m venv venv
 
-venv: .venv
-activate:
-	@echo . .venv/bin/activate
+activate: venv
+	@echo . venv/bin/activate
