@@ -42,3 +42,9 @@ venv:
 
 activate: venv
 	@echo . venv/bin/activate
+
+migrate:
+	cd app && python manage.py makemigrations && python manage.py migrate
+
+seeddb: migrate
+	cd app && python manage.py flush && python manage.py seeddb
