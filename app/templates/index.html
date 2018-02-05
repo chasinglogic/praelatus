@@ -2,19 +2,42 @@
 
 {% block container %}
 <div class="container" >
-    <div class="row">
-        <div class="col-md-6 element">
-            <h3>Welcome to Praelatus!</h3>
-            <p>
-                Praelatus is an Open Source bug tracking and ticketing system.
-                If you're new to Praelatus and are wondering how to get started
-                you can view our <a href="https://doc.praelatus.io/">User Guide</a>.
-                Otherwise just sign in / sign up and get cracking!
-            </p>
-        </div>
-        <div class="col-md-6 element">
-            {% include 'registration/register_form.html' %}
-        </div>
+  <div class="row">
+    <div class="col-md-6 element">
+      <h3>Welcome to Praelatus!</h3>
+      <p>
+        Praelatus is an Open Source bug tracking and ticketing system.
+        If you're new to Praelatus and are wondering how to get started
+        you can view our <a href="https://doc.praelatus.io/">User Guide</a>.
+        Otherwise just sign in / sign up and get cracking!
+      </p>
     </div>
+    <div class="col-md-6 element">
+      <div class="card text-center">
+        <div class="card-header">
+          <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+              <a class="nav-link active" data-toggle="tab" role="tab"
+                aria-selected="false"
+                aria-controls="SignUp" href="#SignUp">Sign Up</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-toggle="tab" role="tab"
+                aria-selected="false"
+                aria-controls="SignIn" href="#SignIn">Sign In</a>
+            </li>
+          </ul>
+        </div>
+        <div class="card-body tab-content">
+          <div class="tab-pane active" id="SignUp" role="tabpanel" arial-labelledby="sign-up-tab">
+            {% include 'registration/register_form.html' %}
+          </div>
+          <div class="tab-pane" id="SignIn" role="tabpanel" arial-labelledby="sign-in-tab">
+            {% include 'registration/login_form.html' %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
