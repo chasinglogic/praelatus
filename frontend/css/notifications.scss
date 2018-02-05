@@ -1,0 +1,20 @@
+.notification-tray {
+  width: 300px;
+  padding: 1rem;
+  position: absolute;
+  right: 0;
+}
+
+.notification-tray .alert {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.alert .dismiss-button {
+  position: absolute;
+  margin: 0.5rem;
+  right: 0;
+  top: 0;
+  background-color: transparent;
+  border: none;
+}

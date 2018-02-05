@@ -16,46 +16,12 @@ body {
   font-family: sans-serif;
 }
 
-.nav-item div:hover {
+textarea {
+  min-height: 6em;
+}
+
+a {
   cursor: pointer;
-}
-
-.text-big {
-  font-size: 1.5rem;
-}
-
-.content {
-  padding-top: 1rem;
-}
-
-.navbar-dark .navbar-nav .nav-link {
-  color: white;
-}
-
-.notification-tray {
-  width: 300px;
-  padding: 1rem;
-  position: absolute;
-  right: 0;
-}
-
-
-.notification-tray .alert {
-  width: 100%;
-  margin-bottom: 1rem;
-}
-
-.alert .dismiss-button {
-  position: absolute;
-  margin: 0.5rem;
-  right: 0;
-  top: 0;
-  background-color: transparent;
-  border: none;
-}
-
-#userMenu1 {
-  margin-left: 1rem;
 }
 
 .search-button {
@@ -64,12 +30,11 @@ body {
   border-bottom-left-radius: 0 !important;
 }
 
-.ticket-header .card-block, .comments .card-block {
-  padding: 1rem;
+.CodeMirror {
+  height: 6em;
 }
 
-.ticket-info .card-block {
-  padding-top: 1rem;
-}
-
-@import "./old.scss";
+@import "./sidebar.scss";
+/* @import "./utilities.scss"; */
+@import "./tickets.scss";
+@import "./navbar.scss";
