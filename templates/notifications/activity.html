@@ -1,0 +1,42 @@
+<div id="activity-{{ activity.id }}" class="activity-notification">
+    <div class="activity-action-text">
+        {% if activity.type == 'COMMENT' %}
+        {% include 'users/user_stub.html' with user=activity.actioning_user %}
+        <p>
+            commented on
+
+            <a href="/tickets/{{ activity.ticket.key }}">
+                {{ activity.ticket.key }}
+            </a>
+        </p>
+        {% elif activity.type == 'CREATE' %} 
+        {% include 'users/user_stub.html' with user=activity.actioning_user %}
+
+        <p>
+            created
+
+            <a href="/tickets/{{ activity.ticket.key }}">
+                {{ activity.ticket.key }}
+            </a>
+        </p>
+        {% elif activity.type == 'TRANSITION' %} 
+        {% include 'users/user_stub.html' with user=activity.actioning_user %}
+
+        <p>
+            transitioned
+
+            <a href="/tickets/{{ activity.ticket.key }}">
+                {{ activity.ticket.key }}
+            </a>
+
+            to
+        </p>
+
+        {% include 'statuses/status_pill.html' with status=activity.content_object %} {% else %} {{ activity.type }} {% endif %}
+    </div>
+
+
+    <span class="activity-timestamp">
+        {{ activity.timestamp | date:'h:iA Y-m-d' }}
+    </span>
+</div>

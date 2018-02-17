@@ -1,0 +1,6 @@
+PRAE_DEBUG=true
+PRAE_ALLOWED_HOSTS=web
+PRAE_REDIS_URL=redis://redis:6379/1
+PRAE_MQ_SERVER=amqp://guest:guest@rabbitmq:5672//
+PRAE_EMAIL_BACKEND=django.core.mail.backends.locmem.EmailBackend
+PRAE_DB_HOST=db

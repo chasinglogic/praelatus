@@ -96,9 +96,8 @@ ENV/
 
 *data*
 *.rdb
-app/static/media*
 db.sqlite3
 worker.pid
 node_modules/*
-app/static/*
+static/*
 *.tar.gz

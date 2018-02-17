@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+{% load markdown %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/profiles/css/profiles.css" />
+<link rel="stylesheet" href="/static/projects/css/projects.css" />
+{% endblock %}
+
+{% block sidebar %}
+{% include 'projects/sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="mw1000 mr-auto ml-auto">
+    <div class="card m-bottom">
+        <div class="card-header project-header">
+            <div class="d-inline-block" >
+                {% include 'projects/project_icon.html' %}
+            </div>
+            <h1 class="d-inline-block">
+                {{ project.name }}
+            </h1>
+        </div>
+        <div class="card-block">
+            {% if project.description %}
+            {{ project.description | markdown | safe }}
+            {% endif %}
+
+            <p>
+                <b>Lead:</b> {% include 'users/user_stub.html' with user=project.lead %}
+            </p>
+
+            {% if project.repo %}
+            <p>
+                <b>Repo:</b>
+                <a href="{{ project.repo }}">{{ project.repo }}</a>
+            </p>
+            {% endif %}
+
+            {% if project.homepage %}
+            <p>
+                <b>Homepage:</b>
+                <a href="{{ project.homepage }}">{{ project.homepage }}</a>
+            </p>
+            {% endif %}
+
+        </div>
+    </div>
+
+    {% if project.activity.all %}
+    <h1>Recent Activity</h1>
+    <div class="card-block">
+        {% for activity in project.activity.all %}
+          {% include 'notifications/notification.html' with activity=activity %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" >
+        <div class="card-header" >
+            <h1>No recent activity! Take a coffee break!</h1>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

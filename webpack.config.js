@@ -20,7 +20,7 @@ module.exports = {
     path.join(__dirname, 'frontend/js/index.js')
   ].concat(glob.sync('./frontend/img/*')),
   output: {
-    path: path.join(__dirname, 'app/static/'),
+    path: path.join(__dirname, 'static/'),
     filename: 'index.js',
     publicPath: '/'
   },

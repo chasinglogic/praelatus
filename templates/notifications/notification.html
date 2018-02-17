@@ -1,0 +1,7 @@
+<div class="notification-notification">
+    {% if notification %}
+        {% include 'notifications/activity.html' with activity=notification.activity %}
+    {% else %}
+        {% include 'notifications/activity.html' with activity=activity %}
+    {% endif %}
+</div>

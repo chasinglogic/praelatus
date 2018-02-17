@@ -18,3 +18,49 @@
   background-color: transparent;
   border: none;
 }
+
+.notification-notification {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+}
+
+.notification-notification > *, .activity-notification > *, .activity-action-text > * {
+  margin: auto;
+}
+
+.activity-notification {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  align-content: center;
+  width: 100%;
+}
+
+.activity-timestamp {
+  align-self: flex-right;
+  font-weight: bold;
+}
+
+.activity-action-text {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+}
+
+.activity-action-text > .user-stub {
+  margin-right: 0.25em;
+}
+
+.activity-action-text > * {
+  margin-bottom: 0;
+}

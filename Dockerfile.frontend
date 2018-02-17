@@ -1,0 +1,7 @@
+FROM node:8
+
+RUN mkdir -p /opt/praelatus
+ADD package.json /opt/praelatus/package.json
+WORKDIR /opt/praelatus
+RUN npm install
+ENTRYPOINT npm run dev

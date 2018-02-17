@@ -1,9 +1,13 @@
-FROM ubuntu:16.04
+FROM python:3
 
-RUN apt-get update && apt-get install -y python3 nodejs npm build-essential
+RUN mkdir -p /opt/praelatus
+WORKDIR /opt/praelatus
 
-RUN mkdir /code
-ADD . /code
+ADD ./requirements.txt /opt/praelatus/requirements.txt
+RUN pip install -r requirements.txt
 
-WORKDIR /code/app
-RUN make build
+ADD . /opt/praelatus
+
+RUN python manage.py collectstatic
+
+ENTRYPOINT python manage.py runserver
