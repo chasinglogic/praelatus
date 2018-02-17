@@ -1,9 +1,5 @@
 {% extends 'layout.html' %}
 
-{% block head %}
-<link rel="stylesheet" href="/static/profiles/css/profiles.css" />
-{% endblock %}
-
 {% block body %}
 <style>
  body {
@@ -13,11 +9,11 @@
 
 <div class="container-fluid d-flex justify-content-center align-items-center"
      style="background-color: #59427f; height: 100%;">
-    <div class="login-container">
+    <div class="mw600">
         <a href="/">
-            <img src="/static/name.svg" />
+            <img src="/static/name.svg" alt="Praelatus" class="img-fluid" />
         </a>
-        <div class="form-container element"
+        <div class="element"
              style="background-color: white; border-radius: 5px">
           {% include 'registration/login_form.html' %}
         </div>
