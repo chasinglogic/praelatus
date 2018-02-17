@@ -9,6 +9,10 @@ $theme-colors: (
 
 $fa-font-path: "~font-awesome/fonts";
 @import '~font-awesome/scss/font-awesome';
+// The font files are put at /static/fontfilename.* this includes them.
+@import url("/static/fontawesome-webfont.ttf");
+@import url("/static/fontawesome-webfont.woff");
+@import url("/static/fontawesome-webfont.woff2");
 
 body {
   margin: 0;
