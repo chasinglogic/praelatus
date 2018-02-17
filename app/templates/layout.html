@@ -10,32 +10,29 @@
 
   <!-- Setup Select2 Theme -->
   <script>
-   $.fn.select2.defaults.set("theme", "bootstrap");
+    $.fn.select2.defaults.set("theme", "bootstrap");
   </script>
 
   <script>
-   // Global toolbar config for Simplemde.
-   var toolbarConfig = [
-     "bold",
-     "italic",
-     "code", "|",
-     "heading",
-     "heading-2",
-     "heading-3", "|",
-     "heading-bigger",
-     "heading-smaller", "|",
-     "quote",
-     "unordered-list",
-     "ordered-list", "|",
-     "link",
-     "image",
-     "table",
-     "|", "preview", "guide"
-   ]
-  </script>
-
-  {% block head %}
-  {% endblock %}
+    // Global toolbar config for Simplemde.
+    var toolbarConfig = [
+      "bold",
+      "italic",
+      "code", "|",
+      "heading",
+      "heading-2",
+      "heading-3", "|",
+      "heading-bigger",
+      "heading-smaller", "|",
+      "quote",
+      "unordered-list",
+      "ordered-list", "|",
+      "link",
+      "image",
+      "table",
+      "|", "preview", "guide"
+    ]
+  </script> {% block head %} {% endblock %}
 </head>
 
 <body>
@@ -47,32 +44,23 @@
               navbar-expand-md
               navbar-dark
               bg-primary">
-    <button class="navbar-toggler" type="button"
-      data-toggle="collapse" data-target="#navbarToggler"
-      aria-controls="navbarToggler" aria-expanded="false"
-      aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler"
+      aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarToggler">
       <a class="navbar-brand" href="/">
-        <img src="/static/logo_arrow.svg"
-          height="30"
-          width="30">
+        <img src="/static/logo_arrow.svg" height="30" width="30">
       </a>
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link"
-            href="/projects/search">Projects</a>
+          <a class="nav-link" href="/projects/search">Projects</a>
         </li>
         <li class="nav-item dropdown btn-group">
-          <a class="dropdown-toggle nav-link"
-            id="ticketMenu1"
-            data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">
+          <a class="dropdown-toggle nav-link" id="ticketMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Tickets
           </a>
-          <div class="dropdown-menu dropdown-menu"
-            aria-labelledby="ticketMenu1">
+          <div class="dropdown-menu dropdown-menu" aria-labelledby="ticketMenu1">
             <h6 class="dropdown-header">Queries</h6>
             <a class="dropdown-item" href="/queries/mine">
               Manage Queries
@@ -80,12 +68,10 @@
             <a class="dropdown-item" href="/queries">
               Search
             </a>
-            {% block tickets_menu %}
-            {% endblock %}
+            {% block tickets_menu %} {% endblock %}
           </div>
         </li>
-        {% block nav_items %}
-        {% endblock %}
+        {% block nav_items %} {% endblock %}
       </ul>
       <form method="GET" action="/tickets/create" class="form-inline my-2 my-lg-0 navbar-create-button">
         <button class="btn btn-success">
@@ -95,14 +81,10 @@
       <ul class="navbar-nav">
         {% if user.is_authenticated %}
         <li class="nav-item dropdown btn-group">
-          <a class="dropdown-toggle nav-link"
-            id="userMenu1"
-            data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">
-            <img width="30" height="30" src="{{ user.profile.profile_pic }}">
+          <a class="dropdown-toggle nav-link" id="userMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <img width="30" height="30" alt="avatar" src="{{ user.profile.profile_pic }}">
           </a>
-          <div class="dropdown-menu dropdown-menu-right"
-            aria-labelledby="userMenu1">
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu1">
             {% if user.is_superuser %}
             <a class="dropdown-item" href="/admin/">
               System Administration
@@ -124,8 +106,7 @@
           <a class="nav-link" href="#">/</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link"
-            href="/users/register?next={{ request.get_full_path }}">
+          <a class="nav-link" href="/users/register?next={{ request.get_full_path }}">
             Sign Up
           </a>
         </li>
@@ -136,14 +117,12 @@
 
   {% block container %}
   <div class="container-fluid">
-    <div class="row" >
-      <nav class="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar" >
-        {% block sidebar %}
-        {% endblock %}
+    <div class="row">
+      <nav class="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar">
+        {% block sidebar %} {% endblock %}
       </nav>
       <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3 content">
-        {% block content %}
-        {% endblock %}
+        {% block content %} {% endblock %}
       </main>
     </div>
   </div>
