@@ -17,3 +17,23 @@
   color: $primary-color;
 }
 
+.mw1000 {
+  max-width: 1000px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.mw600 {
+  max-width: 600px;
+}
+
+/* Any element which needs to stand out from the background */
+.element {
+  background-color: white;
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+.m-bottom {
+  margin-bottom: 1rem;
+}

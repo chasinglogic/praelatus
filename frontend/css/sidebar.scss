@@ -24,3 +24,12 @@
 body {
   padding-top: 4.5rem;
 }
+
+.praelatus-nav-link, .praelatus-nav-link button {
+  color: $primary-color !important;
+}
+
+.praelatus-nav-link.active {
+  background-color: $primary-color !important;
+  color: white !important;
+}
