@@ -40,6 +40,7 @@ Then we need to setup password based authentication switch to the
 postgres user then connect to the database:
 
 ```bash
+# su -
 # su - postgres
 $ psql
 ```
@@ -97,6 +98,11 @@ or
 $ su - root
 ```
 
+Before installing Redis we should check to see if GCC is installed on your machine.
+If not then use the following command. 
+```
+# sudo yum -y install gcc
+```
 Then download and compile Redis:
 
 ```bash
