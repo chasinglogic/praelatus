@@ -3,58 +3,40 @@
 Praelatus uses a "master is develop" branching model as this forces us to keep
 our tests up to date and comprehensive.
 
-# Branches
+## Branches
 
-Praelatus has only one "long lived" branch `master` (or from the perspective of
-someone with a local copy `origin/master`). The tip of this branch is the
-current "Nightly" or development version of Praelatus. We use [git
-tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging) to mark releases on
-the master branch. This keeps our branches from becoming cluttered with a bunch
-of junk and inevitably growing over time.
+Praelatus uses release branches to handle of back porting of bug fixes /
+features to older versions. Almost all development happens on master.
 
-When working on a new feature you would branch from `master` giving the branch
-a name that indicates what you're working on. For instance if we were adding
-the project administration pages we would run the following command:
+For managing your own changes we recommend [forking](https://github.com/praelatus/praelatus/fork) 
+the project and either developing on your own master or using feature branching.
 
-```bash
-           # New branch name      Branch we're starting from
-git branch project-administration master
-```
+## Merging and Rebasing
 
-The same general rules apply when creating a branch for a bugfix just give it a
-name indicative of what you're doing:
-
-```bash
-git branch queries-respect-permissions master
-```
-
-We call these "topic" branches. We don't follow a specific naming convention,
-if the name is short and to the point then it's probably good enough.
-
-# Merging and Rebasing
-
-We use Pull Requests and merges to bring these changes back into `master`
-however, we try to keep the branches to as few commits as possible. Generally 1
-to 2 commits for a branch. We do this through `git rebase` and
+We use Pull Requests and merges to bring these changes back into the main
+repo's `master` branch however, we try to keep the pull requests to as few
+commits as possible. Generally 1 to 2 commits for a branch. We do this
+through `git rebase` and
 [squashing](https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History). This
 allows us to keep the project mangeable from a history perspective as well as
-encourages high quality commit messages. For those unfamiliar with git however
-this can be a daunting task the first time so below we have written a
-tutorial on how to perform these steps. If you're already familiar with
-rebasing and squashing then move on to [Commit Messages](#commit-messages)
+encouraging high quality commit messages. 
 
+For those unfamiliar with git, however this can be a daunting task the first
+time so below we have written a tutorial on how to perform these steps. If
+you're already familiar with rebasing and squashing then move on to 
+[Commit Messages](#commit-messages)
 
 Let's say that you've done some updates to the deployment documentation,
 written some new documentation, and while you were at it you noticed the
-`tox.ini` had old configuration information so you updated it. Your branch is
-called more-docs and your `git log` looks something like this:
+settings module had old configuration information so you updated it. 
+Your branch is called more-docs and your `git log` looks something like this:
 
 ```
 commit 54bac418947a0f6882aac528dbca9747a8e76b52 (HEAD -> more-docs)
 Author: Mathew Robinson <chasinglogic@gmail.com>
 Date:   Thu Jul 27 13:55:16 2017 -0400
 
-    WIP: Fix tox config so it matches new settings
+    WIP: Fix settings module so it matches new settings
 
 commit 745353784c549299465ce1910738ea848248c18c
 Author: Mathew Robinson <chasinglogic@gmail.com>
@@ -72,10 +54,17 @@ Date:   Wed Jul 26 16:18:17 2017 -0400
 You originally set out to just write some more documentation but made a few
 minor fixes along the way. This is totally fine but what we're going to do is
 "squash" all of these commits into one big commit with a descriptive commit
-message. To do this we need to run:
+message. First, we need to make sure we have the latest updates for our local
+copies of remote branches. Use git fetch to accomplish this:
+
+```bash
+git fetch -a
+```
+
+Now we need to interactively rebase onto origin/master. To do this we need to run:
 
 ```
-git rebase -i master
+git rebase -i origin/master
 ```
 
 You'll then be prompted with the following in your git editor:
@@ -153,15 +142,12 @@ git rebase --continue
 # Update the commit message if necessary
 ```
 
-View the [rebasing
-docs](https://help.github.com/articles/using-git-rebase-on-the-command-line/)
+View the [rebasing docs](https://help.github.com/articles/using-git-rebase-on-the-command-line/)
 for more information.
 
 # Commit Messages
 
-We follow a slightly more structured version of the [Tim
-Pope](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
-commit message guidelines. Our template commit looks like this:
+We follow a specific format for our commit messages. Our template commit looks like this:
 
 ```
 Summary of Bug or Title of Feature
@@ -224,7 +210,7 @@ WIP: Fix tox config so it matches new settings
 #       modified:   docs/deployment/advanced/nginx.md
 #       deleted:    docs/hacking/README.md
 #       modified:   docs/index.html
-#       modified:   tox.ini
+#       modified:   praelatus/settings/__init__.py
 #
 ```
 
@@ -233,13 +219,13 @@ We would change this to the following commit message:
 ```
 Update Documentation
 
-This updates the deployment documentatino for Linux. Reorganizes the sidebar so
+This updates the deployment documentation for Linux. Reorganizes the sidebar so
 that it's more clear and managed inside a single file. Additionally this
 includes "advanced" topics like configuring a reverse proxy for Praelatus, How
 to set up and develop on Praelatus, and how to use git on this project.
 
 Bug Fixes:
-- The tox.ini file was using an old environment variable to configure the
+- The settings module was using an old environment variable to configure the
   database this commit updates it to the new environment variables to use
   Sqlite.
 
@@ -270,18 +256,17 @@ Bug Fixes:
 #       modified:   docs/deployment/advanced/nginx.md
 #       deleted:    docs/hacking/README.md
 #       modified:   docs/index.html
-#       modified:   tox.ini
+#       modified:   praelatus/settings/__init__.py
 #
 ```
 
 From that point you can push to your fork with:
 
 ```bash
-git push --force
+git push --force fork more-docs
 ```
 
-Finally you will [open a pull
-request](https://help.github.com/articles/creating-a-pull-request/) on Github
+Finally you will [open a pull request](https://help.github.com/articles/creating-a-pull-request/) on Github
 and it will automatically populate the PR with the well written commit message.
 From there a member of the core team will perform a code review and any
 additional changes as a result of that code review should not be squashed and
@@ -290,9 +275,7 @@ instead should be separate commits for each review rejection.
 
 # Further Questions?
 
-If you feel this doucment was insufficient in explaining the use of git for
-Praelatus then please feel free to [submit an
-issue](https://github.com/praelatus/praelatus/issue). If you have questions or
-unclear in understanding then please contact the team via
-email at [team@praelatus.io](mailto:team@praelatus.io) or our our [mailing
-list](http://mail.praelatus.io)
+If you feel this document was insufficient in explaining the use of git for
+Praelatus then please feel free to [submit an issue](https://github.com/praelatus/praelatus/issue). 
+If you have questions or unclear in understanding then please contact the team via
+email at [praelatus-devel@googlegroups.com](mailto:praelatus-devel@googlegroups.com)

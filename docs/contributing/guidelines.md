@@ -1,20 +1,27 @@
 # How to Contribute
 
-- Submitting bugs or feature requests! For now, you can drop us a line
-  on Github issues
-  [here](https://github.com/praelatus/praelatus/issues).
-- Write documentation. We always need contributions in the form of
-  localization, spell / grammar check, or net new documentation. For
-  more information, you can check out our starter
-  guide [here](/Contributing/Documentation) and find open
-  issues [here](https://github.com/praelatus/docs)
-- Code submissions. We always need more code written in the form of
-  new features or bugs. In this capacity you can help on
-  [Github](https://github.com/praelatus)
-- DevOps / System Administration, there's a non-trivial amount of
-  infrastructure at use here that all needs managed and updated. If
-  you'd like to help in this capacity you can
-  email [team@praelatus.io](mailto:team@praelatus.io).
+- Submitting bugs or feature requests! 
+
+For now, you can drop us a line on Github issues
+[here](https://github.com/praelatus/praelatus/issues).
+
+- Write documentation. 
+
+We always need contributions in the form of localization, spell / grammar
+check, or net new documentation. For more information, you can check out our
+starter guide [here](/Contributing/Documentation) and find open issues
+[here](https://github.com/praelatus/docs)
+
+- Code submissions. 
+
+We always need more code written in the form of new features or bugs. In this
+capacity you can help on [Github](https://github.com/praelatus)
+
+- DevOps / System Administration
+
+There's a non-trivial amount of infrastructure at use here that all needs
+managed and updated. If you'd like to help in this capacity you can email
+[praelatus-devel@googlegroups.com](mailto:praelatus-devel@googlegroups.com).
 
 # General Guidelines
 

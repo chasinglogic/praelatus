@@ -1,6 +1,6 @@
 version: '3'
 services:
-  web:
+  app:
     build: .
     image: praelatus:dev
     entrypoint: /bin/bash /opt/praelatus/scripts/docker-compose.sh
@@ -22,6 +22,8 @@ services:
       - rabbitmq
       - redis
     env_file: config/docker/envfile
+    environment:
+      - PRAE_DEBUG=false
   frontend:
     build:
       context: .
@@ -44,7 +46,7 @@ services:
   nginx:
     image: "nginx"
     depends_on:
-      - web
+      - app
     ports:
       - "8000:80"
     volumes:

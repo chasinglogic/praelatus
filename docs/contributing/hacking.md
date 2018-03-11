@@ -1,321 +1,219 @@
 # Introduction
 
-This document will help you get ready to make your first contribution
-to Praelatus. It assumes that you have no prior knowledge and are on a
-unix-like operating system using Bash or another equivalent shell. If
-you are not please modify the commands accordingly for your platform /
-preferences. If you have experience developing Django apps on Windows we would
-love to have you
-[Write a guide](https://github.com/praelatus/praelatus/issues/173) for us!
+This document will help you get ready to make your first contribution to
+Praelatus. It assumes that you have no prior knowledge and are on a unix-like
+operating system using Bash or another equivalent shell. If you are not
+please modify the commands accordingly for your platform / preferences. If
+you have experience developing Django apps on Windows we would love to have
+you [Write a guide](https://github.com/praelatus/praelatus/issues/173) for
+us!
 
-If you experience any problems with this document please report
-them [here](https://github.com/praelatus/docs/issues)
+If you experience any problems with this document please report them
+[here](https://github.com/praelatus/docs/issues)
 
 # What You'll Need
 
-- [A Python Interpreter](https://python.org) Version 3.5 or greater.
-- [Redis](https://redis.io/downoad)
-- [Git](https://git-scm.com)
-- A text editor. [Atom](https://atom.io),
-  [Emacs](https://www.gnu.org/software/emacs/), and
-  [Neovim](https://www.neovim.io) are all good choices.
+- [Docker](https://docs.docker.com/install/) 
+- [Docker Compose](https://docs.docker.com/compose/) 
+- [Git](https://git-scm.com) 
+- A text editor
 
-# Installing Prerequisites
+<span id="checking-out-the-repo"></span>
+# Checking out the Repo
 
-Here we will document a "quick start" way to set up the prerequisites for
-running Praleatus on your laptop in development mode. It's worth noting if
-you're looking for more comprehensive docs on these two tools then you should
-visit their websites linked above.
+First read the Praelatus [Git workflow docs](https://github.com/praelatus/praelatus/blob/master/docs/contributing/git_workflow.md) 
+to understand how we manage the project from a VCS perspective before submitting
+a PR but if you follow the steps below you will be on the right track.
 
-## Installing Python
+If you plan on making changes [fork](https://help.github.com/articles/fork-a-repo/) the 
+[main repo](https://github.com/praelatus/praelatus). 
 
-**Ubuntu**
-
-```bash
-sudo apt install python3 python3-dev python3-pip python3-wheel
-```
-
-**Fedora**
+You will need to clone the main repo with:
 
 ```bash
-sudo dnf install python3 python3-devel
+git clone https://github.com/praelatus/praelatus
 ```
 
-**Mac OSX**
-
-This assumes you have homebrew installed. If not you can install it
-[here](https://brew.sh/)
+Then add your fork as a remote with:
 
 ```bash
-brew install python3
-```
-
-**Windows**
-
-Get the latest release download from
-[here](https://www.python.org/downloads/windows/) click the "Latest Python 3
-Release" at the top of the page. Scroll to the bottom of that page and there
-will be a table titled "Files". Click the link for "Windows x86-64 executable
-installer", this will download an `exe` installer which you can use to set up
-python.
-
-## Installing Redis
-
-**Ubuntu**
-
-```bash
-sudo apt install redis-server
-sudo systemctl start redis-server
-```
-
-**Fedora**
-
-```bash
-sudo dnf install redis
-sudo systemctl start redis
-```
-
-**Mac OSX**
-
-Again this assumes you have homebrew installed. If not you can install it
-[here](https://brew.sh/)
-
-```bash
-brew install redis
-# Run in this terminal with
-redis-server
-# Or if you have brew services installed
-brew services start redis
-```
-
-**Windows**
-
-Getting Redis on windows is a bit more complicated and you have a couple of
-options:
-
-- You can get Redis as a Vagrant VM
-[here](https://github.com/ServiceStack/redis-windows)
-- You can try one of the various "Redis for Windows" binaries out there but we
-  don't feel comfortable recommending any of them as it's a changing and poorly
-  documented landscape.
-- Finally, you can simply use a different caching mechanism for Praelatus via
-  modifying the settings.py as described
-  [here](https://docs.djangoproject.com/en/1.11/topics/cache/#local-memory-caching)
-
-  **Note:** Please do not submit PR's with this change to settings.py to
-  Praelatus you can simply not stage the settings.py or you can stage it in
-  hunks with git.
-
-# Clone the repo
-
-**NOTE:** We provide all the git commands you'll need to get started
-but for a better tutorial on git itself you can
-go [here](https://try.github.io/levels/1/challenges/1)
-
-If you don't have a "workspace" we recommend setting one up, you can
-create a workspace using the following commands:
-
-```bash
-mkdir -P ~/code/
-cd ~/code/
-```
-
-Now if you haven't forked the project yet you can do so by clicking this
-[link](https://github.com/praelatus/praelatus#fork-destination-box)
-
-Once you've got your fork you can get the code by cloning your fork, the url
-will be `https://github.com/{yourusername}/praelatus`. For example my github
-username is chasinglogic so if I were to clone my fork the command would be
-
-```bash
-git clone https://github.com/chasinglogic/praelatus
-```
-
-You should then have a folder at `~/code/praelatus` let's go ahead and
-move into that directory:
-
-```bash
-cd ~/code/praelatus
-```
-
-# Setting up the Virtualenv
-
-In Python development we use virtualenv's to contain our dependencies
-and lock in versions of the python interpreter, you can find a great
-guide on understanding virtualenvs
-[here](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/) but
-the commands you need to get started with praelatus are simply:
-
-```bash
-# Assuming your OS puts python v3 as python3 (most do)
-python3 -m venv venv
-source venv/bin/activate
-```
-
-Now we can install praelatus' dependencies using the following
-command:
-
-```bash
-pip install -r requirements.txt
-```
-
-And for running tests we'll need an additional tool called tox:
-
-```bash
-pip install tox
-```
-
-# Setting up the Database
-
-Now that we've got the code the first thing to do is configure our database and
-our environment. I'm going to go over the minimal configuration needed to get
-hacking here but if you're curious about how to customize / configure this
-setup you can [read the source,
-Luke](https://github.com/praelatus/praelatus/blob/master/praelatus/settings.py)
-or [read the deployment guides](/deployment/) which cover how to
-configure the app.
-
-First we need to generate a config file. You can do so using the management
-command genconfig:
-
-```bash
-./manage.py genconfig
-```
-
-This will create a directory called `data/` inside you will see two files
-`.secret_key` which you can leave alone and `config.yaml` which you need to
-open in a text editor and make the some edits.
-
-First remove these lines:
-
-```yaml
-allowed_hosts:
-- localhost
-```
-
-Then change this line from false to true:
-
-```yaml
-debug: false
-```
-
-to
-
-```yaml
-debug: true
-```
-
-Change the email backend from `django.core.mail.backends.smtp.EmailBackend` to:
-
-```yaml
-email:
-  ...
-  backend: django.core.mail.backends.console.EmailBackend
-  ...
-```
-
-Change `mq_server` to:
-
-```yaml
-mq_server: redis://127.0.0.1:6379/0
-```
-
-Finally change the database settings to this (Note: just remove everything
-under "default" and replace it with this):
-
-```yaml
-database:
-    default:
-        ENGINE: django.db.backends.sqlite3
-        NAME: db.sqlite3
-```
-
-Now we can "migrate" the database. When dealing with SQL databases you have to
-make tables and adjust columns to match your data model. Migrations apply these
-schema changes in order so the Database is in an expected state. For more info
-here are the [Django
-docs](https://docs.djangoproject.com/en/1.11/topics/migrations/) on the
-subject. To perform the migration run the following command:
-
-```bash
-./manage.py migrate
-```
-
-Now we have added a command to management that allows us to "seed" the database
-with a bunch of test data which is really useful for playing with features. To
-fill the database run this command:
-
-```bash
-./manage.py seeddb
-```
-
-This will create workflow, a couple custom fields, a test project, about 100
-tickets with some comments, and two users "testadmin" (A system administrator)
-and "testuser" (A regular user). The password for both accounts is "test" so
-you can test features that require permissions. Now your development
-environment is all set up you can move on to writing some code!
-
-# Testing, Building, and Running Praelatus
-
-To run praelatus in development mode you use the standard Django `runserver`:
-
-```bash
-./manage.py runserver
-```
-
-Praelatus will now be listening at `localhost:8000` to access it simply
-navigate to that address in your web browser. As you make changes to Praelatus
-runserver will automatically reload them. If you make any changes to models you
-will have to generate migrations and apply them separately however. To do so
-you can use the following commands:
-
-```bash
-./manage.py makemigrations
-./manage.py migrate
-```
-
-Praelatus uses `tox` to run tests on our CI system. If `tox` reports a failure
-we won't merge the PR so to run it locally (which is much faster than waiting
-on Travis) you just have to run:
-
-```bash
-tox
-```
-
-This will lint your code and run the tests, if any failures are reported it
-will show you output that tells you where to look. Address issues as necessary.
-
-# Creating a branch for your work
-
-First read the Praelatus [Git workflow docs](contributing/git_workflow) to
-understand how we manage the project from a VCS perspective before submitting a
-PR but if you follow the steps below you will be on the right track.
-
-Before you change any code you should go ahead and make a branch, if working on
-a feature name your branch for your feature some-cool-feature, if for a bug fix
-name it fix-short-description-of-bug. The command you need to run either way is:
-
-```bash
-git checkout master
-git checkout -b name-of-your-branch
+git remote add fork <your-fork-git-url>
 ```
 
 Now you can make all of the changes to implement your feature or fix the bug
-you're targetting then simply submit a pull request from your fork / branch to
-the main repo's master branch. If you're not familiar with submitting a pull
-request github has some excellent documentation on that
-[here](https://help.github.com/articles/creating-a-pull-request/)
+you're targetting then simply submit a pull request from your fork / branch
+to the main repo's master branch. If you're not familiar with submitting a
+pull request github has some excellent documentation on that
+[here](https://help.github.com/articles/creating-a-pull-request-from-a-fork/).
 
+<span id="running-praelatus"></span>
+# Running Praelatus
+
+Praelatus is a large web app with many external dependencies. To ease
+development and deployment we make use of docker and docker-compose. This
+allows us to run a full production simulation environment using one command.
+It does slightly complicate some infrequent operations required during
+development however, so we provide extensive documentation on how to perform
+various tasks using this docker based system. 
+
+Once you have docker and docker-compose installed you can get a fully
+operational dev environment running with the following command from the root
+of the repository:
+
+```bash 
+docker-compose up 
+```
+
+Praelatus will now be listening at `localhost:8000`. To access it, simply
+navigate to that address in your web browser. As you make changes to
+Praelatus will automatically reload them. If you make any changes to models
+you will have to generate migrations and apply them separately however. The
+section [Migrating Model Changes](#migrating-model-changes) documents
+this process. 
+
+<span id="description-of-containers"></span>
+# Description of Containers
+
+Praelatus development runs using 7 containers. A `docker container list`
+shows the following after starting the app with compose:
+
+```
+CONTAINER ID        IMAGE                  COMMAND                  CREATED             STATUS              PORTS                                NAMES
+ac1922fa9b69        nginx                  "nginx -g 'daemon of…"   3 days ago          Up 7 seconds        0.0.0.0:8000->80/tcp                 praelatus_nginx_1
+4eb59f35443c        praelatus-celery:dev   "celery -A praelatus…"   3 days ago          Up 8 seconds                                             praelatus_celery_1
+a2ea50bb0218        praelatus:dev          "/bin/bash /opt/prae…"   3 days ago          Up 8 seconds                                             praelatus_app_1
+f7373480d601        rabbitmq               "docker-entrypoint.s…"   3 days ago          Up 9 seconds        4369/tcp, 5671-5672/tcp, 25672/tcp   praelatus_rabbitmq_1
+177fa0f04340        postgres               "docker-entrypoint.s…"   3 days ago          Up 9 seconds        5432/tcp                             praelatus_db_1
+972851538db9        praelatus_frontend     "/bin/sh -c 'npm run…"   3 days ago          Up 9 seconds                                             praelatus_frontend_1
+5b36e1fce544        redis                  "docker-entrypoint.s…"   3 days ago          Up 9 seconds        6379/tcp                             praelatus_redis_1
+```
+
+## praelatus_nginx_1
+
+NGINX is used to proxy requests to the gunicorn server as well as serve
+static content. Since static assets for Praelatus are built using webpack
+these changes get reloaded without using the manage.py runserver command.
+
+## praelatus_celery_1
+
+Praelatus uses celery to run async tasks like sending notifications, emails,
+and web hooks. This container is running our celery worker.
+
+## praelatus_app_1
+
+This is the container used to run the actual django application. This container will be needed later if you want to run any manage.py commands. Such as for generating / running database migrations.
+
+## praelatus_db_1
+
+The postgres database used for our development environment.
+
+## praelatus_frontend_1
+
+A node.js container which is running webpack --watch to rebuild static assets like CSS and JavaScript.
+
+## praelatus_redis_1
+
+Redis in memory cache / database used for session storage.
+
+<span id="accessing-shells"></span>
+# Accessing Shells Inside of Containers
+
+Docker allows you to "exec" commands in a running container. You can specify
+the container by it's name. The container names and purposes are all listed
+above. As an example let's say we wanted to generate migrations after changing a
+model. First we connect to the running app container:
+
+```bash
+docker exec -it praelatus_app_1 /bin/bash
+```
+
+> Note: the -it means "interactive" and "pseudo-tty". These flags are
+> required to "attach" the bash shell to your current terminal session.
+
+This will give you a root bash prompt from /opt/praelatus from inside the
+container:
+
+```bash
+python/praelatus master Δ docker exec -it praelatus_app_1 /bin/bash
+root@83309a6b5d55:/opt/praelatus#
+```
+
+From here you can run any manage.py commands you wish. The default system
+python is used (no need for virtualenvs inside a container) and at the time
+of this writing is Python 3.6.4 but will update to the latest Python 3
+version as they are released. For example to generate migrations and to 
+migrate the database you can:
+
+```bash
+root@83309a6b5d55:/opt/praelatus# python manage.py makemigrations
+No changes detected
+root@83309a6b5d55:/opt/praelatus# python manage.py migrate
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, fields, guardian, labels, notifications, profiles, projects, queries, schemes, sessions, tickets, workflows
+Running migrations:
+  No migrations to apply.
+root@83309a6b5d55:/opt/praelatus#
+```
+
+> **Note:** Praelatus automatically migrates and seeds the database (as part
+> of docker-compose.sh) when it starts, but not after the container is running.
+
+Interactive django enabled shells also work, this can be very useful for
+debugging:
+
+```bash
+root@83309a6b5d55:/opt/praelatus# python manage.py shell
+Python 3.6.4 (default, Feb 17 2018, 09:32:33)
+[GCC 4.9.2] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> from tickets.models import Ticket
+>>> Ticket.objects.first()
+<Ticket: Ticket object (1)>
+>>>
+```
+
+Because of how environment variables are passed to the container any
+manage.py commands you run will automatically have the correct config in
+settings.py, no changes required.
+
+# Accessing a Postgres SQL Prompt
+
+Sometimes it is necessary to have access to the actual postgres shell. This can be accomplished with the following command:
+
+```bash
+docker exec -it praelatus_db_1 psql -U postgres -d praelatus
+```
+
+# Running Tests
+
+Praelatus uses the Django standard test command for running tests. Connect to
+the app container as described in 
+[Accessing Shells in Containers](#accessing-shells) and run:
+
+```bash 
+python manage.py test
+```
+
+Additionally, our CI system runs pylint to make sure that code meets our style
+requirements. You can preemptively test this by running pylint from inside the
+same container:
+
+```bash
+pylint -j 4 apps/* praelatus
+```
 
 # Next Steps
 
-Praelatus makes heavy use of
-[Bootstrap v4](https://v4-alpha.getbootstrap.com/getting-started/introduction/)
-and the [Django Web Framework](https://docs.djangoproject.com/en/1.11/) so be
-sure to read up on those. If you're looking for something to work on there is
-always our [issue tracker](https://github.com/praelatus/praelatus/issues) so
-pick an unassigned issue and start cracking!
+Praelatus makes heavy use of [Bootstrap v4](https://v4-alpha.getbootstrap.com/getting-started/introduction/) and the
+[Django Web Framework](https://docs.djangoproject.com/en/1.11/) so be sure to
+read up on those. If you're looking for something to work on there is always
+our [issue tracker](https://github.com/praelatus/praelatus/issues) so pick an
+unassigned issue and start cracking!
 
-If you need additional help or have questions of any kind you can reach out to
-us via email [team@praelatus.io](mailto:team@praelatus.io) or on our [mailing
-lists](http://mail.praelatus.io)
+If you need additional help or have questions of any kind you can reach out
+to Mathew Robinson, the project lead, via email: chasinglogic@gmail.com or 
+on our Discord server: https://discord.gg/juMkygx
+
+<iframe src="https://discordapp.com/widget?id=422495225286623233&theme=dark"
+  width="350" height="500" allowtransparency="true" frameborder="0"></iframe>

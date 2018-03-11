@@ -5,6 +5,7 @@ WORKDIR /opt/praelatus
 
 ADD ./requirements.txt /opt/praelatus/requirements.txt
 RUN pip install -r requirements.txt
+RUN pip install -r requirements.dev.txt
 
 ADD . /opt/praelatus
 
