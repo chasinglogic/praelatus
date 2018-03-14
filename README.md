@@ -25,36 +25,37 @@ Please read our [Contribution Documentation](contributing/) docs first.
 
 Need help getting started hacking on Praelatus? No problem we have docs for that!
 
-- [Contribution Guidelines](http://praelatus.io/#/contributing/)
-- [HACKING](http://praelatus.io/#/hacking/)
-- [REST API Reference](http://praelatus.io/#/api/)
+- [Code of Conduct](https://github.com/praelatus/praelatus/blob/master/docs/contributing/code_of_conduct.md)
+- [Contribution Guidelines](https://github.com/praelatus/praelatus/blob/master/docs/contributing/guidelines.md)
+- [Hacking](https://github.com/praelatus/praelatus/blob/master/docs/contributing/hacking.md)
 
 Need more help? Feel free to [contact](#contact) us!
 
 # Installation
 
-View our deployment guides for your platform:
-- [Linux](http://praelatus.io/#/deployments/Linux)
-- [Windows](http://praelatus.io/#/deployments/Windows)
+See our [installation docs](https://github.com/praelatus/praelatus/tree/master/docs/deployment) 
+for more info.
 
 # License
 
 Praelatus is distributed under the Apache License.
 
 ```
-   Copyright 2016 Mathew Robinson
+    Praelatus, Free and Open Source Ticketing System.
+    Copyright (C) 2018  Mathew Robinson
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-	   http://www.apache.org/licenses/LICENSE-2.0
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ```
 
 
